@@ -2,10 +2,11 @@
  * A to Z Dhamaka — local pass-device 2–6 player categories game.
  * Fully offline, GameChrome, optional persistence. Assisted mode: tap suggestions.
  */
-import { useReducer, useEffect, useRef, useState } from 'react'
-import { useGameTheme } from '../../store/GameThemeContext'
+import { useReducer, useEffect, useRef } from 'react'
+import { useLang } from '../../store/LangContext'
 import { GameChrome } from '../../components/GameChrome'
-import { getSavedState, clearSavedState } from '../../services/gameStatePersistence'
+import { ResumeGate } from '../../components/ResumeGate'
+import { useGamePersistence } from '../../hooks/useGamePersistence'
 import { awardXP } from '../../services/xp'
 import { getInitialState, categoriesReducer, ACTIONS } from './reducer'
 import { hasWord } from './dictionary'
@@ -15,12 +16,16 @@ import { RoundScreen } from './RoundScreen'
 import { RevealScreen } from './RevealScreen'
 import { ResultScreen } from './ResultScreen'
 import { FadeIn } from '../../components/FadeIn'
+import { resolveTitle } from '../../utils/strings'
 
 export default function AtoZDhamaka({ slug, gameTitle }) {
-  const savedState = getSavedState(slug)
-  const [showResumeGate, setShowResumeGate] = useState(!!savedState)
+  const { lang } = useLang()
   const [state, dispatch] = useReducer(categoriesReducer, undefined, getInitialState)
   const xpAwardedRef = useRef(false)
+
+  const { showResumeGate, resume, startNew } = useGamePersistence(slug, (saved) => {
+    dispatch({ type: ACTIONS.RESTORE_STATE, payload: saved })
+  })
 
   // When we enter reveal, compute validMap and duplicateMap then apply scores
   useEffect(() => {
@@ -58,70 +63,27 @@ export default function AtoZDhamaka({ slug, gameTitle }) {
     })
   }, [state.phase, state.players])
 
-  if (showResumeGate && savedState) {
-    const titleStr = typeof gameTitle === 'object' ? (gameTitle.en || gameTitle.hi) : gameTitle
-    return (
-      <ResumeGate
-        gameTitle={titleStr}
-        onResume={() => {
-          dispatch({ type: ACTIONS.RESTORE_STATE, payload: savedState })
-          setShowResumeGate(false)
-        }}
-        onNewGame={() => {
-          clearSavedState(slug)
-          setShowResumeGate(false)
-        }}
-      />
-    )
+  const title = resolveTitle(gameTitle, lang)
+
+  if (showResumeGate) {
+    return <ResumeGate gameTitle={title} onResume={resume} onNewGame={startNew} />
   }
 
-  const title = typeof gameTitle === 'object' ? gameTitle?.en || gameTitle?.hi : gameTitle
-
-  // Fallback if phase is unexpected (e.g. after restore)
   const phase = state.phase || 'setup'
-  const showSetup = phase === 'setup'
-  const showRound = phase === 'round_active'
-  const showReveal = phase === 'reveal'
-  const showResult = phase === 'round_end'
 
   return (
     <GameChrome slug={slug} gameTitle={title} state={state}>
       <FadeIn key={phase}>
-        {showSetup && <SetupScreen state={state} dispatch={dispatch} />}
-        {showRound && <RoundScreen state={state} dispatch={dispatch} />}
-        {showReveal && <RevealScreen state={state} dispatch={dispatch} />}
-        {showResult && <ResultScreen state={state} dispatch={dispatch} />}
-        {!showSetup && !showRound && !showReveal && !showResult && (
+        {phase === 'setup'       && <SetupScreen state={state} dispatch={dispatch} />}
+        {phase === 'round_active' && <RoundScreen state={state} dispatch={dispatch} />}
+        {phase === 'reveal'      && <RevealScreen state={state} dispatch={dispatch} />}
+        {phase === 'round_end'   && <ResultScreen state={state} dispatch={dispatch} />}
+        {!['setup', 'round_active', 'reveal', 'round_end'].includes(phase) && (
           <div className="min-h-screen flex items-center justify-center text-zinc-400">
             <p>Loading…</p>
           </div>
         )}
       </FadeIn>
     </GameChrome>
-  )
-}
-
-function ResumeGate({ gameTitle, onResume, onNewGame }) {
-  const { theme } = useGameTheme()
-  return (
-    <div className={`min-h-screen ${theme.bg} ${theme.text} flex flex-col items-center justify-center px-6 gap-6`}>
-      <p className="text-5xl">⏸</p>
-      <h2 className="text-xl font-bold">{gameTitle}</h2>
-      <p className={theme.textMuted}>Game in progress</p>
-      <div className="flex flex-wrap gap-3 justify-center">
-        <button
-          onClick={onResume}
-          className={`px-6 py-3 rounded-xl font-semibold ${theme.accentBg} ${theme.accentBgHover} text-zinc-900`}
-        >
-          Resume
-        </button>
-        <button
-          onClick={onNewGame}
-          className={`px-6 py-3 rounded-xl border ${theme.border} ${theme.card} ${theme.cardHover} font-semibold`}
-        >
-          New game
-        </button>
-      </div>
-    </div>
   )
 }

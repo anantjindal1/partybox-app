@@ -1,24 +1,29 @@
-import { useReducer, useCallback, useState, useEffect } from 'react'
+import { useReducer, useCallback, useEffect } from 'react'
 import { useLang } from '../../store/LangContext'
-import { useGameTheme } from '../../store/GameThemeContext'
 import { GameChrome } from '../../components/GameChrome'
+import { ResumeGate } from '../../components/ResumeGate'
 import { Button } from '../../components/Button'
-import { getSavedState, clearSavedState } from '../../services/gameStatePersistence'
+import { useGamePersistence } from '../../hooks/useGamePersistence'
+import { clearSavedState } from '../../services/gameStatePersistence'
 import { gameReducer, getInitialState, ACTIONS, prepareWordQueue } from './reducer'
 import { useDCStrings } from './strings'
+import { useGameTheme } from '../../store/GameThemeContext'
 import { SetupScreen } from './SetupScreen'
 import { CategorySelect } from './CategorySelect'
 import { SettingsScreen } from './SettingsScreen'
 import { RoundScreen } from './RoundScreen'
 import { RoundEndScreen, GameEndScreen } from './ResultScreen'
 import { FadeIn } from '../../components/FadeIn'
+import { resolveTitle } from '../../utils/strings'
 
 export default function DumbCharades({ slug, gameTitle }) {
   const { lang, t: tApp } = useLang()
   const t = useDCStrings(lang)
-  const savedState = getSavedState(slug)
-  const [showResumeGate, setShowResumeGate] = useState(!!savedState)
   const [state, dispatch] = useReducer(gameReducer, undefined, getInitialState)
+
+  const { showResumeGate, resume, startNew } = useGamePersistence(slug, (saved) => {
+    dispatch({ type: ACTIONS.RESTORE_STATE, payload: saved })
+  })
 
   useEffect(() => {
     if (state.phase === 'game_end') clearSavedState(slug)
@@ -31,64 +36,30 @@ export default function DumbCharades({ slug, gameTitle }) {
 
   const props = { state, dispatch, t }
 
-  if (showResumeGate && savedState) {
+  if (showResumeGate) {
     return (
       <ResumeGate
-        gameTitle={typeof gameTitle === 'object' ? gameTitle?.en || gameTitle?.hi : gameTitle}
-        t={tApp}
-        onResume={() => {
-          dispatch({ type: ACTIONS.RESTORE_STATE, payload: savedState })
-          setShowResumeGate(false)
-        }}
-        onNewGame={() => {
-          clearSavedState(slug)
-          setShowResumeGate(false)
-        }}
+        gameTitle={resolveTitle(gameTitle, lang)}
+        onResume={resume}
+        onNewGame={startNew}
       />
     )
   }
 
-  const title = typeof gameTitle === 'object' ? gameTitle?.en || gameTitle?.hi : gameTitle
-
   return (
-    <GameChrome slug={slug} gameTitle={title} state={state}>
+    <GameChrome slug={slug} gameTitle={resolveTitle(gameTitle, lang)} state={state}>
       <FadeIn key={state.phase}>
-        {state.phase === 'playing' && <RoundScreen {...props} />}
-        {state.phase === 'team_setup' && <SetupScreen {...props} />}
-        {state.phase === 'category_select' && <CategorySelect {...props} />}
-        {state.phase === 'settings_select' && <SettingsScreen {...props} />}
-        {state.phase === 'round_start' && (
+        {state.phase === 'playing'          && <RoundScreen {...props} />}
+        {state.phase === 'team_setup'       && <SetupScreen {...props} />}
+        {state.phase === 'category_select'  && <CategorySelect {...props} />}
+        {state.phase === 'settings_select'  && <SettingsScreen {...props} />}
+        {state.phase === 'round_start'      && (
           <RoundStartScreen state={state} t={t} onStart={handleStartRound} />
         )}
-        {state.phase === 'round_end' && <RoundEndScreen {...props} />}
-        {state.phase === 'game_end' && <GameEndScreen {...props} />}
+        {state.phase === 'round_end'  && <RoundEndScreen {...props} />}
+        {state.phase === 'game_end'   && <GameEndScreen {...props} />}
       </FadeIn>
     </GameChrome>
-  )
-}
-
-function ResumeGate({ gameTitle, t, onResume, onNewGame }) {
-  const { theme } = useGameTheme()
-  return (
-    <div className={`min-h-screen ${theme.bg} ${theme.text} flex flex-col items-center justify-center px-6 gap-6`}>
-      <p className="text-5xl">⏸</p>
-      <h2 className="text-xl font-bold">{gameTitle}</h2>
-      <p className={theme.textMuted}>{t('gamesInProgress')}</p>
-      <div className="flex flex-wrap gap-3 justify-center">
-        <button
-          onClick={onResume}
-          className={`px-6 py-3 rounded-xl font-semibold ${theme.accentBg} ${theme.accentBgHover} text-zinc-900`}
-        >
-          {t('resumeGame')}
-        </button>
-        <button
-          onClick={onNewGame}
-          className={`px-6 py-3 rounded-xl border ${theme.border} ${theme.card} ${theme.cardHover} font-semibold`}
-        >
-          {t('newGame')}
-        </button>
-      </div>
-    </div>
   )
 }
 
@@ -110,7 +81,6 @@ function RoundStartScreen({ state, t, onStart }) {
         &nbsp;·&nbsp;{settings.timerSeconds}{t('seconds')}
         &nbsp;·&nbsp;{t(settings.difficulty)}
       </p>
-
       <div className="w-full pt-4">
         <Button onClick={onStart}>{t('tapToStart')}</Button>
       </div>

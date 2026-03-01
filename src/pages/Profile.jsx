@@ -84,7 +84,7 @@ export default function Profile() {
         </div>
 
         <Button onClick={handleSave}>
-          {saved ? '✅ Saved!' : 'Save'}
+          {saved ? `✅ ${t('savedSuccess')}` : t('save')}
         </Button>
 
         {/* XP */}
@@ -107,7 +107,7 @@ export default function Profile() {
           <p className="text-zinc-500 text-sm mb-3">{t('badges')}</p>
           {profile.badges.length === 0 ? (
             <div className="bg-zinc-800/60 border border-zinc-700/50 rounded-2xl p-6 text-center">
-              <p className="text-zinc-500">Play games to earn badges!</p>
+              <p className="text-zinc-500">{t('noBadgesYet')}</p>
             </div>
           ) : (
             <div className="flex flex-wrap gap-2">

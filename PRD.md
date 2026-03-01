@@ -2,7 +2,7 @@
 
 ## Overview
 
-PartyBox is an offline-first social microgame container PWA. It lets small groups play casual party games together using a shared room code, with no accounts required. Primary audience: low-literacy, low-bandwidth users on low-end Android devices (guards, maids, travellers).
+PartyBox is an offline-first social microgame container PWA. It ships **8 games**: Lucky Number, Dumb Charades, Tez Hisab, Spot the Jugaad, Desi Memory Master, Bollywood Emoji Guess, Tez Dimaag Challenge (Rapid Fire Quiz), and A to Z Dhamaka. It lets small groups play casual party games together using a shared room code, with no accounts required. Primary audience: low-literacy, low-bandwidth users on low-end Android devices (guards, maids, travellers).
 
 ---
 
@@ -56,7 +56,7 @@ PartyBox is an offline-first social microgame container PWA. It lets small group
 ### F6 — Lucky Number Game
 - Host picks a secret number 1–10
 - All other players submit a guess
-- Host reveals the answer; scores are computed (`score = 100` for exact, decreasing by `5×distance`, min `0`)
+- Host reveals the answer; scores are computed: `score = 100` for exact match, otherwise `max(0, 50 − 5 × |guess − target|)`
 - Winner earns XP
 
 ### F7 — XP & Offline Sync
@@ -168,18 +168,18 @@ PartyBox is an offline-first social microgame container PWA. It lets small group
 ### TC-11 — Lucky Number scoring (near miss)
 **Given** a player guesses `5` and the target is `7`
 **When** `score(5, 7)` is called
-**Then** the result is `40` (`50 - 2×5`)
+**Then** the result is `40` (`max(0, 50 − 2×5)`)
 
 **Acceptance:** Unit — `score(5, 7) === 40`.
 
 ---
 
-### TC-12 — Lucky Number scoring (floor at 0)
+### TC-12 — Lucky Number scoring (minimum score)
 **Given** a player guesses `1` and the target is `10`
 **When** `score(1, 10)` is called
-**Then** the result is `0` (not negative)
+**Then** the result is `5` (`max(0, 50 − 9×5) = 5`; the floor of 0 is never reached within the 1–10 range)
 
-**Acceptance:** Unit — `score(1, 10) === 0`.
+**Acceptance:** Unit — `score(1, 10) === 5`.
 
 ---
 
@@ -268,11 +268,25 @@ PartyBox is an offline-first social microgame container PWA. It lets small group
 ## Definition of Done
 
 - [ ] All test cases pass (automated or manual as noted)
-- [ ] `npm test` → 57/57 Jest tests green
+- [x] `npm test` → 205/205 Jest tests green (updated 2026-03-01)
 - [ ] `npm run build` → exits 0, `dist/sw.js` present
 - [ ] Lighthouse PWA score ≥ 90 on mobile preset
-- [ ] Hindi and English strings complete for all UI labels
+- [x] Hindi and English strings complete for all UI labels (save, noBadgesYet, onlineGames, createRoomFailed added 2026-03-01)
 - [ ] App renders on Chrome Android (low-end device simulation in DevTools)
+
+## Offline Finalisation Fixes (2026-03-01)
+
+| Fix | Status | Notes |
+|-----|--------|-------|
+| `public/offline.html` | ✅ Already existed | Friendly offline page for SW fallback |
+| ErrorBoundary in PlayOffline | ✅ Done | Catches lazy-load chunk failures |
+| Global XP sync (App.jsx) | ✅ Done | `GlobalXPSync` component; runs on all pages |
+| Cypress E2E tests rewritten | ✅ Done | Tests current game-grid Home UI |
+| Lucky Number Create Room | ✅ Done | Online Games section in Home; calls `createRoom()` |
+| Dumb Charades XP + badges | ✅ Already implemented | `GameEndScreen` in ResultScreen.jsx |
+| index.html body bg | ✅ Done | Changed `bg-slate-900` → `bg-zinc-950` |
+| Profile untranslated strings | ✅ Done | Save / noBadgesYet now use `t()` |
+| resolveTitle unit tests | ✅ Done | 8 tests in `src/utils/strings.test.js` |
 
 ---
 
@@ -851,9 +865,11 @@ Player sees emoji clues and must pick the correct Bollywood movie or actor from 
 
 ---
 
-# Feature: Rapid Fire Quiz (v1)
+# Feature: Tez Dimaag Challenge / Rapid Fire Quiz (v1)
 
 **Added:** Offline local multi-player turn-based quiz. No Firebase.
+
+**In-game title:** "Tez Dimaag Challenge" (`slug: rapid-fire-quiz`, file: `TezDimaagChallenge.jsx`).
 
 ## Overview
 
@@ -899,6 +915,8 @@ Player sees emoji clues and must pick the correct Bollywood movie or actor from 
 | Timer | `Timer.jsx` | 60s interval-based countdown using Date.now() |
 | Screens | `SetupScreen`, `RoundScreen`, `RevealScreen`, `ResultScreen` | UI per phase |
 | Top-level | `AtoZDhamaka.jsx` | useReducer + side-effect scoring on reveal |
+
+> **Note:** Source folder is `src/games/categories/` (not `atoz-dhamaka/`).
 
 ## Features
 
@@ -955,6 +973,45 @@ Solo games track the player's all-time high score locally. Displayed on the setu
 
 ---
 
+# Feature: Game State Persistence (v1)
+
+**Added:** Pause and resume in-progress games. Fully offline via localStorage.
+
+## Service
+
+`src/services/gameStatePersistence.js`
+
+- `getSavedState(slug)` → `state | null` — load paused game state
+- `saveGameState(slug, state, gameTitle)` — persist current game state with timestamp
+- `getInProgressGames()` → `[{ slug, gameTitle, savedAt }]` — list all paused games
+- `clearSavedState(slug)` — remove entry after game completes or is abandoned
+- Storage key: `partybox_game_state` (JSON object keyed by slug)
+
+## Features
+
+### F50 — Pause & Resume
+- Any in-progress offline game can be paused (via GameChrome) and resumed later
+- State survives app close / browser refresh (stored in localStorage)
+- Home screen shows "Continue" chip for any saved game
+
+---
+
+# Feature: GameChrome Component (v1)
+
+**Added:** Consistent in-game shell with pause/home navigation and status bar.
+
+`src/components/GameChrome.jsx`
+
+## Features
+
+### F51 — In-Game Chrome
+- Wraps every offline game's phase router
+- Top bar shows a single **🏠 Home** button — saves game state then navigates to `/`
+- Applies game-specific theme background via `GameThemeContext`
+- Also exposes theme switcher and language toggle in the top bar
+
+---
+
 # Feature: Phase Transitions (v1)
 
 **Added:** Subtle CSS animations between game phases.
@@ -977,14 +1034,109 @@ All game screens fade in when a phase changes. Buttons have press feedback. Win 
 
 ---
 
-## Updated Definition of Done (v2)
+## Definition of Done (current)
 
-- [ ] All test cases pass
-- [ ] `npm test` green
-- [ ] `npm run build` exits 0
-- [ ] A to Z Dhamaka: full round flow works (timer counts down correctly, Done button, reveal, result)
-- [ ] Tez Hisab, Spot the Jugaad, Bollywood Emoji Guess: show personal best on setup, "New Record!" on result
+### Automated
+- [ ] `npm test` → all Jest tests green (unit + integration across all 8 games)
+- [ ] `npm run build` → exits 0, `dist/sw.js` present
+
+### Gameplay
+- [ ] All 8 games playable offline (no Firebase required for single-device games)
+- [ ] Lucky Number multiplayer flow: create room → join room → play → results
+- [ ] Dumb Charades: full round flow, swipe detection, timer accuracy within 100ms
+- [ ] Tez Hisab: 15-question session, no repeats, question generation < 20ms
+- [ ] Spot the Jugaad: 10-puzzle session, no duplicate puzzles
+- [ ] Desi Memory Master: flip/match mechanic, personal best persisted per difficulty
+- [ ] Bollywood Emoji Guess: emoji clues display correctly, 10-question session
+- [ ] Tez Dimaag Challenge: turn-based quiz, device-passing flow, 2–6 players
+- [ ] A to Z Dhamaka: letter draw, 4-category input, reveal scoring, result screen
+
+### UX
+- [ ] Tez Hisab, Spot the Jugaad, Bollywood Emoji Guess: personal best on setup screen; "New Record!" on result
 - [ ] All game phase transitions animate with fade-in
-- [ ] Button presses show scale-95 feedback
+- [ ] Button presses show `scale-95` tactile feedback
+- [ ] Pause/resume works: state survives app close for all offline games
 - [ ] Hindi strings complete for all UI labels
-- [ ] App renders on Chrome Android (low-end device simulation)
+
+### PWA
+- [ ] Lighthouse PWA score ≥ 90 on mobile preset
+- [ ] App installable; loads from cache when offline
+- [ ] App renders on Chrome Android (low-end device simulation in DevTools)
+
+---
+
+# Architecture Patterns
+
+This section documents the shared abstractions used across all offline games. New games must use these patterns.
+
+## Shared Components
+
+### `ResumeGate` (`src/components/ResumeGate.jsx`)
+Full-screen overlay shown when a saved game is detected on load.
+```jsx
+<ResumeGate gameTitle={string} onResume={fn} onNewGame={fn} />
+```
+Internally uses `useLang` for strings and `useGameTheme` for styling. Replaces the identical local component that was copy-pasted in each game.
+
+### `GameChrome` (`src/components/GameChrome.jsx`)
+Top-level wrapper for every offline game. Provides the header bar (Home button, theme switcher, language toggle) and a themed container.
+```jsx
+<GameChrome slug={slug} gameTitle={gameTitle} state={state}>
+  {/* phase router */}
+</GameChrome>
+```
+The **Home button** saves state via `saveGameState` then navigates to `/`. There is no separate Pause button — saving is automatic on exit.
+
+### `FadeIn` (`src/components/FadeIn.jsx`)
+Animates children on mount. Set `key` to the phase name to re-trigger on phase change. Gameplay sub-phases (e.g. `question_show`/`answer_selected`) share the same key to avoid re-animating within a question.
+
+## Shared Hooks
+
+### `useGamePersistence(slug, onRestore)` (`src/hooks/useGamePersistence.js`)
+Encapsulates save/resume boilerplate. Used by every offline game.
+```js
+const { showResumeGate, resume, startNew } = useGamePersistence(slug, (saved) => {
+  dispatch({ type: ACTIONS.RESTORE_STATE, payload: saved })
+})
+// Render: if (showResumeGate) return <ResumeGate ... onResume={resume} onNewGame={startNew} />
+```
+
+### `useSessionXP({ phase, endPhase, score, slug, computeXP })` (`src/hooks/useSessionXP.js`)
+Fires exactly once when `phase === endPhase`. Awards XP, checks high score, clears saved state.
+Used by: TezHisab, SpotTheJugaad, BollywoodEmojiGuess.
+```js
+const { isNewRecord } = useSessionXP({
+  phase: state.phase, endPhase: 'session_end',
+  score: state.score, slug,
+  computeXP: () => calculateSessionXP(...)
+})
+```
+
+## Shared Utilities
+
+### `resolveTitle(gameTitle, lang)` (`src/utils/strings.js`)
+Converts `{ en, hi }` title objects or plain strings to a locale string.
+```js
+resolveTitle({ en: 'Tez Hisab', hi: 'तेज़ हिसाब' }, 'hi') // → 'तेज़ हिसाब'
+resolveTitle('Lucky Number', 'hi')                          // → 'Lucky Number'
+```
+
+## Code Splitting
+
+All 8 game components are loaded via `React.lazy()` in `src/games/registry.js`. `PlayOffline` wraps them in `<Suspense>`. Each game is a separate JS chunk — initial bundle does not include any game code.
+
+## Game Component Contract
+
+Every offline game component receives:
+```js
+{ slug: string, gameTitle: string | { en: string, hi: string } }
+```
+It is responsible for its own state machine, persistence (via `useGamePersistence`), and XP (via `useSessionXP` or direct `awardXP`). It renders inside `<GameChrome>`.
+
+## Adding a New Offline Game
+
+1. Create `src/games/<slug>/` with: `metadata.js`, `reducer.js`, `scoring.js`, `<GameName>.jsx`, screen components
+2. `metadata.js` must export `{ slug, title: { en, hi }, icon, minPlayers, maxPlayers, singleDevice: true, offline: true }`
+3. Top-level component uses `useGamePersistence` + `ResumeGate` + `GameChrome`
+4. Register in `registry.js` with `React.lazy(() => import('./<slug>/<GameName>.jsx'))`
+5. Reducer must handle `RESTORE_STATE` action

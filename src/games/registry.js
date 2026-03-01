@@ -1,29 +1,33 @@
+import { lazy } from 'react'
 import luckyNumberMeta from './lucky-number/metadata'
-import LuckyNumber from './lucky-number/index.jsx'
 import dumbCharadesMeta from './dumb-charades/metadata'
-import DumbCharades from './dumb-charades/DumbCharades.jsx'
 import tezHisabMeta from './tez-hisab/metadata.js'
-import TezHisab from './tez-hisab/TezHisab.jsx'
 import spotTheJugaadMeta from './spot-the-jugaad/metadata.js'
-import SpotTheJugaad from './spot-the-jugaad/SpotTheJugaad.jsx'
 import desiMemoryMasterMeta from './desi-memory-master/metadata.js'
-import DesiMemoryMaster from './desi-memory-master/DesiMemoryMaster.jsx'
 import bollywoodEmojiGuessMeta from './bollywood-emoji-guess/metadata.js'
-import BollywoodEmojiGuess from './bollywood-emoji-guess/BollywoodEmojiGuess.jsx'
 import rapidFireQuizMeta from './rapid-fire-quiz/metadata.js'
-import TezDimaagChallenge from './rapid-fire-quiz/TezDimaagChallenge.jsx'
 import categoriesMeta from './categories/metadata.js'
-import AtoZDhamaka from './categories/AtoZDhamaka.jsx'
+
+// Lazy-loaded game components — each game is a separate JS chunk.
+// This keeps the initial bundle small for low-end devices.
+const LuckyNumber       = lazy(() => import('./lucky-number/index.jsx'))
+const DumbCharades      = lazy(() => import('./dumb-charades/DumbCharades.jsx'))
+const TezHisab          = lazy(() => import('./tez-hisab/TezHisab.jsx'))
+const SpotTheJugaad     = lazy(() => import('./spot-the-jugaad/SpotTheJugaad.jsx'))
+const DesiMemoryMaster  = lazy(() => import('./desi-memory-master/DesiMemoryMaster.jsx'))
+const BollywoodEmojiGuess = lazy(() => import('./bollywood-emoji-guess/BollywoodEmojiGuess.jsx'))
+const TezDimaagChallenge  = lazy(() => import('./rapid-fire-quiz/TezDimaagChallenge.jsx'))
+const AtoZDhamaka         = lazy(() => import('./categories/AtoZDhamaka.jsx'))
 
 export const games = [
-  { ...luckyNumberMeta, Component: LuckyNumber },
-  { ...dumbCharadesMeta, Component: DumbCharades },
-  { ...tezHisabMeta, Component: TezHisab },
-  { ...spotTheJugaadMeta, Component: SpotTheJugaad },
-  { ...desiMemoryMasterMeta, Component: DesiMemoryMaster },
+  { ...luckyNumberMeta,        Component: LuckyNumber },
+  { ...dumbCharadesMeta,       Component: DumbCharades },
+  { ...tezHisabMeta,           Component: TezHisab },
+  { ...spotTheJugaadMeta,      Component: SpotTheJugaad },
+  { ...desiMemoryMasterMeta,   Component: DesiMemoryMaster },
   { ...bollywoodEmojiGuessMeta, Component: BollywoodEmojiGuess },
-  { ...rapidFireQuizMeta, Component: TezDimaagChallenge },
-  { ...categoriesMeta, Component: AtoZDhamaka }
+  { ...rapidFireQuizMeta,      Component: TezDimaagChallenge },
+  { ...categoriesMeta,         Component: AtoZDhamaka }
 ]
 
 export function getGame(slug) {

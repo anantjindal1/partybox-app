@@ -5,25 +5,30 @@ import { useReducer, useEffect, useRef, useState } from 'react'
 import { useLang } from '../../store/LangContext'
 import { useGameTheme } from '../../store/GameThemeContext'
 import { GameChrome } from '../../components/GameChrome'
-import { getSavedState, clearSavedState } from '../../services/gameStatePersistence'
+import { ResumeGate } from '../../components/ResumeGate'
+import { useGamePersistence } from '../../hooks/useGamePersistence'
+import { clearSavedState } from '../../services/gameStatePersistence'
 import { awardXP } from '../../services/xp'
 import { getInitialState, desiMemoryMasterReducer, ACTIONS, isGameComplete } from './reducer'
 import { generateBoard } from './boardUtils'
-import { calculateFinalScore, calculateXP } from './scoring'
-import { getBests, updateBests } from './persistence'
+import { calculateXP } from './scoring'
+import { updateBests } from './persistence'
 import { SetupScreen } from './SetupScreen'
 import { Board } from './Board'
 import { ResultScreen } from './ResultScreen'
 import { FadeIn } from '../../components/FadeIn'
+import { resolveTitle } from '../../utils/strings'
 
 export default function DesiMemoryMaster({ slug, gameTitle }) {
-  const { t, lang } = useLang()
-  const savedState = getSavedState(slug)
-  const [showResumeGate, setShowResumeGate] = useState(!!savedState)
+  const { lang } = useLang()
   const [state, dispatch] = useReducer(desiMemoryMasterReducer, undefined, getInitialState)
   const matchCheckTimeoutRef = useRef(null)
   const timerRef = useRef(null)
   const completedRef = useRef(false)
+
+  const { showResumeGate, resume, startNew } = useGamePersistence(slug, (saved) => {
+    dispatch({ type: ACTIONS.RESTORE_STATE, payload: saved })
+  })
 
   // When entering board_generate, generate board and dispatch GENERATE_BOARD (reducer stays pure)
   useEffect(() => {
@@ -33,7 +38,7 @@ export default function DesiMemoryMaster({ slug, gameTitle }) {
     dispatch({ type: ACTIONS.GENERATE_BOARD, payload: { board, startTime } })
   }, [state.phase, state.difficulty, state.theme])
 
-  // When 2 cards flipped, run CHECK_MATCH then after 800ms RESET_FLIPPED (UI handles delay)
+  // When 2 cards flipped, run CHECK_MATCH
   useEffect(() => {
     if (state.phase !== 'playing') return
     const flipped = state.flippedIndices || []
@@ -89,25 +94,11 @@ export default function DesiMemoryMaster({ slug, gameTitle }) {
     ? now - state.startTime
     : (state.elapsedTime ?? 0)
 
-  if (showResumeGate && savedState) {
-    const titleStr = typeof gameTitle === 'object' ? (gameTitle.en || gameTitle.hi) : gameTitle
-    return (
-      <ResumeGate
-        gameTitle={titleStr}
-        t={t}
-        onResume={() => {
-          dispatch({ type: ACTIONS.RESTORE_STATE, payload: savedState })
-          setShowResumeGate(false)
-        }}
-        onNewGame={() => {
-          clearSavedState(slug)
-          setShowResumeGate(false)
-        }}
-      />
-    )
-  }
+  const title = resolveTitle(gameTitle, lang)
 
-  const title = typeof gameTitle === 'object' ? gameTitle?.en || gameTitle?.hi : gameTitle
+  if (showResumeGate) {
+    return <ResumeGate gameTitle={title} onResume={resume} onNewGame={startNew} />
+  }
 
   return (
     <GameChrome slug={slug} gameTitle={title} state={state}>
@@ -132,31 +123,6 @@ export default function DesiMemoryMaster({ slug, gameTitle }) {
         )}
       </FadeIn>
     </GameChrome>
-  )
-}
-
-function ResumeGate({ gameTitle, t, onResume, onNewGame }) {
-  const { theme } = useGameTheme()
-  return (
-    <div className={`min-h-screen ${theme.bg} ${theme.text} flex flex-col items-center justify-center px-6 gap-6`}>
-      <p className="text-5xl">⏸</p>
-      <h2 className="text-xl font-bold">{gameTitle}</h2>
-      <p className={theme.textMuted}>{t('gamesInProgress')}</p>
-      <div className="flex flex-wrap gap-3 justify-center">
-        <button
-          onClick={onResume}
-          className={`px-6 py-3 rounded-xl font-semibold ${theme.accentBg} ${theme.accentBgHover} text-zinc-900`}
-        >
-          {t('resumeGame')}
-        </button>
-        <button
-          onClick={onNewGame}
-          className={`px-6 py-3 rounded-xl border ${theme.border} ${theme.card} ${theme.cardHover} font-semibold`}
-        >
-          {t('newGame')}
-        </button>
-      </div>
-    </div>
   )
 }
 

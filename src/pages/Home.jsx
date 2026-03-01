@@ -19,9 +19,12 @@ export default function Home() {
   const [joinCode, setJoinCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [roomLoading, setRoomLoading] = useState(false)
+  const [roomError, setRoomError] = useState('')
 
-  // Playable offline games from registry; then "Coming Soon" placeholders
+  // Playable offline games from registry; online (room-based) games shown separately
   const playableGames = games.filter(g => g.singleDevice)
+  const onlineGames = games.filter(g => !g.singleDevice)
   const inProgressGames = getInProgressGames()
 
   function handlePlayGame(game) {
@@ -32,6 +35,20 @@ export default function Home() {
     }
     if (!profile) return
     navigate(`/play/${game.slug}`)
+  }
+
+  async function handleCreateRoom(game) {
+    if (!online || !profile) return
+    setRoomLoading(true)
+    setRoomError('')
+    try {
+      const code = await createRoom(profile.id, profile.name, game.slug)
+      navigate(`/room/${code}`)
+    } catch (e) {
+      setRoomError(t('createRoomFailed'))
+    } finally {
+      setRoomLoading(false)
+    }
   }
 
   async function handleJoinRoom() {
@@ -75,7 +92,7 @@ export default function Home() {
 
       {!online && (
         <div className="mx-4 sm:mx-6 mt-3 py-2 px-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-medium text-center">
-          📴 Offline mode — play Dumb Charades anytime
+          📴 Offline mode — all games work offline
         </div>
       )}
 
@@ -144,6 +161,44 @@ export default function Home() {
             </div>
           ))}
         </div>
+
+        {/* Online multiplayer games */}
+        {onlineGames.length > 0 && (
+          <div className="mt-10">
+            <p className="text-zinc-500 text-sm font-medium mb-4 uppercase tracking-wider">
+              {t('onlineGames')}
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-3xl">
+              {onlineGames.map(game => (
+                <button
+                  key={game.slug}
+                  onClick={() => handleCreateRoom(game)}
+                  disabled={!online || !profile || roomLoading}
+                  className="group flex flex-col items-center justify-center p-6 rounded-2xl bg-zinc-800/90 border border-zinc-700/50 hover:border-blue-500/40 hover:bg-zinc-800 transition-all duration-200 text-left min-h-[160px] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="text-4xl sm:text-5xl mb-3 block" aria-hidden>
+                    {game.icon}
+                  </span>
+                  <span className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">
+                    {game.title[lang]}
+                  </span>
+                  <span className="text-xs text-zinc-500 mt-1">
+                    {game.minPlayers}–{game.maxPlayers} {t('players')}
+                  </span>
+                  <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-400">
+                    {roomLoading ? '...' : `📡 ${t('createRoom')}`}
+                  </span>
+                  {!online && (
+                    <span className="mt-1 text-xs text-zinc-500">{t('needsInternet')}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+            {roomError && (
+              <p className="mt-3 text-red-400 text-sm text-center">{roomError}</p>
+            )}
+          </div>
+        )}
 
         {/* Join Room — small secondary action below grid */}
         <div className="mt-10 flex flex-col items-center">

@@ -5,15 +5,15 @@ import { useGameTheme } from '../store/GameThemeContext'
 import { saveGameState } from '../services/gameStatePersistence'
 
 /**
- * Shared chrome for offline games: Pause, Return to Home, language toggle, theme selector.
- * Renders children inside a themed wrapper. Pause/Home both save state and navigate home.
+ * Shared chrome for offline games: Home button (saves state), language toggle, theme selector.
+ * Renders children inside a themed wrapper.
  */
 export function GameChrome({ slug, gameTitle, state, children }) {
   const navigate = useNavigate()
   const { t } = useLang()
   const { theme } = useGameTheme()
 
-  function handlePauseOrHome() {
+  function handleHome() {
     if (slug && state) {
       saveGameState(slug, state, gameTitle)
     }
@@ -22,24 +22,15 @@ export function GameChrome({ slug, gameTitle, state, children }) {
 
   return (
     <div className={`min-h-screen ${theme.bg} ${theme.text} flex flex-col`}>
-      {/* Top bar: Pause, Home, theme, language */}
+      {/* Top bar: Home (saves state), theme switcher, language toggle */}
       <header className={`flex items-center justify-between px-4 py-3 ${theme.border} border-b`}>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handlePauseOrHome}
-            className={`px-4 py-2 rounded-xl ${theme.card} ${theme.cardHover} ${theme.text} text-sm font-semibold border ${theme.border}`}
-            aria-label={t('pause')}
-          >
-            ⏸ {t('pause')}
-          </button>
-          <button
-            onClick={handlePauseOrHome}
-            className={`px-4 py-2 rounded-xl ${theme.card} ${theme.cardHover} ${theme.text} text-sm font-semibold border ${theme.border}`}
-            aria-label={t('returnHome')}
-          >
-            🏠 {t('returnHome')}
-          </button>
-        </div>
+        <button
+          onClick={handleHome}
+          className={`px-4 py-2 rounded-xl ${theme.card} ${theme.cardHover} ${theme.text} text-sm font-semibold border ${theme.border}`}
+          aria-label={t('returnHome')}
+        >
+          🏠 {t('returnHome')}
+        </button>
         <div className="flex items-center gap-2">
           <ThemeSwitcher />
           <LangToggle />

@@ -30,7 +30,13 @@ const strings = {
     resume: 'Resume',
     newGame: 'New Game',
     resumeGame: 'Resume Game',
-    gamesInProgress: 'Continue playing'
+    gamesInProgress: 'Continue playing',
+    save: 'Save',
+    savedSuccess: 'Saved!',
+    noBadgesYet: 'Play games to earn badges!',
+    onlineGames: 'Online Games',
+    needsInternet: 'Needs internet',
+    createRoomFailed: 'Failed to create room. Check your connection.'
   },
   hi: {
     createRoom: 'कमरा बनाएं',
@@ -61,7 +67,13 @@ const strings = {
     resume: 'जारी रखें',
     newGame: 'नया खेल',
     resumeGame: 'खेल जारी रखें',
-    gamesInProgress: 'खेल जारी रखें'
+    gamesInProgress: 'खेल जारी रखें',
+    save: 'सेव करें',
+    savedSuccess: 'सेव हो गया!',
+    noBadgesYet: 'बैज कमाने के लिए खेलें!',
+    onlineGames: 'ऑनलाइन गेम',
+    needsInternet: 'इंटरनेट चाहिए',
+    createRoomFailed: 'कमरा नहीं बना। कनेक्शन जाँचें।'
   }
 }
 
