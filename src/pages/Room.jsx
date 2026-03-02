@@ -1,8 +1,10 @@
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { LangToggle } from '../components/LangToggle'
 import { RoomCode } from '../components/RoomCode'
 import { Button } from '../components/Button'
 import { ConnectionOverlay } from '../components/ConnectionOverlay'
+import { ReactionBar } from '../components/ReactionBar'
 import { useLang } from '../store/LangContext'
 import { useRoom } from '../hooks/useRoom'
 import { useProfile } from '../hooks/useProfile'
@@ -17,9 +19,37 @@ export default function Room() {
   const room = useRoom(code)
   const { profile } = useProfile()
   const connected = useOnlineStatus()
+  const [countdown, setCountdown] = useState(null)
 
-  // useOnlineRoom for host controls (kick, end game)
-  const { isHost, kickPlayer, endGame, expired } = useOnlineRoom(code)
+  // useOnlineRoom for host controls (kick, end game) and roomState
+  const { isHost, kickPlayer, endGame, expired, roomState } = useOnlineRoom(code)
+
+  // Auto-close room after results phase starts (duration configurable per-game via resultsDurationMs)
+  useEffect(() => {
+    if (roomState?.phase !== 'results') return
+    const game = getGame(room?.gameSlug)
+    const duration = game?.resultsDurationMs ?? 10_000
+    const seconds = Math.round(duration / 1000)
+    setCountdown(seconds)
+    const interval = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(interval)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+    const close = setTimeout(async () => {
+      await endGame()
+      navigate('/')
+    }, duration)
+    return () => {
+      clearInterval(interval)
+      clearTimeout(close)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomState?.phase])
 
   if (expired) {
     return (
@@ -69,6 +99,15 @@ export default function Room() {
           ← {t('back')}
         </button>
         <div className="flex items-center gap-3">
+          {room.roomType === 'ranked' ? (
+            <span className="text-xs font-semibold text-amber-400 border border-amber-500/40 rounded-lg px-2 py-1">
+              🏆 {t('rankedRoom')}
+            </span>
+          ) : (
+            <span className="text-xs font-semibold text-zinc-400 border border-zinc-700/60 rounded-lg px-2 py-1">
+              🎲 {t('casualRoom')}
+            </span>
+          )}
           {isHost && room.status !== 'waiting' && (
             <button
               onClick={handleEndGame}
@@ -80,6 +119,13 @@ export default function Room() {
           <LangToggle />
         </div>
       </header>
+
+      {/* Results countdown banner */}
+      {countdown !== null && (
+        <div className="mx-4 sm:mx-6 mt-3 py-2 px-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm font-medium text-center">
+          {t('roomClosesIn')} {countdown}s
+        </div>
+      )}
 
       <div className="px-4 sm:px-6 pt-6 pb-4">
         <RoomCode code={code} />
@@ -112,6 +158,8 @@ export default function Room() {
           ))}
         </div>
       </div>
+
+      <ReactionBar roomCode={code} />
 
       {/* Waiting state */}
       {room.status === 'waiting' && room.players.length < (game?.minPlayers ?? 2) && (

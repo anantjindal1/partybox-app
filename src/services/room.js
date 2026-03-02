@@ -25,12 +25,13 @@ export function isRoomExpired(room) {
   return Date.now() - room.createdAt.toMillis() > ROOM_TTL_MS
 }
 
-export async function createRoom(hostId, hostName, gameSlug, hostAvatar) {
+export async function createRoom(hostId, hostName, gameSlug, hostAvatar, roomType = 'casual') {
   const code = generateCode()
   await setDoc(doc(db, 'rooms', code), {
     code,
     hostId,
     gameSlug,
+    roomType,
     players: [{ id: hostId, name: hostName, avatar: hostAvatar ?? '🎲' }],
     status: 'waiting',
     state: {},
@@ -67,7 +68,12 @@ export function subscribeToActions(code, callback) {
 
 export async function writeAction(code, playerId, action) {
   const ref = doc(db, 'rooms', code, 'actions', playerId)
-  await setDoc(ref, { playerId, action, ts: serverTimestamp() })
+  await setDoc(ref, {
+    playerId,
+    type: action.type,
+    payload: action.payload,
+    createdAt: serverTimestamp()
+  })
 }
 
 export async function clearActions(code) {

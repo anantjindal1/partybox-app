@@ -4,10 +4,11 @@ import { db } from '../firebase'
 import { doc, setDoc } from 'firebase/firestore'
 import { generateId } from '../utils/id'
 
-export async function awardXP(amount) {
+export async function awardXP(amount, roomType = 'casual') {
+  const multiplied = roomType === 'ranked' ? Math.round(amount * 1.2) : amount
   // 1. Write locally
   const profile = await getProfile()
-  const updated = await saveProfile({ xp: profile.xp + amount })
+  const updated = await saveProfile({ xp: profile.xp + multiplied })
 
   // 2. Queue sync
   const idb = await getDB()

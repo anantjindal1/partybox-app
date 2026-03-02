@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useLang } from '../../store/LangContext'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
 import { getProfile } from '../../services/profile'
+import { awardXP } from '../../services/xp'
+import { writeGameStats } from '../../services/stats'
 
 const OPS = [
   { symbol: '+', label: '+', key: '+' },
@@ -32,17 +34,20 @@ export default function NumberChain({ code }) {
     getProfile().then(setProfile)
   }, [])
 
-  // Host processes incoming CHANGE actions
+  // Host processes incoming CHANGE actions (flat schema)
   useEffect(() => {
     if (!isHost || actions.length === 0 || roomState.phase !== 'playing') return
-    const sorted = [...actions].sort((a, b) => (a.ts?.seconds || 0) - (b.ts?.seconds || 0))
+    const sorted = [...actions].sort(
+      (a, b) => (a.createdAt?.seconds ?? 0) - (b.createdAt?.seconds ?? 0)
+    )
     let current = roomState.currentNumber
     const newEntries = []
+    const newScores = { ...(roomState.scores ?? {}) }
     let lastBy = roomState.lastChangedBy
     let lastByName = roomState.lastChangedByName
-    for (const { playerId, action } of sorted) {
-      if (action.type !== 'CHANGE') continue
-      const { operation, value, playerName } = action.payload
+    for (const { playerId, type, payload } of sorted) {
+      if (type !== 'CHANGE') continue
+      const { operation, value, playerName } = payload
       const from = current
       if (operation === '+') current = from + value
       else if (operation === '-') current = from - value
@@ -51,6 +56,7 @@ export default function NumberChain({ code }) {
       else continue
       lastBy = playerId
       lastByName = playerName
+      newScores[playerId] = (newScores[playerId] ?? 0) + 1
       newEntries.push({
         playerId,
         playerName,
@@ -66,11 +72,27 @@ export default function NumberChain({ code }) {
       currentNumber: current,
       lastChangedBy: lastBy,
       lastChangedByName: lastByName,
+      scores: newScores,
       log: [...(roomState.log || []), ...newEntries],
     })
     clearActions()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actions])
+
+  // Client-side game end: award XP + stats when phase transitions to 'results'
+  useEffect(() => {
+    if (roomState.phase !== 'results' || !myId) return
+    const scores = roomState.scores ?? {}
+    const myScore = scores[myId] ?? 0
+    const maxScore = Math.max(...Object.values(scores), 0)
+    const isWinner = myScore > 0 && myScore === maxScore
+
+    awardXP(myScore, room?.roomType)
+    if (room?.roomType === 'ranked') {
+      writeGameStats('number-chain', { won: isWinner, gamesPlayed: 1 })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomState.phase])
 
   if (!room || !myId) {
     return (
@@ -90,6 +112,7 @@ export default function NumberChain({ code }) {
       currentNumber: n,
       lastChangedBy: myId,
       lastChangedByName: playerName,
+      scores: {},
       log: [{ playerId: myId, playerName, operation: `= ${n}`, from: null, to: n, ts: Date.now() }],
     })
   }

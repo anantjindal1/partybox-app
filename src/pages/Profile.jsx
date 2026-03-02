@@ -1,18 +1,45 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/Button'
 import { LangToggle } from '../components/LangToggle'
 import { useLang } from '../store/LangContext'
 import { useProfile } from '../hooks/useProfile'
+import { useOnlineStatus } from '../hooks/useOnlineStatus'
+import { db } from '../firebase'
+import { collection, getDocs } from 'firebase/firestore'
+import { games } from '../games/registry'
 
 const AVATARS = ['🎲', '🎮', '🃏', '🎯', '🎪', '🎭', '🦁', '🐯', '🦊', '🐻', '🐸', '🦄']
 
+// Online game slugs that track stats in Firestore
+const ONLINE_GAME_SLUGS = games
+  .filter(g => !g.singleDevice)
+  .map(g => g.slug)
+
 export default function Profile() {
   const navigate = useNavigate()
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const { profile, update } = useProfile()
+  const online = useOnlineStatus()
   const [name, setName] = useState('')
   const [saved, setSaved] = useState(false)
+  const [gameStats, setGameStats] = useState(null)
+  const [statsLoading, setStatsLoading] = useState(false)
+
+  // Fetch per-game Firestore stats when online
+  useEffect(() => {
+    if (!online || !profile || !db) return
+    setStatsLoading(true)
+    getDocs(collection(db, 'profiles', profile.id, 'stats'))
+      .then(snap => {
+        const data = {}
+        snap.forEach(doc => { data[doc.id] = doc.data() })
+        setGameStats(data)
+      })
+      .catch(() => setGameStats(null))
+      .finally(() => setStatsLoading(false))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [online, profile?.id])
 
   if (!profile) {
     return (
@@ -32,8 +59,10 @@ export default function Profile() {
     await update({ avatar })
   }
 
-  const xpToNextLevel = 500
-  const xpPct = Math.min(100, (profile.xp / xpToNextLevel) * 100)
+  // Level: floor(xp / 100) + 1
+  const level = Math.floor(profile.xp / 100) + 1
+  const xpInLevel = profile.xp % 100
+  const xpPct = xpInLevel  // already 0–99 → treat as percent
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col">
@@ -87,19 +116,25 @@ export default function Profile() {
           {saved ? `✅ ${t('savedSuccess')}` : t('save')}
         </Button>
 
-        {/* XP */}
+        {/* XP + Level */}
         <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-5">
-          <div className="flex justify-between mb-2">
-            <span className="text-zinc-400 font-semibold">{t('xp')}</span>
-            <span className="text-amber-400 font-bold">{profile.xp}</span>
+          <div className="flex justify-between items-start mb-3">
+            <div>
+              <span className="text-zinc-400 font-semibold block">{t('xp')}</span>
+              <span className="text-2xl font-black text-amber-400">{profile.xp}</span>
+            </div>
+            <div className="text-right">
+              <span className="text-zinc-500 text-xs block">{t('level')}</span>
+              <span className="text-3xl font-black text-white">{level}</span>
+            </div>
           </div>
-          <div className="bg-zinc-700 rounded-full h-4 overflow-hidden">
+          <div className="bg-zinc-700 rounded-full h-3 overflow-hidden">
             <div
               className="bg-amber-400 h-full rounded-full transition-all"
               style={{ width: `${xpPct}%` }}
             />
           </div>
-          <p className="text-zinc-500 text-xs mt-1 text-right">{profile.xp} / {xpToNextLevel}</p>
+          <p className="text-zinc-500 text-xs mt-1 text-right">{xpInLevel} / 100 XP to next level</p>
         </div>
 
         {/* Badges */}
@@ -117,6 +152,57 @@ export default function Profile() {
             </div>
           )}
         </div>
+
+        {/* Game stats (online only) */}
+        {online && ONLINE_GAME_SLUGS.length > 0 && (
+          <div>
+            <p className="text-zinc-500 text-sm mb-3 uppercase tracking-wider">Game Stats</p>
+            {statsLoading ? (
+              <div className="grid grid-cols-2 gap-3">
+                {ONLINE_GAME_SLUGS.map(slug => (
+                  <div
+                    key={slug}
+                    className="bg-zinc-800/60 border border-zinc-700/50 rounded-2xl p-4 animate-pulse h-24"
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                {ONLINE_GAME_SLUGS.map(slug => {
+                  const g = games.find(g => g.slug === slug)
+                  const stats = gameStats?.[slug] ?? null
+                  const title = typeof g?.title === 'object'
+                    ? (g.title[lang] ?? g.title.en)
+                    : (g?.title ?? slug)
+                  return (
+                    <div
+                      key={slug}
+                      className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-4"
+                    >
+                      <p className="text-zinc-400 text-xs font-semibold mb-2 truncate">
+                        {g?.icon} {title}
+                      </p>
+                      {stats ? (
+                        <div className="space-y-1">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-zinc-500">{t('wins')}</span>
+                            <span className="text-amber-400 font-bold">{stats.wins ?? 0}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-zinc-500">{t('gamesPlayed')}</span>
+                            <span className="text-zinc-300 font-bold">{stats.gamesPlayed ?? 0}</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-zinc-600 text-xs">No games yet</p>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

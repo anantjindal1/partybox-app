@@ -6,6 +6,7 @@ import { rules } from './rules'
 import { score } from './scoring'
 import { awardXP } from '../../services/xp'
 import { awardBadge } from '../../services/profile'
+import { writeGameStats } from '../../services/stats'
 
 export default function LuckyNumber({ code }) {
   const { lang, t } = useLang()
@@ -27,17 +28,33 @@ export default function LuckyNumber({ code }) {
   const myGuess = guesses[myId]
   const hasSubmitted = myGuess !== undefined
 
-  // Host merges player guesses from actions subcollection
+  // Host merges player guesses from actions subcollection (flat schema)
   useEffect(() => {
     if (!isHost || !actions.length) return
     const merged = {}
     actions.forEach(a => {
-      if (a.action?.type === 'GUESS') merged[a.playerId] = a.action.payload
+      if (a.type === 'GUESS') merged[a.playerId] = a.payload
     })
     if (!Object.keys(merged).length) return
     setState({ ...roomState, guesses: { ...guesses, ...merged } })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actions, isHost])
+
+  // Client-side game end: award XP + stats when phase transitions to 'results'
+  useEffect(() => {
+    if (roomState.phase !== 'results' || !myId) return
+    const scores = roomState.scores ?? {}
+    const myScore = scores[myId] ?? 0
+    const maxScore = Math.max(...Object.values(scores), 0)
+    const isWinner = myScore > 0 && myScore === maxScore
+
+    awardXP(myScore, room?.roomType)
+    if (room?.roomType === 'ranked') {
+      writeGameStats('lucky-number', { won: isWinner, gamesPlayed: 1 })
+    }
+    if (isWinner) awardBadge('luckyGuesser')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomState.phase])
 
   if (!room || !myId) {
     return (
@@ -49,7 +66,7 @@ export default function LuckyNumber({ code }) {
 
   async function handleHostPick(num) {
     await clearActions()
-    await setState({ target: num, guesses: {}, revealed: false })
+    await setState({ target: num, guesses: {}, revealed: false, phase: 'playing' })
   }
 
   async function handleSubmitGuess(num) {
@@ -57,28 +74,19 @@ export default function LuckyNumber({ code }) {
   }
 
   async function handleReveal() {
-    await setState({ ...roomState, revealed: true })
-    // Award XP + badge to winner
-    if (target !== undefined) {
-      const nonHosts = players.filter(p => p.id !== room.hostId)
-      let bestScore = -1
-      let winner = null
-      for (const p of nonHosts) {
-        if (guesses[p.id] !== undefined) {
-          const s = score(guesses[p.id], target)
-          if (s > bestScore) { bestScore = s; winner = p.id }
-        }
+    // Compute scores for all non-host players
+    const scores = {}
+    players.filter(p => p.id !== room.hostId).forEach(p => {
+      if (guesses[p.id] !== undefined) {
+        scores[p.id] = score(guesses[p.id], target)
       }
-      if (winner === myId) {
-        await awardXP(bestScore)
-        await awardBadge('luckyGuesser')
-      }
-    }
+    })
+    await setState({ ...roomState, revealed: true, scores, phase: 'results' })
   }
 
   async function handleNewRound() {
     await clearActions()
-    await setState({ target: undefined, guesses: {}, revealed: false })
+    await setState({ target: undefined, guesses: {}, revealed: false, phase: 'picking' })
   }
 
   return (
@@ -153,7 +161,7 @@ export default function LuckyNumber({ code }) {
             {players.map(p => {
               if (p.id === room.hostId) return null
               const g = guesses[p.id]
-              const s = g !== undefined ? score(g, target) : 0
+              const s = roomState.scores?.[p.id] ?? (g !== undefined ? score(g, target) : 0)
               return (
                 <div key={p.id} className="flex justify-between items-center bg-slate-700 rounded-xl px-4 py-3">
                   <span className="text-white font-semibold">{p.name}</span>

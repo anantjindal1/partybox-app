@@ -82,6 +82,7 @@ test('createRoom calls setDoc with correct shape', async () => {
   expect(docData).toMatchObject({
     hostId: 'host-123',
     gameSlug: 'lucky-number',
+    roomType: 'casual',
     players: [{ id: 'host-123', name: 'Alice', avatar: '🦊' }],
     status: 'waiting',
     state: {}
@@ -89,6 +90,15 @@ test('createRoom calls setDoc with correct shape', async () => {
   expect(typeof docData.code).toBe('string')
   expect(docData.code).toHaveLength(4)
   expect(code).toBe(docData.code)
+})
+
+test('createRoom stores roomType when provided', async () => {
+  setDoc.mockResolvedValueOnce(undefined)
+
+  await createRoom('host-123', 'Alice', 'lucky-number', '🦊', 'ranked')
+
+  const [, docData] = setDoc.mock.calls[0]
+  expect(docData.roomType).toBe('ranked')
 })
 
 test('createRoom generates uppercase alphanumeric code', async () => {
@@ -152,7 +162,7 @@ test('subscribeToRoom calls onSnapshot and invokes callback with room data', () 
 
 test('subscribeToActions calls onSnapshot on actions subcollection', () => {
   const fakeActions = [
-    { playerId: 'p1', action: { type: 'GUESS', payload: 7 }, ts: {} }
+    { playerId: 'p1', type: 'GUESS', payload: 7, createdAt: {} }
   ]
   onSnapshot.mockImplementation((ref, cb) => {
     cb({ docs: fakeActions.map(a => ({ data: () => a })) })
@@ -168,7 +178,7 @@ test('subscribeToActions calls onSnapshot on actions subcollection', () => {
 
 // ─── writeAction ──────────────────────────────────────────────────────────────
 
-test('writeAction calls setDoc on actions subcollection doc', async () => {
+test('writeAction calls setDoc on actions subcollection doc with flat schema', async () => {
   setDoc.mockResolvedValueOnce(undefined)
 
   await writeAction('ABCD', 'player-1', { type: 'GUESS', payload: 5 })
@@ -178,8 +188,12 @@ test('writeAction calls setDoc on actions subcollection doc', async () => {
   expect(ref.path).toBe('rooms/ABCD/actions/player-1')
   expect(data).toMatchObject({
     playerId: 'player-1',
-    action: { type: 'GUESS', payload: 5 }
+    type: 'GUESS',
+    payload: 5
   })
+  // Ensure old nested shape is gone
+  expect(data.action).toBeUndefined()
+  expect(data.ts).toBeUndefined()
 })
 
 // ─── clearActions ─────────────────────────────────────────────────────────────

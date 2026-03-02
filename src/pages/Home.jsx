@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LangToggle } from '../components/LangToggle'
+import { CreateRoomSheet } from '../components/CreateRoomSheet'
 import { useLang } from '../store/LangContext'
 import { useProfile } from '../hooks/useProfile'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
 import { games } from '../games/registry'
-import { createRoom, joinRoom } from '../services/room'
+import { joinRoom } from '../services/room'
 import { getInProgressGames } from '../services/gameStatePersistence'
 
 const COMING_SOON_SLOTS = 0
@@ -19,8 +20,7 @@ export default function Home() {
   const [joinCode, setJoinCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [roomLoading, setRoomLoading] = useState(false)
-  const [roomError, setRoomError] = useState('')
+  const [selectedGame, setSelectedGame] = useState(null)
 
   // Playable offline games from registry; online (room-based) games shown separately
   const playableGames = games.filter(g => g.singleDevice)
@@ -35,20 +35,6 @@ export default function Home() {
     }
     if (!profile) return
     navigate(`/play/${game.slug}`)
-  }
-
-  async function handleCreateRoom(game) {
-    if (!online || !profile) return
-    setRoomLoading(true)
-    setRoomError('')
-    try {
-      const code = await createRoom(profile.id, profile.name, game.slug)
-      navigate(`/room/${code}`)
-    } catch (e) {
-      setRoomError(t('createRoomFailed'))
-    } finally {
-      setRoomLoading(false)
-    }
   }
 
   async function handleJoinRoom() {
@@ -67,6 +53,12 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col">
+      {selectedGame && (
+        <CreateRoomSheet
+          game={selectedGame}
+          onClose={() => setSelectedGame(null)}
+        />
+      )}
       {/* Top bar: logo, profile, language */}
       <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-zinc-800/80">
         <div className="flex items-center gap-3">
@@ -172,8 +164,8 @@ export default function Home() {
               {onlineGames.map(game => (
                 <button
                   key={game.slug}
-                  onClick={() => handleCreateRoom(game)}
-                  disabled={!online || !profile || roomLoading}
+                  onClick={() => online && profile && setSelectedGame(game)}
+                  disabled={!online || !profile}
                   className="group flex flex-col items-center justify-center p-6 rounded-2xl bg-zinc-800/90 border border-zinc-700/50 hover:border-blue-500/40 hover:bg-zinc-800 transition-all duration-200 text-left min-h-[160px] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="text-4xl sm:text-5xl mb-3 block" aria-hidden>
@@ -186,7 +178,7 @@ export default function Home() {
                     {game.minPlayers}–{game.maxPlayers} {t('players')}
                   </span>
                   <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-400">
-                    {roomLoading ? '...' : `📡 ${t('createRoom')}`}
+                    📡 {t('createRoom')}
                   </span>
                   {!online && (
                     <span className="mt-1 text-xs text-zinc-500">{t('needsInternet')}</span>
@@ -194,9 +186,6 @@ export default function Home() {
                 </button>
               ))}
             </div>
-            {roomError && (
-              <p className="mt-3 text-red-400 text-sm text-center">{roomError}</p>
-            )}
           </div>
         )}
 

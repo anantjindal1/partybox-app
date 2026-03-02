@@ -55,13 +55,32 @@ beforeEach(() => {
   jest.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
 })
 
-test('awardXP increments profile xp locally', async () => {
+test('awardXP increments profile xp locally (casual, no multiplier)', async () => {
   const { saveProfile } = await import('../src/services/profile')
 
   const newXp = await awardXP(50)
 
   expect(newXp).toBe(50)
   expect(saveProfile).toHaveBeenCalledWith({ xp: 50 })
+})
+
+test('awardXP applies 1.2x multiplier for ranked rooms', async () => {
+  const { saveProfile } = await import('../src/services/profile')
+  saveProfile.mockClear()
+
+  const newXp = await awardXP(100, 'ranked')
+
+  expect(newXp).toBe(120)
+  expect(saveProfile).toHaveBeenCalledWith({ xp: 120 })
+})
+
+test('awardXP rounds ranked XP to nearest integer', async () => {
+  const { saveProfile } = await import('../src/services/profile')
+  saveProfile.mockClear()
+
+  await awardXP(50, 'ranked') // 50 * 1.2 = 60 exact
+
+  expect(saveProfile).toHaveBeenCalledWith({ xp: 60 })
 })
 
 test('awardXP queues sync entry in idb', async () => {

@@ -8,6 +8,7 @@ import bollywoodEmojiGuessMeta from './bollywood-emoji-guess/metadata.js'
 import rapidFireQuizMeta from './rapid-fire-quiz/metadata.js'
 import categoriesMeta from './categories/metadata.js'
 import numberChainMeta from './number-chain/metadata.js'
+import rapidFireBattleMeta from './rapid-fire-battle/metadata.js'
 
 // Lazy-loaded game components — each game is a separate JS chunk.
 // This keeps the initial bundle small for low-end devices.
@@ -20,17 +21,19 @@ const BollywoodEmojiGuess = lazy(() => import('./bollywood-emoji-guess/Bollywood
 const TezDimaagChallenge  = lazy(() => import('./rapid-fire-quiz/TezDimaagChallenge.jsx'))
 const AtoZDhamaka         = lazy(() => import('./categories/AtoZDhamaka.jsx'))
 const NumberChain         = lazy(() => import('./number-chain/index.jsx'))
+const RapidFireBattle     = lazy(() => import('./rapid-fire-battle/index.jsx'))
 
 export const games = [
-  { ...luckyNumberMeta,        Component: LuckyNumber },
-  { ...numberChainMeta,        Component: NumberChain },
-  { ...dumbCharadesMeta,       Component: DumbCharades },
-  { ...tezHisabMeta,           Component: TezHisab },
-  { ...spotTheJugaadMeta,      Component: SpotTheJugaad },
-  { ...desiMemoryMasterMeta,   Component: DesiMemoryMaster },
+  { ...luckyNumberMeta,         Component: LuckyNumber },
+  { ...numberChainMeta,         Component: NumberChain },
+  { ...rapidFireBattleMeta,     Component: RapidFireBattle },
+  { ...dumbCharadesMeta,        Component: DumbCharades },
+  { ...tezHisabMeta,            Component: TezHisab },
+  { ...spotTheJugaadMeta,       Component: SpotTheJugaad },
+  { ...desiMemoryMasterMeta,    Component: DesiMemoryMaster },
   { ...bollywoodEmojiGuessMeta, Component: BollywoodEmojiGuess },
-  { ...rapidFireQuizMeta,      Component: TezDimaagChallenge },
-  { ...categoriesMeta,         Component: AtoZDhamaka }
+  { ...rapidFireQuizMeta,       Component: TezDimaagChallenge },
+  { ...categoriesMeta,          Component: AtoZDhamaka }
 ]
 
 export function getGame(slug) {
