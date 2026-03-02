@@ -7,6 +7,7 @@ import desiMemoryMasterMeta from './desi-memory-master/metadata.js'
 import bollywoodEmojiGuessMeta from './bollywood-emoji-guess/metadata.js'
 import rapidFireQuizMeta from './rapid-fire-quiz/metadata.js'
 import categoriesMeta from './categories/metadata.js'
+import numberChainMeta from './number-chain/metadata.js'
 
 // Lazy-loaded game components — each game is a separate JS chunk.
 // This keeps the initial bundle small for low-end devices.
@@ -18,9 +19,11 @@ const DesiMemoryMaster  = lazy(() => import('./desi-memory-master/DesiMemoryMast
 const BollywoodEmojiGuess = lazy(() => import('./bollywood-emoji-guess/BollywoodEmojiGuess.jsx'))
 const TezDimaagChallenge  = lazy(() => import('./rapid-fire-quiz/TezDimaagChallenge.jsx'))
 const AtoZDhamaka         = lazy(() => import('./categories/AtoZDhamaka.jsx'))
+const NumberChain         = lazy(() => import('./number-chain/index.jsx'))
 
 export const games = [
   { ...luckyNumberMeta,        Component: LuckyNumber },
+  { ...numberChainMeta,        Component: NumberChain },
   { ...dumbCharadesMeta,       Component: DumbCharades },
   { ...tezHisabMeta,           Component: TezHisab },
   { ...spotTheJugaadMeta,      Component: SpotTheJugaad },

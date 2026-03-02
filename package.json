@@ -11,7 +11,7 @@
     "cypress": "cypress open"
   },
   "dependencies": {
-    "firebase": "^10.14.0",
+    "firebase": "^10.14.1",
     "idb": "^8.0.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",

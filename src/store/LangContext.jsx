@@ -36,7 +36,19 @@ const strings = {
     noBadgesYet: 'Play games to earn badges!',
     onlineGames: 'Online Games',
     needsInternet: 'Needs internet',
-    createRoomFailed: 'Failed to create room. Check your connection.'
+    createRoomFailed: 'Failed to create room. Check your connection.',
+    connectionLost: 'Connection lost — Reconnecting...',
+    luckyGuesser: '🔢 Lucky Guesser',
+    endGame: 'End Game',
+    removePlayer: 'Remove',
+    roomExpired: 'Room has expired. Please create a new room.',
+    kickedFromRoom: 'You were removed from the room.',
+    pickStartNumber: 'Pick a starting number (1–999)',
+    startChain: 'Start Chain',
+    waitingForStart: 'Waiting for host to pick a starting number…',
+    changeLog: 'Change Log',
+    applyChange: 'Apply',
+    noChangesYet: 'No changes yet.'
   },
   hi: {
     createRoom: 'कमरा बनाएं',
@@ -73,7 +85,19 @@ const strings = {
     noBadgesYet: 'बैज कमाने के लिए खेलें!',
     onlineGames: 'ऑनलाइन गेम',
     needsInternet: 'इंटरनेट चाहिए',
-    createRoomFailed: 'कमरा नहीं बना। कनेक्शन जाँचें।'
+    createRoomFailed: 'कमरा नहीं बना। कनेक्शन जाँचें।',
+    connectionLost: 'कनेक्शन टूट गया — फिर से जोड़ रहे हैं...',
+    luckyGuesser: '🔢 भाग्यशाली अनुमानकर्ता',
+    endGame: 'खेल खत्म करें',
+    removePlayer: 'हटाएं',
+    roomExpired: 'कमरा समाप्त हो गया। नया कमरा बनाएं।',
+    kickedFromRoom: 'आपको कमरे से हटा दिया गया।',
+    pickStartNumber: 'शुरुआती नंबर चुनें (1–999)',
+    startChain: 'चेन शुरू करें',
+    waitingForStart: 'होस्ट के नंबर चुनने का इंतज़ार…',
+    changeLog: 'बदलाव लॉग',
+    applyChange: 'लागू करें',
+    noChangesYet: 'अभी कोई बदलाव नहीं।'
   }
 }
 

@@ -1140,3 +1140,93 @@ It is responsible for its own state machine, persistence (via `useGamePersistenc
 3. Top-level component uses `useGamePersistence` + `ResumeGate` + `GameChrome`
 4. Register in `registry.js` with `React.lazy(() => import('./<slug>/<GameName>.jsx'))`
 5. Reducer must handle `RESTORE_STATE` action
+
+---
+
+## Online Gameplay Module (added 2026-03-01)
+
+### Identity
+
+Device UUID (`localStorage partybox_device_id`) is the authoritative player identity across sessions. Generated once with `crypto.randomUUID()`. Name is the social identity visible to others.
+
+**Migration**: on first load after upgrade, if UUID key is absent but `'guest'` key exists in IDB, the legacy profile is copied to the UUID key and the old key is deleted.
+
+```js
+// src/services/profile.js
+getDeviceId()   // returns/creates UUID in localStorage
+getProfile()    // loads by UUID, migrates legacy guest profile
+awardBadge(badgeId)   // adds badge if not already present
+```
+
+### Firestore Schema
+
+```
+/rooms/{code}
+  ├─ code, hostId, gameSlug, status ('waiting'|'playing'|'ended')
+  ├─ players: [{ id, name, avatar }]
+  ├─ state: object   ← authoritative game state, written by host
+  └─ createdAt: serverTimestamp
+
+/rooms/{code}/actions/{playerId}
+  ├─ playerId, action: { type, payload }, ts: serverTimestamp
+```
+
+### Event Bus Pattern
+
+All clients send actions → host merges into `room.state`. Clients never write `state` directly.
+
+```
+Player sendAction({ type:'GUESS', payload:7 })
+  → Firestore actions/{playerId}
+  → Host useEffect([actions]) merges → setState(newState)
+  → All clients' room snapshot fires → UI re-renders
+```
+
+### `useOnlineRoom(code)` — plug-in contract
+
+Every online game calls this hook. Props change from `({ room, playerId })` → `({ code })`.
+
+```js
+const {
+  room,         // full room document
+  roomState,    // room.state — authoritative shared game state
+  actions,      // [{ playerId, action, ts }] from actions subcollection
+  sendAction,   // (action) → writes to rooms/{code}/actions/{myId}
+  setState,     // (newState) → writes to room.state (host only)
+  clearActions, // () → batch delete all action docs
+  endGame,      // () → deleteRoom (host only)
+  kickPlayer,   // (playerId) → arrayRemove from players (host only)
+  isHost,       // boolean
+  players,      // room.players
+  connected,    // boolean from useOnlineStatus
+  expired,      // true if room > 2 h old
+  myId          // current device UUID
+} = useOnlineRoom(code)
+```
+
+### Room Lifecycle
+
+| Event | Who | Effect |
+|-------|-----|--------|
+| Create room | Host | `createRoom(hostId, name, slug, avatar)` → random 4-char code |
+| Join room | Player | `joinRoom(code, id, name, avatar)` — throws `'room-expired'` if stale |
+| End game | Host | `endGame()` → `deleteDoc` → all clients navigate home |
+| Kick player | Host | `kickPlayer(playerId)` → `arrayRemove` from `players` (waiting phase only) |
+| Room expiry | Any client | `isRoomExpired(room)`: `Date.now() - createdAt > 2h` → UI shows error |
+
+### Reconnect UX
+
+`<ConnectionOverlay connected={useOnlineStatus()} />` is rendered in Room.jsx. When offline, shows a fixed semi-transparent overlay: "📴 Connection lost — Reconnecting..."
+
+### Badge Awards
+
+Declare `onlineBadge: { id, emoji }` in a game's `metadata.js`. Call `awardBadge(badgeId)` after win. Badge stored in IDB profile `badges` array (deduplication built-in).
+
+### Adding a New Online Game
+
+1. Create game component accepting `({ code })` prop
+2. Call `useOnlineRoom(code)` — destructure what you need
+3. Host writes `setState(...)`, players write `sendAction(...)`
+4. On round end (host): `clearActions()`, award XP/badge to winner
+5. Add `onlineBadge` to `metadata.js` if applicable
+6. Register in `registry.js` with `React.lazy(...)`

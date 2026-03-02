@@ -5,7 +5,7 @@ import { useLang } from '../store/LangContext'
 import { useProfile } from '../hooks/useProfile'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
 import { games } from '../games/registry'
-import { joinRoom } from '../services/room'
+import { createRoom, joinRoom } from '../services/room'
 import { getInProgressGames } from '../services/gameStatePersistence'
 
 const COMING_SOON_SLOTS = 0
