@@ -14,6 +14,31 @@ npm run dev
 
 ---
 
+## Run automated playbook (watch each test in the browser)
+
+You can run E2E tests that mirror many of the checks below **one by one in the browser** (no manual clicking).
+
+1. **Start the dev server** (in one terminal):
+   ```bash
+   npm run dev
+   ```
+2. **Run the playbook with browser visible** (in another terminal):
+   ```bash
+   npm run test:playbook
+   ```
+   **Step-through (one test per click):** Run `npm run test:playbook:step`. Cypress Runner opens; choose E2E, Chrome, open tests-playbook.cy.js, then click "Run all tests". Before every test the run pauses—click "Resume" to run that test. Or use `npx cypress open` and click individual test names in the sidebar to run one at a time.
+
+   **Slower (see each visit/click):** To add a delay after every navigation and click so you can watch the UI, run:
+   ```bash
+   npm run test:playbook:slow
+   ```
+   This uses an 800 ms pause after each visit and click. Use a different delay (in ms) with:
+   `CYPRESS_SLOW_MO=1200 npm run test:playbook:step`
+
+The automated spec lives in `cypress/e2e/tests-playbook.cy.js` and covers §0 (global smoke), §1 (offline games opening, A to Z flow), §3 (profile), and §5 (regression). Jest unit tests are unchanged: run `npm test` separately.
+
+---
+
 ## 0. Global Smoke Checks
 
 **Before testing individual games**, verify the app shell and core systems.

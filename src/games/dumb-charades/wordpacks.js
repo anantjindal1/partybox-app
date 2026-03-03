@@ -6,7 +6,7 @@ const bollywoodMovies = {
   label: { en: 'Bollywood Movies', hi: 'बॉलीवुड फ़िल्में' },
   icon: '🎬',
   words: [
-    // Easy (25)
+    // Easy (65)
     { word: 'Sholay', difficulty: 'easy' },
     { word: 'DDLJ', difficulty: 'easy' },
     { word: '3 Idiots', difficulty: 'easy' },
@@ -32,7 +32,47 @@ const bollywoodMovies = {
     { word: 'Baahubali', difficulty: 'easy' },
     { word: 'Pushpa', difficulty: 'easy' },
     { word: 'Shershaah', difficulty: 'easy' },
-    // Medium (35)
+    { word: 'Jab We Met', difficulty: 'easy' },
+    { word: 'Dil Wale', difficulty: 'easy' },
+    { word: 'Kaho Na Pyaar Hai', difficulty: 'easy' },
+    { word: 'Student of the Year', difficulty: 'easy' },
+    { word: 'Kick', difficulty: 'easy' },
+    { word: 'Bang Bang', difficulty: 'easy' },
+    { word: 'Race', difficulty: 'easy' },
+    { word: 'Action Replayy', difficulty: 'easy' },
+    { word: 'Ek Tha Tiger', difficulty: 'easy' },
+    { word: 'Fan', difficulty: 'easy' },
+    { word: 'Bodyguard', difficulty: 'easy' },
+    { word: 'Dhamaal', difficulty: 'easy' },
+    { word: 'Welcome', difficulty: 'easy' },
+    { word: 'Partner', difficulty: 'easy' },
+    { word: 'Grand Masti', difficulty: 'easy' },
+    { word: 'Fukrey', difficulty: 'easy' },
+    { word: 'Bol Bachchan', difficulty: 'easy' },
+    { word: 'Son of Sardaar', difficulty: 'easy' },
+    { word: 'Tanu Weds Manu', difficulty: 'easy' },
+    { word: 'Prem Ratan Dhan Payo', difficulty: 'easy' },
+    { word: 'Bajirao Mastani', difficulty: 'easy' },
+    { word: 'Padmaavat', difficulty: 'easy' },
+    { word: 'Gully Boy', difficulty: 'easy' },
+    { word: 'Article 15', difficulty: 'easy' },
+    { word: 'War', difficulty: 'easy' },
+    { word: 'Tanhaji', difficulty: 'easy' },
+    { word: 'Sooryavanshi', difficulty: 'easy' },
+    { word: 'Bell Bottom', difficulty: 'easy' },
+    { word: 'Atrangi Re', difficulty: 'easy' },
+    { word: 'Radhe Shyam', difficulty: 'easy' },
+    { word: 'KGF', difficulty: 'easy' },
+    { word: 'RRR', difficulty: 'easy' },
+    { word: 'Pathaan', difficulty: 'easy' },
+    { word: 'Jawan', difficulty: 'easy' },
+    { word: 'Animal', difficulty: 'easy' },
+    { word: 'Dunki', difficulty: 'easy' },
+    { word: 'Tiger 3', difficulty: 'easy' },
+    { word: 'Fighter', difficulty: 'easy' },
+    { word: 'Kalki 2898 AD', difficulty: 'easy' },
+    { word: 'Stree 2', difficulty: 'easy' },
+    // Medium (85)
     { word: 'Zindagi Na Milegi Dobara', difficulty: 'medium' },
     { word: 'Bajrangi Bhaijaan', difficulty: 'medium' },
     { word: 'Sultan', difficulty: 'medium' },
@@ -63,12 +103,62 @@ const bollywoodMovies = {
     { word: 'Andhadhun', difficulty: 'medium' },
     { word: 'Kesari', difficulty: 'medium' },
     { word: 'Super 30', difficulty: 'medium' },
-    { word: 'War', difficulty: 'medium' },
-    { word: 'KGF', difficulty: 'medium' },
-    { word: 'RRR', difficulty: 'medium' },
-    { word: 'Pathaan', difficulty: 'medium' },
-    { word: 'Jawan', difficulty: 'medium' },
-    // Hard (20)
+    { word: 'Yeh Jawaani Hai Deewani', difficulty: 'medium' },
+    { word: 'Kapoor and Sons', difficulty: 'medium' },
+    { word: 'Kai Po Che', difficulty: 'medium' },
+    { word: 'Gangs of Wasseypur 2', difficulty: 'medium' },
+    { word: 'Madaari', difficulty: 'medium' },
+    { word: 'Rustom', difficulty: 'medium' },
+    { word: 'Wazir', difficulty: 'medium' },
+    { word: 'M.S. Dhoni Untold Story', difficulty: 'medium' },
+    { word: 'Dangal', difficulty: 'medium' },
+    { word: 'Secret Superstar', difficulty: 'medium' },
+    { word: 'Thugs of Hindostan', difficulty: 'medium' },
+    { word: 'Zero', difficulty: 'medium' },
+    { word: 'Simmba', difficulty: 'medium' },
+    { word: 'Mission Mangal', difficulty: 'medium' },
+    { word: 'Bard of Blood', difficulty: 'medium' },
+    { word: 'Guilty', difficulty: 'medium' },
+    { word: 'Dil Bechara', difficulty: 'medium' },
+    { word: 'Shakuntala Devi', difficulty: 'medium' },
+    { word: 'Ludo', difficulty: 'medium' },
+    { word: 'Mirzapur', difficulty: 'medium' },
+    { word: 'Scam 1992', difficulty: 'medium' },
+    { word: 'Maharani', difficulty: 'medium' },
+    { word: 'Haseen Dillruba', difficulty: 'medium' },
+    { word: 'Sardar Udham', difficulty: 'medium' },
+    { word: 'Sherni', difficulty: 'medium' },
+    { word: 'Bhuj', difficulty: 'medium' },
+    { word: 'Bhoot Police', difficulty: 'medium' },
+    { word: 'Bunty Aur Babli 2', difficulty: 'medium' },
+    { word: 'Antim', difficulty: 'medium' },
+    { word: 'Chandigarh Kare Aashiqui', difficulty: 'medium' },
+    { word: 'Gehraiyaan', difficulty: 'medium' },
+    { word: 'Badhaai Do', difficulty: 'medium' },
+    { word: 'Dhamaka', difficulty: 'medium' },
+    { word: 'The Family Man', difficulty: 'medium' },
+    { word: 'Panchayat', difficulty: 'medium' },
+    { word: 'Aspirants', difficulty: 'medium' },
+    { word: 'Rocket Boys', difficulty: 'medium' },
+    { word: 'Jai Bhim', difficulty: 'medium' },
+    { word: 'Sarpatta Parambarai', difficulty: 'medium' },
+    { word: 'Minnal Murali', difficulty: 'medium' },
+    { word: 'Shiddat', difficulty: 'medium' },
+    { word: 'Lucknow Central', difficulty: 'medium' },
+    { word: 'Mardaani', difficulty: 'medium' },
+    { word: 'Badla', difficulty: 'medium' },
+    { word: 'Bala', difficulty: 'medium' },
+    { word: 'Dream Girl', difficulty: 'medium' },
+    { word: 'Chhalaang', difficulty: 'medium' },
+    { word: 'Toofaan', difficulty: 'medium' },
+    { word: 'Pagglait', difficulty: 'medium' },
+    { word: 'Mimi', difficulty: 'medium' },
+    { word: 'Sardar Ka Grandson', difficulty: 'medium' },
+    { word: 'Roohi', difficulty: 'medium' },
+    { word: 'Saina', difficulty: 'medium' },
+    { word: 'Mumbai Saga', difficulty: 'medium' },
+    { word: 'Radhe', difficulty: 'medium' },
+    // Hard (55)
     { word: 'Jaane Bhi Do Yaaro', difficulty: 'hard' },
     { word: 'Maqbool', difficulty: 'hard' },
     { word: 'Haider', difficulty: 'hard' },
@@ -88,7 +178,42 @@ const bollywoodMovies = {
     { word: 'Sahib Bibi Aur Ghulam', difficulty: 'hard' },
     { word: 'Do Ankhen Barah Haath', difficulty: 'hard' },
     { word: 'Kaun', difficulty: 'hard' },
-    { word: 'Gulaal', difficulty: 'hard' }
+    { word: 'Gulaal', difficulty: 'hard' },
+    { word: 'Ship of Theseus', difficulty: 'hard' },
+    { word: 'Titli', difficulty: 'hard' },
+    { word: 'Court', difficulty: 'hard' },
+    { word: 'Visaranai', difficulty: 'hard' },
+    { word: 'Kammatipaadam', difficulty: 'hard' },
+    { word: 'Lucia', difficulty: 'hard' },
+    { word: 'Ondu Motteya Kathe', difficulty: 'hard' },
+    { word: 'Ulidavaru Kandanthe', difficulty: 'hard' },
+    { word: 'Peepli Live', difficulty: 'hard' },
+    { word: 'Aamir', difficulty: 'hard' },
+    { word: 'Gulabi Talkies', difficulty: 'hard' },
+    { word: 'Oye Lucky', difficulty: 'hard' },
+    { word: 'Bheja Fry', difficulty: 'hard' },
+    { word: 'Khosla Ka Ghosla', difficulty: 'hard' },
+    { word: 'Do Dooni Chaar', difficulty: 'hard' },
+    { word: 'Tere Bin Laden', difficulty: 'hard' },
+    { word: 'Band Baaja Baaraat', difficulty: 'hard' },
+    { word: 'Vicky Donor', difficulty: 'hard' },
+    { word: 'Kai Po Che', difficulty: 'hard' },
+    { word: 'The Lunchbox', difficulty: 'hard' },
+    { word: 'Dedh Ishqiya', difficulty: 'hard' },
+    { word: 'Highway', difficulty: 'hard' },
+    { word: 'Finding Fanny', difficulty: 'hard' },
+    { word: 'Titoo MBA', difficulty: 'hard' },
+    { word: 'NH10', difficulty: 'hard' },
+    { word: 'Manjhi', difficulty: 'hard' },
+    { word: 'Parched', difficulty: 'hard' },
+    { word: 'Aligarh', difficulty: 'hard' },
+    { word: 'Mirzya', difficulty: 'hard' },
+    { word: 'Mukkabaaz', difficulty: 'hard' },
+    { word: 'Laila Majnu', difficulty: 'hard' },
+    { word: 'Sonchiriya', difficulty: 'hard' },
+    { word: 'Photograph', difficulty: 'hard' },
+    { word: 'Bombay Rose', difficulty: 'hard' },
+    { word: 'Choked', difficulty: 'hard' },
   ]
 }
 
@@ -464,7 +589,13 @@ export const wordpacks = [
   professions
 ]
 
-export function buildWordQueue(categorySlugs, difficulty) {
+/**
+ * Build a word pool from selected categories and difficulty.
+ * @param {string[]} categorySlugs - which packs to include
+ * @param {string} difficulty - 'easy' | 'medium' | 'hard'
+ * @param {string[]} customWords - extra words always included (any difficulty)
+ */
+export function buildWordQueue(categorySlugs, difficulty, customWords = []) {
   const diffPool = {
     easy: ['easy'],
     medium: ['easy', 'medium'],
@@ -472,10 +603,11 @@ export function buildWordQueue(categorySlugs, difficulty) {
   }
   const allowed = new Set(diffPool[difficulty] ?? ['easy'])
 
-  const words = wordpacks
+  const packWords = wordpacks
     .filter(pack => categorySlugs.includes(pack.slug))
     .flatMap(pack => pack.words.filter(w => allowed.has(w.difficulty)).map(w => w.word))
 
-  // Deduplicate
-  return [...new Set(words)]
+  // Merge custom words (always included, deduplicated)
+  const all = [...packWords, ...customWords]
+  return [...new Set(all)]
 }

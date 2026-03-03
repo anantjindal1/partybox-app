@@ -2,10 +2,11 @@ import {
   gameReducer,
   getInitialState,
   shuffleArray,
+  prepareWordQueue,
   ACTIONS
 } from '../src/games/dumb-charades/reducer'
 import { buildWordQueue } from '../src/games/dumb-charades/wordpacks'
-import { calcRoundScore } from '../src/games/dumb-charades/scoring'
+import { calcXP, findWinners } from '../src/games/dumb-charades/scoring'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -14,34 +15,27 @@ function makePlayingState(overrides = {}) {
     ...getInitialState(),
     phase: 'playing',
     wordQueue: ['Sholay', 'DDLJ', '3 Idiots', 'PK', 'Singham'],
-    currentWordIndex: 0,
-    roundCorrect: 0,
-    roundPassed: 0,
-    wordTimings: [],
-    wordStartTime: 1000,
+    currentTeamIndex: 0,
+    teams: [
+      { id: 't0', name: 'Team 1', score: 0 },
+      { id: 't1', name: 'Team 2', score: 0 }
+    ],
+    settings: { ...getInitialState().settings, winPoints: 5 },
     ...overrides
   }
 }
 
-function makeRoundEndState(overrides = {}) {
+function makeActorPrepState(overrides = {}) {
   return {
     ...getInitialState(),
-    phase: 'round_end',
-    roundCorrect: 3,
-    roundPassed: 1,
-    wordTimings: [
-      { word: 'Sholay', timeTaken: 2000, result: 'correct' },
-      { word: 'DDLJ', timeTaken: 3000, result: 'correct' },
-      { word: '3 Idiots', timeTaken: null, result: 'pass' },
-      { word: 'PK', timeTaken: 1500, result: 'correct' }
-    ],
-    teams: [
-      { id: 't0', name: 'Team 1', score: 0, roundHistory: [] },
-      { id: 't1', name: 'Team 2', score: 0, roundHistory: [] }
-    ],
+    phase: 'actor_prep',
+    wordQueue: ['Sholay', 'DDLJ', '3 Idiots', 'PK', 'Singham'],
+    replacementsLeft: 3,
     currentTeamIndex: 0,
-    roundNumber: 1,
-    settings: { ...getInitialState().settings, roundsPerTeam: 2 },
+    teams: [
+      { id: 't0', name: 'Team 1', score: 0 },
+      { id: 't1', name: 'Team 2', score: 0 }
+    ],
     ...overrides
   }
 }
@@ -70,7 +64,7 @@ describe('shuffleArray', () => {
   })
 })
 
-// ─── buildWordQueue + deduplication ─────────────────────────────────────────
+// ─── buildWordQueue ──────────────────────────────────────────────────────────
 
 describe('buildWordQueue', () => {
   test('returns only easy words when difficulty is easy', () => {
@@ -97,14 +91,38 @@ describe('buildWordQueue', () => {
     expect(unique.size).toBe(words.length)
   })
 
-  test('empty categories returns empty array', () => {
+  test('empty categories returns only custom words', () => {
     expect(buildWordQueue([], 'easy')).toEqual([])
+    const withCustom = buildWordQueue([], 'easy', ['MyMovie'])
+    expect(withCustom).toEqual(['MyMovie'])
   })
 
   test('combines words from multiple categories', () => {
     const single = buildWordQueue(['bollywood-movies'], 'easy')
     const multi = buildWordQueue(['bollywood-movies', 'animals'], 'easy')
     expect(multi.length).toBeGreaterThan(single.length)
+  })
+
+  test('includes custom words regardless of difficulty filter', () => {
+    const words = buildWordQueue(['bollywood-movies'], 'easy', ['CustomFilm1', 'CustomFilm2'])
+    expect(words).toContain('CustomFilm1')
+    expect(words).toContain('CustomFilm2')
+  })
+
+  test('deduplicates custom words that already appear in pack', () => {
+    const words = buildWordQueue(['bollywood-movies'], 'easy', ['Sholay'])
+    const count = words.filter(w => w === 'Sholay').length
+    expect(count).toBe(1)
+  })
+
+  test('bollywood-movies easy pool has 65+ words', () => {
+    const words = buildWordQueue(['bollywood-movies'], 'easy')
+    expect(words.length).toBeGreaterThanOrEqual(65)
+  })
+
+  test('bollywood-movies hard pool has 200+ words', () => {
+    const words = buildWordQueue(['bollywood-movies'], 'hard')
+    expect(words.length).toBeGreaterThanOrEqual(200)
   })
 })
 
@@ -169,163 +187,195 @@ describe('CONFIRM_CATEGORIES', () => {
   })
 })
 
-// ─── START_ROUND ─────────────────────────────────────────────────────────────
+// ─── ACTOR_READY ─────────────────────────────────────────────────────────────
 
-describe('START_ROUND', () => {
-  test('sets phase to playing', () => {
-    const state = gameReducer(getInitialState(), {
-      type: ACTIONS.START_ROUND,
-      payload: { wordQueue: ['A', 'B', 'C'], ts: Date.now() }
+describe('ACTOR_READY', () => {
+  test('transitions from round_start to actor_prep', () => {
+    const init = { ...getInitialState(), phase: 'round_start' }
+    const state = gameReducer(init, {
+      type: ACTIONS.ACTOR_READY,
+      payload: { wordQueue: ['Sholay', 'DDLJ'] }
     })
-    expect(state.phase).toBe('playing')
+    expect(state.phase).toBe('actor_prep')
   })
 
-  test('resets round counters', () => {
-    const state = gameReducer(
-      { ...getInitialState(), roundCorrect: 5, roundPassed: 2 },
-      { type: ACTIONS.START_ROUND, payload: { wordQueue: ['A'], ts: Date.now() } }
-    )
-    expect(state.roundCorrect).toBe(0)
-    expect(state.roundPassed).toBe(0)
-  })
-
-  test('stores the word queue unchanged', () => {
+  test('sets the provided wordQueue', () => {
     const queue = ['Sholay', 'DDLJ', 'PK']
     const state = gameReducer(getInitialState(), {
-      type: ACTIONS.START_ROUND, payload: { wordQueue: queue, ts: 1000 }
+      type: ACTIONS.ACTOR_READY,
+      payload: { wordQueue: queue }
     })
     expect(state.wordQueue).toEqual(queue)
+  })
+
+  test('resets replacementsLeft to 3', () => {
+    const init = { ...getInitialState(), replacementsLeft: 1 }
+    const state = gameReducer(init, {
+      type: ACTIONS.ACTOR_READY,
+      payload: { wordQueue: ['A', 'B'] }
+    })
+    expect(state.replacementsLeft).toBe(3)
+  })
+})
+
+// ─── REPLACE_WORD ─────────────────────────────────────────────────────────────
+
+describe('REPLACE_WORD', () => {
+  test('moves first word to end of queue', () => {
+    const state = gameReducer(makeActorPrepState(), { type: ACTIONS.REPLACE_WORD })
+    expect(state.wordQueue[0]).toBe('DDLJ')
+    expect(state.wordQueue[state.wordQueue.length - 1]).toBe('Sholay')
+  })
+
+  test('decrements replacementsLeft by 1', () => {
+    const state = gameReducer(makeActorPrepState({ replacementsLeft: 3 }), { type: ACTIONS.REPLACE_WORD })
+    expect(state.replacementsLeft).toBe(2)
+  })
+
+  test('is a no-op when replacementsLeft is 0', () => {
+    const init = makeActorPrepState({ replacementsLeft: 0 })
+    const state = gameReducer(init, { type: ACTIONS.REPLACE_WORD })
+    expect(state.wordQueue).toEqual(init.wordQueue)
+    expect(state.replacementsLeft).toBe(0)
+  })
+
+  test('is a no-op when only one word remains', () => {
+    const init = makeActorPrepState({ wordQueue: ['OnlyOne'] })
+    const state = gameReducer(init, { type: ACTIONS.REPLACE_WORD })
+    expect(state.wordQueue).toEqual(['OnlyOne'])
+  })
+
+  test('can replace up to 3 times', () => {
+    let s = makeActorPrepState()
+    s = gameReducer(s, { type: ACTIONS.REPLACE_WORD })
+    s = gameReducer(s, { type: ACTIONS.REPLACE_WORD })
+    s = gameReducer(s, { type: ACTIONS.REPLACE_WORD })
+    expect(s.replacementsLeft).toBe(0)
+    // 4th replace is no-op
+    const after = gameReducer(s, { type: ACTIONS.REPLACE_WORD })
+    expect(after.replacementsLeft).toBe(0)
+  })
+})
+
+// ─── START_ACTING ─────────────────────────────────────────────────────────────
+
+describe('START_ACTING', () => {
+  test('transitions from actor_prep to playing', () => {
+    const state = gameReducer(makeActorPrepState(), { type: ACTIONS.START_ACTING })
+    expect(state.phase).toBe('playing')
   })
 })
 
 // ─── CORRECT ─────────────────────────────────────────────────────────────────
 
 describe('CORRECT', () => {
-  test('increments roundCorrect by 1', () => {
-    const state = gameReducer(makePlayingState(), {
-      type: ACTIONS.CORRECT, payload: { ts: 3000 }
-    })
-    expect(state.roundCorrect).toBe(1)
+  test('transitions to turn_result', () => {
+    const state = gameReducer(makePlayingState(), { type: ACTIONS.CORRECT })
+    expect(state.phase).toBe('turn_result')
   })
 
-  test('does NOT increment roundPassed', () => {
-    const state = gameReducer(makePlayingState(), {
-      type: ACTIONS.CORRECT, payload: { ts: 3000 }
-    })
-    expect(state.roundPassed).toBe(0)
+  test('sets lastTurnOutcome to correct', () => {
+    const state = gameReducer(makePlayingState(), { type: ACTIONS.CORRECT })
+    expect(state.lastTurnOutcome).toBe('correct')
   })
 
-  test('advances to next word', () => {
-    const state = gameReducer(makePlayingState({ currentWordIndex: 0 }), {
-      type: ACTIONS.CORRECT, payload: { ts: 3000 }
-    })
-    expect(state.currentWordIndex).toBe(1)
+  test('awards NO points to either team', () => {
+    const state = gameReducer(makePlayingState(), { type: ACTIONS.CORRECT })
+    expect(state.teams[0].score).toBe(0)
+    expect(state.teams[1].score).toBe(0)
   })
 
-  test('records timing with result=correct', () => {
-    const state = gameReducer(makePlayingState({ wordStartTime: 1000 }), {
-      type: ACTIONS.CORRECT, payload: { ts: 3000 }
-    })
-    expect(state.wordTimings[0]).toMatchObject({ result: 'correct', timeTaken: 2000 })
-  })
-
-  test('transitions to round_end on last word', () => {
-    const state = gameReducer(
-      makePlayingState({ wordQueue: ['only word'], currentWordIndex: 0 }),
-      { type: ACTIONS.CORRECT, payload: { ts: 2000 } }
-    )
-    expect(state.phase).toBe('round_end')
-  })
-})
-
-// ─── PASS ────────────────────────────────────────────────────────────────────
-
-describe('PASS', () => {
-  test('increments roundPassed by 1', () => {
-    const state = gameReducer(makePlayingState(), {
-      type: ACTIONS.PASS, payload: { ts: 3000 }
-    })
-    expect(state.roundPassed).toBe(1)
-  })
-
-  test('does NOT increment roundCorrect', () => {
-    const state = gameReducer(makePlayingState(), {
-      type: ACTIONS.PASS, payload: { ts: 3000 }
-    })
-    expect(state.roundCorrect).toBe(0)
-  })
-
-  test('records timing with result=pass and null timeTaken', () => {
-    const state = gameReducer(makePlayingState(), {
-      type: ACTIONS.PASS, payload: { ts: 3000 }
-    })
-    expect(state.wordTimings[0]).toMatchObject({ result: 'pass', timeTaken: null })
-  })
-
-  test('transitions to round_end on last word', () => {
-    const state = gameReducer(
-      makePlayingState({ wordQueue: ['only word'], currentWordIndex: 0 }),
-      { type: ACTIONS.PASS, payload: { ts: 2000 } }
-    )
-    expect(state.phase).toBe('round_end')
+  test('pointsTo is null on correct guess', () => {
+    const state = gameReducer(makePlayingState(), { type: ACTIONS.CORRECT })
+    expect(state.pointsTo).toBeNull()
   })
 })
 
 // ─── TIMER_END ────────────────────────────────────────────────────────────────
 
 describe('TIMER_END', () => {
-  test('transitions to round_end regardless of word position', () => {
-    const state = gameReducer(makePlayingState({ currentWordIndex: 2 }), {
-      type: ACTIONS.TIMER_END
+  test('awards 1 point to the opponent team', () => {
+    const state = gameReducer(makePlayingState({ currentTeamIndex: 0 }), { type: ACTIONS.TIMER_END })
+    // Team 1 is acting (idx 0), so Team 2 (idx 1) gets +1
+    expect(state.teams[1].score).toBe(1)
+    expect(state.teams[0].score).toBe(0)
+  })
+
+  test('transitions to turn_result when win condition not met', () => {
+    const state = gameReducer(makePlayingState(), { type: ACTIONS.TIMER_END })
+    expect(state.phase).toBe('turn_result')
+  })
+
+  test('transitions to game_end when opponent reaches winPoints', () => {
+    const init = makePlayingState({
+      teams: [
+        { id: 't0', name: 'Team 1', score: 0 },
+        { id: 't1', name: 'Team 2', score: 4 }  // one away from winning
+      ],
+      settings: { ...getInitialState().settings, winPoints: 5 }
     })
-    expect(state.phase).toBe('round_end')
-  })
-
-  test('preserves current score when timer fires', () => {
-    const s = makePlayingState({ roundCorrect: 4, roundPassed: 1 })
-    const state = gameReducer(s, { type: ACTIONS.TIMER_END })
-    expect(state.roundCorrect).toBe(4)
-    expect(state.roundPassed).toBe(1)
-  })
-})
-
-// ─── CONFIRM_ROUND ────────────────────────────────────────────────────────────
-
-describe('CONFIRM_ROUND', () => {
-  test('adds round score to current team', () => {
-    const state = gameReducer(makeRoundEndState(), { type: ACTIONS.CONFIRM_ROUND })
-    expect(state.teams[0].score).toBe(3) // max_words: 3 correct
-  })
-
-  test('appends to roundHistory', () => {
-    const state = gameReducer(makeRoundEndState(), { type: ACTIONS.CONFIRM_ROUND })
-    expect(state.teams[0].roundHistory).toHaveLength(1)
-    expect(state.teams[0].roundHistory[0].correct).toBe(3)
-  })
-
-  test('switches to next team', () => {
-    const state = gameReducer(makeRoundEndState(), { type: ACTIONS.CONFIRM_ROUND })
-    expect(state.currentTeamIndex).toBe(1)
-    expect(state.phase).toBe('round_start')
-  })
-
-  test('cycles team index back to 0 after last team', () => {
-    const s = makeRoundEndState({ currentTeamIndex: 1, roundNumber: 2 })
-    const state = gameReducer(s, { type: ACTIONS.CONFIRM_ROUND })
-    expect(state.currentTeamIndex).toBe(0)
-  })
-
-  test('transitions to game_end after all turns are completed', () => {
-    // 2 teams × 2 rounds = 4 turns; roundNumber = 4 means it's the last turn
-    const s = makeRoundEndState({ roundNumber: 4, settings: { ...getInitialState().settings, roundsPerTeam: 2 } })
-    const state = gameReducer(s, { type: ACTIONS.CONFIRM_ROUND })
+    const state = gameReducer(init, { type: ACTIONS.TIMER_END })
+    expect(state.teams[1].score).toBe(5)
     expect(state.phase).toBe('game_end')
   })
 
-  test('resets round counters after CONFIRM_ROUND', () => {
-    const state = gameReducer(makeRoundEndState(), { type: ACTIONS.CONFIRM_ROUND })
-    expect(state.roundCorrect).toBe(0)
-    expect(state.roundPassed).toBe(0)
+  test('sets lastTurnOutcome to expired', () => {
+    const state = gameReducer(makePlayingState(), { type: ACTIONS.TIMER_END })
+    expect(state.lastTurnOutcome).toBe('expired')
+  })
+
+  test('sets pointsTo to the opponent team id', () => {
+    const state = gameReducer(makePlayingState({ currentTeamIndex: 0 }), { type: ACTIONS.TIMER_END })
+    expect(state.pointsTo).toBe('t1')
+  })
+
+  test('wraps team index correctly for last team acting', () => {
+    // Team 2 (idx 1) acting → Team 1 (idx 0) should get the point
+    const state = gameReducer(makePlayingState({ currentTeamIndex: 1 }), { type: ACTIONS.TIMER_END })
+    expect(state.teams[0].score).toBe(1)
+    expect(state.pointsTo).toBe('t0')
+  })
+})
+
+// ─── CONFIRM_TURN ─────────────────────────────────────────────────────────────
+
+describe('CONFIRM_TURN', () => {
+  test('advances to next team', () => {
+    const init = makePlayingState({ phase: 'turn_result', currentTeamIndex: 0 })
+    const state = gameReducer(init, { type: ACTIONS.CONFIRM_TURN })
+    expect(state.currentTeamIndex).toBe(1)
+  })
+
+  test('cycles back to team 0 after last team', () => {
+    const init = makePlayingState({ phase: 'turn_result', currentTeamIndex: 1 })
+    const state = gameReducer(init, { type: ACTIONS.CONFIRM_TURN })
+    expect(state.currentTeamIndex).toBe(0)
+  })
+
+  test('increments turnNumber', () => {
+    const init = { ...makePlayingState(), phase: 'turn_result', turnNumber: 3 }
+    const state = gameReducer(init, { type: ACTIONS.CONFIRM_TURN })
+    expect(state.turnNumber).toBe(4)
+  })
+
+  test('transitions phase to round_start', () => {
+    const init = { ...makePlayingState(), phase: 'turn_result' }
+    const state = gameReducer(init, { type: ACTIONS.CONFIRM_TURN })
+    expect(state.phase).toBe('round_start')
+  })
+
+  test('resets wordQueue and replacementsLeft', () => {
+    const init = { ...makeActorPrepState(), phase: 'turn_result', wordQueue: ['Sholay'], replacementsLeft: 1 }
+    const state = gameReducer(init, { type: ACTIONS.CONFIRM_TURN })
+    expect(state.wordQueue).toEqual([])
+    expect(state.replacementsLeft).toBe(3)
+  })
+
+  test('clears lastTurnOutcome and pointsTo', () => {
+    const init = { ...makePlayingState(), phase: 'turn_result', lastTurnOutcome: 'expired', pointsTo: 't1' }
+    const state = gameReducer(init, { type: ACTIONS.CONFIRM_TURN })
+    expect(state.lastTurnOutcome).toBeNull()
+    expect(state.pointsTo).toBeNull()
   })
 })
 
@@ -336,36 +386,94 @@ describe('RESET', () => {
     const played = gameReducer(makePlayingState(), { type: ACTIONS.TIMER_END })
     const reset = gameReducer(played, { type: ACTIONS.RESET })
     expect(reset.phase).toBe('team_setup')
-    expect(reset.roundNumber).toBe(1)
+    expect(reset.turnNumber).toBe(1)
     expect(reset.teams.every(t => t.score === 0)).toBe(true)
   })
 })
 
-// ─── Scoring: fastest_guess ──────────────────────────────────────────────────
+// ─── RESTORE_STATE ────────────────────────────────────────────────────────────
 
-describe('calcRoundScore', () => {
-  test('max_words: returns correct word count', () => {
-    expect(calcRoundScore(5, [], 'max_words')).toBe(5)
+describe('RESTORE_STATE', () => {
+  test('restores a valid saved state', () => {
+    const saved = { ...makePlayingState(), phase: 'actor_prep' }
+    const state = gameReducer(getInitialState(), { type: ACTIONS.RESTORE_STATE, payload: saved })
+    expect(state.phase).toBe('actor_prep')
   })
 
-  test('fastest_guess: faster average time yields higher score than slower', () => {
-    const fastTimings = [{ word: 'A', timeTaken: 500, result: 'correct' }]
-    const slowTimings = [{ word: 'A', timeTaken: 9000, result: 'correct' }]
-    const fast = calcRoundScore(1, fastTimings, 'fastest_guess')
-    const slow = calcRoundScore(1, slowTimings, 'fastest_guess')
-    expect(fast).toBeGreaterThan(slow)
+  test('ignores invalid payload', () => {
+    const init = getInitialState()
+    const state = gameReducer(init, { type: ACTIONS.RESTORE_STATE, payload: null })
+    expect(state.phase).toBe('team_setup')
+  })
+})
+
+// ─── Scoring utils ────────────────────────────────────────────────────────────
+
+describe('calcXP', () => {
+  test('returns 10 × score + 5 for winner', () => {
+    expect(calcXP(3, true)).toBe(35)
   })
 
-  test('fastest_guess: 0 correct words returns 0', () => {
-    expect(calcRoundScore(0, [], 'fastest_guess')).toBe(0)
+  test('returns 10 × score for loser', () => {
+    expect(calcXP(3, false)).toBe(30)
   })
 
-  test('fastest_guess: pass timings are excluded from average', () => {
-    const timings = [
-      { word: 'A', timeTaken: 1000, result: 'correct' },
-      { word: 'B', timeTaken: null, result: 'pass' }
+  test('returns 5 bonus only for winner with 0 score', () => {
+    expect(calcXP(0, true)).toBe(5)
+    expect(calcXP(0, false)).toBe(0)
+  })
+})
+
+describe('findWinners', () => {
+  test('returns team with highest score', () => {
+    const teams = [
+      { id: 't0', score: 3 },
+      { id: 't1', score: 5 }
     ]
-    const score = calcRoundScore(1, timings, 'fastest_guess')
-    expect(score).toBeGreaterThan(0)
+    const winners = findWinners(teams)
+    expect(winners).toHaveLength(1)
+    expect(winners[0].id).toBe('t1')
+  })
+
+  test('returns all tied teams', () => {
+    const teams = [
+      { id: 't0', score: 5 },
+      { id: 't1', score: 5 }
+    ]
+    const winners = findWinners(teams)
+    expect(winners).toHaveLength(2)
+  })
+})
+
+// ─── prepareWordQueue ─────────────────────────────────────────────────────────
+
+describe('prepareWordQueue', () => {
+  test('returns shuffled array from settings', () => {
+    const settings = {
+      categories: ['bollywood-movies'],
+      difficulty: 'easy',
+      customWords: []
+    }
+    const queue = prepareWordQueue(settings)
+    expect(queue.length).toBeGreaterThan(0)
+    queue.forEach(w => expect(typeof w).toBe('string'))
+  })
+
+  test('includes custom words from settings', () => {
+    const settings = {
+      categories: ['bollywood-movies'],
+      difficulty: 'easy',
+      customWords: ['MyCustomFilm']
+    }
+    const queue = prepareWordQueue(settings)
+    expect(queue).toContain('MyCustomFilm')
+  })
+
+  test('handles missing customWords gracefully', () => {
+    const settings = {
+      categories: ['bollywood-movies'],
+      difficulty: 'easy'
+    }
+    expect(() => prepareWordQueue(settings)).not.toThrow()
   })
 })

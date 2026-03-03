@@ -23,8 +23,9 @@ export default function Home() {
   const [selectedGame, setSelectedGame] = useState(null)
 
   // Playable offline games from registry; online (room-based) games shown separately
+  // Games with onlineEnabled: true appear in BOTH grids (e.g. Dumb Charades)
   const playableGames = games.filter(g => g.singleDevice)
-  const onlineGames = games.filter(g => !g.singleDevice)
+  const onlineGames = games.filter(g => g.onlineEnabled || !g.singleDevice)
   const inProgressGames = getInProgressGames()
 
   function handlePlayGame(game) {

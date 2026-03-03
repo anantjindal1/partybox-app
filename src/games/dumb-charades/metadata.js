@@ -5,5 +5,7 @@ export default {
   minPlayers: 2,
   maxPlayers: 20,
   offline: true,
-  singleDevice: true
+  singleDevice: true,
+  onlineEnabled: true,
+  resultsDurationMs: 20000
 }

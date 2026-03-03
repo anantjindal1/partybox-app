@@ -1,5 +1,4 @@
 import { buildWordQueue } from './wordpacks'
-import { calcRoundScore } from './scoring'
 
 export const ACTIONS = {
   SET_TEAMS: 'SET_TEAMS',
@@ -7,39 +6,38 @@ export const ACTIONS = {
   CONFIRM_CATEGORIES: 'CONFIRM_CATEGORIES',
   UPDATE_SETTING: 'UPDATE_SETTING',
   CONFIRM_SETTINGS: 'CONFIRM_SETTINGS',
-  START_ROUND: 'START_ROUND',   // payload: { wordQueue, ts }
-  CORRECT: 'CORRECT',           // payload: { ts }
-  PASS: 'PASS',                 // payload: { ts }
-  TIMER_END: 'TIMER_END',
-  CONFIRM_ROUND: 'CONFIRM_ROUND',
+  ACTOR_READY: 'ACTOR_READY',      // payload: { wordQueue: string[] } — round_start → actor_prep
+  REPLACE_WORD: 'REPLACE_WORD',    // rotate wordQueue[0] to end; decrement replacementsLeft
+  START_ACTING: 'START_ACTING',    // actor_prep → playing
+  CORRECT: 'CORRECT',              // 0 pts, → turn_result
+  TIMER_END: 'TIMER_END',          // opponent +1 pt, → turn_result or game_end
+  CONFIRM_TURN: 'CONFIRM_TURN',    // advance team, → round_start
   RESET: 'RESET',
-  RESTORE_STATE: 'RESTORE_STATE'
+  RESTORE_STATE: 'RESTORE_STATE',
+  FORCE_END: 'FORCE_END'
 }
 
 export function getInitialState() {
   return {
     phase: 'team_setup',
     teams: [
-      { id: 't0', name: 'Team 1', score: 0, roundHistory: [] },
-      { id: 't1', name: 'Team 2', score: 0, roundHistory: [] }
+      { id: 't0', name: 'Team 1', score: 0 },
+      { id: 't1', name: 'Team 2', score: 0 }
     ],
     currentTeamIndex: 0,
-    roundNumber: 1,          // 1-based; increments after each team plays
+    turnNumber: 1,
     settings: {
-      timerSeconds: 60,
+      timerSeconds: 90,
       difficulty: 'easy',
       categories: ['bollywood-movies'],
-      scoringMode: 'max_words',
-      inputMode: 'tap',
-      roundsPerTeam: 2
+      winPoints: 5,
+      customWords: []
     },
-    // Active round state
+    // Active turn state
     wordQueue: [],
-    currentWordIndex: 0,
-    roundCorrect: 0,
-    roundPassed: 0,
-    wordTimings: [],
-    wordStartTime: null,
+    replacementsLeft: 3,
+    lastTurnOutcome: null,  // 'correct' | 'expired'
+    pointsTo: null,         // team id that received the point, or null
     error: null
   }
 }
@@ -57,15 +55,13 @@ export function gameReducer(state, action) {
   switch (action.type) {
 
     case ACTIONS.SET_TEAMS: {
-      // payload: { teamNames: string[] }
       const teams = action.payload.teamNames.map((name, i) => ({
-        id: `t${i}`, name, score: 0, roundHistory: []
+        id: `t${i}`, name, score: 0
       }))
       return { ...state, teams, phase: 'category_select', error: null }
     }
 
     case ACTIONS.TOGGLE_CATEGORY: {
-      // payload: slug string
       const { categories } = state.settings
       const next = categories.includes(action.payload)
         ? categories.filter(c => c !== action.payload)
@@ -80,7 +76,6 @@ export function gameReducer(state, action) {
     }
 
     case ACTIONS.UPDATE_SETTING: {
-      // payload: { key, value }
       return {
         ...state,
         settings: { ...state.settings, [action.payload.key]: action.payload.value }
@@ -91,123 +86,72 @@ export function gameReducer(state, action) {
       return { ...state, phase: 'round_start', error: null }
     }
 
-    case ACTIONS.START_ROUND: {
-      // payload: { wordQueue: string[], ts: number }
+    case ACTIONS.ACTOR_READY: {
+      // payload: { wordQueue: string[] } — prepared outside reducer for purity
       return {
         ...state,
-        phase: 'playing',
+        phase: 'actor_prep',
         wordQueue: action.payload.wordQueue,
-        currentWordIndex: 0,
-        roundCorrect: 0,
-        roundPassed: 0,
-        wordTimings: [],
-        wordStartTime: action.payload.ts,
+        replacementsLeft: 3,
+        lastTurnOutcome: null,
+        pointsTo: null,
         error: null
       }
     }
 
-    case ACTIONS.CORRECT: {
-      // payload: { ts: number }
-      const timeTaken = action.payload.ts - (state.wordStartTime ?? action.payload.ts)
-      const timing = {
-        word: state.wordQueue[state.currentWordIndex],
-        timeTaken,
-        result: 'correct'
-      }
-      const newTimings = [...state.wordTimings, timing]
-      const newCorrect = state.roundCorrect + 1
-      const nextIndex = state.currentWordIndex + 1
-
-      if (nextIndex >= state.wordQueue.length) {
-        return {
-          ...state,
-          roundCorrect: newCorrect,
-          wordTimings: newTimings,
-          currentWordIndex: nextIndex,
-          phase: 'round_end'
-        }
-      }
+    case ACTIONS.REPLACE_WORD: {
+      if (state.replacementsLeft <= 0 || state.wordQueue.length <= 1) return state
+      const [current, ...rest] = state.wordQueue
       return {
         ...state,
-        roundCorrect: newCorrect,
-        wordTimings: newTimings,
-        currentWordIndex: nextIndex,
-        wordStartTime: action.payload.ts
+        wordQueue: [...rest, current],
+        replacementsLeft: state.replacementsLeft - 1
       }
     }
 
-    case ACTIONS.PASS: {
-      // payload: { ts: number }
-      const timing = {
-        word: state.wordQueue[state.currentWordIndex],
-        timeTaken: null,
-        result: 'pass'
-      }
-      const newTimings = [...state.wordTimings, timing]
-      const newPassed = state.roundPassed + 1
-      const nextIndex = state.currentWordIndex + 1
+    case ACTIONS.START_ACTING: {
+      return { ...state, phase: 'playing', error: null }
+    }
 
-      if (nextIndex >= state.wordQueue.length) {
-        return {
-          ...state,
-          roundPassed: newPassed,
-          wordTimings: newTimings,
-          currentWordIndex: nextIndex,
-          phase: 'round_end'
-        }
-      }
+    case ACTIONS.CORRECT: {
+      // Guessed correctly → no points change
       return {
         ...state,
-        roundPassed: newPassed,
-        wordTimings: newTimings,
-        currentWordIndex: nextIndex,
-        wordStartTime: action.payload.ts
+        phase: 'turn_result',
+        lastTurnOutcome: 'correct',
+        pointsTo: null,
+        error: null
       }
     }
 
     case ACTIONS.TIMER_END: {
-      return { ...state, phase: 'round_end' }
-    }
-
-    case ACTIONS.CONFIRM_ROUND: {
-      const {
-        roundCorrect, roundPassed, wordTimings,
-        currentTeamIndex, teams, settings, roundNumber
-      } = state
-
-      const roundScore = calcRoundScore(roundCorrect, wordTimings, settings.scoringMode)
-      const updatedTeams = teams.map((t, i) => {
-        if (i !== currentTeamIndex) return t
-        return {
-          ...t,
-          score: t.score + roundScore,
-          roundHistory: [...t.roundHistory, { correct: roundCorrect, passed: roundPassed, score: roundScore }]
-        }
-      })
-
-      const totalTurns = settings.roundsPerTeam * teams.length
-      const newRoundNumber = roundNumber + 1
-      const nextTeamIndex = (currentTeamIndex + 1) % teams.length
-
-      if (newRoundNumber > totalTurns) {
-        return {
-          ...state,
-          teams: updatedTeams,
-          roundNumber: newRoundNumber,
-          phase: 'game_end'
-        }
-      }
-
+      const opponentIdx = (state.currentTeamIndex + 1) % state.teams.length
+      const updatedTeams = state.teams.map((t, i) =>
+        i === opponentIdx ? { ...t, score: t.score + 1 } : t
+      )
+      const won = updatedTeams[opponentIdx].score >= state.settings.winPoints
       return {
         ...state,
         teams: updatedTeams,
+        phase: won ? 'game_end' : 'turn_result',
+        lastTurnOutcome: 'expired',
+        pointsTo: state.teams[opponentIdx].id,
+        error: null
+      }
+    }
+
+    case ACTIONS.CONFIRM_TURN: {
+      const nextTeamIndex = (state.currentTeamIndex + 1) % state.teams.length
+      return {
+        ...state,
         currentTeamIndex: nextTeamIndex,
-        roundNumber: newRoundNumber,
-        roundCorrect: 0,
-        roundPassed: 0,
-        wordTimings: [],
-        wordStartTime: null,
-        phase: 'round_start'
+        turnNumber: state.turnNumber + 1,
+        wordQueue: [],
+        replacementsLeft: 3,
+        lastTurnOutcome: null,
+        pointsTo: null,
+        phase: 'round_start',
+        error: null
       }
     }
 
@@ -221,13 +165,21 @@ export function gameReducer(state, action) {
       return state
     }
 
+    case ACTIONS.FORCE_END: {
+      return { ...state, phase: 'game_end' }
+    }
+
     default:
       return state
   }
 }
 
-// Helper exported for use in components (shuffle happens outside reducer for purity)
+// Prepare a shuffled word queue — called outside reducer for purity
 export function prepareWordQueue(settings) {
-  const words = buildWordQueue(settings.categories, settings.difficulty)
+  const words = buildWordQueue(
+    settings.categories,
+    settings.difficulty,
+    settings.customWords ?? []
+  )
   return shuffleArray(words)
 }

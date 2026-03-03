@@ -8,7 +8,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "jest",
-    "cypress": "cypress open"
+    "cypress": "cypress open",
+    "test:playbook": "cypress run --headed --spec cypress/e2e/tests-playbook.cy.js",
+    "test:playbook:step": "CYPRESS_STEP_THROUGH=1 cypress open",
+    "test:playbook:slow": "CYPRESS_STEP_THROUGH=1 CYPRESS_SLOW_MO=800 cypress open"
   },
   "dependencies": {
     "firebase": "^10.14.1",
