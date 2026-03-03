@@ -1,18 +1,33 @@
+import { useState } from 'react'
 import { Button } from '../../components/Button'
 import { ACTIONS } from './reducer'
+import { useDevMode } from '../../hooks/useDevMode'
 
-const TIMERS = [30, 60, 90]
-const ROUNDS = [1, 2, 3]
+const TIMERS = [60, 90, 120]
+const WIN_POINTS = [3, 5, 7, 10]
 
 export function SettingsScreen({ state, dispatch, t }) {
-  const { timerSeconds, scoringMode, inputMode, roundsPerTeam } = state.settings
+  const { timerSeconds, winPoints } = state.settings
+  const { devMode, toggleDevMode } = useDevMode()
+  const [customText, setCustomText] = useState(
+    (state.settings.customWords ?? []).join('\n')
+  )
 
   function set(key, value) {
     dispatch({ type: ACTIONS.UPDATE_SETTING, payload: { key, value } })
   }
 
+  function handleConfirm() {
+    const customWords = customText
+      .split('\n')
+      .map(s => s.trim())
+      .filter(Boolean)
+    dispatch({ type: ACTIONS.UPDATE_SETTING, payload: { key: 'customWords', value: customWords } })
+    dispatch({ type: ACTIONS.CONFIRM_SETTINGS })
+  }
+
   return (
-    <div className="min-h-screen bg-slate-900 text-white flex flex-col px-6 pt-10 pb-8 space-y-7">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white flex flex-col px-6 pt-10 pb-8 space-y-7">
       <h2 className="text-2xl font-black text-rose-400">{t('settings')}</h2>
 
       {/* Timer */}
@@ -26,43 +41,39 @@ export function SettingsScreen({ state, dispatch, t }) {
         </div>
       </Section>
 
-      {/* Rounds per team */}
-      <Section label={`🔁 ${t('roundsPerTeam')}`}>
-        <div className="grid grid-cols-3 gap-3">
-          {ROUNDS.map(r => (
-            <ToggleBtn key={r} active={roundsPerTeam === r} onClick={() => set('roundsPerTeam', r)}>
-              {r}
+      {/* Win Points */}
+      <Section label={`🏆 ${t('winPoints')}`}>
+        <div className="grid grid-cols-4 gap-3">
+          {WIN_POINTS.map(p => (
+            <ToggleBtn key={p} active={winPoints === p} onClick={() => set('winPoints', p)}>
+              {p}
             </ToggleBtn>
           ))}
         </div>
       </Section>
 
-      {/* Scoring mode */}
-      <Section label={`🏆 ${t('scoringMode')}`}>
-        <div className="grid grid-cols-2 gap-3">
-          <ToggleBtn active={scoringMode === 'max_words'} onClick={() => set('scoringMode', 'max_words')}>
-            {t('maxWords')}
-          </ToggleBtn>
-          <ToggleBtn active={scoringMode === 'fastest_guess'} onClick={() => set('scoringMode', 'fastest_guess')}>
-            {t('fastestGuess')}
-          </ToggleBtn>
-        </div>
+      {/* Custom Movies */}
+      <Section label={`🎬 ${t('customMovies')}`}>
+        <textarea
+          value={customText}
+          onChange={e => setCustomText(e.target.value)}
+          placeholder={t('customMoviesPlaceholder')}
+          rows={4}
+          className="w-full bg-white/10 backdrop-blur-sm border border-white/15 text-white rounded-2xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-rose-500/50 resize-none"
+        />
       </Section>
 
-      {/* Input mode */}
-      <Section label={`👆 ${t('inputMode')}`}>
-        <div className="grid grid-cols-3 gap-3">
-          {['tap', 'swipe', 'volume'].map(m => (
-            <ToggleBtn key={m} active={inputMode === m} onClick={() => set('inputMode', m)}>
-              {t(m)}
-            </ToggleBtn>
-          ))}
-        </div>
-      </Section>
+      <div className="shadow-lg shadow-rose-500/30 rounded-2xl">
+        <Button onClick={handleConfirm}>
+          {t('startGame')}
+        </Button>
+      </div>
 
-      <Button onClick={() => dispatch({ type: ACTIONS.CONFIRM_SETTINGS })}>
-        {t('startGame')}
-      </Button>
+      <div className="pt-4 border-t border-white/10 flex justify-center">
+        <button onClick={toggleDevMode} className="text-xs text-white/30">
+          {devMode ? '🟢 Dev mode ON' : '⚪ Dev mode OFF'}
+        </button>
+      </div>
     </div>
   )
 }
@@ -70,7 +81,7 @@ export function SettingsScreen({ state, dispatch, t }) {
 function Section({ label, children }) {
   return (
     <div>
-      <p className="text-slate-400 text-sm mb-3">{label}</p>
+      <p className="text-white/50 text-xs uppercase tracking-widest mb-3">{label}</p>
       {children}
     </div>
   )
@@ -80,8 +91,10 @@ function ToggleBtn({ active, onClick, children }) {
   return (
     <button
       onClick={onClick}
-      className={`py-4 rounded-2xl text-base font-bold transition-colors ${
-        active ? 'bg-rose-500 text-white' : 'bg-slate-800 text-slate-300'
+      className={`py-4 rounded-2xl text-base font-bold transition-all ${
+        active
+          ? 'bg-rose-500 text-white border border-rose-400/50 shadow-md shadow-rose-500/25'
+          : 'bg-white/10 backdrop-blur-sm border border-white/15 text-white/70'
       }`}
     >
       {children}
