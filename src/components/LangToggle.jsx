@@ -5,7 +5,7 @@ export function LangToggle() {
   return (
     <button
       onClick={() => setLang(l => l === 'en' ? 'hi' : 'en')}
-      className="px-3 py-2 rounded-xl bg-zinc-800/80 text-zinc-300 hover:bg-zinc-700 hover:text-white text-sm font-semibold transition-colors border border-zinc-700/50"
+      className="px-3 py-2 rounded-xl bg-surfaceElevated text-zinc-300 hover:bg-surfaceMuted hover:text-white text-sm font-semibold transition-colors border border-border/60"
       aria-label="Toggle language"
     >
       {lang === 'en' ? 'हिंदी' : 'ENG'}

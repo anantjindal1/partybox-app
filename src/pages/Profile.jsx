@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/Button'
+import { Card } from '../components/Card'
+import { Input } from '../components/Input'
 import { LangToggle } from '../components/LangToggle'
 import { useLang } from '../store/LangContext'
 import { useProfile } from '../hooks/useProfile'
@@ -43,7 +45,7 @@ export default function Profile() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center">
+      <div className="min-h-screen bg-surface text-zinc-100 flex items-center justify-center">
         <p className="text-zinc-500 text-xl animate-pulse">Loading...</p>
       </div>
     )
@@ -65,8 +67,8 @@ export default function Profile() {
   const xpPct = xpInLevel  // already 0–99 → treat as percent
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col">
-      <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-zinc-800/80">
+    <div className="min-h-screen bg-surface text-zinc-100 flex flex-col">
+      <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border/60 shadow-soft">
         <button
           onClick={() => navigate('/')}
           className="text-zinc-500 hover:text-zinc-300 text-lg flex items-center gap-2 font-medium"
@@ -80,7 +82,7 @@ export default function Profile() {
         <h1 className="text-3xl font-bold text-white">{t('profile')}</h1>
 
         {/* Avatar */}
-        <div>
+        <Card className="p-5">
           <p className="text-zinc-500 text-sm mb-3">{t('avatar')}</p>
           <div className="text-6xl text-center mb-4">{profile.avatar}</div>
           <div className="grid grid-cols-6 gap-2">
@@ -90,25 +92,25 @@ export default function Profile() {
                 onClick={() => handleAvatarSelect(a)}
                 className={`text-3xl p-2 rounded-xl transition-colors border ${
                   profile.avatar === a
-                    ? 'bg-amber-500/90 text-zinc-900 border-amber-500'
-                    : 'bg-zinc-800 border-zinc-700 hover:bg-zinc-700'
+                    ? 'bg-accent text-zinc-900 border-accent'
+                    : 'bg-surfaceMuted border-border hover:bg-border'
                 }`}
               >
                 {a}
               </button>
             ))}
           </div>
-        </div>
+        </Card>
 
         {/* Name */}
         <div>
           <label className="text-zinc-500 text-sm block mb-2">{t('name')}</label>
-          <input
+          <Input
             type="text"
             value={name || profile.name}
             onChange={e => setName(e.target.value)}
             maxLength={20}
-            className="w-full bg-zinc-800 border border-zinc-700 text-white text-xl rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50"
+            className="w-full text-xl rounded-2xl px-5 py-4"
           />
         </div>
 
@@ -117,37 +119,37 @@ export default function Profile() {
         </Button>
 
         {/* XP + Level */}
-        <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-5">
+        <Card className="p-5">
           <div className="flex justify-between items-start mb-3">
             <div>
               <span className="text-zinc-400 font-semibold block">{t('xp')}</span>
-              <span className="text-2xl font-black text-amber-400">{profile.xp}</span>
+              <span className="text-2xl font-black text-accent">{profile.xp}</span>
             </div>
             <div className="text-right">
               <span className="text-zinc-500 text-xs block">{t('level')}</span>
               <span className="text-3xl font-black text-white">{level}</span>
             </div>
           </div>
-          <div className="bg-zinc-700 rounded-full h-3 overflow-hidden">
+          <div className="bg-surfaceMuted rounded-full h-3 overflow-hidden">
             <div
-              className="bg-amber-400 h-full rounded-full transition-all"
+              className="bg-accent h-full rounded-full transition-all"
               style={{ width: `${xpPct}%` }}
             />
           </div>
           <p className="text-zinc-500 text-xs mt-1 text-right">{xpInLevel} / 100 XP to next level</p>
-        </div>
+        </Card>
 
         {/* Badges */}
         <div>
           <p className="text-zinc-500 text-sm mb-3">{t('badges')}</p>
           {profile.badges.length === 0 ? (
-            <div className="bg-zinc-800/60 border border-zinc-700/50 rounded-2xl p-6 text-center">
+            <Card className="p-6 text-center">
               <p className="text-zinc-500">{t('noBadgesYet')}</p>
-            </div>
+            </Card>
           ) : (
             <div className="flex flex-wrap gap-2">
               {profile.badges.map((b, i) => (
-                <span key={i} className="bg-zinc-800 px-3 py-2 rounded-xl text-lg border border-zinc-700/50">{b}</span>
+                <span key={i} className="bg-surfaceElevated px-3 py-2 rounded-xl text-lg border border-border/60">{b}</span>
               ))}
             </div>
           )}
@@ -160,10 +162,7 @@ export default function Profile() {
             {statsLoading ? (
               <div className="grid grid-cols-2 gap-3">
                 {ONLINE_GAME_SLUGS.map(slug => (
-                  <div
-                    key={slug}
-                    className="bg-zinc-800/60 border border-zinc-700/50 rounded-2xl p-4 animate-pulse h-24"
-                  />
+                  <Card key={slug} className="p-4 animate-pulse h-24" />
                 ))}
               </div>
             ) : (
@@ -175,10 +174,7 @@ export default function Profile() {
                     ? (g.title[lang] ?? g.title.en)
                     : (g?.title ?? slug)
                   return (
-                    <div
-                      key={slug}
-                      className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-4"
-                    >
+                    <Card key={slug} className="p-4">
                       <p className="text-zinc-400 text-xs font-semibold mb-2 truncate">
                         {g?.icon} {title}
                       </p>
@@ -186,7 +182,7 @@ export default function Profile() {
                         <div className="space-y-1">
                           <div className="flex justify-between text-sm">
                             <span className="text-zinc-500">{t('wins')}</span>
-                            <span className="text-amber-400 font-bold">{stats.wins ?? 0}</span>
+                            <span className="text-accent font-bold">{stats.wins ?? 0}</span>
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="text-zinc-500">{t('gamesPlayed')}</span>
@@ -196,7 +192,7 @@ export default function Profile() {
                       ) : (
                         <p className="text-zinc-600 text-xs">No games yet</p>
                       )}
-                    </div>
+                    </Card>
                   )
                 })}
               </div>

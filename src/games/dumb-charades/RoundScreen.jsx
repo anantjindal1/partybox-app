@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { Timer } from './Timer'
 import { ACTIONS } from './reducer'
+import { DC } from './theme'
 
 const TEASE_CORRECT = ['Wah! 🔥', 'Sahi hai! ✅', 'Ekdum sahi! 🎯', 'Badhiya! 💪']
 
@@ -28,17 +29,15 @@ export function RoundScreen({ state, dispatch, t, devMode = false }) {
     dispatch({ type: ACTIONS.TIMER_END })
   }, [dispatch])
 
-  const bgColor = flash
-    ? 'bg-gradient-to-br from-emerald-950 to-green-900'
-    : 'bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900'
+  const bgColor = flash ? 'bg-[#0d2818]' : DC.bg
 
   return (
-    <div className={`min-h-screen flex flex-col transition-colors duration-150 ${bgColor}`}>
+    <div className={`min-h-screen flex flex-col transition-colors duration-150 ${bgColor} ${DC.text}`}>
 
       {/* Top bar */}
       <div className="flex items-center justify-between px-5 pt-6 pb-3">
         <div className="text-center">
-          <p className="text-white/50 text-xs uppercase tracking-wide">{currentTeam?.name}</p>
+          <p className={`${DC.textMuted} text-xs uppercase tracking-wide`}>{currentTeam?.name}</p>
         </div>
 
         <div className="relative">
@@ -53,7 +52,7 @@ export function RoundScreen({ state, dispatch, t, devMode = false }) {
 
         <div className="text-center">
           {teams.map(tm => (
-            <p key={tm.id} className="text-white/50 text-xs">
+            <p key={tm.id} className={`${DC.textMuted} text-xs`}>
               {tm.name}: <span className="text-white font-bold">{tm.score}</span>
             </p>
           ))}
@@ -62,7 +61,7 @@ export function RoundScreen({ state, dispatch, t, devMode = false }) {
 
       {/* Main word display */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-        <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-3xl px-8 py-8 w-full shadow-2xl">
+        <div className={`${DC.card} border ${DC.cardBorder} rounded-3xl px-8 py-8 w-full`}>
           <p
             className="text-white font-black leading-tight break-words"
             style={{ fontSize: currentMovie.length > 20 ? '2rem' : currentMovie.length > 12 ? '2.8rem' : '3.8rem' }}
@@ -70,7 +69,7 @@ export function RoundScreen({ state, dispatch, t, devMode = false }) {
             {currentMovie}
           </p>
           {tease && flash && (
-            <p className="text-white text-xl mt-4 opacity-80">{tease}</p>
+            <p className={`${DC.accent} text-xl mt-4`}>{tease}</p>
           )}
         </div>
       </div>
@@ -79,9 +78,9 @@ export function RoundScreen({ state, dispatch, t, devMode = false }) {
       <div className="px-5 pb-4 pt-4">
         <button
           onPointerDown={handleCorrect}
-          className="w-full bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-white py-8 rounded-2xl text-3xl font-black select-none shadow-lg shadow-emerald-500/30 active:shadow-none"
+          className={`w-full ${DC.accentBg} ${DC.accentBgHover} active:opacity-90 text-[#141414] py-8 rounded-2xl text-3xl font-black select-none`}
         >
-          {t('correct')}
+          ✓ {t('correct')}
         </button>
       </div>
 
@@ -89,11 +88,11 @@ export function RoundScreen({ state, dispatch, t, devMode = false }) {
       <div className="px-5 pb-8 flex justify-center">
         {confirmEnd ? (
           <div className="flex gap-3 justify-center">
-            <button onClick={() => dispatch({ type: ACTIONS.FORCE_END })} className="text-rose-400 text-sm font-semibold">✓ {t('yesEnd')}</button>
+            <button onClick={() => dispatch({ type: ACTIONS.FORCE_END })} className={`${DC.accent} text-sm font-semibold`}>✓ {t('yesEnd')}</button>
             <button onClick={() => setConfirmEnd(false)} className="text-zinc-500 text-sm">Cancel</button>
           </div>
         ) : (
-          <button onClick={() => setConfirmEnd(true)} className="text-white/25 text-xs underline">
+          <button onClick={() => setConfirmEnd(true)} className="text-zinc-500 text-xs underline">
             {t('endGame')}
           </button>
         )}

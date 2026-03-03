@@ -51,7 +51,7 @@ export function Timer({ seconds, running, onEnd, devMode = false, onForceEnd }) 
 
   const pct = seconds > 0 ? (timeLeft / seconds) * 100 : 0
   const isUrgent = timeLeft <= 10
-  const color = timeLeft > 20 ? '#22c55e' : timeLeft > 10 ? '#f59e0b' : '#ef4444'
+  const ringColor = timeLeft > 10 ? '#2CE49D' : '#ef4444'
   const r = 44
   const circ = 2 * Math.PI * r
 
@@ -63,7 +63,7 @@ export function Timer({ seconds, running, onEnd, devMode = false, onForceEnd }) 
           <circle
             cx="50" cy="50" r={r}
             fill="none"
-            stroke={color}
+            stroke={ringColor}
             strokeWidth="8"
             strokeDasharray={circ}
             strokeDashoffset={circ * (1 - pct / 100)}
@@ -71,19 +71,16 @@ export function Timer({ seconds, running, onEnd, devMode = false, onForceEnd }) 
             style={{ transition: 'stroke-dashoffset 0.9s linear, stroke 0.5s' }}
           />
         </svg>
-        <span
-          className="absolute inset-0 flex items-center justify-center text-2xl font-black tabular-nums"
-          style={{ color }}
-        >
+        <span className="absolute inset-0 flex items-center justify-center text-2xl font-black tabular-nums text-white">
           {timeLeft}
         </span>
       </div>
       {devMode && onForceEnd && (
         <button
           onClick={onForceEnd}
-          className="mt-2 px-4 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold"
+          className="mt-2 px-4 py-1 rounded-lg bg-[#2CE49D] hover:opacity-90 text-[#141414] text-xs font-bold"
         >
-          ⚡ End Timer
+          Ⓞ End Timer
         </button>
       )}
     </div>

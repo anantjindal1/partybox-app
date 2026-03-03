@@ -23,7 +23,7 @@ export function GameChrome({ slug, gameTitle, state, children }) {
   return (
     <div className={`min-h-screen ${theme.bg} ${theme.text} flex flex-col`}>
       {/* Top bar: Home (saves state), theme switcher, language toggle */}
-      <header className={`flex items-center justify-between px-4 py-3 ${theme.border} border-b`}>
+      <header className={`flex items-center justify-between px-4 py-3 ${theme.border} border-b shadow-soft`}>
         <button
           onClick={handleHome}
           className={`px-4 py-2 rounded-xl ${theme.card} ${theme.cardHover} ${theme.text} text-sm font-semibold border ${theme.border}`}

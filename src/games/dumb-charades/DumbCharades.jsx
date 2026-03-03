@@ -8,7 +8,6 @@ import { useDevMode } from '../../hooks/useDevMode'
 import { clearSavedState } from '../../services/gameStatePersistence'
 import { gameReducer, getInitialState, ACTIONS, prepareWordQueue } from './reducer'
 import { useDCStrings } from './strings'
-import { useGameTheme } from '../../store/GameThemeContext'
 import { SetupScreen } from './SetupScreen'
 import { CategorySelect } from './CategorySelect'
 import { SettingsScreen } from './SettingsScreen'
@@ -17,6 +16,7 @@ import { RoundScreen } from './RoundScreen'
 import { TurnResultScreen, GameEndScreen } from './ResultScreen'
 import { FadeIn } from '../../components/FadeIn'
 import { resolveTitle } from '../../utils/strings'
+import { DC } from './theme'
 
 const DumbCharadesOnline = lazy(() => import('./DumbCharadesOnline'))
 
@@ -87,18 +87,17 @@ function DumbCharadesOffline({ slug, gameTitle }) {
 }
 
 function RoundStartScreen({ state, t, onStart }) {
-  const { theme } = useGameTheme()
-  const { teams, currentTeamIndex, turnNumber, settings } = state
+  const { teams, currentTeamIndex, settings } = state
   const team = teams[currentTeamIndex]
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 ${theme.text} flex flex-col items-center justify-center px-6 space-y-6 text-center`}>
+    <div className={`min-h-screen ${DC.bg} ${DC.text} flex flex-col items-center justify-center px-6 space-y-6 text-center`}>
       <p className="text-6xl">🎭</p>
-      <div className={`${theme.accentBg} rounded-2xl px-8 py-4 backdrop-blur-sm border border-white/20 shadow-lg shadow-rose-500/20`}>
-        <p className="text-2xl font-black text-zinc-900">{team?.name}</p>
+      <div className={`${DC.card} border ${DC.accentBorder} rounded-2xl px-8 py-4`}>
+        <p className="text-2xl font-black text-white">{team?.name}</p>
       </div>
-      <p className={`text-3xl font-bold ${theme.text}`}>{t('yourTurn')}</p>
-      <p className="text-white/50 text-lg">
+      <p className="text-3xl font-bold text-white">{t('yourTurn')}</p>
+      <p className={`${DC.textMuted} text-lg`}>
         {t('winPointsTarget')} {settings.winPoints} {t('winsAt')}
         &nbsp;·&nbsp;{settings.timerSeconds}{t('seconds')}
         &nbsp;·&nbsp;{t(settings.difficulty)}

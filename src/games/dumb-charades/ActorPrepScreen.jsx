@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { ACTIONS } from './reducer'
+import { DC } from './theme'
 
 const PREP_SECONDS = 30
 
@@ -45,16 +46,16 @@ export function ActorPrepScreen({ state, dispatch, t, devMode = false }) {
   const urgentPrep = prepTime <= 10
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white flex flex-col items-center justify-center px-6 space-y-6 text-center">
+    <div className={`min-h-screen ${DC.bg} ${DC.text} flex flex-col items-center justify-center px-6 space-y-6 text-center`}>
       {/* Team label */}
-      <div className="bg-rose-500/80 backdrop-blur-sm border border-rose-400/40 shadow-lg shadow-rose-500/20 rounded-2xl px-8 py-3">
+      <div className={`${DC.card} border ${DC.accentBorder} rounded-2xl px-8 py-3`}>
         <p className="text-2xl font-black text-white">{currentTeam?.name}</p>
       </div>
 
-      <p className="text-white/50 text-xs uppercase tracking-widest">{t('yourMovieIs')}</p>
+      <p className={`${DC.textMuted} text-xs uppercase tracking-widest`}>{t('yourMovieIs')}</p>
 
       {/* Movie name */}
-      <div className="bg-white/10 backdrop-blur-md border border-white/15 rounded-3xl px-8 py-6 w-full shadow-2xl">
+      <div className={`${DC.card} border ${DC.cardBorder} rounded-3xl px-8 py-6 w-full`}>
         <p
           className="text-white font-black leading-tight break-words"
           style={{ fontSize: currentMovie.length > 20 ? '1.8rem' : currentMovie.length > 12 ? '2.4rem' : '3rem' }}
@@ -64,15 +65,12 @@ export function ActorPrepScreen({ state, dispatch, t, devMode = false }) {
       </div>
 
       {/* Prep countdown */}
-      <p className={`text-lg font-semibold ${urgentPrep ? 'text-rose-400 animate-pulse' : 'text-slate-400'}`}>
+      <p className={`text-lg font-semibold ${urgentPrep ? `${DC.accent} animate-pulse` : DC.textMuted}`}>
         {t('prepTimeLeft')}: {prepTime}{t('seconds')}
       </p>
 
       {devMode && (
-        <button
-          onClick={handleSkipPrep}
-          className="text-xs text-amber-400 underline"
-        >
+        <button onClick={handleSkipPrep} className={`text-xs ${DC.accent} underline`}>
           ⚡ {t('skipPrep')}
         </button>
       )}
@@ -81,10 +79,10 @@ export function ActorPrepScreen({ state, dispatch, t, devMode = false }) {
       <button
         onClick={handleReplace}
         disabled={replacementsLeft <= 0}
-        className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15 hover:bg-white/20 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold transition-colors"
+        className={`flex items-center gap-2 px-6 py-3 rounded-2xl ${DC.card} border ${DC.cardBorder} hover:bg-[#252525] disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold transition-colors`}
       >
         🔄 {t('replaceWord')}
-        <span className="bg-rose-500 text-white text-xs font-black px-2 py-0.5 rounded-full">
+        <span className={`${DC.accentBg} text-[#141414] text-xs font-black px-2 py-0.5 rounded-full`}>
           {replacementsLeft} {t('replacementsLeft')}
         </span>
       </button>
@@ -93,17 +91,17 @@ export function ActorPrepScreen({ state, dispatch, t, devMode = false }) {
       <div className="w-full pt-2">
         <button
           onClick={handleReadyToAct}
-          className="w-full py-5 rounded-2xl bg-rose-500 hover:bg-rose-400 active:bg-rose-600 text-white font-black text-2xl transition-colors select-none shadow-lg shadow-rose-500/30 active:shadow-none"
+          className={`w-full py-5 rounded-2xl ${DC.accentBg} ${DC.accentBgHover} active:opacity-90 text-[#141414] font-black text-2xl transition-colors select-none`}
         >
           🎬 {t('readyToAct')}
         </button>
       </div>
 
       {/* Scoreboard */}
-      <div className="w-full bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-4 space-y-2">
+      <div className={`w-full ${DC.card} border ${DC.cardBorder} rounded-2xl p-4 space-y-2`}>
         {teams.map(tm => (
           <div key={tm.id} className={`flex justify-between px-4 py-2 rounded-xl ${
-            tm.id === currentTeam?.id ? 'bg-rose-500/40 border border-rose-400/40 backdrop-blur-sm' : 'bg-white/5 border border-white/10'
+            tm.id === currentTeam?.id ? `${DC.accentMuted} border ${DC.accentBorder}` : 'bg-white/5 border border-white/10'
           }`}>
             <span className="text-zinc-200 font-medium">{tm.name}</span>
             <span className="text-white font-bold">{tm.score} / {settings.winPoints}</span>
@@ -111,12 +109,8 @@ export function ActorPrepScreen({ state, dispatch, t, devMode = false }) {
         ))}
       </div>
 
-      {/* Guesser reminder */}
-      <p className="text-white/40 text-sm">
-        {t('guesserRole')}
-      </p>
+      <p className={`${DC.textMuted} text-sm`}>{t('guesserRole')}</p>
 
-      {/* End Game button */}
       <EndGameButton onConfirm={() => dispatch({ type: ACTIONS.FORCE_END })} t={t} />
     </div>
   )
@@ -127,13 +121,13 @@ function EndGameButton({ onConfirm, t }) {
   if (confirming) {
     return (
       <div className="flex gap-3 justify-center">
-        <button onClick={onConfirm} className="text-rose-400 text-sm font-semibold">✓ {t('yesEnd')}</button>
-        <button onClick={() => setConfirming(false)} className="text-white/40 text-sm">Cancel</button>
+        <button onClick={onConfirm} className={`${DC.accent} text-sm font-semibold`}>✓ {t('yesEnd')}</button>
+        <button onClick={() => setConfirming(false)} className={`${DC.textMuted} text-sm`}>Cancel</button>
       </div>
     )
   }
   return (
-    <button onClick={() => setConfirming(true)} className="text-white/25 text-xs underline mt-2">
+    <button onClick={() => setConfirming(true)} className="text-zinc-500 text-xs underline mt-2">
       {t('endGame')}
     </button>
   )

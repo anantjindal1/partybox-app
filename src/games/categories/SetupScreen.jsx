@@ -3,6 +3,8 @@ import { useGameTheme } from '../../store/GameThemeContext'
 import { ACTIONS } from './reducer'
 import { getRandomLetter, getCategoriesPool } from './dictionary'
 import { Button } from '../../components/Button'
+import { Card } from '../../components/Card'
+import { Input } from '../../components/Input'
 
 const MIN_PLAYERS = 2
 const MAX_PLAYERS = 6
@@ -64,9 +66,9 @@ export function SetupScreen({ state, dispatch }) {
       </div>
 
       <p className={`${theme.textMuted} text-sm mb-2`}>Player names</p>
-      <div className="space-y-3 mb-8">
+      <Card className="p-4 space-y-3 mb-8">
         {Array.from({ length: playerCount }, (_, i) => (
-          <input
+          <Input
             key={i}
             type="text"
             value={names[i] || ''}
@@ -76,10 +78,10 @@ export function SetupScreen({ state, dispatch }) {
               setNames(next)
             }}
             placeholder={`Player ${i + 1}`}
-            className={`w-full px-4 py-3 rounded-xl border ${theme.input || 'border-zinc-600 bg-zinc-800'} ${theme.text}`}
+            className="w-full"
           />
         ))}
-      </div>
+      </Card>
 
       <Button onClick={handleStart}>Start</Button>
     </div>

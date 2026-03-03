@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useLang } from '../store/LangContext'
 import { useProfile } from '../hooks/useProfile'
 import { createRoom } from '../services/room'
+import { Card } from './Card'
 
 export function CreateRoomSheet({ game, onClose }) {
   const navigate = useNavigate()
@@ -46,9 +47,9 @@ export function CreateRoomSheet({ game, onClose }) {
       />
 
       {/* Bottom sheet */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-zinc-900 border-t border-zinc-700/60 rounded-t-3xl px-5 pt-5 pb-8 max-w-lg mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-surfaceElevated border-t border-border rounded-t-3xl px-5 pt-5 pb-8 max-w-lg mx-auto shadow-card">
         {/* Drag handle */}
-        <div className="w-10 h-1 bg-zinc-700 rounded-full mx-auto mb-5" />
+        <div className="w-10 h-1 bg-border rounded-full mx-auto mb-5" />
 
         {/* Game header */}
         <div className="flex items-center gap-3 mb-6">
@@ -67,29 +68,27 @@ export function CreateRoomSheet({ game, onClose }) {
         </p>
 
         <div className="space-y-3">
-          <button
-            onClick={() => handleSelect('casual')}
-            disabled={loading}
-            className="w-full flex items-center gap-4 p-4 rounded-2xl bg-zinc-800 border border-zinc-700/60 hover:border-zinc-500/60 hover:bg-zinc-800/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-left"
+          <Card
+            onClick={loading ? undefined : () => handleSelect('casual')}
+            className={`w-full flex items-center gap-4 p-4 text-left ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <span className="text-3xl">🎲</span>
             <div>
               <p className="text-white font-bold">{t('casualRoom')}</p>
               <p className="text-zinc-400 text-sm">{t('casualDesc')}</p>
             </div>
-          </button>
+          </Card>
 
-          <button
-            onClick={() => handleSelect('ranked')}
-            disabled={loading}
-            className="w-full flex items-center gap-4 p-4 rounded-2xl bg-zinc-800 border border-amber-500/30 hover:border-amber-500/60 hover:bg-zinc-800/80 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-left"
+          <Card
+            onClick={loading ? undefined : () => handleSelect('ranked')}
+            className={`w-full flex items-center gap-4 p-4 text-left border-accent/40 hover:border-accent/60 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <span className="text-3xl">🏆</span>
             <div>
-              <p className="text-amber-400 font-bold">{t('rankedRoom')}</p>
+              <p className="text-accent font-bold">{t('rankedRoom')}</p>
               <p className="text-zinc-400 text-sm">{t('rankedDesc')}</p>
             </div>
-          </button>
+          </Card>
         </div>
 
         {loading && (

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button } from '../../components/Button'
 import { ACTIONS } from './reducer'
+import { DC } from './theme'
 
 export function SetupScreen({ state, dispatch, t }) {
   const [teamCount, setTeamCount] = useState(state.teams.length)
@@ -21,20 +22,20 @@ export function SetupScreen({ state, dispatch, t }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white flex flex-col px-6 pt-10 pb-8 space-y-6">
-      <h1 className="text-3xl font-black text-rose-400">🎭 {t('title')}</h1>
-      <h2 className="text-xl font-bold text-slate-300">{t('teamSetup')}</h2>
+    <div className={`min-h-screen ${DC.bg} ${DC.text} flex flex-col px-6 pt-10 pb-8 space-y-6`}>
+      <h1 className={`text-3xl font-black ${DC.accent}`}>🎭 {t('title')}</h1>
+      <h2 className={`text-xl font-bold ${DC.textMuted}`}>{t('teamSetup')}</h2>
 
       {/* Team count selector */}
       <div>
-        <p className="text-slate-400 text-sm mb-3">{t('howManyTeams')}</p>
+        <p className={`${DC.textMuted} text-sm mb-3`}>{t('howManyTeams')}</p>
         <div className="grid grid-cols-4 gap-3">
           {[1, 2, 3, 4].map(n => (
             <button
               key={n}
               onClick={() => updateCount(n)}
               className={`py-5 rounded-2xl text-3xl font-black transition-colors ${
-                teamCount === n ? 'bg-rose-500 text-white' : 'bg-slate-800 text-slate-300'
+                teamCount === n ? `${DC.accentBg} text-[#141414]` : `${DC.card} ${DC.textMuted} border ${DC.cardBorder}`
               }`}
             >
               {n}
@@ -57,7 +58,7 @@ export function SetupScreen({ state, dispatch, t }) {
             }}
             placeholder={`Team ${i + 1}`}
             maxLength={20}
-            className="w-full bg-slate-800 text-white text-xl rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-rose-500"
+            className={`w-full ${DC.card} ${DC.text} text-xl rounded-2xl px-5 py-4 border ${DC.cardBorder} outline-none focus:ring-2 focus:ring-[#2CE49D]`}
           />
         ))}
       </div>

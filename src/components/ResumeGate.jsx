@@ -1,9 +1,11 @@
 import { useLang } from '../store/LangContext'
 import { useGameTheme } from '../store/GameThemeContext'
+import { Button } from './Button'
 
 /**
  * Shared pause-gate shown when a saved game is detected on load.
  * Replaces the identical local ResumeGate component that was copy-pasted into every game file.
+ * Uses shared Button and design tokens to match the shell.
  */
 export function ResumeGate({ gameTitle, onResume, onNewGame }) {
   const { t } = useLang()
@@ -14,19 +16,13 @@ export function ResumeGate({ gameTitle, onResume, onNewGame }) {
       <p className="text-5xl">⏸</p>
       <h2 className="text-xl font-bold">{gameTitle}</h2>
       <p className={theme.textMuted}>{t('gamesInProgress')}</p>
-      <div className="flex flex-wrap gap-3 justify-center">
-        <button
-          onClick={onResume}
-          className={`px-6 py-3 rounded-xl font-semibold ${theme.accentBg} ${theme.accentBgHover} text-zinc-900`}
-        >
+      <div className="flex flex-wrap gap-3 justify-center max-w-sm w-full">
+        <Button onClick={onResume} variant="primary" className="!w-auto px-6 !py-3 !text-base">
           {t('resumeGame')}
-        </button>
-        <button
-          onClick={onNewGame}
-          className={`px-6 py-3 rounded-xl border ${theme.border} ${theme.card} ${theme.cardHover} font-semibold`}
-        >
+        </Button>
+        <Button onClick={onNewGame} variant="ghost" className="!w-auto px-6 !py-3 !text-base">
           {t('newGame')}
-        </button>
+        </Button>
       </div>
     </div>
   )
