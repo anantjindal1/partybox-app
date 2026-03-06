@@ -1,4 +1,4 @@
-import allQuestionsRaw from '../../questions/normalized.json'
+import allQuestionsRaw from '../data/questions.json'
 import { getQuestions } from '../games/firstbell/questions'
 
 // Log category counts once on module load
