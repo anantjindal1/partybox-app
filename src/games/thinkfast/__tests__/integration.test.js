@@ -7,7 +7,7 @@ jest.mock('../../../firebase', () => ({ db: {} }))
 import { getInitialState, rapidFireQuizReducer, ACTIONS } from '../reducer'
 import { generateRoundQuestions } from '../questionpacks'
 
-describe('rapid-fire-quiz integration', () => {
+describe('thinkfast integration', () => {
   test('full 3-player round flow', () => {
     const questions = generateRoundQuestions('Cricket', 5)
     expect(questions.length).toBe(5)

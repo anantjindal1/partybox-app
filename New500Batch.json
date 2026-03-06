@@ -1,0 +1,2131 @@
+[
+  {
+    "category": "business",
+    "question": "Which company pioneered overnight package delivery?",
+    "options": [
+      "UPS",
+      "FedEx",
+      "USPS",
+      "DHL"
+    ],
+    "correctAnswer": "FedEx",
+    "explanation": "FedEx (Federal Express) launched overnight delivery in 1973.",
+    "difficulty": "easy",
+    "tags": [
+      "business"
+    ]
+  },
+  {
+    "category": "general_knowledge",
+    "question": "In which year did the first commercial flight take place?",
+    "options": [
+      "1924",
+      "1914",
+      "1919",
+      "1929"
+    ],
+    "correctAnswer": "1914",
+    "explanation": "The first scheduled commercial flight was in Florida in 1914.",
+    "difficulty": "hard",
+    "tags": [
+      "general_knowledge"
+    ]
+  },
+  {
+    "category": "technology",
+    "question": "Which company developed the first commercially successful microprocessor?",
+    "options": [
+      "AMD",
+      "Intel",
+      "Texas Instruments",
+      "Motorola"
+    ],
+    "correctAnswer": "Intel",
+    "explanation": "Intel's 4004, released in 1971, was the first commercial microprocessor.",
+    "difficulty": "medium",
+    "tags": [
+      "technology"
+    ]
+  },
+  {
+    "category": "sports",
+    "question": "Who holds the women's 100m world record?",
+    "options": [
+      "Shelly-Ann Fraser-Pryce",
+      "Florence Griffith-Joyner",
+      "Elaine Thompson",
+      "Carmelita Jeter"
+    ],
+    "correctAnswer": "Florence Griffith-Joyner",
+    "explanation": "Flo-Jo set 10.49s in 1988.",
+    "difficulty": "medium",
+    "tags": [
+      "sports"
+    ]
+  },
+  {
+    "category": "space",
+    "question": "Which animal has the longest migration?",
+    "options": [
+      "Caribou",
+      "Monarch butterfly",
+      "Arctic tern",
+      "Humpback whale"
+    ],
+    "correctAnswer": "Arctic tern",
+    "explanation": "Arctic terns fly about 71,000 km annually.",
+    "difficulty": "hard",
+    "tags": [
+      "space"
+    ]
+  },
+  {
+    "category": "cricket",
+    "question": "Which team won the first-ever IPL season in 2008?",
+    "options": [
+      "Rajasthan Royals",
+      "Kolkata Knight Riders",
+      "Mumbai Indians",
+      "Chennai Super Kings"
+    ],
+    "correctAnswer": "Rajasthan Royals",
+    "explanation": "Rajasthan Royals, led by Shane Warne, won the inaugural IPL in 2008.",
+    "difficulty": "easy",
+    "tags": [
+      "cricket"
+    ]
+  },
+  {
+    "category": "weird_facts",
+    "question": "A single strand of spaghetti is called a what?",
+    "options": [
+      "Spaghettino",
+      "Spaghetto",
+      "Spaghettini",
+      "Spaghettone"
+    ],
+    "correctAnswer": "Spaghetto",
+    "explanation": "In Italian, \"spaghetto\" is the singular of \"spaghetti.\"",
+    "difficulty": "easy",
+    "tags": [
+      "weird_facts"
+    ]
+  },
+  {
+    "category": "bollywood",
+    "question": "Which film features the song \"Raabta\"?",
+    "options": [
+      "Raabta",
+      "Agent Vinod",
+      "Barfi!",
+      "Cocktail"
+    ],
+    "correctAnswer": "Agent Vinod",
+    "explanation": "Raabta was from the 2012 Saif Ali Khan film Agent Vinod.",
+    "difficulty": "hard",
+    "tags": [
+      "bollywood"
+    ]
+  },
+  {
+    "category": "indian_history",
+    "question": "Who established the Asiatic Society of Bengal?",
+    "options": [
+      "William Jones",
+      "Warren Hastings",
+      "Lord Cornwallis",
+      "Charles Wilkins"
+    ],
+    "correctAnswer": "William Jones",
+    "explanation": "Jones founded it in 1784.",
+    "difficulty": "hard",
+    "tags": [
+      "indian_history"
+    ]
+  },
+  {
+    "category": "science",
+    "question": "What is the rarest blood type?",
+    "options": [
+      "AB negative",
+      "A negative",
+      "B negative",
+      "O negative"
+    ],
+    "correctAnswer": "AB negative",
+    "explanation": "AB negative is found in about 1% of the population.",
+    "difficulty": "medium",
+    "tags": [
+      "science"
+    ]
+  },
+  {
+    "category": "science",
+    "question": "What is the study of earthquakes called?",
+    "options": [
+      "Volcanology",
+      "Meteorology",
+      "Seismology",
+      "Geology"
+    ],
+    "correctAnswer": "Seismology",
+    "explanation": "Seismology studies seismic waves and earthquake phenomena.",
+    "difficulty": "easy",
+    "tags": [
+      "science"
+    ]
+  },
+  {
+    "category": "space",
+    "question": "Which planet has a hexagon-shaped storm at its north pole?",
+    "options": [
+      "Saturn",
+      "Neptune",
+      "Uranus",
+      "Jupiter"
+    ],
+    "correctAnswer": "Saturn",
+    "explanation": "Saturn's north pole has a persistent hexagonal jet stream discovered by Voyager.",
+    "difficulty": "easy",
+    "tags": [
+      "space"
+    ]
+  },
+  {
+    "category": "business",
+    "question": "Which company acquired GitHub in 2018?",
+    "options": [
+      "Amazon",
+      "Google",
+      "Salesforce",
+      "Microsoft",
+      "Microsoft"
+    ],
+    "correctAnswer": "Microsoft",
+    "explanation": "Microsoft acquired GitHub for $7.5 billion.",
+    "difficulty": "easy",
+    "tags": [
+      "business"
+    ]
+  },
+  {
+    "category": "india_politics",
+    "question": "In which year was the Right to Information Act passed?",
+    "options": [
+      "2005",
+      "2003",
+      "2004",
+      "2006"
+    ],
+    "correctAnswer": "2005",
+    "explanation": "The RTI Act was passed by Parliament in 2005 and came into force in October 2005.",
+    "difficulty": "easy",
+    "tags": [
+      "india_politics"
+    ]
+  },
+  {
+    "category": "sports",
+    "question": "Which country invented the sport of judo?",
+    "options": [
+      "Brazil",
+      "Japan",
+      "China",
+      "Korea"
+    ],
+    "correctAnswer": "Japan",
+    "explanation": "Jigoro Kano founded judo in 1882 in Japan.",
+    "difficulty": "easy",
+    "tags": [
+      "sports"
+    ]
+  },
+  {
+    "category": "general_knowledge",
+    "question": "In which year did the United Nations adopt the Universal Declaration of Human Rights?",
+    "options": [
+      "1946",
+      "1948",
+      "1947",
+      "1949"
+    ],
+    "correctAnswer": "1948",
+    "explanation": "The UDHR was adopted on 10 December 1948.",
+    "difficulty": "hard",
+    "tags": [
+      "general_knowledge"
+    ]
+  },
+  {
+    "category": "food",
+    "question": "Which fruit is known as the alligator pear?",
+    "options": [
+      "Avocado",
+      "Mango",
+      "Papaya",
+      "Guava"
+    ],
+    "correctAnswer": "Avocado",
+    "explanation": "Avocado was called alligator pear due to its skin.",
+    "difficulty": "medium",
+    "tags": [
+      "food"
+    ]
+  },
+  {
+    "category": "bollywood",
+    "question": "Who composed the music for \"Rock On!!\"?",
+    "options": [
+      "A.R. Rahman",
+      "Shankar-Ehsaan-Loy",
+      "Pritam",
+      "Amit Trivedi"
+    ],
+    "correctAnswer": "Shankar-Ehsaan-Loy",
+    "explanation": "Shankar-Ehsaan-Loy composed the soundtrack for Rock On!! (2008).",
+    "difficulty": "easy",
+    "tags": [
+      "bollywood"
+    ]
+  },
+  {
+    "category": "mind_blown",
+    "question": "Do goldfish have a 3-second memory?",
+    "options": [
+      "No",
+      "Only in ponds",
+      "Yes",
+      "Only in bowls"
+    ],
+    "correctAnswer": "No",
+    "explanation": "Goldfish can remember for months and can be trained.",
+    "difficulty": "hard",
+    "tags": [
+      "mind_blown"
+    ]
+  },
+  {
+    "category": "general_knowledge",
+    "question": "In which year was the first iPhone released?",
+    "options": [
+      "2007",
+      "2006",
+      "2005",
+      "2008"
+    ],
+    "correctAnswer": "2007",
+    "explanation": "Steve Jobs unveiled the iPhone in January 2007.",
+    "difficulty": "easy",
+    "tags": [
+      "general_knowledge"
+    ]
+  },
+  {
+    "category": "law_cases",
+    "question": "Which case dealt with the Shah Bano maintenance controversy?",
+    "options": [
+      "Sarla Mudgal",
+      "Danial Latifi",
+      "Mohammad Ahmed Khan v. Shah Bano Begum",
+      "Shayara Bano",
+      "Mohammad Ahmed Khan v. Shah Bano Begum"
+    ],
+    "correctAnswer": "Mohammad Ahmed Khan v. Shah Bano Begum",
+    "explanation": "The 1985 case dealt with maintenance for divorced Muslim women.",
+    "difficulty": "easy",
+    "tags": [
+      "law_cases"
+    ]
+  },
+  {
+    "category": "science",
+    "question": "Which vitamin is synthesized by the skin when exposed to sunlight?",
+    "options": [
+      "Vitamin C",
+      "Vitamin D",
+      "Vitamin K",
+      "Vitamin A"
+    ],
+    "correctAnswer": "Vitamin D",
+    "explanation": "UVB rays trigger vitamin D synthesis in the skin.",
+    "difficulty": "easy",
+    "tags": [
+      "science"
+    ]
+  },
+  {
+    "category": "law_cases",
+    "question": "Which case established environmental protection as part of Article 21?",
+    "options": [
+      "Vellore Citizens Welfare Forum",
+      "Subhash Kumar v. State of Bihar",
+      "Rural Litigation and Entitlement Kendra",
+      "M.C. Mehta v. Union of India"
+    ],
+    "correctAnswer": "Subhash Kumar v. State of Bihar",
+    "explanation": "The 1991 case linked environment to right to life.",
+    "difficulty": "hard",
+    "tags": [
+      "law_cases"
+    ]
+  },
+  {
+    "category": "cricket",
+    "question": "Which bowler has the best economy rate in IPL history (min 50 overs)?",
+    "options": [
+      "Rashid Khan",
+      "Jasprit Bumrah",
+      "Sunil Narine",
+      "Kagiso Rabada"
+    ],
+    "correctAnswer": "Rashid Khan",
+    "explanation": "Rashid has maintained an economy under 7 in IPL.",
+    "difficulty": "hard",
+    "tags": [
+      "cricket"
+    ]
+  },
+  {
+    "category": "weird_facts",
+    "question": "Which animal has the longest tongue relative to body size?",
+    "options": [
+      "Woodpecker",
+      "Chameleon",
+      "Chameleon",
+      "Frog",
+      "Anteater"
+    ],
+    "correctAnswer": "Chameleon",
+    "explanation": "A chameleon's tongue can be twice its body length.",
+    "difficulty": "easy",
+    "tags": [
+      "weird_facts"
+    ]
+  },
+  {
+    "category": "law_cases",
+    "question": "Which case dealt with the right to marry a person of one's choice?",
+    "options": [
+      "Shafin Jahan v. Asokan K.M.",
+      "Lata Singh v. State of UP",
+      "Hadiya Case",
+      "Navtej Singh Johar"
+    ],
+    "correctAnswer": "Shafin Jahan v. Asokan K.M.",
+    "explanation": "The 2018 case upheld the right to marry without state interference.",
+    "difficulty": "hard",
+    "tags": [
+      "law_cases"
+    ]
+  },
+  {
+    "category": "india_politics",
+    "question": "Who was the first woman to become Leader of Opposition in Lok Sabha?",
+    "options": [
+      "Jayalalithaa",
+      "Sushma Swaraj",
+      "Mamata Banerjee",
+      "Sonia Gandhi"
+    ],
+    "correctAnswer": "Sushma Swaraj",
+    "explanation": "Sushma Swaraj became Leader of Opposition in 2009.",
+    "difficulty": "easy",
+    "tags": [
+      "india_politics"
+    ]
+  },
+  {
+    "category": "quotes",
+    "question": "Who said \"The only impossible journey is the one you never begin\"?",
+    "options": [
+      "Nelson Mandela",
+      "Oprah Winfrey",
+      "Tony Blair",
+      "Tony Robbins"
+    ],
+    "correctAnswer": "Tony Robbins",
+    "explanation": "This quote is attributed to motivational speaker Tony Robbins.",
+    "difficulty": "easy",
+    "tags": [
+      "quotes"
+    ]
+  },
+  {
+    "category": "general_knowledge",
+    "question": "In which year did the Euro currency enter circulation?",
+    "options": [
+      "2002",
+      "1999",
+      "2001",
+      "2000"
+    ],
+    "correctAnswer": "2002",
+    "explanation": "Euro banknotes and coins entered circulation on 1 January 2002.",
+    "difficulty": "easy",
+    "tags": [
+      "general_knowledge"
+    ]
+  },
+  {
+    "category": "cricket",
+    "question": "In which year did India win its first Cricket World Cup?",
+    "options": [
+      "1992",
+      "1996",
+      "1983",
+      "1987"
+    ],
+    "correctAnswer": "1983",
+    "explanation": "India won the 1983 World Cup under Kapil Dev, defeating West Indies in the final.",
+    "difficulty": "easy",
+    "tags": [
+      "cricket"
+    ]
+  },
+  {
+    "category": "science",
+    "question": "What is the study of insects called?",
+    "options": [
+      "Entomology",
+      "Ornithology",
+      "Ichthyology",
+      "Herpetology"
+    ],
+    "correctAnswer": "Entomology",
+    "explanation": "Entomology is the scientific study of insects.",
+    "difficulty": "easy",
+    "tags": [
+      "science"
+    ]
+  },
+  {
+    "category": "space",
+    "question": "Which country has a museum of broken relationships?",
+    "options": [
+      "Germany",
+      "Italy",
+      "France",
+      "Croatia"
+    ],
+    "correctAnswer": "Croatia",
+    "explanation": "The museum is in Zagreb.",
+    "difficulty": "hard",
+    "tags": [
+      "space"
+    ]
+  },
+  {
+    "category": "food",
+    "question": "Which country produces the most honey?",
+    "options": [
+      "China",
+      "USA",
+      "Iran",
+      "Turkey"
+    ],
+    "correctAnswer": "China",
+    "explanation": "China produces about 25% of the world's honey.",
+    "difficulty": "medium",
+    "tags": [
+      "food"
+    ]
+  },
+  {
+    "category": "law_cases",
+    "question": "Which case struck down Section 66A of the IT Act?",
+    "options": [
+      "Joseph Shine v. Union of India",
+      "Justice K.S. Puttaswamy v. Union of India",
+      "Navtej Singh Johar v. Union of India",
+      "Shreya Singhal v. Union of India"
+    ],
+    "correctAnswer": "Shreya Singhal v. Union of India",
+    "explanation": "The 2015 judgment struck down the draconian provision that criminalized \"offensive\" online speech.",
+    "difficulty": "easy",
+    "tags": [
+      "law_cases"
+    ]
+  },
+  {
+    "category": "india_politics",
+    "question": "Which article of the Constitution abolishes untouchability?",
+    "options": [
+      "Article 14",
+      "Article 15",
+      "Article 16",
+      "Article 17"
+    ],
+    "correctAnswer": "Article 17",
+    "explanation": "Article 17 explicitly abolishes untouchability.",
+    "difficulty": "easy",
+    "tags": [
+      "india_politics"
+    ]
+  },
+  {
+    "category": "food",
+    "question": "Which country produces the most almonds?",
+    "options": [
+      "Iran",
+      "USA",
+      "USA",
+      "Australia",
+      "Spain"
+    ],
+    "correctAnswer": "USA",
+    "explanation": "California produces about 80% of the world's almonds.",
+    "difficulty": "easy",
+    "tags": [
+      "food"
+    ]
+  },
+  {
+    "category": "bollywood",
+    "question": "Which film features the song \"Channa Mereya\"?",
+    "options": [
+      "Jab Harry Met Sejal",
+      "Rockstar",
+      "Ae Dil Hai Mushkil",
+      "Tamasha"
+    ],
+    "correctAnswer": "Ae Dil Hai Mushkil",
+    "explanation": "The song was from the 2016 Karan Johar film.",
+    "difficulty": "medium",
+    "tags": [
+      "bollywood"
+    ]
+  },
+  {
+    "category": "mind_blown",
+    "question": "A \"jiffy\" is an actual unit of time. How long is it?",
+    "options": [
+      "1/100 of a second",
+      "1/10 of a second",
+      "1/50 of a second",
+      "1/60 of a second"
+    ],
+    "correctAnswer": "1/100 of a second",
+    "explanation": "In physics, a jiffy is about 3×10^-24 seconds; in computing, often 1/100 or 1/60 sec.",
+    "difficulty": "hard",
+    "tags": [
+      "mind_blown"
+    ]
+  },
+  {
+    "category": "cities",
+    "question": "Which city is known as the Motor City?",
+    "options": [
+      "Pittsburgh",
+      "Cleveland",
+      "Chicago",
+      "Detroit"
+    ],
+    "correctAnswer": "Detroit",
+    "explanation": "Detroit was the heart of the US automobile industry.",
+    "difficulty": "easy",
+    "tags": [
+      "cities"
+    ]
+  },
+  {
+    "category": "space",
+    "question": "Which sea has no coastline?",
+    "options": [
+      "Mediterranean",
+      "Caribbean",
+      "Sargasso Sea",
+      "Red Sea"
+    ],
+    "correctAnswer": "Sargasso Sea",
+    "explanation": "It is bounded by ocean currents rather than land.",
+    "difficulty": "medium",
+    "tags": [
+      "space"
+    ]
+  },
+  {
+    "category": "cricket",
+    "question": "Who has taken the most catches in Test cricket by a non-wicketkeeper?",
+    "options": [
+      "Ricky Ponting",
+      "Mahela Jayawardene",
+      "Rahul Dravid",
+      "Jacques Kallis"
+    ],
+    "correctAnswer": "Rahul Dravid",
+    "explanation": "Dravid took 210 catches in Tests.",
+    "difficulty": "hard",
+    "tags": [
+      "cricket"
+    ]
+  },
+  {
+    "category": "bollywood",
+    "question": "Which actor played the lead in \"Newton\"?",
+    "options": [
+      "Pankaj Tripathi",
+      "Rajkummar Rao",
+      "Kay Kay Menon",
+      "Nawazuddin Siddiqui"
+    ],
+    "correctAnswer": "Rajkummar Rao",
+    "explanation": "Rajkummar Rao played Newton Kumar in the 2017 film.",
+    "difficulty": "easy",
+    "tags": [
+      "bollywood"
+    ]
+  },
+  {
+    "category": "india_politics",
+    "question": "Which Article provides for the Finance Commission?",
+    "options": [
+      "Article 279",
+      "Article 280",
+      "Article 282",
+      "Article 281"
+    ],
+    "correctAnswer": "Article 280",
+    "explanation": "Article 280 mandates the Finance Commission every five years.",
+    "difficulty": "hard",
+    "tags": [
+      "india_politics"
+    ]
+  },
+  {
+    "category": "cricket",
+    "question": "Which format of cricket has 50 overs per side?",
+    "options": [
+      "Test",
+      "T10",
+      "ODI",
+      "T20"
+    ],
+    "correctAnswer": "ODI",
+    "explanation": "One Day Internationals have 50 overs per side.",
+    "difficulty": "easy",
+    "tags": [
+      "cricket"
+    ]
+  },
+  {
+    "category": "general_knowledge",
+    "question": "In which year did the Berlin Wall fall?",
+    "options": [
+      "1987",
+      "1993",
+      "1989",
+      "1991"
+    ],
+    "correctAnswer": "1989",
+    "explanation": "The Berlin Wall fell on 9 November 1989.",
+    "difficulty": "medium",
+    "tags": [
+      "general_knowledge"
+    ]
+  },
+  {
+    "category": "science",
+    "question": "Which gland produces melatonin?",
+    "options": [
+      "Thyroid",
+      "Adrenal",
+      "Pineal gland",
+      "Pituitary"
+    ],
+    "correctAnswer": "Pineal gland",
+    "explanation": "Melatonin regulates sleep-wake cycles.",
+    "difficulty": "hard",
+    "tags": [
+      "science"
+    ]
+  },
+  {
+    "category": "technology",
+    "question": "What does \"SSD\" stand for in computing?",
+    "options": [
+      "Super Speed Disk",
+      "System Storage Device",
+      "Secure Storage Drive",
+      "Solid State Drive"
+    ],
+    "correctAnswer": "Solid State Drive",
+    "explanation": "SSDs use flash memory instead of spinning disks.",
+    "difficulty": "easy",
+    "tags": [
+      "technology"
+    ]
+  },
+  {
+    "category": "sports",
+    "question": "Which country has won the most Olympic medals in wrestling?",
+    "options": [
+      "Russia",
+      "Japan",
+      "Iran",
+      "USA"
+    ],
+    "correctAnswer": "USA",
+    "explanation": "The USA has won over 130 Olympic wrestling medals.",
+    "difficulty": "medium",
+    "tags": [
+      "sports"
+    ]
+  },
+  {
+    "category": "general_knowledge",
+    "question": "Which of these languages is NOT one of the six official UN languages?",
+    "options": [
+      "Arabic",
+      "Chinese",
+      "Portuguese",
+      "Russian"
+    ],
+    "correctAnswer": "Portuguese",
+    "explanation": "The six UN languages are Arabic, Chinese, English, French, Russian, and Spanish.",
+    "difficulty": "easy",
+    "tags": [
+      "general_knowledge"
+    ]
+  },
+  {
+    "category": "indian_history",
+    "question": "Which empire built the Ellora Caves?",
+    "options": [
+      "Rashtrakuta",
+      "Gupta",
+      "Chalukya",
+      "Vakataka"
+    ],
+    "correctAnswer": "Rashtrakuta",
+    "explanation": "The Kailasa temple at Ellora was carved under Rashtrakuta rule.",
+    "difficulty": "medium",
+    "tags": [
+      "indian_history"
+    ]
+  },
+  {
+    "category": "indian_history",
+    "question": "Which Mughal emperor introduced the Mansabdari system?",
+    "options": [
+      "Babur",
+      "Jahangir",
+      "Akbar",
+      "Humayun"
+    ],
+    "correctAnswer": "Akbar",
+    "explanation": "Akbar refined the system for military and civil administration.",
+    "difficulty": "hard",
+    "tags": [
+      "indian_history"
+    ]
+  },
+  {
+    "category": "india_politics",
+    "question": "Who was the first Deputy Prime Minister of India?",
+    "options": [
+      "Charan Singh",
+      "Morarji Desai",
+      "Jagjivan Ram",
+      "Sardar Vallabhbhai Patel"
+    ],
+    "correctAnswer": "Sardar Vallabhbhai Patel",
+    "explanation": "Patel served as Deputy PM from 1947 to 1950.",
+    "difficulty": "medium",
+    "tags": [
+      "india_politics"
+    ]
+  },
+  {
+    "category": "india_politics",
+    "question": "Which year did the 73rd Constitutional Amendment come into force?",
+    "options": [
+      "1994",
+      "1992",
+      "1995",
+      "1993",
+      "1993"
+    ],
+    "correctAnswer": "1993",
+    "explanation": "The amendment established Panchayati Raj institutions.",
+    "difficulty": "easy",
+    "tags": [
+      "india_politics"
+    ]
+  },
+  {
+    "category": "mind_blown",
+    "question": "Honey never spoils. True or false?",
+    "options": [
+      "False",
+      "Only for 100 years",
+      "Only in sealed jars",
+      "True"
+    ],
+    "correctAnswer": "True",
+    "explanation": "Archaeologists have found edible honey in 3000-year-old Egyptian tombs.",
+    "difficulty": "easy",
+    "tags": [
+      "mind_blown"
+    ]
+  },
+  {
+    "category": "technology",
+    "question": "What does \"SSH\" stand for?",
+    "options": [
+      "Secure Socket Host",
+      "System Secure Hub",
+      "Safe Shell Protocol",
+      "Secure Shell"
+    ],
+    "correctAnswer": "Secure Shell",
+    "explanation": "SSH is a cryptographic network protocol for secure communication.",
+    "difficulty": "medium",
+    "tags": [
+      "technology"
+    ]
+  },
+  {
+    "category": "bollywood",
+    "question": "Which film featured the song \"Senorita\"?",
+    "options": [
+      "Dil Chahta Hai",
+      "Jab We Met",
+      "Zindagi Na Milegi Dobara",
+      "Rock On!!"
+    ],
+    "correctAnswer": "Zindagi Na Milegi Dobara",
+    "explanation": "\"Senorita\" was from ZNMD (2011), sung by Farhan Akhtar, Hrithik Roshan, and Abhay Deol.",
+    "difficulty": "easy",
+    "tags": [
+      "bollywood"
+    ]
+  },
+  {
+    "category": "world_geography",
+    "question": "Which country produces the most vanilla in the world?",
+    "options": [
+      "Tahiti",
+      "Mexico",
+      "Indonesia",
+      "Madagascar"
+    ],
+    "correctAnswer": "Madagascar",
+    "explanation": "Madagascar produces about 80% of the world's vanilla.",
+    "difficulty": "hard",
+    "tags": [
+      "world_geography"
+    ]
+  },
+  {
+    "category": "general_knowledge",
+    "question": "In which year was the first SMS sent?",
+    "options": [
+      "1994",
+      "1992",
+      "1990",
+      "1996"
+    ],
+    "correctAnswer": "1992",
+    "explanation": "The first SMS was sent by Neil Papworth in December 1992: \"Merry Christmas.\"",
+    "difficulty": "easy",
+    "tags": [
+      "general_knowledge"
+    ]
+  },
+  {
+    "category": "general_knowledge",
+    "question": "How many strings does a standard sitar have?",
+    "options": [
+      "6",
+      "21",
+      "18",
+      "7"
+    ],
+    "correctAnswer": "18",
+    "explanation": "A sitar typically has 18 strings: 6-7 main playing strings and 11-13 sympathetic strings.",
+    "difficulty": "easy",
+    "tags": [
+      "general_knowledge"
+    ]
+  },
+  {
+    "category": "world_geography",
+    "question": "Which country has the most number of active geysers?",
+    "options": [
+      "Iceland",
+      "USA",
+      "USA",
+      "New Zealand",
+      "Russia"
+    ],
+    "correctAnswer": "USA",
+    "explanation": "Yellowstone has over half the world's geysers.",
+    "difficulty": "easy",
+    "tags": [
+      "world_geography"
+    ]
+  },
+  {
+    "category": "indian_history",
+    "question": "Who designed the Indian national flag?",
+    "options": [
+      "Rabindranath Tagore",
+      "Pingali Venkayya",
+      "Jawaharlal Nehru",
+      "Mahatma Gandhi"
+    ],
+    "correctAnswer": "Pingali Venkayya",
+    "explanation": "Pingali Venkayya designed the tricolor, which was adopted in 1947.",
+    "difficulty": "easy",
+    "tags": [
+      "indian_history"
+    ]
+  },
+  {
+    "category": "cricket",
+    "question": "Which team has the highest team total in IPL history?",
+    "options": [
+      "Chennai Super Kings",
+      "Royal Challengers Bangalore",
+      "Mumbai Indians",
+      "Kolkata Knight Riders"
+    ],
+    "correctAnswer": "Royal Challengers Bangalore",
+    "explanation": "RCB scored 263/5 against Pune Warriors in 2013.",
+    "difficulty": "medium",
+    "tags": [
+      "cricket"
+    ]
+  },
+  {
+    "category": "technology",
+    "question": "In which year was the first email sent?",
+    "options": [
+      "1975",
+      "1971",
+      "1969",
+      "1973",
+      "1971"
+    ],
+    "correctAnswer": "1971",
+    "explanation": "Ray Tomlinson sent the first email in 1971.",
+    "difficulty": "easy",
+    "tags": [
+      "technology"
+    ]
+  },
+  {
+    "category": "business",
+    "question": "Which company owns the Instagram platform?",
+    "options": [
+      "Amazon",
+      "Meta",
+      "Google",
+      "Apple"
+    ],
+    "correctAnswer": "Meta",
+    "explanation": "Meta (formerly Facebook) acquired Instagram in 2012.",
+    "difficulty": "easy",
+    "tags": [
+      "business"
+    ]
+  },
+  {
+    "category": "cricket",
+    "question": "In which year did India win the ICC Champions Trophy?",
+    "options": [
+      "2002",
+      "2017",
+      "2000",
+      "2013",
+      "2013"
+    ],
+    "correctAnswer": "2013",
+    "explanation": "India shared the 2002 title and won outright in 2013.",
+    "difficulty": "easy",
+    "tags": [
+      "cricket"
+    ]
+  },
+  {
+    "category": "general_knowledge",
+    "question": "In which year was the first commercial cell phone call made?",
+    "options": [
+      "1973",
+      "1972",
+      "1993",
+      "1983"
+    ],
+    "correctAnswer": "1973",
+    "explanation": "Martin Cooper made the first cell phone call on a Motorola DynaTAC in 1973.",
+    "difficulty": "medium",
+    "tags": [
+      "general_knowledge"
+    ]
+  },
+  {
+    "category": "general_knowledge",
+    "question": "Which Indian state produces the most turmeric?",
+    "options": [
+      "Tamil Nadu",
+      "Telangana",
+      "Maharashtra",
+      "Karnataka"
+    ],
+    "correctAnswer": "Telangana",
+    "explanation": "Telangana (especially Nizamabad district) is India's largest turmeric producer.",
+    "difficulty": "easy",
+    "tags": [
+      "general_knowledge"
+    ]
+  },
+  {
+    "category": "science_traps",
+    "question": "Can you get a sunburn on a cloudy day?",
+    "options": [
+      "No",
+      "Yes",
+      "Only in summer",
+      "Only near equator"
+    ],
+    "correctAnswer": "Yes",
+    "explanation": "UV rays penetrate clouds; up to 80% can pass through.",
+    "difficulty": "hard",
+    "tags": [
+      "science_traps"
+    ]
+  },
+  {
+    "category": "india_politics",
+    "question": "How many schedules does the Indian Constitution have?",
+    "options": [
+      "12",
+      "11",
+      "14",
+      "10"
+    ],
+    "correctAnswer": "12",
+    "explanation": "The Constitution originally had 8 schedules; it now has 12 after amendments.",
+    "difficulty": "easy",
+    "tags": [
+      "india_politics"
+    ]
+  },
+  {
+    "category": "sports",
+    "question": "Who has won the most Grand Slam titles in women's singles?",
+    "options": [
+      "Martina Navratilova",
+      "Steffi Graf",
+      "Serena Williams",
+      "Margaret Court"
+    ],
+    "correctAnswer": "Margaret Court",
+    "explanation": "Court won 24 Grand Slam singles titles.",
+    "difficulty": "hard",
+    "tags": [
+      "sports"
+    ]
+  },
+  {
+    "category": "space",
+    "question": "Which planet has the most elliptical orbit?",
+    "options": [
+      "Mars",
+      "Mercury",
+      "Neptune",
+      "Mercury",
+      "Pluto"
+    ],
+    "correctAnswer": "Mercury",
+    "explanation": "Mercury has the most eccentric orbit of the eight planets.",
+    "difficulty": "easy",
+    "tags": [
+      "space"
+    ]
+  },
+  {
+    "category": "space",
+    "question": "Which planet has the Great Dark Spot?",
+    "options": [
+      "Uranus",
+      "Neptune",
+      "Saturn",
+      "Jupiter"
+    ],
+    "correctAnswer": "Neptune",
+    "explanation": "Voyager 2 observed a storm similar to Jupiter's Great Red Spot on Neptune.",
+    "difficulty": "easy",
+    "tags": [
+      "space"
+    ]
+  },
+  {
+    "category": "cricket",
+    "question": "Who has scored the most runs in a single IPL season?",
+    "options": [
+      "Chris Gayle",
+      "Virat Kohli",
+      "David Warner",
+      "Kane Williamson"
+    ],
+    "correctAnswer": "Virat Kohli",
+    "explanation": "Kohli scored 973 runs in IPL 2016.",
+    "difficulty": "medium",
+    "tags": [
+      "cricket"
+    ]
+  },
+  {
+    "category": "law_cases",
+    "question": "Which case established the Vishaka guidelines?",
+    "options": [
+      "Vishaka v. State of Rajasthan",
+      "Binu Tamta",
+      "Apparel Export Council",
+      "Medha Kotwal Lele"
+    ],
+    "correctAnswer": "Vishaka v. State of Rajasthan",
+    "explanation": "The 1997 case led to guidelines against workplace sexual harassment.",
+    "difficulty": "easy",
+    "tags": [
+      "law_cases"
+    ]
+  },
+  {
+    "category": "weird_facts",
+    "question": "Which animal's fingerprints can confuse forensic analysis?",
+    "options": [
+      "Koala",
+      "Orangutan",
+      "Gorilla",
+      "Chimpanzee"
+    ],
+    "correctAnswer": "Koala",
+    "explanation": "Koala fingerprints are remarkably similar to human fingerprints.",
+    "difficulty": "easy",
+    "tags": [
+      "weird_facts"
+    ]
+  },
+  {
+    "category": "general_knowledge",
+    "question": "Which of these inventions did NOT originate in China?",
+    "options": [
+      "Compass",
+      "Printing press",
+      "Gunpowder",
+      "Paper"
+    ],
+    "correctAnswer": "Printing press",
+    "explanation": "Movable type printing was developed in China, but Gutenberg's press was developed in Germany.",
+    "difficulty": "hard",
+    "tags": [
+      "general_knowledge"
+    ]
+  },
+  {
+    "category": "general_knowledge",
+    "question": "Which animal appears on the logo of the World Wildlife Fund?",
+    "options": [
+      "Elephant",
+      "Panda",
+      "Tiger",
+      "Dolphin"
+    ],
+    "correctAnswer": "Panda",
+    "explanation": "The WWF logo features a giant panda, designed in 1961.",
+    "difficulty": "easy",
+    "tags": [
+      "general_knowledge"
+    ]
+  },
+  {
+    "category": "cricket",
+    "question": "Which country won the first ICC T20 World Cup?",
+    "options": [
+      "Australia",
+      "India",
+      "Pakistan",
+      "England"
+    ],
+    "correctAnswer": "India",
+    "explanation": "India won the 2007 T20 World Cup in South Africa.",
+    "difficulty": "easy",
+    "tags": [
+      "cricket"
+    ]
+  },
+  {
+    "category": "technology",
+    "question": "What does \"API\" stand for?",
+    "options": [
+      "Automated Protocol Interface",
+      "Application Process Integration",
+      "Advanced Program Integration",
+      "Application Programming Interface"
+    ],
+    "correctAnswer": "Application Programming Interface",
+    "explanation": "APIs allow different software systems to communicate.",
+    "difficulty": "easy",
+    "tags": [
+      "technology"
+    ]
+  },
+  {
+    "category": "general_knowledge",
+    "question": "Which of these countries did NOT exist as an independent nation in 1990?",
+    "options": [
+      "Yugoslavia",
+      "East Germany",
+      "Czech Republic",
+      "Soviet Union"
+    ],
+    "correctAnswer": "Czech Republic",
+    "explanation": "Czech Republic was created in 1993 when Czechoslovakia split.",
+    "difficulty": "medium",
+    "tags": [
+      "general_knowledge"
+    ]
+  },
+  {
+    "category": "bollywood",
+    "question": "Which film won the first Filmfare Award for Best Film?",
+    "options": [
+      "Awara",
+      "Do Bigha Zamin",
+      "Mughal-e-Azam",
+      "Mother India",
+      "Do Bigha Zamin"
+    ],
+    "correctAnswer": "Do Bigha Zamin",
+    "explanation": "Bimal Roy's film won in 1954.",
+    "difficulty": "easy",
+    "tags": [
+      "bollywood"
+    ]
+  },
+  {
+    "category": "general_knowledge",
+    "question": "Which of these countries did NOT host an Olympic Games in the 20th century?",
+    "options": [
+      "South Korea",
+      "Brazil",
+      "Australia",
+      "Mexico"
+    ],
+    "correctAnswer": "Brazil",
+    "explanation": "Brazil hosted the 2016 Olympics; it did not host in the 20th century.",
+    "difficulty": "easy",
+    "tags": [
+      "general_knowledge"
+    ]
+  },
+  {
+    "category": "indian_history",
+    "question": "Who was known as the \"Grand Old Man of India\"?",
+    "options": [
+      "Dadabhai Naoroji",
+      "Lala Lajpat Rai",
+      "Bal Gangadhar Tilak",
+      "Gopal Krishna Gokhale",
+      "Dadabhai Naoroji"
+    ],
+    "correctAnswer": "Dadabhai Naoroji",
+    "explanation": "Naoroji was a Parsi intellectual and early Congress leader.",
+    "difficulty": "easy",
+    "tags": [
+      "indian_history"
+    ]
+  },
+  {
+    "category": "sports",
+    "question": "Which country has won the most Davis Cup titles?",
+    "options": [
+      "France",
+      "Spain",
+      "Australia",
+      "USA"
+    ],
+    "correctAnswer": "USA",
+    "explanation": "The USA has won 32 Davis Cup titles.",
+    "difficulty": "medium",
+    "tags": [
+      "sports"
+    ]
+  },
+  {
+    "category": "sports",
+    "question": "In which sport is the Stanley Cup awarded?",
+    "options": [
+      "Football",
+      "Basketball",
+      "Ice Hockey",
+      "Baseball"
+    ],
+    "correctAnswer": "Ice Hockey",
+    "explanation": "The Stanley Cup is the championship trophy of the NHL.",
+    "difficulty": "easy",
+    "tags": [
+      "sports"
+    ]
+  },
+  {
+    "category": "indian_history",
+    "question": "Who was the last Viceroy of India?",
+    "options": [
+      "Lord Mountbatten",
+      "Lord Linlithgow",
+      "Lord Wavell",
+      "Lord Irwin"
+    ],
+    "correctAnswer": "Lord Mountbatten",
+    "explanation": "Mountbatten oversaw the transfer of power in 1947.",
+    "difficulty": "medium",
+    "tags": [
+      "indian_history"
+    ]
+  },
+  {
+    "category": "cities",
+    "question": "Which Indian city is known as the City of Lakes?",
+    "options": [
+      "Bhopal",
+      "Nainital",
+      "Udaipur",
+      "Srinagar"
+    ],
+    "correctAnswer": "Udaipur",
+    "explanation": "Udaipur has several lakes including Lake Pichola.",
+    "difficulty": "medium",
+    "tags": [
+      "cities"
+    ]
+  },
+  {
+    "category": "indian_history",
+    "question": "In which year was the Indian National Congress founded?",
+    "options": [
+      "1889",
+      "1883",
+      "1885",
+      "1887"
+    ],
+    "correctAnswer": "1885",
+    "explanation": "The INC was founded on 28 December 1885 in Bombay.",
+    "difficulty": "easy",
+    "tags": [
+      "indian_history"
+    ]
+  },
+  {
+    "category": "science",
+    "question": "What is the study of mushrooms called?",
+    "options": [
+      "Zoology",
+      "Mycology",
+      "Virology",
+      "Botany"
+    ],
+    "correctAnswer": "Mycology",
+    "explanation": "Mycology is the branch of biology concerned with the study of fungi.",
+    "difficulty": "easy",
+    "tags": [
+      "science"
+    ]
+  },
+  {
+    "category": "business",
+    "question": "Which company became the first to reach a $1 trillion market cap?",
+    "options": [
+      "Amazon",
+      "Microsoft",
+      "Apple",
+      "Google"
+    ],
+    "correctAnswer": "Apple",
+    "explanation": "Apple reached $1 trillion in August 2018.",
+    "difficulty": "medium",
+    "tags": [
+      "business"
+    ]
+  },
+  {
+    "category": "quotes",
+    "question": "Who said \"The best way to predict the future is to create it\"?",
+    "options": [
+      "Alan Kay",
+      "Bill Gates",
+      "Steve Jobs",
+      "Peter Drucker"
+    ],
+    "correctAnswer": "Peter Drucker",
+    "explanation": "Often attributed to management consultant Peter Drucker.",
+    "difficulty": "medium",
+    "tags": [
+      "quotes"
+    ]
+  },
+  {
+    "category": "india_politics",
+    "question": "Which amendment introduced the anti-defection law?",
+    "options": [
+      "44th",
+      "61st",
+      "42nd",
+      "52nd"
+    ],
+    "correctAnswer": "52nd",
+    "explanation": "The 52nd Amendment added the Tenth Schedule in 1985.",
+    "difficulty": "medium",
+    "tags": [
+      "india_politics"
+    ]
+  },
+  {
+    "category": "india_politics",
+    "question": "Which state has the smallest Lok Sabha representation?",
+    "options": [
+      "Mizoram",
+      "Sikkim",
+      "Goa",
+      "Nagaland"
+    ],
+    "correctAnswer": "Sikkim",
+    "explanation": "Sikkim has only 1 Lok Sabha seat, the minimum for any state.",
+    "difficulty": "easy",
+    "tags": [
+      "india_politics"
+    ]
+  },
+  {
+    "category": "bollywood",
+    "question": "Who directed the film \"Stree\"?",
+    "options": [
+      "Rajkumar Hirani",
+      "Shoojit Sircar",
+      "Anurag Kashyap",
+      "Amar Kaushik"
+    ],
+    "correctAnswer": "Amar Kaushik",
+    "explanation": "Amar Kaushik directed Stree (2018), a horror-comedy.",
+    "difficulty": "easy",
+    "tags": [
+      "bollywood"
+    ]
+  },
+  {
+    "category": "quotes",
+    "question": "Who said \"It always seems impossible until it is done\"?",
+    "options": [
+      "Nelson Mandela",
+      "Martin Luther King Jr.",
+      "Mahatma Gandhi",
+      "Nelson Mandela",
+      "Desmond Tutu"
+    ],
+    "correctAnswer": "Nelson Mandela",
+    "explanation": "Mandela often used this quote.",
+    "difficulty": "easy",
+    "tags": [
+      "quotes"
+    ]
+  },
+  {
+    "category": "law_cases",
+    "question": "Which case established the Basic Structure Doctrine?",
+    "options": [
+      "Golaknath v. State of Punjab",
+      "Minerva Mills v. Union of India",
+      "S.R. Bommai v. Union of India",
+      "Kesavananda Bharati v. State of Kerala"
+    ],
+    "correctAnswer": "Kesavananda Bharati v. State of Kerala",
+    "explanation": "The 1973 judgment limited Parliament's power to amend the Constitution.",
+    "difficulty": "medium",
+    "tags": [
+      "law_cases"
+    ]
+  },
+  {
+    "category": "general_knowledge",
+    "question": "In which year did the first McDonald's open in India?",
+    "options": [
+      "2002",
+      "1996",
+      "1998",
+      "2000"
+    ],
+    "correctAnswer": "1996",
+    "explanation": "McDonald's opened its first Indian outlet in Vasant Kunj, Delhi in October 1996.",
+    "difficulty": "easy",
+    "tags": [
+      "general_knowledge"
+    ]
+  },
+  {
+    "category": "bollywood",
+    "question": "Who directed the film \"Andhadhun\"?",
+    "options": [
+      "Vishal Bhardwaj",
+      "Rajkumar Hirani",
+      "Anurag Kashyap",
+      "Sriram Raghavan"
+    ],
+    "correctAnswer": "Sriram Raghavan",
+    "explanation": "Andhadhun (2018) was directed by Sriram Raghavan.",
+    "difficulty": "medium",
+    "tags": [
+      "bollywood"
+    ]
+  },
+  {
+    "category": "quotes",
+    "question": "Who said \"Education is the most powerful weapon which you can use to change the world\"?",
+    "options": [
+      "Malala Yousafzai",
+      "Martin Luther King Jr.",
+      "Nelson Mandela",
+      "Mahatma Gandhi"
+    ],
+    "correctAnswer": "Nelson Mandela",
+    "explanation": "Nelson Mandela said this in a 1990 speech.",
+    "difficulty": "easy",
+    "tags": [
+      "quotes"
+    ]
+  },
+  {
+    "category": "world_geography",
+    "question": "Which country has the most time zones?",
+    "options": [
+      "Russia",
+      "USA",
+      "France",
+      "UK"
+    ],
+    "correctAnswer": "France",
+    "explanation": "France has 12 time zones due to overseas territories.",
+    "difficulty": "easy",
+    "tags": [
+      "world_geography"
+    ]
+  },
+  {
+    "category": "science",
+    "question": "What is the chemical formula for glucose?",
+    "options": [
+      "C6H12O6",
+      "C12H22O11",
+      "C2H5OH",
+      "CH2O"
+    ],
+    "correctAnswer": "C6H12O6",
+    "explanation": "Glucose is the primary energy source for cells.",
+    "difficulty": "medium",
+    "tags": [
+      "science"
+    ]
+  },
+  {
+    "category": "sports",
+    "question": "Which country invented the sport of kabaddi?",
+    "options": [
+      "India",
+      "Pakistan",
+      "Bangladesh",
+      "Iran"
+    ],
+    "correctAnswer": "India",
+    "explanation": "Kabaddi originated in ancient India and is mentioned in the Mahabharata.",
+    "difficulty": "easy",
+    "tags": [
+      "sports"
+    ]
+  },
+  {
+    "category": "india_politics",
+    "question": "Which state has a unicameral legislature?",
+    "options": [
+      "Uttar Pradesh",
+      "Bihar",
+      "Maharashtra",
+      "Gujarat"
+    ],
+    "correctAnswer": "Gujarat",
+    "explanation": "Gujarat has only a Vidhan Sabha, no Vidhan Parishad.",
+    "difficulty": "hard",
+    "tags": [
+      "india_politics"
+    ]
+  },
+  {
+    "category": "cities",
+    "question": "Which city hosts the annual Oktoberfest?",
+    "options": [
+      "Munich",
+      "Berlin",
+      "Hamburg",
+      "Cologne",
+      "Munich"
+    ],
+    "correctAnswer": "Munich",
+    "explanation": "Oktoberfest has been held in Munich since 1810.",
+    "difficulty": "easy",
+    "tags": [
+      "cities"
+    ]
+  },
+  {
+    "category": "weird_facts",
+    "question": "Which animal's eyes are larger than its brain?",
+    "options": [
+      "Eagle",
+      "Tarsier",
+      "Ostrich",
+      "Owl"
+    ],
+    "correctAnswer": "Ostrich",
+    "explanation": "Ostriches have the largest eyes of any land animal.",
+    "difficulty": "hard",
+    "tags": [
+      "weird_facts"
+    ]
+  },
+  {
+    "category": "technology",
+    "question": "Which company developed the Android OS before Google acquired it?",
+    "options": [
+      "Android Inc.",
+      "Motorola",
+      "Palm",
+      "Nokia"
+    ],
+    "correctAnswer": "Android Inc.",
+    "explanation": "Google acquired Android Inc. in 2005; Andy Rubin was a co-founder.",
+    "difficulty": "easy",
+    "tags": [
+      "technology"
+    ]
+  },
+  {
+    "category": "cities",
+    "question": "Which Indian city is known as the \"City of Pearls\"?",
+    "options": [
+      "Jaipur",
+      "Hyderabad",
+      "Varanasi",
+      "Surat"
+    ],
+    "correctAnswer": "Hyderabad",
+    "explanation": "Hyderabad has been a major pearl trading center for centuries.",
+    "difficulty": "easy",
+    "tags": [
+      "cities"
+    ]
+  },
+  {
+    "category": "india_politics",
+    "question": "Who was the first woman to become Speaker of the Lok Sabha?",
+    "options": [
+      "Meira Kumar",
+      "Sumitra Mahajan",
+      "Indira Gandhi",
+      "Sonia Gandhi"
+    ],
+    "correctAnswer": "Meira Kumar",
+    "explanation": "Meira Kumar served as Speaker from 2009 to 2014.",
+    "difficulty": "medium",
+    "tags": [
+      "india_politics"
+    ]
+  },
+  {
+    "category": "world_geography",
+    "question": "Which European country has the most islands?",
+    "options": [
+      "Finland",
+      "Greece",
+      "Norway",
+      "Sweden"
+    ],
+    "correctAnswer": "Sweden",
+    "explanation": "Sweden has over 267,000 islands, though many are uninhabited.",
+    "difficulty": "easy",
+    "tags": [
+      "world_geography"
+    ]
+  },
+  {
+    "category": "science",
+    "question": "Which organ produces the most heat in the human body?",
+    "options": [
+      "Heart",
+      "Muscles",
+      "Brain",
+      "Liver"
+    ],
+    "correctAnswer": "Liver",
+    "explanation": "The liver is the body's main heat producer.",
+    "difficulty": "medium",
+    "tags": [
+      "science"
+    ]
+  },
+  {
+    "category": "science",
+    "question": "Which vitamin is essential for calcium absorption?",
+    "options": [
+      "Vitamin D",
+      "Vitamin A",
+      "Vitamin C",
+      "Vitamin K"
+    ],
+    "correctAnswer": "Vitamin D",
+    "explanation": "Vitamin D helps the intestines absorb calcium.",
+    "difficulty": "easy",
+    "tags": [
+      "science"
+    ]
+  },
+  {
+    "category": "indian_history",
+    "question": "Which empire built the Sun Temple at Konark?",
+    "options": [
+      "Pallava",
+      "Rashtrakuta",
+      "Eastern Ganga",
+      "Chola"
+    ],
+    "correctAnswer": "Eastern Ganga",
+    "explanation": "King Narasimhadeva I built it in the 13th century.",
+    "difficulty": "hard",
+    "tags": [
+      "indian_history"
+    ]
+  },
+  {
+    "category": "mind_blown",
+    "question": "The human body replaces its entire skeleton approximately every how many years?",
+    "options": [
+      "10 years",
+      "15 years",
+      "20 years",
+      "7 years"
+    ],
+    "correctAnswer": "10 years",
+    "explanation": "Bone remodeling means we get a new skeleton about every 10 years.",
+    "difficulty": "easy",
+    "tags": [
+      "mind_blown"
+    ]
+  },
+  {
+    "category": "bollywood",
+    "question": "Who directed \"Rang De Basanti\"?",
+    "options": [
+      "Farhan Akhtar",
+      "Ashutosh Gowariker",
+      "Rakeysh Omprakash Mehra",
+      "Shyam Benegal"
+    ],
+    "correctAnswer": "Rakeysh Omprakash Mehra",
+    "explanation": "The film released in 2006.",
+    "difficulty": "medium",
+    "tags": [
+      "bollywood"
+    ]
+  },
+  {
+    "category": "science_traps",
+    "question": "Does sound travel faster in water or in air?",
+    "options": [
+      "Depends on temperature",
+      "Water",
+      "Air",
+      "Same speed"
+    ],
+    "correctAnswer": "Water",
+    "explanation": "Sound travels about 4 times faster in water.",
+    "difficulty": "medium",
+    "tags": [
+      "science_traps"
+    ]
+  },
+  {
+    "category": "cricket",
+    "question": "Who was the first Indian to score a century in T20 Internationals?",
+    "options": [
+      "Virat Kohli",
+      "MS Dhoni",
+      "Rohit Sharma",
+      "Suresh Raina"
+    ],
+    "correctAnswer": "Suresh Raina",
+    "explanation": "Raina scored 101 against South Africa in 2010.",
+    "difficulty": "medium",
+    "tags": [
+      "cricket"
+    ]
+  },
+  {
+    "category": "food",
+    "question": "Which country is the origin of the dish \"pho\"?",
+    "options": [
+      "Thailand",
+      "Laos",
+      "Vietnam",
+      "Cambodia"
+    ],
+    "correctAnswer": "Vietnam",
+    "explanation": "Pho is a Vietnamese noodle soup, considered the national dish.",
+    "difficulty": "easy",
+    "tags": [
+      "food"
+    ]
+  },
+  {
+    "category": "indian_history",
+    "question": "Who founded the Brahmo Samaj?",
+    "options": [
+      "Dayanand Saraswati",
+      "Ishwar Chandra Vidyasagar",
+      "Raja Ram Mohan Roy",
+      "Swami Vivekananda"
+    ],
+    "correctAnswer": "Raja Ram Mohan Roy",
+    "explanation": "Raja Ram Mohan Roy founded the Brahmo Samaj in 1828.",
+    "difficulty": "easy",
+    "tags": [
+      "indian_history"
+    ]
+  },
+  {
+    "category": "food",
+    "question": "Which country invented the sandwich?",
+    "options": [
+      "France",
+      "Italy",
+      "England",
+      "Germany"
+    ],
+    "correctAnswer": "England",
+    "explanation": "The Earl of Sandwich popularized it in the 18th century.",
+    "difficulty": "easy",
+    "tags": [
+      "food"
+    ]
+  },
+  {
+    "category": "quotes",
+    "question": "Who said \"Two things are infinite: the universe and human stupidity\"?",
+    "options": [
+      "Isaac Newton",
+      "Niels Bohr",
+      "Stephen Hawking",
+      "Albert Einstein"
+    ],
+    "correctAnswer": "Albert Einstein",
+    "explanation": "Einstein is often credited with this quote.",
+    "difficulty": "medium",
+    "tags": [
+      "quotes"
+    ]
+  },
+  {
+    "category": "indian_history",
+    "question": "Who founded the Banaras Hindu University?",
+    "options": [
+      "Madan Mohan Malaviya",
+      "Rabindranath Tagore",
+      "Swami Vivekananda",
+      "Annie Besant"
+    ],
+    "correctAnswer": "Madan Mohan Malaviya",
+    "explanation": "BHU was established in 1916.",
+    "difficulty": "medium",
+    "tags": [
+      "indian_history"
+    ]
+  },
+  {
+    "category": "sports",
+    "question": "Which country has won the most Tour de France titles?",
+    "options": [
+      "France",
+      "France",
+      "Italy",
+      "Belgium",
+      "Spain"
+    ],
+    "correctAnswer": "France",
+    "explanation": "French riders have won 36 editions.",
+    "difficulty": "easy",
+    "tags": [
+      "sports"
+    ]
+  },
+  {
+    "category": "food",
+    "question": "Which grain is used to make traditional Japanese mochi?",
+    "options": [
+      "Millet",
+      "Barley",
+      "Wheat",
+      "Rice"
+    ],
+    "correctAnswer": "Rice",
+    "explanation": "Mochi is made from glutinous rice (mochigome) pounded into a paste.",
+    "difficulty": "easy",
+    "tags": [
+      "food"
+    ]
+  },
+  {
+    "category": "business",
+    "question": "Which company was originally called \"Backrub\"?",
+    "options": [
+      "Bing",
+      "DuckDuckGo",
+      "Google",
+      "Yahoo"
+    ],
+    "correctAnswer": "Google",
+    "explanation": "Google was originally named Backrub when founded in 1996.",
+    "difficulty": "easy",
+    "tags": [
+      "business"
+    ]
+  },
+  {
+    "category": "science",
+    "question": "What is the study of the immune system called?",
+    "options": [
+      "Pathology",
+      "Immunology",
+      "Immunology",
+      "Bacteriology",
+      "Virology"
+    ],
+    "correctAnswer": "Immunology",
+    "explanation": "Immunology studies the immune system.",
+    "difficulty": "easy",
+    "tags": [
+      "science"
+    ]
+  },
+  {
+    "category": "general_knowledge",
+    "question": "Which of these did NOT host a FIFA World Cup in the 2010s?",
+    "options": [
+      "Germany",
+      "Argentina",
+      "Brazil",
+      "South Africa"
+    ],
+    "correctAnswer": "Argentina",
+    "explanation": "Argentina hosted in 1978; 2010s hosts were South Africa, Brazil, Russia.",
+    "difficulty": "easy",
+    "tags": [
+      "general_knowledge"
+    ]
+  },
+  {
+    "category": "sports",
+    "question": "In which year was the first modern Olympic Games held?",
+    "options": [
+      "1896",
+      "1892",
+      "1904",
+      "1900"
+    ],
+    "correctAnswer": "1896",
+    "explanation": "The first modern Olympics were held in Athens, Greece in 1896.",
+    "difficulty": "easy",
+    "tags": [
+      "sports"
+    ]
+  },
+  {
+    "category": "bollywood",
+    "question": "Who composed the music for \"Padmaavat\"?",
+    "options": [
+      "A.R. Rahman",
+      "Anu Malik",
+      "Sanjay Leela Bhansali",
+      "Pritam"
+    ],
+    "correctAnswer": "Sanjay Leela Bhansali",
+    "explanation": "Bhansali composed the soundtrack for his 2018 film.",
+    "difficulty": "medium",
+    "tags": [
+      "bollywood"
+    ]
+  },
+  {
+    "category": "general_knowledge",
+    "question": "In which decade was the first artificial heart successfully implanted?",
+    "options": [
+      "1980s",
+      "1990s",
+      "1960s",
+      "1980s",
+      "1970s"
+    ],
+    "correctAnswer": "1980s",
+    "explanation": "The Jarvik-7 was first implanted in 1982.",
+    "difficulty": "easy",
+    "tags": [
+      "general_knowledge"
+    ]
+  },
+  {
+    "category": "indian_history",
+    "question": "Who was the first Indian woman to become a doctor?",
+    "options": [
+      "Anandibai Joshi",
+      "Cornelia Sorabji",
+      "Rukhmabai",
+      "Kadambini Ganguly"
+    ],
+    "correctAnswer": "Anandibai Joshi",
+    "explanation": "Anandibai Joshi graduated from Women's Medical College of Pennsylvania in 1886.",
+    "difficulty": "easy",
+    "tags": [
+      "indian_history"
+    ]
+  },
+  {
+    "category": "mind_blown",
+    "question": "The human body produces enough heat in 30 minutes to boil how much water?",
+    "options": [
+      "2 gallons",
+      "1 liter",
+      "Half a gallon",
+      "1 gallon",
+      "Half a gallon"
+    ],
+    "correctAnswer": "Half a gallon",
+    "explanation": "The body produces significant heat through metabolism.",
+    "difficulty": "easy",
+    "tags": [
+      "mind_blown"
+    ]
+  },
+  {
+    "category": "sports",
+    "question": "Who has won the most Olympic gold medals in swimming?",
+    "options": [
+      "Katie Ledecky",
+      "Simone Biles",
+      "Michael Phelps",
+      "Usain Bolt"
+    ],
+    "correctAnswer": "Michael Phelps",
+    "explanation": "Phelps won 23 Olympic gold medals.",
+    "difficulty": "medium",
+    "tags": [
+      "sports"
+    ]
+  }
+]

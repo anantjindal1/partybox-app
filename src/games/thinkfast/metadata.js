@@ -1,10 +1,10 @@
 /**
- * Tez Dimaag Challenge (Rapid Fire Quiz) — local turn-based 2–6 player quiz.
- * Registry: slug rapid-fire-quiz, single device (local only), offline.
+ * ThinkFast — local turn-based 2–6 player quiz.
+ * Registry: slug thinkfast, single device (local only), offline.
  */
 export default {
-  slug: 'rapid-fire-quiz',
-  title: { en: 'Tez Dimaag Challenge', hi: 'तेज़ दिमाग चैलेंज' },
+  slug: 'thinkfast',
+  title: { en: 'ThinkFast', hi: 'थिंकफास्ट' },
   icon: '🧩',
   minPlayers: 2,
   maxPlayers: 6,

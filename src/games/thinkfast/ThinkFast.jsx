@@ -1,5 +1,5 @@
 /**
- * Tez Dimaag Challenge — local turn-based 2–6 player quiz.
+ * ThinkFast — local turn-based 2–6 player quiz.
  * Uses GameChrome, awardXP for round winner at game_end.
  */
 import { useReducer, useEffect, useRef } from 'react'
@@ -18,7 +18,7 @@ import { ResultScreen } from './ResultScreen'
 import { FadeIn } from '../../components/FadeIn'
 import { resolveTitle } from '../../utils/strings'
 
-export default function TezDimaagChallenge({ slug, gameTitle }) {
+export default function ThinkFast({ slug, gameTitle }) {
   const { lang } = useLang()
   const [state, dispatch] = useReducer(rapidFireQuizReducer, undefined, getInitialState)
   const xpAwardedRef = useRef(false)

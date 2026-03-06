@@ -1,10 +1,10 @@
 /**
- * Tez Dimaag Challenge questionpacks tests.
+ * ThinkFast questionpacks tests.
  * 4 options per question, correctIndex valid, no duplicates, generateRoundQuestions returns 5 unique.
  */
 import { getCategories, getQuestionsByCategory, generateRoundQuestions, ALL_QUESTIONS } from '../questionpacks'
 
-describe('rapid-fire-quiz questionpacks', () => {
+describe('thinkfast questionpacks', () => {
   test('getCategories returns 6 categories', () => {
     const cats = getCategories()
     expect(cats).toHaveLength(6)
