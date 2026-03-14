@@ -1,75 +1,73 @@
 import { useState } from 'react'
-import { Button } from '../../components/Button'
 import { ACTIONS } from './reducer'
-import { useDevMode } from '../../hooks/useDevMode'
-import { DC } from './theme'
 
-const TIMERS = [60, 90, 120]
+const TIMERS     = [60, 90, 120]
 const WIN_POINTS = [3, 5, 7, 10]
 
-export function SettingsScreen({ state, dispatch, t }) {
-  const { timerSeconds, winPoints } = state.settings
-  const { devMode, toggleDevMode } = useDevMode()
+export function SettingsScreen({ state, dispatch }) {
+  const { timerSeconds, winPoints } = state
   const [customText, setCustomText] = useState(
-    (state.settings.customWords ?? []).join('\n')
+    (state.customWords ?? []).join('\n')
   )
 
-  function set(key, value) {
-    dispatch({ type: ACTIONS.UPDATE_SETTING, payload: { key, value } })
-  }
-
-  function handleConfirm() {
+  function handleStart() {
     const customWords = customText
       .split('\n')
       .map(s => s.trim())
       .filter(Boolean)
-    dispatch({ type: ACTIONS.UPDATE_SETTING, payload: { key: 'customWords', value: customWords } })
+    dispatch({ type: 'SET_CUSTOM_WORDS', payload: customWords })
     dispatch({ type: ACTIONS.CONFIRM_SETTINGS })
   }
 
   return (
-    <div className={`min-h-screen ${DC.bg} ${DC.text} flex flex-col px-6 pt-10 pb-8 space-y-7`}>
-      <h2 className={`text-2xl font-black ${DC.accent}`}>{t('settings')}</h2>
+    <div className="px-4 py-6 space-y-6">
+      <h2 className="text-xl font-black text-white">Settings</h2>
 
-      <Section label={`⏱ ${t('timer')}`}>
+      <Section label="⏱ Timer per turn">
         <div className="grid grid-cols-3 gap-3">
           {TIMERS.map(s => (
-            <ToggleBtn key={s} active={timerSeconds === s} onClick={() => set('timerSeconds', s)}>
-              {s}{t('seconds')}
+            <ToggleBtn
+              key={s}
+              active={timerSeconds === s}
+              onClick={() => dispatch({ type: 'SET_TIMER', payload: s })}
+            >
+              {s}s
             </ToggleBtn>
           ))}
         </div>
       </Section>
 
-      <Section label={`🏆 ${t('winPoints')}`}>
+      <Section label="🏆 Points to win">
         <div className="grid grid-cols-4 gap-3">
           {WIN_POINTS.map(p => (
-            <ToggleBtn key={p} active={winPoints === p} onClick={() => set('winPoints', p)}>
+            <ToggleBtn
+              key={p}
+              active={winPoints === p}
+              onClick={() => dispatch({ type: 'SET_WIN_POINTS', payload: p })}
+            >
               {p}
             </ToggleBtn>
           ))}
         </div>
       </Section>
 
-      <Section label={`🎬 ${t('customMovies')}`}>
+      <Section label="🎬 Custom words (optional)">
         <textarea
           value={customText}
           onChange={e => setCustomText(e.target.value)}
-          placeholder={t('customMoviesPlaceholder')}
+          placeholder="One word or phrase per line…"
           rows={4}
-          className={`w-full ${DC.card} border ${DC.cardBorder} ${DC.text} rounded-2xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[#2CE49D] resize-none`}
+          className="w-full bg-zinc-800/80 border border-zinc-700/50 text-white rounded-2xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-pink-500/60 resize-none placeholder-zinc-600"
         />
+        <p className="text-zinc-600 text-xs mt-1">These will be mixed into the word queue</p>
       </Section>
 
-      <div className="rounded-2xl">
-        <Button onClick={handleConfirm}>{t('startGame')}</Button>
-      </div>
-
-      <div className="pt-4 border-t border-white/10 flex justify-center">
-        <button onClick={toggleDevMode} className={`text-xs ${DC.textMuted}`}>
-          {devMode ? '🟢 Dev mode ON' : '⚪ Dev mode OFF'}
-        </button>
-      </div>
+      <button
+        onClick={handleStart}
+        className="w-full py-4 rounded-2xl bg-pink-500 hover:bg-pink-400 text-white font-black text-lg transition-colors active:scale-[0.98]"
+      >
+        Start Game →
+      </button>
     </div>
   )
 }
@@ -77,7 +75,7 @@ export function SettingsScreen({ state, dispatch, t }) {
 function Section({ label, children }) {
   return (
     <div>
-      <p className={`${DC.textMuted} text-xs uppercase tracking-widest mb-3`}>{label}</p>
+      <p className="text-zinc-400 text-xs uppercase tracking-widest mb-3">{label}</p>
       {children}
     </div>
   )
@@ -87,8 +85,10 @@ function ToggleBtn({ active, onClick, children }) {
   return (
     <button
       onClick={onClick}
-      className={`py-4 rounded-2xl text-base font-bold transition-all ${
-        active ? `${DC.accentBg} text-[#141414]` : `${DC.card} border ${DC.cardBorder} text-zinc-300`
+      className={`py-3 rounded-2xl font-bold text-base transition-colors border ${
+        active
+          ? 'bg-pink-500/20 border-pink-500/60 text-white'
+          : 'bg-zinc-800/80 border-zinc-700/50 text-zinc-400 hover:border-zinc-600'
       }`}
     >
       {children}

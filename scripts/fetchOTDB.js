@@ -1,126 +1,72 @@
-// Fetches raw trivia questions from Open Trivia DB API and saves to questions/raw/. Run once to seed raw data.
-import fetch from 'node-fetch';
-import he from 'he';
+/**
+ * Fetch questions from Open Trivia DB API (https://opentdb.com) and write to
+ * questions/raw/otdb_fetched.json. Merge script will pick these up.
+ * Run: node scripts/fetchOtdb.js
+ * Uses long delays and retries to avoid rate limits (429). Saves after each batch.
+ */
+
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const RAW_DIR = path.resolve(__dirname, '../questions/raw');
+const ROOT = path.resolve(__dirname, '..');
+const OUT = path.join(ROOT, 'questions/raw/otdb_fetched.json');
 
-const CATEGORIES = [
-  { id: 9,  name: 'general_knowledge' },
-  { id: 17, name: 'science' },
-  { id: 18, name: 'technology' },
-  { id: 22, name: 'geography' },
-  { id: 23, name: 'world_history' },
-  { id: 21, name: 'sports' },
-  { id: 11, name: 'art_culture' },
-  { id: 12, name: 'art_culture' },
-  { id: 20, name: 'art_culture' },
-  { id: 24, name: 'politics' },
-  { id: 19, name: 'mathematics' },
-];
+const CATEGORIES = [9, 10, 11, 17, 18, 21, 22, 23, 24, 25, 12, 14, 15, 20, 26, 27, 28, 19, 30, 16];
+const PER_CATEGORY = 50;
+const DELAY_MS = 5000;
+const RETRY_DELAY_MS = 30000;
 
-const DIFFICULTIES = ['easy', 'medium', 'hard'];
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function decodeQuestion(q) {
-  return {
-    ...q,
-    question: he.decode(q.question),
-    correct_answer: he.decode(q.correct_answer),
-    incorrect_answers: q.incorrect_answers.map(a => he.decode(a)),
-  };
-}
-
-async function getToken() {
-  const res = await fetch('https://opentdb.com/api_token.php?command=request');
+async function fetchPage(amount = 50, category) {
+  const url = new URL('https://opentdb.com/api.php');
+  url.searchParams.set('amount', amount);
+  url.searchParams.set('category', category);
+  url.searchParams.set('type', 'multiple');
+  const res = await fetch(url.toString());
+  if (res.status === 429) throw new Error('HTTP 429');
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
-  return data.token;
-}
-
-async function resetToken(token) {
-  const res = await fetch(`https://opentdb.com/api_token.php?command=reset&token=${token}`);
-  await res.json();
-}
-
-async function fetchQuestions(categoryId, difficulty, token) {
-  const url = `https://opentdb.com/api.php?amount=50&category=${categoryId}&difficulty=${difficulty}&type=multiple&token=${token}`;
-  const res = await fetch(url);
-  return res.json();
-}
-
-async function readExistingRaw(filePath) {
-  try {
-    const content = await fs.readFile(filePath, 'utf-8');
-    return JSON.parse(content);
-  } catch {
-    return null;
-  }
-}
-
-async function mergeAndWrite(filePath, newResults) {
-  const existing = await readExistingRaw(filePath);
-  let merged = newResults;
-
-  if (existing && Array.isArray(existing.results)) {
-    const seen = new Set(existing.results.map(q => q.question));
-    const deduped = newResults.filter(q => !seen.has(q.question));
-    merged = [...existing.results, ...deduped];
-  }
-
-  await fs.writeFile(filePath, JSON.stringify({ results: merged }, null, 2));
-  return merged.length;
+  if (data.response_code !== 0) return [];
+  return data.results || [];
 }
 
 async function main() {
-  await fs.mkdir(RAW_DIR, { recursive: true });
-
-  let token = await getToken();
-  console.log('Got session token.');
-
-  const requests = [];
-  for (const cat of CATEGORIES) {
-    for (const diff of DIFFICULTIES) {
-      requests.push({ cat, diff });
-    }
+  let all = [];
+  try {
+    const existing = await fs.readFile(OUT, 'utf8').then((d) => JSON.parse(d).results || []).catch(() => []);
+    all = existing;
+  } catch {
+    // start fresh
   }
-
-  for (let i = 0; i < requests.length; i++) {
-    const { cat, diff } = requests[i];
-    const filePath = path.join(RAW_DIR, `otdb_${cat.name}_${diff}.json`);
-
-    let data = await fetchQuestions(cat.id, diff, token);
-
-    if (data.response_code === 4) {
-      console.log(`Token exhausted for ${cat.name}/${diff}, resetting...`);
-      await resetToken(token);
-      data = await fetchQuestions(cat.id, diff, token);
+  const seen = new Set(all.map((q) => (q.question || '').toLowerCase().trim()));
+  const targetTotal = 1000;
+  let requests = 0;
+  while (all.length < targetTotal && requests < 40) {
+    const category = CATEGORIES[requests % CATEGORIES.length];
+    try {
+      const batch = await fetchPage(PER_CATEGORY, category);
+      for (const q of batch) {
+        const key = (q.question || '').toLowerCase().trim();
+        if (key && !seen.has(key)) {
+          seen.add(key);
+          all.push(q);
+        }
+      }
+      console.log(`Fetched batch; total unique: ${all.length}`);
+      await fs.writeFile(OUT, JSON.stringify({ results: all }, null, 2), 'utf8');
+    } catch (e) {
+      if (e.message === 'HTTP 429') {
+        console.log('Rate limited; waiting 30s...');
+        await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
+        continue;
+      }
+      throw e;
     }
-
-    if (data.response_code === 1) {
-      console.warn(`No results for ${cat.name}/${diff}, skipping.`);
-    } else if (data.response_code === 0) {
-      const decoded = data.results.map(decodeQuestion);
-      const total = await mergeAndWrite(filePath, decoded);
-      console.log(`Fetched ${decoded.length} questions: ${cat.name}/${diff} (file total: ${total})`);
-    } else {
-      console.warn(`Unexpected response_code ${data.response_code} for ${cat.name}/${diff}`);
-    }
-
-    if (i < requests.length - 1) {
-      await sleep(5000);
-    }
+    requests++;
+    await new Promise((r) => setTimeout(r, DELAY_MS));
   }
-
-  console.log('Done fetching.');
+  console.log(`Done. ${all.length} questions in ${OUT}`);
 }
 
-main().catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+main().catch(console.error);

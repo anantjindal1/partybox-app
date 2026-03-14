@@ -26,7 +26,7 @@ export default function Home() {
   const [selectedGame, setSelectedGame] = useState(null)
 
   // Only these three games are visible; others are hidden until further refinement
-  const VISIBLE_SLUGS = new Set(['thinkfast', 'firstbell', 'dumb-charades'])
+  const VISIBLE_SLUGS = new Set(['thinkfast', 'firstbell'])
   // Playable offline games from registry; online (room-based) games shown separately
   // Games with onlineEnabled: true appear in BOTH grids (e.g. Dumb Charades)
   const playableGames = games.filter(g => g.singleDevice && VISIBLE_SLUGS.has(g.slug))

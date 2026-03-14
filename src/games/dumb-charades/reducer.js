@@ -1,163 +1,249 @@
-import { buildWordQueue } from './wordpacks'
+import { buildWordPool, shuffleArray } from './wordpacks'
 
 export const ACTIONS = {
-  SET_TEAMS: 'SET_TEAMS',
-  TOGGLE_CATEGORY: 'TOGGLE_CATEGORY',
-  CONFIRM_CATEGORIES: 'CONFIRM_CATEGORIES',
-  UPDATE_SETTING: 'UPDATE_SETTING',
-  CONFIRM_SETTINGS: 'CONFIRM_SETTINGS',
-  ACTOR_READY: 'ACTOR_READY',      // payload: { wordQueue: string[] } — round_start → actor_prep
-  REPLACE_WORD: 'REPLACE_WORD',    // rotate wordQueue[0] to end; decrement replacementsLeft
-  START_ACTING: 'START_ACTING',    // actor_prep → playing
-  CORRECT: 'CORRECT',              // 0 pts, → turn_result
-  TIMER_END: 'TIMER_END',          // opponent +1 pt, → turn_result or game_end
-  CONFIRM_TURN: 'CONFIRM_TURN',    // advance team, → round_start
-  RESET: 'RESET',
-  RESTORE_STATE: 'RESTORE_STATE',
-  FORCE_END: 'FORCE_END'
+  SET_TEAMS:           'SET_TEAMS',
+  CONFIRM_CATEGORIES:  'CONFIRM_CATEGORIES',
+  CONFIRM_SETTINGS:    'CONFIRM_SETTINGS',
+  ACTOR_READY:         'ACTOR_READY',    // handoff → acting, reveals word
+  CORRECT:             'CORRECT',         // +1 to current team, next word
+  SKIP:                'SKIP',            // no penalty, next word
+  TIMER_END:           'TIMER_END',       // acting → turn_result
+  NEXT_TURN:           'NEXT_TURN',       // turn_result → handoff, advance team
+  PLAY_AGAIN:          'PLAY_AGAIN',      // reset to team_setup
+  RESTORE_STATE:       'RESTORE_STATE',
 }
 
 export function getInitialState() {
   return {
     phase: 'team_setup',
+
+    // Teams: each { name, score, actorIdx, memberCount }
     teams: [
-      { id: 't0', name: 'Team 1', score: 0 },
-      { id: 't1', name: 'Team 2', score: 0 }
+      { name: 'Team 1', score: 0, actorIdx: 0, memberCount: 3 },
+      { name: 'Team 2', score: 0, actorIdx: 0, memberCount: 3 },
     ],
-    currentTeamIndex: 0,
-    turnNumber: 1,
-    settings: {
-      timerSeconds: 90,
-      difficulty: 'easy',
-      categories: ['bollywood-movies'],
-      winPoints: 5,
-      customWords: []
-    },
-    // Active turn state
-    wordQueue: [],
-    replacementsLeft: 3,
-    lastTurnOutcome: null,  // 'correct' | 'expired'
-    pointsTo: null,         // team id that received the point, or null
-    error: null
+    currentTeamIdx: 0,
+
+    // Settings (set during setup flow)
+    categories:   ['bollywood_movies'],
+    difficulty:   'easy',
+    timerSeconds: 90,
+    winPoints:    5,
+    customWords:  [],
+
+    // Word queue (built once at game start, never repeats)
+    wordQueue:   [],    // remaining words this game
+    usedWords:   [],    // tracked as array (Set not serialisable)
+    currentWord: '',
+
+    // Turn stats
+    turnCorrect:  0,
+    turnSkipped:  0,
+    turnOutcome:  null, // 'correct' | 'timeout' | null
+    turnHistory:  [],   // [{ word, result: 'correct'|'skip'|'timeout' }]
+
+    // Game history (all turns)
+    gameHistory: [],    // [{ teamName, correct, skipped, history }]
+
+    error: null,
   }
 }
 
-export function shuffleArray(arr) {
-  const copy = [...arr]
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]]
+// ── Word queue helpers ─────────────────────────────────────────────────────────
+
+function pickNextWord(wordQueue, usedWords, settings) {
+  if (wordQueue.length > 0) {
+    return { word: wordQueue[0], queue: wordQueue.slice(1), used: usedWords }
   }
-  return copy
+  // Refill: rebuild pool minus used words, reshuffle
+  const pool = buildWordPool(settings.categories, settings.difficulty, settings.customWords)
+  const fresh = shuffleArray(pool.filter(w => !usedWords.includes(w)))
+  if (fresh.length === 0) {
+    // All words exhausted — reshuffle entire pool
+    const all = shuffleArray(pool)
+    return { word: all[0] ?? '???', queue: all.slice(1), used: [] }
+  }
+  return { word: fresh[0], queue: fresh.slice(1), used: usedWords }
 }
+
+// ── Reducer ───────────────────────────────────────────────────────────────────
 
 export function gameReducer(state, action) {
   switch (action.type) {
 
     case ACTIONS.SET_TEAMS: {
       const teams = action.payload.teamNames.map((name, i) => ({
-        id: `t${i}`, name, score: 0
+        name,
+        score: 0,
+        actorIdx: 0,
+        memberCount: action.payload.memberCount,
       }))
       return { ...state, teams, phase: 'category_select', error: null }
     }
 
-    case ACTIONS.TOGGLE_CATEGORY: {
-      const { categories } = state.settings
-      const next = categories.includes(action.payload)
-        ? categories.filter(c => c !== action.payload)
-        : [...categories, action.payload]
-      return { ...state, settings: { ...state.settings, categories: next }, error: null }
-    }
-
     case ACTIONS.CONFIRM_CATEGORIES: {
-      if (state.settings.categories.length === 0)
+      if (state.categories.length === 0)
         return { ...state, error: 'selectAtLeastOne' }
       return { ...state, phase: 'settings_select', error: null }
     }
 
-    case ACTIONS.UPDATE_SETTING: {
+    case ACTIONS.CONFIRM_SETTINGS: {
+      // Build and shuffle the full word queue for this game
+      const pool = buildWordPool(state.categories, state.difficulty, state.customWords)
+      const wordQueue = shuffleArray(pool)
       return {
         ...state,
-        settings: { ...state.settings, [action.payload.key]: action.payload.value }
+        wordQueue,
+        usedWords: [],
+        phase: 'handoff',
+        error: null,
       }
-    }
-
-    case ACTIONS.CONFIRM_SETTINGS: {
-      return { ...state, phase: 'round_start', error: null }
     }
 
     case ACTIONS.ACTOR_READY: {
-      // payload: { wordQueue: string[] } — prepared outside reducer for purity
+      // Actor tapped the button — reveal the word and start the turn
+      const { word, queue, used } = pickNextWord(state.wordQueue, state.usedWords, {
+        categories: state.categories,
+        difficulty: state.difficulty,
+        customWords: state.customWords,
+      })
       return {
         ...state,
-        phase: 'actor_prep',
-        wordQueue: action.payload.wordQueue,
-        replacementsLeft: 3,
-        lastTurnOutcome: null,
-        pointsTo: null,
-        error: null
+        phase:        'acting',
+        wordQueue:    queue,
+        usedWords:    [...used, word],
+        currentWord:  word,
+        turnCorrect:  0,
+        turnSkipped:  0,
+        turnOutcome:  null,
+        turnHistory:  [],
+        error: null,
       }
-    }
-
-    case ACTIONS.REPLACE_WORD: {
-      if (state.replacementsLeft <= 0 || state.wordQueue.length <= 1) return state
-      const [current, ...rest] = state.wordQueue
-      return {
-        ...state,
-        wordQueue: [...rest, current],
-        replacementsLeft: state.replacementsLeft - 1
-      }
-    }
-
-    case ACTIONS.START_ACTING: {
-      return { ...state, phase: 'playing', error: null }
     }
 
     case ACTIONS.CORRECT: {
-      // Guessed correctly → no points change
+      // One correct guess ends the turn immediately — classic rules
+      const team = state.teams[state.currentTeamIdx]
+      const newScore = team.score + 1
+      const updatedTeams = state.teams.map((t, i) =>
+        i === state.currentTeamIdx ? { ...t, score: newScore } : t
+      )
+      const won = newScore >= state.winPoints
+
+      const entry = { word: state.currentWord, result: 'correct' }
+      const newTurnHistory = [...state.turnHistory, entry]
+      const turnEntry = {
+        teamName: team.name,
+        correct:  1,
+        skipped:  state.turnSkipped,
+        history:  newTurnHistory,
+        outcome:  'correct',
+      }
+
+      if (won) {
+        return {
+          ...state,
+          teams:       updatedTeams,
+          phase:       'game_end',
+          turnHistory: newTurnHistory,
+          turnCorrect: 1,
+          turnOutcome: 'correct',
+          gameHistory: [...state.gameHistory, turnEntry],
+          error: null,
+        }
+      }
+
+      // Not won yet — go straight to turn_result (no new word)
       return {
         ...state,
-        phase: 'turn_result',
-        lastTurnOutcome: 'correct',
-        pointsTo: null,
-        error: null
+        teams:       updatedTeams,
+        phase:       'turn_result',
+        turnHistory: newTurnHistory,
+        turnCorrect: 1,
+        turnOutcome: 'correct',
+        gameHistory: [...state.gameHistory, turnEntry],
+        error: null,
+      }
+    }
+
+    case ACTIONS.SKIP: {
+      const entry = { word: state.currentWord, result: 'skip' }
+      const newTurnHistory = [...state.turnHistory, entry]
+      const newTurnSkipped = state.turnSkipped + 1
+
+      const { word: nextWord, queue: nextQueue, used: nextUsed } = pickNextWord(
+        state.wordQueue, state.usedWords,
+        { categories: state.categories, difficulty: state.difficulty, customWords: state.customWords }
+      )
+
+      return {
+        ...state,
+        wordQueue:   nextQueue,
+        usedWords:   [...nextUsed, nextWord],
+        currentWord: nextWord,
+        turnSkipped: newTurnSkipped,
+        turnHistory: newTurnHistory,
+        error: null,
       }
     }
 
     case ACTIONS.TIMER_END: {
-      const opponentIdx = (state.currentTeamIndex + 1) % state.teams.length
+      const team = state.teams[state.currentTeamIdx]
+      // Record the word being acted when time ran out
+      const timeoutEntry = { word: state.currentWord, result: 'timeout' }
+      const newTurnHistory = [...state.turnHistory, timeoutEntry]
+      const historyEntry = {
+        teamName: team.name,
+        correct:  0,
+        skipped:  state.turnSkipped,
+        history:  newTurnHistory,
+        outcome:  'timeout',
+      }
+      return {
+        ...state,
+        phase:       'turn_result',
+        turnHistory: newTurnHistory,
+        turnOutcome: 'timeout',
+        gameHistory: [...state.gameHistory, historyEntry],
+        error: null,
+      }
+    }
+
+    case ACTIONS.NEXT_TURN: {
+      const nextTeamIdx = (state.currentTeamIdx + 1) % state.teams.length
+      // Increment actorIdx for the current team
       const updatedTeams = state.teams.map((t, i) =>
-        i === opponentIdx ? { ...t, score: t.score + 1 } : t
+        i === state.currentTeamIdx ? { ...t, actorIdx: t.actorIdx + 1 } : t
       )
-      const won = updatedTeams[opponentIdx].score >= state.settings.winPoints
       return {
         ...state,
-        teams: updatedTeams,
-        phase: won ? 'game_end' : 'turn_result',
-        lastTurnOutcome: 'expired',
-        pointsTo: state.teams[opponentIdx].id,
-        error: null
+        teams:          updatedTeams,
+        currentTeamIdx: nextTeamIdx,
+        turnCorrect:    0,
+        turnSkipped:    0,
+        turnOutcome:    null,
+        turnHistory:    [],
+        currentWord:    '',
+        phase:          'handoff',
+        error: null,
       }
     }
 
-    case ACTIONS.CONFIRM_TURN: {
-      const nextTeamIndex = (state.currentTeamIndex + 1) % state.teams.length
+    case ACTIONS.PLAY_AGAIN: {
+      // Reset scores and phase but preserve settings so teams can play again
+      const init = getInitialState()
       return {
-        ...state,
-        currentTeamIndex: nextTeamIndex,
-        turnNumber: state.turnNumber + 1,
-        wordQueue: [],
-        replacementsLeft: 3,
-        lastTurnOutcome: null,
-        pointsTo: null,
-        phase: 'round_start',
-        error: null
+        ...init,
+        categories:   state.categories,
+        difficulty:   state.difficulty,
+        timerSeconds: state.timerSeconds,
+        winPoints:    state.winPoints,
+        customWords:  state.customWords,
       }
     }
 
-    case ACTIONS.RESET: {
-      return getInitialState()
-    }
+    case 'CHANGE_SETTINGS':
+      return { ...state, phase: 'settings_select' }
 
     case ACTIONS.RESTORE_STATE: {
       const next = action.payload
@@ -165,21 +251,36 @@ export function gameReducer(state, action) {
       return state
     }
 
-    case ACTIONS.FORCE_END: {
-      return { ...state, phase: 'game_end' }
+    // Category / difficulty / settings mutations (used by screen components)
+    case 'TOGGLE_CATEGORY': {
+      const key = action.payload
+      const cats = state.categories.includes(key)
+        ? state.categories.filter(c => c !== key)
+        : [...state.categories, key]
+      return { ...state, categories: cats, error: null }
+    }
+
+    case 'SET_ALL_CATEGORIES': {
+      return { ...state, categories: action.payload, error: null }
+    }
+
+    case 'SET_DIFFICULTY': {
+      return { ...state, difficulty: action.payload, error: null }
+    }
+
+    case 'SET_TIMER': {
+      return { ...state, timerSeconds: action.payload, error: null }
+    }
+
+    case 'SET_WIN_POINTS': {
+      return { ...state, winPoints: action.payload, error: null }
+    }
+
+    case 'SET_CUSTOM_WORDS': {
+      return { ...state, customWords: action.payload, error: null }
     }
 
     default:
       return state
   }
-}
-
-// Prepare a shuffled word queue — called outside reducer for purity
-export function prepareWordQueue(settings) {
-  const words = buildWordQueue(
-    settings.categories,
-    settings.difficulty,
-    settings.customWords ?? []
-  )
-  return shuffleArray(words)
 }

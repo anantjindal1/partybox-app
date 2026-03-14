@@ -29,11 +29,11 @@ function normalizeQuestion(q) {
 
 export function fetchGameQuestions({ category, count = 7 }) {
   // Filter by category
-  let pool = allQuestionsRaw.filter(q => q.category === category)
+  let pool = allQuestionsRaw.filter(q => q.category === category && !q.disabled)
 
-  // If category is 'random' or pool is empty, use all questions
+  // If category is 'random' or pool is empty, use all active questions
   if (category === 'random' || pool.length === 0) {
-    pool = allQuestionsRaw
+    pool = allQuestionsRaw.filter(q => !q.disabled)
   }
 
   // Fall back to static firstbell questions if normalized.json has no coverage

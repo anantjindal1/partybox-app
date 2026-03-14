@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-export default function CircularTimer({ totalSeconds, secondsLeft, size = 120 }) {
+export default function CircularTimer({ totalSeconds, secondsLeft, size = 120, paused = false }) {
   const strokeWidth = 8
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
@@ -38,7 +38,7 @@ export default function CircularTimer({ totalSeconds, secondsLeft, size = 120 })
         strokeDasharray={circumference}
         strokeDashoffset={dashoffset}
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.5s ease' }}
+        style={{ transition: paused ? 'none' : 'stroke-dashoffset 1s linear, stroke 0.5s ease' }}
       />
       {/* Center text */}
       <text
