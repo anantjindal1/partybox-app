@@ -6,7 +6,7 @@ import { awardXP } from '../../services/xp'
 import { writeGameStats } from '../../services/stats'
 import { trackEvent } from '../../services/analytics'
 import { fetchGameQuestions } from '../../services/questions'
-import { computeRoundScore, resolveTieBreak } from './scoring'
+import { resolveTieBreak } from './scoring'
 import CircularTimer from '../../components/CircularTimer'
 import FloatingReactions from '../../components/FloatingReactions'
 
@@ -28,9 +28,18 @@ const CATEGORY_DISPLAY = {
   brain:     { label: 'Brain & Culture',   emoji: '🧠' },
   random:    { label: 'Random',            emoji: '⚡' },
 }
+
 function catLabel(cat) {
   const d = CATEGORY_DISPLAY[cat]
   return d ? `${d.emoji} ${d.label}` : cat
+}
+
+// Tiered scoring: 0-5s→1000, 5-10s→600, 10-15s→300, wrong→0
+function computeTieredScore(isCorrect, deltaSeconds) {
+  if (!isCorrect) return 0
+  if (deltaSeconds <= 5) return 1000
+  if (deltaSeconds <= 10) return 600
+  return 300
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -56,6 +65,7 @@ export default function RapidFireBattle({ code }) {
   const questionTimerRef = useRef(null)
   const countdownRef = useRef(null)
   const xpAwarded = useRef(false)
+  const myAnswerIdxRef = useRef(null)
 
   const phase = roomState.phase || 'waiting'
 
@@ -93,11 +103,12 @@ export default function RapidFireBattle({ code }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase])
 
-  // ─── Reset answered + countdown when question changes ──────────────────────
+  // ─── Reset answered + countdown + answer idx when question changes ──────────
   useEffect(() => {
     if (phase === 'question') {
       setAnswered(false)
       setLocalCountdown(QUESTION_TIMEOUT_MS / 1000)
+      myAnswerIdxRef.current = null
     }
   }, [phase, roomState.questionIdx])
 
@@ -138,7 +149,7 @@ export default function RapidFireBattle({ code }) {
     const timer = setTimeout(() => {
       const questions = roomState._questions
       if (!questions?.length) {
-        console.error('[FirstBell] countdown fired but _questions is empty/missing — cannot advance to question phase', roomState)
+        console.error('[FirstBell] countdown fired but _questions is empty/missing', roomState)
         return
       }
       setState({
@@ -184,7 +195,7 @@ export default function RapidFireBattle({ code }) {
           responseTimes: roomState.responseTimes,
           streaks: roomState.streaks,
           _questions: roomState._questions,
-          isLastRound: roomState.isLastRound,   
+          isLastRound: roomState.isLastRound,
         })
       }
     }, LOCK_IN_DURATION_MS)
@@ -197,9 +208,8 @@ export default function RapidFireBattle({ code }) {
     if (!isHost || phase !== 'reveal') return
     const timer = setTimeout(() => {
       const isLast = roomState.isLastRound
-      
+
       if (isLast) {
-        // Last question — go to results
         setState({
           phase: 'results',
           totalScores: roomState.totalScores,
@@ -211,7 +221,6 @@ export default function RapidFireBattle({ code }) {
           winner: roomState.winner,
         })
       } else {
-        // Not last — advance to next question
         const nextIdx = (roomState.questionIdx ?? 0) + 1
         const questions = roomState._questions
         if (!questions || nextIdx >= questions.length) return
@@ -261,7 +270,7 @@ export default function RapidFireBattle({ code }) {
       const delta = deltaMs / 1000
       if (delta < 0 || delta > 15) continue
       const isCorrect = a.payload.optionIdx === currentQuestion.correctIdx
-      roundScores[a.playerId] = computeRoundScore(isCorrect, delta)
+      roundScores[a.playerId] = computeTieredScore(isCorrect, delta)
       responseTimes[a.playerId] = delta
     }
 
@@ -270,7 +279,6 @@ export default function RapidFireBattle({ code }) {
       newTotals[pid] = (newTotals[pid] ?? 0) + pts
     }
 
-    // Streaks
     const prevStreaks = roomState.streaks ?? {}
     const streaks = {}
     for (const p of players) {
@@ -278,13 +286,11 @@ export default function RapidFireBattle({ code }) {
       streaks[p.id] = correct ? (prevStreaks[p.id] ?? 0) + 1 : 0
     }
 
-    // Correct answer counts (for accuracy)
     const correctCounts = { ...(roomState.correctCounts ?? {}) }
     for (const p of players) {
       if ((roundScores[p.id] ?? 0) > 0) correctCounts[p.id] = (correctCounts[p.id] ?? 0) + 1
     }
 
-    // Fastest correct response time per player (all-time best)
     const fastestTimes = { ...(roomState.fastestTimes ?? {}) }
     for (const p of players) {
       if ((roundScores[p.id] ?? 0) > 0 && responseTimes[p.id] != null) {
@@ -292,7 +298,6 @@ export default function RapidFireBattle({ code }) {
       }
     }
 
-    // Peak streak achieved
     const bestStreaks = { ...(roomState.bestStreaks ?? {}) }
     for (const p of players) {
       bestStreaks[p.id] = Math.max(bestStreaks[p.id] ?? 0, streaks[p.id] ?? 0)
@@ -329,6 +334,7 @@ export default function RapidFireBattle({ code }) {
   async function handleAnswer(optionIdx) {
     if (answered) return
     setAnswered(true)
+    myAnswerIdxRef.current = optionIdx
     await sendAction({ type: 'ANSWER', payload: { optionIdx, answeredAt: Date.now() } })
     trackEvent('question_answered', { game: 'firstbell', optionIdx })
   }
@@ -362,6 +368,13 @@ export default function RapidFireBattle({ code }) {
     await setState({ phase: 'rematch', nextCategory })
   }
 
+  // ─── handleRematchVote ─────────────────────────────────────────────────────
+  async function handleRematchVote() {
+    await sendAction({ type: 'REMATCH_VOTE', payload: {} })
+  }
+
+  const rematchVoteCount = actions.filter(a => a.type === 'REMATCH_VOTE').length
+
   // ─── Render ────────────────────────────────────────────────────────────────
   if (!room || !myId) {
     return (
@@ -381,12 +394,14 @@ export default function RapidFireBattle({ code }) {
         nextCategory={roomState.nextCategory}
         code={code}
         loading={starting}
+        myId={myId}
+        players={players}
       />
     )
   }
 
   if (phase === 'countdown') {
-    return <CountdownScreen category={roomState.category} players={players} />
+    return <CountdownScreen category={roomState.category} players={players} myId={myId} />
   }
 
   if (phase === 'rematch') {
@@ -439,6 +454,7 @@ export default function RapidFireBattle({ code }) {
           questionIdx={roomState.questionIdx ?? 0}
           _questions={roomState._questions}
           t={t}
+          myAnswerIdx={myAnswerIdxRef.current}
         />
       </div>
     )
@@ -459,6 +475,9 @@ export default function RapidFireBattle({ code }) {
         isHost={isHost}
         onRematch={isHost ? handleRematch : null}
         onHome={() => navigate('/')}
+        onRematchVote={!isHost ? handleRematchVote : null}
+        rematchVoteCount={rematchVoteCount}
+        totalPlayers={players.length}
         t={t}
       />
     )
@@ -521,7 +540,7 @@ function LockInScreen() {
 
 const COUNTDOWN_SEQ = [3, 2, 1, 'GO!']
 
-function CountdownScreen({ category, players }) {
+function CountdownScreen({ category, players, myId }) {
   const [step, setStep] = useState(0)
 
   useEffect(() => {
@@ -560,14 +579,21 @@ function CountdownScreen({ category, players }) {
 
         {players.length > 0 && (
           <div className="flex items-center justify-center gap-3 flex-wrap">
-            {players.map(p => (
-              <div key={p.id} className="flex flex-col items-center gap-1">
-                <div className="w-10 h-10 rounded-full bg-zinc-700 border border-zinc-600 flex items-center justify-center text-base font-bold text-zinc-200">
-                  {p.avatar ?? p.name?.[0]?.toUpperCase() ?? '?'}
+            {players.map(p => {
+              const isMe = p.id === myId
+              return (
+                <div key={p.id} className="flex flex-col items-center gap-1">
+                  <div className={`w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center text-base font-bold text-zinc-200 ${
+                    isMe ? 'ring-2 ring-white border-2 border-white/60' : 'border border-zinc-600'
+                  }`}>
+                    {p.avatar ?? p.name?.[0]?.toUpperCase() ?? '?'}
+                  </div>
+                  <p className={`text-xs ${isMe ? 'text-white font-semibold' : 'text-zinc-500'}`}>
+                    {p.name?.split(' ')[0]}{isMe ? ' (You)' : ''}
+                  </p>
                 </div>
-                <p className="text-zinc-500 text-xs">{p.name?.split(' ')[0]}</p>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
@@ -652,19 +678,60 @@ function ShareSection({ code }) {
 
 // ─── SetupScreen ─────────────────────────────────────────────────────────────
 
-function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading }) {
-  const [selected, setSelected] = useState(nextCategory ?? null)
+function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, myId, players }) {
+  // Pre-select 'random' by default (UX 3)
+  const [selected, setSelected] = useState(nextCategory ?? 'random')
+  const [tutorialSeen, setTutorialSeen] = useState(
+    () => !!localStorage.getItem('partybox_fb_tutorial_seen')
+  )
+
+  function dismissTutorial() {
+    localStorage.setItem('partybox_fb_tutorial_seen', '1')
+    setTutorialSeen(true)
+  }
 
   return (
     <div className="space-y-4">
+      {/* Player list — visible to all */}
+      {players.length > 0 && (
+        <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-4 space-y-2">
+          <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-2">
+            Players ({players.length})
+          </p>
+          {players.map(p => {
+            const isMe = p.id === myId
+            return (
+              <div
+                key={p.id}
+                className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-colors ${
+                  isMe
+                    ? 'bg-zinc-700/80 border-2 border-white/60'
+                    : 'bg-zinc-700/40 border border-zinc-700/50'
+                }`}
+              >
+                <span className="text-xl leading-none">{p.avatar ?? '?'}</span>
+                <span className={`font-semibold text-sm flex-1 ${isMe ? 'text-white' : 'text-zinc-200'}`}>
+                  {p.name}
+                </span>
+                {isMe && (
+                  <span className="text-zinc-400 text-xs">(You)</span>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Non-host waiting message */}
       {!isHost && (
-        <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-8 text-center space-y-3">
+        <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-6 text-center space-y-2">
           <p className="text-4xl">🔔</p>
           <p className="text-zinc-300 font-semibold">{t('rapidFireBattle')}</p>
           <p className="text-zinc-500 text-sm">Waiting for host to pick a category...</p>
         </div>
       )}
 
+      {/* Host: category grid */}
       {isHost && (
         <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-5">
           <p className="text-zinc-300 font-semibold mb-4 text-center">{t('pickCategory')}</p>
@@ -693,9 +760,14 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading }) 
         </div>
       )}
 
+      {/* Host: game info pill + start button */}
       {isHost && (
         <>
-          <p className="text-zinc-600 text-xs text-center">{TOTAL_ROUNDS} questions · 15s each</p>
+          <div className="flex justify-center">
+            <span className="bg-zinc-700/60 rounded-full px-4 py-1.5 text-sm font-semibold text-white">
+              {TOTAL_ROUNDS} questions · 15s each ⏱
+            </span>
+          </div>
           <button
             disabled={!selected || loading}
             onClick={() => onStart(selected)}
@@ -713,6 +785,34 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading }) 
           </button>
         </>
       )}
+
+      {/* Tutorial for non-host players (UX 1) */}
+      {!isHost && !tutorialSeen && (
+        <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-5 space-y-3">
+          <p className="text-white font-bold text-base">How to play 🎯</p>
+          <ul className="text-zinc-300 text-sm space-y-1.5">
+            <li>• A question appears — answer as fast as you can</li>
+            <li>• Faster correct answers = more points</li>
+            <li>• 7 questions, highest score wins!</li>
+          </ul>
+          <button
+            onClick={dismissTutorial}
+            className="w-full py-2.5 rounded-xl font-semibold text-sm bg-amber-500 text-zinc-900 hover:bg-amber-400 transition-colors"
+          >
+            Got it, let's play!
+          </button>
+        </div>
+      )}
+
+      {/* Share section for host */}
+      {isHost && code && (
+        <div className="bg-zinc-800/60 border border-zinc-700/40 rounded-2xl p-4">
+          <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3">
+            Invite friends
+          </p>
+          <ShareSection code={code} />
+        </div>
+      )}
     </div>
   )
 }
@@ -724,19 +824,20 @@ function QuestionScreen({ question, questionIdx, answered, localCountdown, onAns
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <span className="text-zinc-500 text-sm font-medium">Q {questionIdx + 1} / {TOTAL_ROUNDS}</span>
-      </div>
-
       <div className="flex justify-center">
         <CircularTimer totalSeconds={15} secondsLeft={localCountdown} size={100} />
       </div>
 
+      {/* Question card — visually distinct from options */}
       <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-5">
-        <p className="text-white font-semibold text-lg leading-snug">{question.question}</p>
+        <p className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mb-2">
+          Question {questionIdx + 1} of {TOTAL_ROUNDS}
+        </p>
+        <p className="text-white font-bold text-xl leading-snug">{question.question}</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-3">
+      {/* Options — with A. B. C. D. labels, separated from question card */}
+      <div className="grid grid-cols-1 gap-3 mt-2">
         {question.options.map((opt, idx) => (
           <button
             key={idx}
@@ -748,7 +849,7 @@ function QuestionScreen({ question, questionIdx, answered, localCountdown, onAns
                 : 'bg-zinc-800 border-zinc-700/50 text-zinc-200 hover:bg-amber-500/20 hover:border-amber-500/40 active:scale-95'
             }`}
           >
-            <span className="text-zinc-500 mr-3 font-mono text-xs">{String.fromCharCode(65 + idx)}.</span>
+            <span className="text-zinc-500 mr-3 font-mono text-xs font-bold">{String.fromCharCode(65 + idx)}.</span>
             {opt}
           </button>
         ))}
@@ -811,7 +912,7 @@ function StreakBanner({ players, streaks }) {
 
 // ─── RevealScreen ─────────────────────────────────────────────────────────────
 
-function RevealScreen({ question, correctIdx, roundScores, responseTimes, streaks, players, myId, totalScores, questionIdx, _questions, t }) {
+function RevealScreen({ question, correctIdx, roundScores, responseTimes, streaks, players, myId, totalScores, questionIdx, _questions, t, myAnswerIdx }) {
   if (!question) return null
 
   const correctPlayers = players
@@ -821,36 +922,84 @@ function RevealScreen({ question, correctIdx, roundScores, responseTimes, streak
   const ranked = [...correctPlayers, ...wrongPlayers]
   const medals = ['🥇', '🥈', '🥉']
 
-  // Compute my floating reaction client-side (BUG 3 fix)
-  const myCorrect = (roundScores[myId] ?? 0) > 0
-  const myAnswered = myId in responseTimes || myId in roundScores
+  // Use myAnswerIdx as the single local source of truth for what this player did.
+  // myAnswerIdx is a ref set only when the local player taps an option — it is never
+  // influenced by other players' actions or shared Firestore state.
+  const myDidAnswer = myAnswerIdx !== null
+  const myIsCorrect = myDidAnswer && myAnswerIdx === correctIdx
+
+  // Floating reaction (emoji feedback)
   let myEmoji = null
-  if (myAnswered) {
+  if (myDidAnswer) {
     const myTime = responseTimes[myId]
     const fastestCorrectTime = correctPlayers.length ? responseTimes[correctPlayers[0].id] : null
-    const wasClose = !myCorrect && fastestCorrectTime != null && myTime != null && (myTime - fastestCorrectTime) <= 0.5
+    const wasClose = !myIsCorrect && fastestCorrectTime != null && myTime != null && (myTime - fastestCorrectTime) <= 0.5
     myEmoji =
-      myCorrect && correctPlayers[0]?.id === myId ? '🔥' :
-      myCorrect ? '💪' :
+      myIsCorrect && correctPlayers[0]?.id === myId ? '🔥' :
+      myIsCorrect ? '💪' :
       wasClose  ? '😅' : '😭'
   }
   const myReaction = myEmoji ? [{ emoji: myEmoji, playerId: myId }] : []
 
+  // Proximity banner — derived entirely from local flags + shared score totals
   const myScore = totalScores[myId] ?? 0
   const sortedByScore = [...players].sort((a, b) => (totalScores[b.id] ?? 0) - (totalScores[a.id] ?? 0))
   const leader = sortedByScore[0]
-  const gap = (totalScores[leader?.id] ?? 0) - myScore
+  const leaderScore = totalScores[leader?.id] ?? 0
+  const gap = leaderScore - myScore
+  const iAmAtTop = myScore === leaderScore
+  const playersAtTop = players.filter(p => (totalScores[p.id] ?? 0) === leaderScore)
+  const iAmSoleLeader = iAmAtTop && playersAtTop.length === 1
 
   let proximityBanner, proximityClass
-  if (gap === 0) {
-    proximityBanner = "You're leading! Stay sharp."
-    proximityClass = 'bg-amber-500/20 border-amber-500/40 text-amber-300'
-  } else if (gap <= 15) {
-    proximityBanner = `You're ${gap} pts behind ${leader.name}. One question can change everything.`
-    proximityClass = 'bg-rose-500/15 border-rose-500/30 text-rose-300'
-  } else {
-    proximityBanner = 'Big points possible — keep going!'
+  if (!myDidAnswer) {
+    proximityBanner = "Didn't answer this one — stay focused!"
     proximityClass = 'bg-zinc-700/60 border-zinc-600/40 text-zinc-400'
+  } else if (myIsCorrect) {
+    if (iAmSoleLeader) {
+      proximityBanner = "You're leading — stay sharp! 🔥"
+      proximityClass = 'bg-amber-500/20 border-amber-500/40 text-amber-300'
+    } else if (iAmAtTop) {
+      proximityBanner = "All tied up — anyone's game! 🤝"
+      proximityClass = 'bg-blue-500/15 border-blue-500/30 text-blue-300'
+    } else {
+      proximityBanner = `You're ${gap} pts behind ${leader?.name} — catch up!`
+      proximityClass = 'bg-rose-500/15 border-rose-500/30 text-rose-300'
+    }
+  } else {
+    // answered wrong
+    if (iAmAtTop && playersAtTop.length > 1) {
+      proximityBanner = "It's all tied up! 🤝"
+      proximityClass = 'bg-blue-500/15 border-blue-500/30 text-blue-300'
+    } else if (gap === 0) {
+      proximityBanner = "It's all tied up! 🤝"
+      proximityClass = 'bg-blue-500/15 border-blue-500/30 text-blue-300'
+    } else {
+      proximityBanner = `You're ${gap} pts behind ${leader?.name} — catch up!`
+      proximityClass = 'bg-rose-500/15 border-rose-500/30 text-rose-300'
+    }
+  }
+
+  // Result banner — uses local myAnswerIdx signals only (no shared Firestore flags)
+  let resultBanner
+  if (!myDidAnswer) {
+    resultBanner = (
+      <div className="rounded-xl border px-4 py-3 text-sm font-bold bg-zinc-700/60 border-zinc-600/40 text-zinc-400 text-center">
+        ⏰ You didn't answer
+      </div>
+    )
+  } else if (myIsCorrect) {
+    resultBanner = (
+      <div className="rounded-xl border px-4 py-3 text-sm font-bold bg-green-500/20 border-green-500/40 text-green-300 text-center">
+        ✓ Correct! +{roundScores[myId] ?? 0} pts
+      </div>
+    )
+  } else {
+    resultBanner = (
+      <div className="rounded-xl border px-4 py-3 text-sm font-bold bg-red-500/20 border-red-500/40 text-red-300 text-center">
+        ✗ Wrong answer
+      </div>
+    )
   }
 
   const nextIdx = questionIdx + 1
@@ -865,21 +1014,51 @@ function RevealScreen({ question, correctIdx, roundScores, responseTimes, streak
           Q {questionIdx + 1} / {TOTAL_ROUNDS} — {t('correctAnswer')}
         </p>
 
+        {/* Options with answer highlight states (UX 7) */}
         <div className="grid grid-cols-1 gap-2">
-          {question.options.map((opt, idx) => (
-            <div
-              key={idx}
-              className={`px-5 py-3 rounded-2xl font-semibold text-sm border ${
-                idx === correctIdx
-                  ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300'
-                  : 'bg-zinc-800/50 border-zinc-700/30 text-zinc-500'
-              }`}
-            >
-              {idx === correctIdx && <span className="mr-2">✅</span>}
-              {opt}
-            </div>
-          ))}
+          {question.options.map((opt, idx) => {
+            const isCorrect = idx === correctIdx
+            const isSelected = myAnswerIdx !== null && idx === myAnswerIdx
+
+            let cls
+            if (myAnswerIdx === null) {
+              // player didn't answer
+              cls = isCorrect
+                ? 'bg-green-500/40 border-green-500/50 text-green-300'
+                : 'bg-zinc-800/50 border-zinc-700/30 text-zinc-500 opacity-40'
+            } else if (isSelected && isCorrect) {
+              // State A: selected + correct
+              cls = 'bg-green-500/80 border-green-400 text-white font-bold'
+            } else if (isSelected && !isCorrect) {
+              // State B: selected + wrong
+              cls = 'bg-red-500/60 border-red-400 text-white'
+            } else if (!isSelected && isCorrect) {
+              // State C: not selected, correct answer
+              cls = 'bg-green-500/40 border-green-500/50 text-green-300'
+            } else {
+              // State D: not selected, wrong
+              cls = 'bg-zinc-800/50 border-zinc-700/30 text-zinc-500 opacity-40'
+            }
+
+            const icon = isSelected && isCorrect ? '✓' : isSelected && !isCorrect ? '✗' : null
+
+            return (
+              <div
+                key={idx}
+                className={`px-5 py-3 rounded-2xl font-semibold text-sm border flex items-center justify-between ${cls}`}
+              >
+                <span>
+                  <span className="text-xs font-mono mr-2 opacity-70">{String.fromCharCode(65 + idx)}.</span>
+                  {opt}
+                </span>
+                {icon && <span className="ml-2 text-base shrink-0">{icon}</span>}
+              </div>
+            )
+          })}
         </div>
+
+        {/* Result banner (correct/wrong/no answer) */}
+        {resultBanner}
 
         {question.explanation?.trim() && (
           <FadeInRow delay={500}>
@@ -893,10 +1072,12 @@ function RevealScreen({ question, correctIdx, roundScores, responseTimes, streak
 
         <StreakBanner players={players} streaks={streaks} />
 
+        {/* Proximity banner */}
         <div className={`rounded-xl border px-4 py-2.5 text-sm font-medium ${proximityClass}`}>
           {proximityBanner}
         </div>
 
+        {/* Per-player round results */}
         <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-4 space-y-1">
           {ranked.map((p, i) => {
             const streak = streaks[p.id] ?? 0
@@ -946,13 +1127,27 @@ function RevealScreen({ question, correctIdx, roundScores, responseTimes, streak
 // ─── ResultScreen ─────────────────────────────────────────────────────────────
 
 const PODIUM_COLORS = {
-  0: 'bg-amber-400 text-zinc-900',  // gold
-  1: 'bg-zinc-400 text-zinc-900',   // silver
-  2: 'bg-amber-700 text-zinc-100',  // bronze
+  0: 'bg-amber-400 text-zinc-900',
+  1: 'bg-zinc-400 text-zinc-900',
+  2: 'bg-amber-700 text-zinc-100',
 }
 
-function ResultScreen({ totalScores, winner, players, myId, room, correctCounts, fastestTimes, bestStreaks, category, isHost, onRematch, onHome, t }) {
+const LOSER_SUBTEXTS = [
+  "Revenge is one game away 👀",
+  "Close one! Try again?",
+  "Not bad... but not first 😏",
+]
+const LAST_SUBTEXTS = [
+  "Plenty of room to grow 📈",
+  "At least you showed up 😂",
+  "The only way is up!",
+]
+
+function ResultScreen({ totalScores, winner, players, myId, room, correctCounts, fastestTimes, bestStreaks, category, isHost, onRematch, onHome, onRematchVote, rematchVoteCount, totalPlayers, t }) {
   const [shareStatus, setShareStatus] = useState(null)
+  const [myVoteSubmitted, setMyVoteSubmitted] = useState(false)
+  const [loserSubtext] = useState(() => LOSER_SUBTEXTS[Math.floor(Math.random() * LOSER_SUBTEXTS.length)])
+  const [lastSubtext] = useState(() => LAST_SUBTEXTS[Math.floor(Math.random() * LAST_SUBTEXTS.length)])
 
   // Fire confetti on mount
   useEffect(() => {
@@ -967,9 +1162,21 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
     })
   }, [])
 
+  async function handleVote() {
+    if (myVoteSubmitted) return
+    setMyVoteSubmitted(true)
+    await onRematchVote?.()
+  }
+
   const ranked = resolveTieBreak(players.map(p => p.id), totalScores, {})
   const winnerPlayer = players.find(p => p.id === winner)
+  const myPlayer = players.find(p => p.id === myId)
   const medals = ['🥇', '🥈', '🥉']
+
+  const myRank = ranked.indexOf(myId)
+  const isWinner = myRank === 0
+  const isSecond = myRank === 1
+  const isLast = myRank === ranked.length - 1 && ranked.length >= 3
 
   // Tie detection
   const maxScore = players.length > 0 ? Math.max(...players.map(p => totalScores[p.id] ?? 0)) : 0
@@ -978,25 +1185,23 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
   const catDisplay = catLabel(category) ?? 'Mixed'
   const dateStr = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
 
-  const myXP = totalScores[myId] ?? 0
-  const xpDisplay = room?.roomType === 'ranked' ? Math.round(myXP * 1.2) : myXP
+  const myScore = totalScores[myId] ?? 0
+  const xpDisplay = room?.roomType === 'ranked' ? Math.round(myScore * 1.2) : myScore
 
   const accuracy = pid => Math.round(((correctCounts[pid] ?? 0) / TOTAL_ROUNDS) * 100)
 
-  // Stat highlight winners
   const fastestPlayer = [...players]
     .filter(p => fastestTimes[p.id] != null)
     .sort((a, b) => (fastestTimes[a.id] ?? 99) - (fastestTimes[b.id] ?? 99))[0]
 
   const mostAccurate = [...players].sort((a, b) => accuracy(b.id) - accuracy(a.id))[0]
-
   const bestStreaker = [...players].sort((a, b) => (bestStreaks[b.id] ?? 0) - (bestStreaks[a.id] ?? 0))[0]
 
   // Podium — visual order: 2nd | 1st | 3rd
   const podiumPids = ranked.slice(0, Math.min(3, players.length))
   const podiumVisual = podiumPids.length >= 3
     ? [podiumPids[1], podiumPids[0], podiumPids[2]]
-    : podiumPids  // 1 or 2 players: left to right
+    : podiumPids
   const podiumSlotHeights = podiumPids.length >= 3
     ? ['h-14', 'h-20', 'h-10']
     : podiumPids.length === 2
@@ -1024,36 +1229,81 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
 
   return (
     <div className="space-y-5 pb-40">
-      {/* Section 1 — Winner announcement */}
-      <div className="text-center py-4 space-y-2">
-        <div className="text-6xl">{isTie ? '🤝' : '🏆'}</div>
-        <p className="text-white font-black text-2xl leading-tight">
-          {isTie ? "It's a tie!" : `${winnerPlayer?.name ?? 'Player'} wins FirstBell!`}
-        </p>
-        {isTie && (
-          <p className="text-zinc-300 font-semibold text-base">
-            {tiedWinnerPlayers.map(p => p.name).join(' & ')}
+      {/* Section 1 — Personalised announcement (UX 8 + BUG 3) */}
+      {isWinner ? (
+        <div className="text-center py-5 space-y-2 bg-gradient-to-b from-amber-500/20 to-transparent rounded-2xl">
+          <div className="text-6xl">🏆</div>
+          <p className="text-amber-400 font-black text-2xl leading-tight">You Won!</p>
+          <p className="text-zinc-300 font-semibold text-base">Congratulations {myPlayer?.name}!</p>
+          <p className="text-zinc-400 text-sm">Your score: {myScore} pts</p>
+          <p className="text-amber-400 font-semibold text-sm">
+            You earned +{xpDisplay} XP
+            {room?.roomType === 'ranked' && (
+              <span className="text-xs ml-1 text-amber-300/70">(ranked ×1.2)</span>
+            )}
           </p>
-        )}
-        <p className="text-zinc-400 text-sm">{maxScore} pts</p>
-        <p className="text-amber-400 font-semibold text-sm">
-          You earned +{xpDisplay} XP
-          {room?.roomType === 'ranked' && (
-            <span className="text-xs ml-1 text-amber-300/70">(ranked ×1.2)</span>
+        </div>
+      ) : isSecond && !isTie ? (
+        <div className="text-center py-5 space-y-2 bg-gradient-to-b from-zinc-500/20 to-transparent rounded-2xl">
+          <div className="text-5xl">😅</div>
+          <p className="text-zinc-200 font-black text-xl leading-tight">
+            Almost! {winnerPlayer?.name ?? 'Someone'} got you this time
+          </p>
+          <p className="text-zinc-400 text-sm">{loserSubtext}</p>
+          <p className="text-zinc-500 text-sm">Your score: {myScore} pts</p>
+          <p className="text-amber-400 font-semibold text-sm">
+            You earned +{xpDisplay} XP
+            {room?.roomType === 'ranked' && (
+              <span className="text-xs ml-1 text-amber-300/70">(ranked ×1.2)</span>
+            )}
+          </p>
+        </div>
+      ) : isLast && !isTie ? (
+        <div className="text-center py-5 space-y-2">
+          <div className="text-5xl">🏆</div>
+          <p className="text-zinc-200 font-black text-xl leading-tight">
+            {winnerPlayer?.name ?? 'Someone'} won this round
+          </p>
+          <p className="text-zinc-400 text-sm">{lastSubtext}</p>
+          <p className="text-zinc-500 text-sm">Your score: {myScore} pts</p>
+          <p className="text-amber-400 font-semibold text-sm">
+            You earned +{xpDisplay} XP
+            {room?.roomType === 'ranked' && (
+              <span className="text-xs ml-1 text-amber-300/70">(ranked ×1.2)</span>
+            )}
+          </p>
+        </div>
+      ) : (
+        // Tie or other positions
+        <div className="text-center py-5 space-y-2">
+          <div className="text-6xl">{isTie ? '🤝' : '🥈'}</div>
+          <p className="text-white font-black text-2xl leading-tight">
+            {isTie ? "It's a tie!" : `${winnerPlayer?.name ?? 'Player'} wins FirstBell!`}
+          </p>
+          {isTie && (
+            <p className="text-zinc-300 font-semibold text-base">
+              {tiedWinnerPlayers.map(p => p.name).join(' & ')}
+            </p>
           )}
-        </p>
-      </div>
+          <p className="text-zinc-400 text-sm">Your score: {myScore} pts</p>
+          <p className="text-amber-400 font-semibold text-sm">
+            You earned +{xpDisplay} XP
+            {room?.roomType === 'ranked' && (
+              <span className="text-xs ml-1 text-amber-300/70">(ranked ×1.2)</span>
+            )}
+          </p>
+        </div>
+      )}
 
       {/* Section 2 — Podium */}
       {players.length >= 2 && (
         <div className="flex items-end justify-center gap-2 px-2">
           {isTie && tiedWinnerPlayers.length >= 2 ? (
-            // Tie podium: both winners share centre, 3rd (if any) on right
             <>
               <div className="flex-1 max-w-[60px]" />
               <div className="flex flex-col items-center gap-1 flex-[2]">
                 <div className="flex items-center gap-1 justify-center">
-                  {tiedWinnerPlayers.slice(0, 2).map((p, i) => (
+                  {tiedWinnerPlayers.slice(0, 2).map((p) => (
                     <div key={p.id} className={`text-xl w-10 h-10 rounded-full flex items-center justify-center bg-zinc-700 ${p.id === myId ? 'ring-2 ring-amber-400' : ''}`}>
                       {p.avatar ?? p.name?.[0]?.toUpperCase() ?? '?'}
                     </div>
@@ -1089,7 +1339,6 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
               })()}
             </>
           ) : (
-            // Normal podium: 2nd | 1st | 3rd
             podiumVisual.map((pid, slot) => {
               if (!pid) return null
               const p = players.find(x => x.id === pid)
@@ -1208,16 +1457,41 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
       {/* Section 6 — Actions (sticky) */}
       <div className="fixed bottom-0 left-0 right-0 bg-zinc-900/95 backdrop-blur-sm px-4 pt-3 pb-6 border-t border-zinc-800 space-y-2">
         {isHost ? (
-          <button
-            onClick={onRematch}
-            className="w-full py-3.5 rounded-xl font-bold text-base bg-amber-500 text-zinc-900 hover:bg-amber-400 transition-colors"
-          >
-            🔄 Rematch
-          </button>
+          <>
+            <button
+              onClick={onRematch}
+              className="w-full py-3.5 rounded-xl font-bold text-base bg-amber-500 text-zinc-900 hover:bg-amber-400 transition-colors"
+            >
+              🔄 Rematch
+            </button>
+            {rematchVoteCount > 0 && (
+              <p className="text-center text-zinc-500 text-xs">
+                {rematchVoteCount}/{totalPlayers} want a rematch 🔥
+              </p>
+            )}
+          </>
         ) : (
-          <p className="text-center text-zinc-600 text-sm py-2 animate-pulse">
-            Waiting for host to start a rematch...
-          </p>
+          <>
+            <button
+              onClick={handleVote}
+              disabled={myVoteSubmitted}
+              className={`w-full py-3 rounded-xl font-semibold text-sm transition-colors border ${
+                myVoteSubmitted
+                  ? 'bg-zinc-700 border-zinc-600 text-emerald-400 cursor-not-allowed'
+                  : 'bg-zinc-700 border-zinc-600/50 text-zinc-200 hover:bg-zinc-600'
+              }`}
+            >
+              {myVoteSubmitted ? '✓ Rematch requested!' : '👍 Want a Rematch?'}
+            </button>
+            {rematchVoteCount > 0 && (
+              <p className="text-center text-zinc-500 text-xs">
+                {rematchVoteCount}/{totalPlayers} want a rematch 🔥
+              </p>
+            )}
+            <p className="text-center text-zinc-600 text-xs animate-pulse">
+              Waiting for host to start a rematch...
+            </p>
+          </>
         )}
         <button
           onClick={onHome}
