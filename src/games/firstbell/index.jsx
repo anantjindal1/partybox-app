@@ -34,12 +34,12 @@ function catLabel(cat) {
   return d ? `${d.emoji} ${d.label}` : cat
 }
 
-// Tiered scoring: 0-5s→1000, 5-10s→600, 10-15s→300, wrong→0
+// Tiered scoring: 0-5s→1000, 5-10s→900, 10-15s→800, wrong→0
 function computeTieredScore(isCorrect, deltaSeconds) {
   if (!isCorrect) return 0
   if (deltaSeconds <= 5) return 1000
-  if (deltaSeconds <= 10) return 600
-  return 300
+  if (deltaSeconds <= 10) return 900
+  return 800
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -66,6 +66,7 @@ export default function RapidFireBattle({ code }) {
   const countdownRef = useRef(null)
   const xpAwarded = useRef(false)
   const myAnswerIdxRef = useRef(null)
+  const myAnswersRef = useRef([])
 
   const phase = roomState.phase || 'waiting'
 
@@ -102,6 +103,18 @@ export default function RapidFireBattle({ code }) {
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase])
+
+  // ─── Accumulate per-question local answers on reveal ──────────────────────
+  useEffect(() => {
+    if (phase === 'reveal') {
+      const qIdx = roomState.questionIdx ?? 0
+      myAnswersRef.current[qIdx] = {
+        selectedIdx: myAnswerIdxRef.current,
+        pts: roomState.roundScores?.[myId] ?? 0,
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, roomState.questionIdx])
 
   // ─── Reset answered + countdown + answer idx when question changes ──────────
   useEffect(() => {
@@ -185,6 +198,8 @@ export default function RapidFireBattle({ code }) {
         setState({ phase: 'results', ...base,
           responseTimes: roomState.responseTimes,
           winner: roomState.winner,
+          _questions: roomState._questions,
+          roundScores: roomState.roundScores,
         })
       } else {
         setState({ phase: 'reveal', ...base,
@@ -219,6 +234,7 @@ export default function RapidFireBattle({ code }) {
           category: roomState.category,
           responseTimes: roomState.responseTimes,
           winner: roomState.winner,
+          _questions: roomState._questions,
         })
       } else {
         const nextIdx = (roomState.questionIdx ?? 0) + 1
@@ -461,6 +477,21 @@ export default function RapidFireBattle({ code }) {
   }
 
   if (phase === 'results') {
+    // Capture Q7 synchronously before ResultScreen renders.
+    // Q7 skips the reveal phase (lockIn → results directly), so the reveal
+    // useEffect never fires for it. Writing the ref here — before the JSX
+    // return — ensures myAnswersRef.current[lastIdx] is populated in the
+    // same render pass that ResultScreen first mounts.
+    const q7questions = roomState._questions
+    if (q7questions?.length > 0) {
+      const lastIdx = q7questions.length - 1
+      if (!myAnswersRef.current[lastIdx]) {
+        myAnswersRef.current[lastIdx] = {
+          selectedIdx: myAnswerIdxRef.current,
+          pts: roomState.roundScores?.[myId] ?? 0,
+        }
+      }
+    }
     return (
       <ResultScreen
         totalScores={roomState.totalScores ?? {}}
@@ -479,6 +510,8 @@ export default function RapidFireBattle({ code }) {
         rematchVoteCount={rematchVoteCount}
         totalPlayers={players.length}
         t={t}
+        questions={roomState._questions ?? []}
+        myAnswers={myAnswersRef.current}
       />
     )
   }
@@ -760,7 +793,7 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
         </div>
       )}
 
-      {/* Host: game info pill + start button */}
+      {/* Host: game info pill + scoring explainer + start button */}
       {isHost && (
         <>
           <div className="flex justify-center">
@@ -768,6 +801,17 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
               {TOTAL_ROUNDS} questions · 15s each ⏱
             </span>
           </div>
+
+          <div className="space-y-2">
+            <p className="text-center text-zinc-400 text-sm font-semibold">⚡ Faster answers = more points</p>
+            <div className="flex gap-2 justify-center flex-wrap">
+              <span className="bg-green-500/20 border border-green-500/40 text-green-300 text-xs font-bold px-3 py-1.5 rounded-full">⚡ 0–5s = 1000</span>
+              <span className="bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 text-xs font-bold px-3 py-1.5 rounded-full">🕐 5–10s = 900</span>
+              <span className="bg-orange-500/20 border border-orange-500/40 text-orange-300 text-xs font-bold px-3 py-1.5 rounded-full">🕑 10–15s = 800</span>
+            </div>
+            <p className="text-center text-zinc-500 text-xs">Wrong or no answer = 0 pts</p>
+          </div>
+
           <button
             disabled={!selected || loading}
             onClick={() => onStart(selected)}
@@ -820,6 +864,24 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
 // ─── QuestionScreen ───────────────────────────────────────────────────────────
 
 function QuestionScreen({ question, questionIdx, answered, localCountdown, onAnswer, answeredCount, totalPlayers, t }) {
+  const [tipVisible, setTipVisible] = useState(
+    () => questionIdx === 0 && !localStorage.getItem('partybox_fb_score_tip')
+  )
+
+  useEffect(() => {
+    if (!tipVisible) return
+    const timer = setTimeout(() => {
+      localStorage.setItem('partybox_fb_score_tip', '1')
+      setTipVisible(false)
+    }, 4000)
+    return () => clearTimeout(timer)
+  }, [tipVisible])
+
+  function dismissTip() {
+    localStorage.setItem('partybox_fb_score_tip', '1')
+    setTipVisible(false)
+  }
+
   if (!question) return null
 
   return (
@@ -835,6 +897,18 @@ function QuestionScreen({ question, questionIdx, answered, localCountdown, onAns
         </p>
         <p className="text-white font-bold text-xl leading-snug">{question.question}</p>
       </div>
+
+      {/* Q1 scoring tooltip */}
+      {tipVisible && (
+        <button
+          type="button"
+          onClick={dismissTip}
+          className="w-full bg-zinc-700/80 border border-zinc-600/50 rounded-xl px-4 py-2.5 text-center"
+        >
+          <p className="text-zinc-200 text-xs font-semibold">⚡ 0–5s = 1000pts · 5–10s = 900pts · 10–15s = 800pts</p>
+          <p className="text-zinc-500 text-xs mt-0.5">Tap to dismiss</p>
+        </button>
+      )}
 
       {/* Options — with A. B. C. D. labels, separated from question card */}
       <div className="grid grid-cols-1 gap-3 mt-2">
@@ -1014,7 +1088,17 @@ function RevealScreen({ question, correctIdx, roundScores, responseTimes, streak
           Q {questionIdx + 1} / {TOTAL_ROUNDS} — {t('correctAnswer')}
         </p>
 
-        {/* Options with answer highlight states (UX 7) */}
+        {/* Question text */}
+        <p className="text-white font-bold text-lg leading-snug text-center px-1">{question.question}</p>
+
+        {/* Explanation — prominent, above options */}
+        {question.explanation?.trim() && (
+          <div className="bg-zinc-700/60 border border-zinc-600/60 rounded-xl px-4 py-3">
+            <p className="text-sm text-white">💡 {question.explanation}</p>
+          </div>
+        )}
+
+        {/* Options with answer highlight states */}
         <div className="grid grid-cols-1 gap-2">
           {question.options.map((opt, idx) => {
             const isCorrect = idx === correctIdx
@@ -1059,16 +1143,6 @@ function RevealScreen({ question, correctIdx, roundScores, responseTimes, streak
 
         {/* Result banner (correct/wrong/no answer) */}
         {resultBanner}
-
-        {question.explanation?.trim() && (
-          <FadeInRow delay={500}>
-            <div className="bg-zinc-700/50 rounded-xl px-4 py-3">
-              <p className="text-slate-300 text-sm italic" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                💡 {question.explanation}
-              </p>
-            </div>
-          </FadeInRow>
-        )}
 
         <StreakBanner players={players} streaks={streaks} />
 
@@ -1143,7 +1217,7 @@ const LAST_SUBTEXTS = [
   "The only way is up!",
 ]
 
-function ResultScreen({ totalScores, winner, players, myId, room, correctCounts, fastestTimes, bestStreaks, category, isHost, onRematch, onHome, onRematchVote, rematchVoteCount, totalPlayers, t }) {
+function ResultScreen({ totalScores, winner, players, myId, room, correctCounts, fastestTimes, bestStreaks, category, isHost, onRematch, onHome, onRematchVote, rematchVoteCount, totalPlayers, t, questions, myAnswers }) {
   const [shareStatus, setShareStatus] = useState(null)
   const [myVoteSubmitted, setMyVoteSubmitted] = useState(false)
   const [loserSubtext] = useState(() => LOSER_SUBTEXTS[Math.floor(Math.random() * LOSER_SUBTEXTS.length)])
@@ -1429,7 +1503,65 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
         ))}
       </div>
 
-      {/* Section 5 — Share */}
+      {/* Section 5 — Per-question breakdown */}
+      {questions.length > 0 && (
+        <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-4">
+          <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3">📋 How You Did</p>
+          <div className="space-y-2">
+            {questions.map((q, i) => {
+              const ans = myAnswers?.[i]
+              const selectedIdx = ans?.selectedIdx ?? null
+              const pts = ans?.pts ?? 0
+              const correctIdx = q.correctIdx
+              const didAnswer = selectedIdx !== null
+              const isCorrect = didAnswer && selectedIdx === correctIdx
+
+              let cardCls, label
+              if (!didAnswer) {
+                cardCls = 'bg-zinc-700/40 border-zinc-600/40'
+                label = <span className="text-zinc-500 text-xs">No answer</span>
+              } else if (isCorrect) {
+                cardCls = 'bg-green-500/10 border-green-500/30'
+                label = <span className="text-green-400 text-xs font-semibold">✓ Correct</span>
+              } else {
+                cardCls = 'bg-red-500/10 border-red-500/30'
+                label = <span className="text-red-400 text-xs font-semibold">✗ Wrong</span>
+              }
+
+              return (
+                <div key={i} className={`rounded-xl border p-3 ${cardCls}`}>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <p className="text-zinc-300 text-xs font-medium leading-snug flex-1">
+                      <span className="text-zinc-500 mr-1.5">Q{i + 1}.</span>{q.question}
+                    </p>
+                    {pts > 0 && (
+                      <span className="text-amber-400 text-xs font-bold shrink-0">+{pts}</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {label}
+                    {!didAnswer && (
+                      <span className="text-zinc-400 text-xs">→ {q.options[correctIdx]}</span>
+                    )}
+                    {didAnswer && !isCorrect && (
+                      <>
+                        <span className="text-red-400 text-xs line-through opacity-60">{q.options[selectedIdx]}</span>
+                        <span className="text-zinc-500 text-xs">→</span>
+                        <span className="text-green-400 text-xs">{q.options[correctIdx]}</span>
+                      </>
+                    )}
+                    {didAnswer && isCorrect && (
+                      <span className="text-green-300 text-xs">{q.options[correctIdx]}</span>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Section 6 — Share */}
       <div className="bg-zinc-800/60 border border-zinc-700/40 rounded-2xl p-4 space-y-3">
         <div className="text-center">
           <p className="text-amber-400 font-black text-lg tracking-tight">⚡ FirstBell</p>
@@ -1454,7 +1586,7 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
         </button>
       </div>
 
-      {/* Section 6 — Actions (sticky) */}
+      {/* Section 7 — Actions (sticky) */}
       <div className="fixed bottom-0 left-0 right-0 bg-zinc-900/95 backdrop-blur-sm px-4 pt-3 pb-6 border-t border-zinc-800 space-y-2">
         {isHost ? (
           <>
