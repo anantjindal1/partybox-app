@@ -67,6 +67,7 @@ export default function RapidFireBattle({ code }) {
   const xpAwarded = useRef(false)
   const myAnswerIdxRef = useRef(null)
   const myAnswersRef = useRef([])
+  const earlyCloseTimerRef = useRef(null)
 
   const phase = roomState.phase || 'waiting'
 
@@ -122,6 +123,10 @@ export default function RapidFireBattle({ code }) {
       setAnswered(false)
       setLocalCountdown(QUESTION_TIMEOUT_MS / 1000)
       myAnswerIdxRef.current = null
+      if (earlyCloseTimerRef.current) {
+        clearTimeout(earlyCloseTimerRef.current)
+        earlyCloseTimerRef.current = null
+      }
     }
   }, [phase, roomState.questionIdx])
 
@@ -140,10 +145,16 @@ export default function RapidFireBattle({ code }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, roomState.questionIdx])
 
-  // ─── Host: all answered early close ────────────────────────────────────────
+  // ─── Host: all answered early close (600ms buffer for Firestore propagation) ─
   useEffect(() => {
     if (!isHost || phase !== 'question') return
-    if (players.length > 0 && actions.length >= players.length) processRound()
+    if (players.length > 0 && actions.length >= players.length) {
+      if (earlyCloseTimerRef.current) return // already scheduled
+      earlyCloseTimerRef.current = setTimeout(() => {
+        earlyCloseTimerRef.current = null
+        processRound()
+      }, 600)
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actions, isHost, phase, roomState.questionIdx])
 
@@ -151,7 +162,7 @@ export default function RapidFireBattle({ code }) {
   useEffect(() => {
     if (!isHost || phase !== 'question') return
     if (questionTimerRef.current) clearTimeout(questionTimerRef.current)
-    questionTimerRef.current = setTimeout(processRound, QUESTION_TIMEOUT_MS)
+    questionTimerRef.current = setTimeout(processRound, QUESTION_TIMEOUT_MS + 600)
     return () => clearTimeout(questionTimerRef.current)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHost, phase, roomState.questionIdx])
@@ -317,6 +328,15 @@ export default function RapidFireBattle({ code }) {
     const bestStreaks = { ...(roomState.bestStreaks ?? {}) }
     for (const p of players) {
       bestStreaks[p.id] = Math.max(bestStreaks[p.id] ?? 0, streaks[p.id] ?? 0)
+    }
+
+    // Fill in players whose answers didn't propagate in time — score stays 0
+    for (const player of players) {
+      if (!(player.id in roundScores)) {
+        roundScores[player.id] = 0
+        responseTimes[player.id] = null
+        console.warn('[FirstBell] No answer recorded for', player.id, '— may be propagation delay')
+      }
     }
 
     const nextIdx = (questionIdx ?? 0) + 1
@@ -528,7 +548,7 @@ function LiveScoreBar({ players, totalScores, myId }) {
 
   return (
     <div
-      className="flex overflow-x-auto gap-2 px-3 py-2 mb-4 bg-zinc-800 border-b border-zinc-700/60"
+      className="flex overflow-x-auto gap-3 px-4 py-2 mb-4 bg-zinc-800 border-b border-zinc-700/60"
       style={{ minHeight: 44, scrollbarWidth: 'none', msOverflowStyle: 'none' }}
     >
       {sorted.map(p => {
@@ -714,23 +734,29 @@ function ShareSection({ code }) {
 function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, myId, players }) {
   // Pre-select 'random' by default (UX 3)
   const [selected, setSelected] = useState(nextCategory ?? 'random')
-  const [tutorialSeen, setTutorialSeen] = useState(
-    () => !!localStorage.getItem('partybox_fb_tutorial_seen')
-  )
+  const [hasPickedCategory, setHasPickedCategory] = useState(false)
+  const categoryRef = useRef(null)
 
-  function dismissTutorial() {
-    localStorage.setItem('partybox_fb_tutorial_seen', '1')
-    setTutorialSeen(true)
-  }
+  // Scroll to category grid when 2nd player joins
+  useEffect(() => {
+    if (players.length >= 2 && categoryRef.current) {
+      categoryRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [players.length])
 
   return (
     <div className="space-y-4">
-      {/* Player list — visible to all */}
-      {players.length > 0 && (
+      {/* Host: player list */}
+      {isHost && players.length > 0 && (
         <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-4 space-y-2">
-          <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-2">
-            Players ({players.length})
-          </p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider">
+              Players ({players.length})
+            </p>
+            {players.length >= 2 && !hasPickedCategory && (
+              <p className="text-amber-400 text-xs font-semibold">👇 Pick a category to begin</p>
+            )}
+          </div>
           {players.map(p => {
             const isMe = p.id === myId
             return (
@@ -746,27 +772,66 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
                 <span className={`font-semibold text-sm flex-1 ${isMe ? 'text-white' : 'text-zinc-200'}`}>
                   {p.name}
                 </span>
-                {isMe && (
-                  <span className="text-zinc-400 text-xs">(You)</span>
-                )}
+                {isMe && <span className="text-zinc-400 text-xs">(You)</span>}
               </div>
             )
           })}
         </div>
       )}
 
-      {/* Non-host waiting message */}
+      {/* Guest: full waiting view */}
       {!isHost && (
-        <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-6 text-center space-y-2">
-          <p className="text-4xl">🔔</p>
-          <p className="text-zinc-300 font-semibold">{t('rapidFireBattle')}</p>
-          <p className="text-zinc-500 text-sm">Waiting for host to pick a category...</p>
+        <div className="space-y-4">
+          {/* 1. Waiting status */}
+          <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-6 text-center space-y-2">
+            <p className="text-4xl">🔔</p>
+            <p className="text-zinc-300 font-semibold">{t('rapidFireBattle')}</p>
+            <p className="text-zinc-500 text-sm">Waiting for host to pick a category...</p>
+          </div>
+
+          {/* 2. Player list */}
+          {players.length > 0 && (
+            <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-4 space-y-2">
+              <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-2">
+                Players ({players.length})
+              </p>
+              {players.map(p => {
+                const isMe = p.id === myId
+                return (
+                  <div
+                    key={p.id}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-colors ${
+                      isMe
+                        ? 'bg-zinc-700/80 border-2 border-white/60'
+                        : 'bg-zinc-700/40 border border-zinc-700/50'
+                    }`}
+                  >
+                    <span className="text-xl leading-none">{p.avatar ?? '?'}</span>
+                    <span className={`font-semibold text-sm flex-1 ${isMe ? 'text-white' : 'text-zinc-200'}`}>
+                      {p.name}
+                    </span>
+                    {isMe && <span className="text-zinc-400 text-xs">(You)</span>}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {/* 3. Room code + share */}
+          {code && (
+            <div className="bg-zinc-800/60 border border-zinc-700/40 rounded-2xl p-4">
+              <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3">
+                Invite friends
+              </p>
+              <ShareSection code={code} />
+            </div>
+          )}
         </div>
       )}
 
       {/* Host: category grid */}
       {isHost && (
-        <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-5">
+        <div ref={categoryRef} className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-5">
           <p className="text-zinc-300 font-semibold mb-4 text-center">{t('pickCategory')}</p>
           <div className="grid grid-cols-2 gap-3">
             {CATEGORY_ROTATION.map(cat => {
@@ -774,7 +839,7 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
               return (
                 <button
                   key={cat}
-                  onClick={() => setSelected(cat)}
+                  onClick={() => { setSelected(cat); setHasPickedCategory(true) }}
                   className={`flex flex-col items-center justify-center gap-1.5 py-4 px-3 rounded-xl font-semibold text-sm transition-colors border-2 ${
                     selected === cat
                       ? 'bg-amber-500 text-zinc-900 border-amber-400'
@@ -793,25 +858,26 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
         </div>
       )}
 
-      {/* Host: game info pill + scoring explainer + start button */}
+      {/* Game info pill + scoring explainer — visible to all players */}
+      <div className="flex justify-center">
+        <span className="bg-zinc-700/60 rounded-full px-4 py-1.5 text-sm font-semibold text-white">
+          {TOTAL_ROUNDS} questions · 15s each ⏱
+        </span>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-center text-zinc-400 text-sm font-semibold">⚡ Faster answers = more points</p>
+        <div className="flex gap-2 justify-center flex-wrap">
+          <span className="bg-green-500/20 border border-green-500/40 text-green-300 text-xs font-bold px-3 py-1.5 rounded-full">⚡ 0–5s = 1000</span>
+          <span className="bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 text-xs font-bold px-3 py-1.5 rounded-full">🕐 5–10s = 900</span>
+          <span className="bg-orange-500/20 border border-orange-500/40 text-orange-300 text-xs font-bold px-3 py-1.5 rounded-full">🕑 10–15s = 800</span>
+        </div>
+        <p className="text-center text-zinc-500 text-xs">Wrong or no answer = 0 pts</p>
+      </div>
+
+      {/* Host: start button */}
       {isHost && (
         <>
-          <div className="flex justify-center">
-            <span className="bg-zinc-700/60 rounded-full px-4 py-1.5 text-sm font-semibold text-white">
-              {TOTAL_ROUNDS} questions · 15s each ⏱
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            <p className="text-center text-zinc-400 text-sm font-semibold">⚡ Faster answers = more points</p>
-            <div className="flex gap-2 justify-center flex-wrap">
-              <span className="bg-green-500/20 border border-green-500/40 text-green-300 text-xs font-bold px-3 py-1.5 rounded-full">⚡ 0–5s = 1000</span>
-              <span className="bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 text-xs font-bold px-3 py-1.5 rounded-full">🕐 5–10s = 900</span>
-              <span className="bg-orange-500/20 border border-orange-500/40 text-orange-300 text-xs font-bold px-3 py-1.5 rounded-full">🕑 10–15s = 800</span>
-            </div>
-            <p className="text-center text-zinc-500 text-xs">Wrong or no answer = 0 pts</p>
-          </div>
-
           <button
             disabled={!selected || loading}
             onClick={() => onStart(selected)}
@@ -828,24 +894,6 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
               : 'Select a category'}
           </button>
         </>
-      )}
-
-      {/* Tutorial for non-host players (UX 1) */}
-      {!isHost && !tutorialSeen && (
-        <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-5 space-y-3">
-          <p className="text-white font-bold text-base">How to play 🎯</p>
-          <ul className="text-zinc-300 text-sm space-y-1.5">
-            <li>• A question appears — answer as fast as you can</li>
-            <li>• Faster correct answers = more points</li>
-            <li>• 7 questions, highest score wins!</li>
-          </ul>
-          <button
-            onClick={dismissTutorial}
-            className="w-full py-2.5 rounded-xl font-semibold text-sm bg-amber-500 text-zinc-900 hover:bg-amber-400 transition-colors"
-          >
-            Got it, let's play!
-          </button>
-        </div>
       )}
 
       {/* Share section for host */}
