@@ -126,7 +126,7 @@ export default function Room() {
     const msg = encodeURIComponent(
       `Join my FirstBell quiz!\nTap to join: ${window.location.href}\nRoom code: ${code}`
     )
-    window.open(`https://wa.me/?text=${msg}`, '_blank')
+    window.open(`https://wa.me/+919001290623?text=${msg}`, '_blank')
   }
 
   return (

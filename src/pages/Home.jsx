@@ -489,6 +489,16 @@ export default function Home() {
               </Card>
             )}
           </div>
+
+          {/* ── Feedback link ────────────────────────────────────────────────── */}
+          <a
+            href="https://wa.me/+919001290623?text=PartyBox%20feedback%3A%20"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-zinc-500 text-center hover:text-zinc-300 transition-colors py-4 block w-full"
+          >
+            💬 Share feedback
+          </a>
         </main>
       </div>
 

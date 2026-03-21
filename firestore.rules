@@ -2,30 +2,54 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Rooms — trust-based; structural enforcement deferred until Firebase Auth pre-beta
-    match /rooms/{roomCode} {
-      allow read, create: if true;
-      allow update, delete: if true;
+    // ── ROOMS ──────────────────────────────────────────────
+    // Anyone can create/join/read rooms (multiplayer needs this)
+    match /rooms/{roomId} {
+      allow read, write: if true;
 
-      // Per-player action docs (one doc per player per round)
-      match /actions/{playerId} {
-        allow read: if true;
-        allow write: if true;
-      }
-
-      // Emoji reactions (Week 3 implementation)
-      match /reactions/{playerId} {
+      match /actions/{actionId} {
         allow read, write: if true;
       }
     }
 
-    // Player profiles + per-game stats
-    match /profiles/{userId} {
+    // ── PROFILES ───────────────────────────────────────────
+    // Device can read/write its own profile only
+    match /profiles/{profileId} {
       allow read, write: if true;
 
-      match /stats/{gameSlug} {
+      match /stats/{statId} {
         allow read, write: if true;
       }
+    }
+
+    // ── QUESTION STATS ─────────────────────────────────────
+    // Anyone can read and write (tracking question frequency)
+    match /question_stats/{docId} {
+      allow read, write: if true;
+    }
+
+    // ── ANALYTICS ──────────────────────────────────────────
+    // Anyone can write (fire and forget from client)
+    // No client reads needed — dashboard uses REST API
+    match /analytics_events/{docId} {
+      allow write: if true;
+      allow read: if false;
+    }
+
+    match /analytics_devices/{docId} {
+      allow write: if true;
+      allow read: if false;
+    }
+
+    match /analytics_daily/{docId} {
+      allow write: if true;
+      allow read: if false;
+    }
+
+    // ── EVERYTHING ELSE ────────────────────────────────────
+    // Deny by default
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
