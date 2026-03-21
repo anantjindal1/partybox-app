@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LangToggle } from '../components/LangToggle'
 import { CreateRoomSheet } from '../components/CreateRoomSheet'
@@ -12,21 +12,63 @@ import { games } from '../games/registry'
 import { joinRoom } from '../services/room'
 import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
+import { trackEvent as trackAnalyticsEvent } from '../services/analytics_events'
+import AdBanner from '../components/AdBanner'
 
 const COMING_SOON_SLOTS = 0
 
-// Tab definition and slug-to-tab mapping
-const TABS = [
-  { key: 'solo',   label: 'Solo',   emoji: '👤' },
-  { key: 'party',  label: 'Party',  emoji: '🎉' },
-  { key: 'online', label: 'Online', emoji: '📡' },
-]
+// TODO: restore tabs when game count > 5
+// const TABS = [
+//   { key: 'solo',   label: 'Solo',   emoji: '👤' },
+//   { key: 'party',  label: 'Party',  emoji: '🎉' },
+//   { key: 'online', label: 'Online', emoji: '📡' },
+// ]
+//
+// const TAB_SLUGS = {
+//   solo:   ['thinkfast'],
+//   party:  ['dumb-charades-offline'],
+//   online: ['firstbell'],
+// }
 
-const TAB_SLUGS = {
-  solo:   ['thinkfast'],
-  party:  ['dumb-charades-offline'],
-  online: ['firstbell'],
-}
+// Static card definitions for the vertical game stack
+const VISIBLE_GAMES = [
+  {
+    slug: 'thinkfast',
+    icon: '🧠',
+    title: 'ThinkFast',
+    modeBadge: 'Solo 👤',
+    modeBadgeClass: 'bg-zinc-700 text-zinc-300',
+    description: '10 questions, answer as fast as you can',
+    playersPill: '1 player',
+    timePill: '~3 mins',
+    cta: 'Play →',
+    isOnline: false,
+  },
+  {
+    slug: 'dumb-charades-offline',
+    icon: '🎬',
+    title: 'Dumb Charades',
+    modeBadge: 'Party 🎉',
+    modeBadgeClass: 'bg-zinc-700 text-zinc-300',
+    description: 'Act out Bollywood movies, songs & more',
+    playersPill: '2+ players',
+    timePill: 'Pass the phone',
+    cta: 'Play →',
+    isOnline: false,
+  },
+  {
+    slug: 'firstbell',
+    icon: '🔔',
+    title: 'FirstBell',
+    modeBadge: 'Online 📡',
+    modeBadgeClass: 'bg-blue-900/60 text-blue-400',
+    description: 'Live quiz battle with friends online',
+    playersPill: '2-6 players',
+    timePill: '~5 mins',
+    cta: 'Create Room →',
+    isOnline: true,
+  },
+]
 
 export default function Home() {
   const navigate = useNavigate()
@@ -41,10 +83,10 @@ export default function Home() {
   const [error, setError] = useState('')
   const [selectedGame, setSelectedGame] = useState(null)
 
-  // Tab state — persisted to localStorage
-  const [activeTab, setActiveTab] = useState(
-    () => localStorage.getItem('partybox_home_tab') || 'solo'
-  )
+  // TODO: restore tabs when game count > 5
+  // const [activeTab, setActiveTab] = useState(
+  //   () => localStorage.getItem('partybox_home_tab') || 'solo'
+  // )
 
   // Carousel state
   const [showCarousel, setShowCarousel] = useState(
@@ -56,6 +98,11 @@ export default function Home() {
   // Identity modal shown after carousel "Let's Go!"
   const [showIdentityModal, setShowIdentityModal] = useState(false)
 
+  // ── Session tracking ────────────────────────────────────────────────────────
+  useEffect(() => {
+    trackAnalyticsEvent('session_start', null)
+  }, [])
+
   const inProgressGames = getInProgressGames()
 
   // Hero: show only for new users with no in-progress games
@@ -63,17 +110,18 @@ export default function Home() {
     !localStorage.getItem('partybox_returning_user') &&
     inProgressGames.length === 0
 
-  // Games to display in the current tab
-  const tabGames = games.filter(g =>
-    (TAB_SLUGS[activeTab] || []).includes(g.slug)
-  )
+  // TODO: restore tabs when game count > 5
+  // const tabGames = games.filter(g =>
+  //   (TAB_SLUGS[activeTab] || []).includes(g.slug)
+  // )
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
-  function selectTab(tab) {
-    setActiveTab(tab)
-    localStorage.setItem('partybox_home_tab', tab)
-  }
+  // TODO: restore tabs when game count > 5
+  // function selectTab(tab) {
+  //   setActiveTab(tab)
+  //   localStorage.setItem('partybox_home_tab', tab)
+  // }
 
   function handlePlayGame(game) {
     if (!game) return
@@ -239,8 +287,8 @@ export default function Home() {
             </div>
           )}
 
-          {/* ── Tab bar ─────────────────────────────────────────────────────── */}
-          <div className="flex border-b border-zinc-700/50 mb-6">
+          {/* TODO: restore tabs when game count > 5 */}
+          {/* <div className="flex border-b border-zinc-700/50 mb-6">
             {TABS.map(tab => (
               <button
                 key={tab.key}
@@ -258,16 +306,15 @@ export default function Home() {
                 )}
               </button>
             ))}
-          </div>
+          </div> */}
 
-          {/* ── Game cards grid ─────────────────────────────────────────────── */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-3xl">
+          {/* TODO: restore tabs when game count > 5 */}
+          {/* <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-3xl">
             {tabGames.map(game => {
               const isOnlineTab = activeTab === 'online'
               const disabled = isOnlineTab && (!online || !profile)
               const gameTitle =
                 typeof game.title === 'object' ? game.title[lang] : game.title
-
               return (
                 <Card
                   key={game.slug}
@@ -286,25 +333,17 @@ export default function Home() {
                   <span className="text-4xl sm:text-5xl mb-3 block" aria-hidden>
                     {game.icon}
                   </span>
-                  <span
-                    className={`text-lg font-bold text-white transition-colors ${
-                      !disabled
-                        ? isOnlineTab
-                          ? 'group-hover:text-blue-400'
-                          : 'group-hover:text-accent'
-                        : ''
-                    }`}
-                  >
+                  <span className={`text-lg font-bold text-white transition-colors ${
+                    !disabled ? isOnlineTab ? 'group-hover:text-blue-400' : 'group-hover:text-accent' : ''
+                  }`}>
                     {gameTitle}
                   </span>
                   <span className="text-xs text-zinc-500 mt-1">
                     {game.minPlayers}–{game.maxPlayers} {t('players')}
                   </span>
-                  <span
-                    className={`mt-3 inline-flex items-center gap-1.5 text-sm font-semibold ${
-                      isOnlineTab ? 'text-blue-400' : 'text-accent'
-                    }`}
-                  >
+                  <span className={`mt-3 inline-flex items-center gap-1.5 text-sm font-semibold ${
+                    isOnlineTab ? 'text-blue-400' : 'text-accent'
+                  }`}>
                     {isOnlineTab ? '📡' : '▶'}{' '}
                     {isOnlineTab ? t('createRoom') : t('play')}
                   </span>
@@ -316,8 +355,6 @@ export default function Home() {
                 </Card>
               )
             })}
-
-            {/* Coming soon placeholders (currently 0) */}
             {activeTab === 'solo' &&
               Array.from({ length: COMING_SOON_SLOTS }, (_, i) => (
                 <div
@@ -330,10 +367,83 @@ export default function Home() {
                   </span>
                 </div>
               ))}
+          </div> */}
+
+          {/* ── Vertical game cards stack ────────────────────────────────────── */}
+          <div className="flex flex-col gap-3 max-w-lg">
+            {VISIBLE_GAMES.map(card => {
+              const game = games.find(g => g.slug === card.slug)
+              const disabled = card.isOnline && (!online || !profile)
+
+              function handleClick() {
+                if (disabled || !game) return
+                if (card.isOnline) {
+                  setSelectedGame(game)
+                } else {
+                  handlePlayGame(game)
+                }
+              }
+
+              return (
+                <button
+                  key={card.slug}
+                  onClick={handleClick}
+                  disabled={disabled}
+                  className={`w-full text-left bg-zinc-800/80 border border-zinc-700/50 rounded-2xl px-4 py-4 transition-colors ${
+                    disabled
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'hover:bg-zinc-700/80 hover:border-zinc-600/60 active:scale-[0.99]'
+                  }`}
+                >
+                  {/* Row 1: icon + title + mode badge */}
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl leading-none">{card.icon}</span>
+                      <span className="text-base font-bold text-white">{card.title}</span>
+                    </div>
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${card.modeBadgeClass}`}>
+                      {card.modeBadge}
+                    </span>
+                  </div>
+
+                  {/* Row 2: description */}
+                  <p className="text-zinc-400 text-sm mb-3 leading-snug">
+                    {card.description}
+                  </p>
+
+                  {/* Row 3: pills + CTA */}
+                  <div className="flex items-center gap-2">
+                    <span className="bg-zinc-700/60 rounded-full px-2 py-0.5 text-xs text-zinc-400">
+                      {card.playersPill}
+                    </span>
+                    <span className="bg-zinc-700/60 rounded-full px-2 py-0.5 text-xs text-zinc-400">
+                      {card.timePill}
+                    </span>
+                    <span
+                      className={`ml-auto text-xs font-semibold px-3 py-1.5 rounded-xl ${
+                        card.isOnline
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-amber-500 text-zinc-900'
+                      }`}
+                    >
+                      {card.cta}
+                    </span>
+                  </div>
+
+                  {/* Offline notice for online game */}
+                  {card.isOnline && !online && (
+                    <p className="mt-2 text-xs text-zinc-500">{t('needsInternet')}</p>
+                  )}
+                </button>
+              )
+            })}
           </div>
 
+          {/* ── Ad banner ───────────────────────────────────────────────────── */}
+          <AdBanner slot="home-bottom" className="mt-8 mb-3" />
+
           {/* ── Join Room ───────────────────────────────────────────────────── */}
-          <div className="mt-10 flex flex-col items-center">
+          <div className="flex flex-col items-center">
             <button
               onClick={() => setJoinOpen(!joinOpen)}
               className="text-zinc-500 hover:text-zinc-300 text-sm font-medium flex items-center gap-2 transition-colors"

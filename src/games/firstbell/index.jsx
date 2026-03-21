@@ -8,8 +8,10 @@ import { trackEvent } from '../../services/analytics'
 import { fetchGameQuestions } from '../../services/questions'
 import { resolveTieBreak } from './scoring'
 import { recordQuestionsShown } from '../../services/questionStats'
+import { trackEvent as trackAnalyticsEvent } from '../../services/analytics_events'
 import CircularTimer from '../../components/CircularTimer'
 import FloatingReactions from '../../components/FloatingReactions'
+import AdBanner from '../../components/AdBanner'
 
 const TOTAL_ROUNDS = 7
 const QUESTION_TIMEOUT_MS = 15_000
@@ -97,6 +99,20 @@ export default function RapidFireBattle({ code }) {
     if (phase === 'countdown') {
       questionsRecordedRef.current = false
     }
+  }, [phase])
+
+  // ─── Analytics: game_start on countdown, game_complete on results ───────────
+  useEffect(() => {
+    if (phase === 'countdown') {
+      trackAnalyticsEvent('game_start', 'firstbell', { category: roomState.category })
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase])
+
+  useEffect(() => {
+    if (phase !== 'results') return
+    trackAnalyticsEvent('game_complete', 'firstbell', { playerCount: players.length })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase])
 
   // ─── Reset per-game answer log on countdown (new game / rematch) ───────────
@@ -191,7 +207,10 @@ export default function RapidFireBattle({ code }) {
   useEffect(() => {
     if (!isHost || phase !== 'question') return
     if (questionTimerRef.current) clearTimeout(questionTimerRef.current)
-    questionTimerRef.current = setTimeout(processRound, QUESTION_TIMEOUT_MS + 600)
+    questionTimerRef.current = setTimeout(() => {
+      trackAnalyticsEvent('question_timeout', 'firstbell')
+      processRound()
+    }, QUESTION_TIMEOUT_MS + 600)
     return () => clearTimeout(questionTimerRef.current)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHost, phase, roomState.questionIdx])
@@ -411,6 +430,7 @@ export default function RapidFireBattle({ code }) {
     const elapsedMs = Date.now() - questionStart
     await sendAction({ type: 'ANSWER', payload: { optionIdx, answeredAt: Date.now(), elapsedMs: Math.min(Math.max(elapsedMs, 0), 15000) } })
     trackEvent('question_answered', { game: 'firstbell', optionIdx })
+    trackAnalyticsEvent('question_answered', 'firstbell')
   }
 
   // ─── handleStart ───────────────────────────────────────────────────────────
@@ -435,6 +455,7 @@ export default function RapidFireBattle({ code }) {
 
   // ─── handleRematch ─────────────────────────────────────────────────────────
   async function handleRematch() {
+    trackAnalyticsEvent('rematch', 'firstbell')
     const lastCat = roomState.category ?? 'gk'
     const idx = CATEGORY_ROTATION.indexOf(lastCat)
     const nextCategory = CATEGORY_ROTATION[(idx + 1) % CATEGORY_ROTATION.length]
@@ -572,7 +593,10 @@ export default function RapidFireBattle({ code }) {
         category={roomState.category}
         isHost={isHost}
         onRematch={isHost ? handleRematch : null}
-        onHome={() => navigate('/')}
+        onHome={() => {
+          trackAnalyticsEvent('game_abandon', 'firstbell', { phase, questionIdx: roomState.questionIdx ?? 0 })
+          navigate('/')
+        }}
         onRematchVote={!isHost ? handleRematchVote : null}
         rematchVoteCount={rematchVoteCount}
         totalPlayers={players.length}
@@ -1683,6 +1707,7 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
 
       {/* Section 7 — Actions (sticky) */}
       <div className="fixed bottom-0 left-0 right-0 bg-zinc-900/95 backdrop-blur-sm px-4 pt-3 pb-6 border-t border-zinc-800 space-y-2">
+        <AdBanner slot="firstbell-results" className="mb-3" />
         {isHost ? (
           <>
             <button

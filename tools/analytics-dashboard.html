@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📈 Analytics Dashboard — PartyBox</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0f0f11;
+      color: #e4e4e7;
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      padding: 24px 16px 60px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1 { font-size: 1.5rem; font-weight: 900; }
+    h2 { font-size: 1rem; font-weight: 700; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .header-left .subtitle { color: #52525b; font-size: 0.8rem; margin-top: 4px; }
+    .header-left .last-updated { color: #52525b; font-size: 0.75rem; margin-top: 3px; }
+
+    .header-right { display: flex; gap: 8px; align-items: center; }
+
+    button {
+      cursor: pointer; border: none; font-family: inherit;
+      font-size: 0.85rem; font-weight: 600; border-radius: 10px;
+      padding: 8px 16px; transition: opacity 0.15s;
+    }
+    button:hover { opacity: 0.82; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-refresh { background: #f59e0b; color: #1c1917; }
+
+    /* Cards */
+    .card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 14px;
+      padding: 16px 20px;
+    }
+
+    /* Section spacing */
+    .section { margin-bottom: 32px; }
+
+    /* Stat cards grid */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .stat-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 14px;
+      padding: 14px 16px;
+      text-align: center;
+    }
+    .stat-card .val { font-size: 2rem; font-weight: 900; color: #fff; }
+    .stat-card .lbl { font-size: 0.75rem; color: #71717a; margin-top: 4px; }
+    .stat-card .val.highlight { color: #f59e0b; }
+    .stat-card .val.blue { color: #60a5fa; }
+    .stat-card .val.green { color: #34d399; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #27272a; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    thead th {
+      background: #18181b; color: #71717a; font-size: 0.72rem;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+      padding: 10px 14px; text-align: left; white-space: nowrap;
+    }
+    tbody tr { border-top: 1px solid #27272a; }
+    tbody tr:hover { background: rgba(255,255,255,0.025); }
+    td { padding: 10px 14px; vertical-align: middle; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .muted { color: #52525b; font-size: 0.75rem; }
+    .badge {
+      display: inline-block; border-radius: 999px; padding: 2px 10px;
+      font-size: 0.72rem; font-weight: 700;
+    }
+    .badge-fb { background: #1e3a5f; color: #93c5fd; }
+    .badge-tf { background: #3b1f00; color: #fcd34d; }
+    .badge-dc { background: #1a1f3b; color: #a5b4fc; }
+
+    /* Bar chart */
+    .bar-chart { display: flex; flex-direction: column; gap: 6px; }
+    .bar-row { display: flex; align-items: center; gap: 10px; font-size: 0.78rem; }
+    .bar-label { width: 80px; color: #71717a; text-align: right; flex-shrink: 0; font-size: 0.7rem; }
+    .bar-track { flex: 1; background: #27272a; border-radius: 4px; height: 22px; position: relative; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; display: flex; align-items: center; padding-left: 8px; font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.9); white-space: nowrap; }
+    .bar-sessions { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+    .bar-started  { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .bar-completed{ background: linear-gradient(90deg, #10b981, #059669); }
+
+    /* Funnel */
+    .funnel { display: flex; flex-direction: column; gap: 8px; }
+    .funnel-step {
+      background: #18181b; border: 1px solid #27272a; border-radius: 10px;
+      padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+    }
+    .funnel-bar-wrap { flex: 1; background: #27272a; border-radius: 4px; height: 14px; overflow: hidden; }
+    .funnel-bar { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #6366f1, #4f46e5); }
+    .funnel-label { width: 130px; font-size: 0.82rem; font-weight: 600; color: #d4d4d8; flex-shrink: 0; }
+    .funnel-count { width: 60px; text-align: right; font-weight: 700; color: #fff; flex-shrink: 0; font-size: 0.9rem; }
+    .funnel-pct { width: 55px; text-align: right; color: #71717a; font-size: 0.75rem; flex-shrink: 0; }
+
+    /* Today snapshot */
+    .today-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 10px;
+    }
+    .today-card {
+      background: #1c1c1f; border: 1px solid #2d2d30; border-radius: 12px;
+      padding: 12px; text-align: center;
+    }
+    .today-card .val { font-size: 1.5rem; font-weight: 900; color: #fff; }
+    .today-card .lbl { font-size: 0.7rem; color: #71717a; margin-top: 3px; }
+
+    .error-msg { color: #f87171; font-size: 0.85rem; margin-bottom: 16px; padding: 12px 16px; background: #1f0808; border-radius: 10px; border: 1px solid #7f1d1d; }
+    .empty { color: #52525b; text-align: center; padding: 32px 0; font-size: 0.85rem; }
+    .loading-text { color: #52525b; text-align: center; padding: 24px 0; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>📈 PartyBox Analytics</h1>
+    <div class="subtitle">Anonymous usage data — no PII collected</div>
+    <div class="last-updated" id="lastUpdated">—</div>
+  </div>
+  <div class="header-right">
+    <button class="btn-refresh" id="refreshBtn" onclick="loadAll()">↻ Refresh</button>
+  </div>
+</div>
+
+<div id="errorMsg" class="error-msg" style="display:none"></div>
+
+<!-- 6. TODAY SNAPSHOT -->
+<div class="section">
+  <h2>Today</h2>
+  <div class="today-grid" id="todayGrid">
+    <div class="today-card"><div class="val" id="td-sessions">—</div><div class="lbl">Sessions</div></div>
+    <div class="today-card"><div class="val" id="td-started">—</div><div class="lbl">Games Started</div></div>
+    <div class="today-card"><div class="val" id="td-completed">—</div><div class="lbl">Completed</div></div>
+    <div class="today-card"><div class="val" id="td-abandoned">—</div><div class="lbl">Abandoned</div></div>
+    <div class="today-card"><div class="val" id="td-rematches">—</div><div class="lbl">Rematches</div></div>
+    <div class="today-card"><div class="val" id="td-questions">—</div><div class="lbl">Q Answered</div></div>
+  </div>
+</div>
+
+<!-- 1. OVERVIEW -->
+<div class="section">
+  <h2>Overview — All Time</h2>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="val blue" id="ov-sessions">—</div><div class="lbl">Total Sessions</div></div>
+    <div class="stat-card"><div class="val" id="ov-devices">—</div><div class="lbl">Total Devices</div></div>
+    <div class="stat-card"><div class="val highlight" id="ov-started">—</div><div class="lbl">Games Started</div></div>
+    <div class="stat-card"><div class="val green" id="ov-completed">—</div><div class="lbl">Completed</div></div>
+    <div class="stat-card"><div class="val" id="ov-rate">—</div><div class="lbl">Completion %</div></div>
+    <div class="stat-card"><div class="val" id="ov-rematches">—</div><div class="lbl">Rematches</div></div>
+  </div>
+</div>
+
+<!-- 2. DAILY TREND -->
+<div class="section">
+  <h2>Daily Trend — Last 14 Days</h2>
+  <div class="card">
+    <div class="bar-chart" id="dailyChart">
+      <div class="loading-text">Loading…</div>
+    </div>
+    <div style="display:flex; gap:16px; margin-top:12px; font-size:0.72rem; color:#71717a">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#3b82f6;margin-right:5px"></span>Sessions</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#f59e0b;margin-right:5px"></span>Started</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#10b981;margin-right:5px"></span>Completed</span>
+    </div>
+  </div>
+</div>
+
+<div class="two-col">
+  <!-- 3. GAME BREAKDOWN -->
+  <div class="section">
+    <h2>Game Breakdown</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Game</th>
+            <th class="num">Started</th>
+            <th class="num">Done</th>
+            <th class="num">Abandoned</th>
+            <th class="num">Done %</th>
+            <th class="num">Rematches</th>
+          </tr>
+        </thead>
+        <tbody id="gameBreakdownBody">
+          <tr><td colspan="6" class="loading-text">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 4. COMPLETION FUNNEL -->
+  <div class="section">
+    <h2>Completion Funnel</h2>
+    <div class="funnel" id="funnelContainer">
+      <div class="loading-text">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. MOST ACTIVE DEVICES -->
+<div class="section">
+  <h2>Most Active Devices (Top 10)</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Device ID</th>
+          <th>Platform</th>
+          <th class="num">Sessions</th>
+          <th>First Seen</th>
+          <th>Last Seen</th>
+        </tr>
+      </thead>
+      <tbody id="devicesBody">
+        <tr><td colspan="6" class="loading-text">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // ── Config ────────────────────────────────────────────────────────────────────
+  // NOTE: Reads require Firestore security rules to allow public reads on these
+  // collections. If you see 403 errors, check your rules.
+  const PROJECT_ID = 'partybox-cd9ab'
+  const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`
+
+  // ── State ─────────────────────────────────────────────────────────────────────
+  let dailyDocs = []
+  let eventDocs = []
+  let deviceDocs = []
+
+  // ── Fetch helpers ─────────────────────────────────────────────────────────────
+  async function fetchCollection(path, params = '') {
+    const url = `${BASE}/${path}?pageSize=300${params}`
+    const res = await fetch(url)
+    if (!res.ok) {
+      const body = await res.text()
+      throw new Error(`HTTP ${res.status} on ${path}: ${body.substring(0, 200)}`)
+    }
+    const data = await res.json()
+    return data.documents ?? []
+  }
+
+  function fv(field) {
+    // Unwrap Firestore REST field value
+    if (!field) return null
+    if (field.integerValue !== undefined) return parseInt(field.integerValue, 10)
+    if (field.doubleValue !== undefined)  return parseFloat(field.doubleValue)
+    if (field.stringValue !== undefined)  return field.stringValue
+    if (field.timestampValue !== undefined) return new Date(field.timestampValue)
+    if (field.booleanValue !== undefined) return field.booleanValue
+    if (field.mapValue !== undefined)     return field.mapValue
+    return null
+  }
+
+  function docToObj(doc) {
+    const f = doc.fields ?? {}
+    const out = { _id: doc.name.split('/').pop() }
+    for (const [k, v] of Object.entries(f)) out[k] = fv(v)
+    return out
+  }
+
+  function todayStr() {
+    return new Date().toISOString().substring(0, 10)
+  }
+
+  function last14Days() {
+    const days = []
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date()
+      d.setDate(d.getDate() - i)
+      days.push(d.toISOString().substring(0, 10))
+    }
+    return days
+  }
+
+  function formatDate(d) {
+    if (!d) return '—'
+    const dt = d instanceof Date ? d : new Date(d)
+    return dt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' })
+  }
+
+  function pct(num, den) {
+    if (!den) return '—'
+    return Math.round((num / den) * 100) + '%'
+  }
+
+  // ── Main load ─────────────────────────────────────────────────────────────────
+  async function loadAll() {
+    const btn = document.getElementById('refreshBtn')
+    btn.disabled = true
+    btn.textContent = '…'
+    document.getElementById('errorMsg').style.display = 'none'
+
+    try {
+      // Fetch in parallel
+      const [rawDaily, rawEvents, rawDevices] = await Promise.all([
+        fetchCollection('analytics_daily'),
+        fetchCollection('analytics_events'),
+        fetchCollection('analytics_devices', '&orderBy=sessionCount+desc'),
+      ])
+
+      dailyDocs  = rawDaily.map(docToObj)
+      eventDocs  = rawEvents.map(docToObj)
+      deviceDocs = rawDevices.map(docToObj)
+
+      renderToday()
+      renderOverview()
+      renderDailyChart()
+      renderGameBreakdown()
+      renderFunnel()
+      renderDevices()
+
+      document.getElementById('lastUpdated').textContent =
+        'Last updated: ' + new Date().toLocaleTimeString()
+    } catch (err) {
+      console.error(err)
+      const el = document.getElementById('errorMsg')
+      el.textContent = '⚠️ ' + err.message
+      el.style.display = 'block'
+    } finally {
+      btn.disabled = false
+      btn.textContent = '↻ Refresh'
+    }
+  }
+
+  // ── Today ─────────────────────────────────────────────────────────────────────
+  function renderToday() {
+    const today = dailyDocs.find(d => d._id === todayStr()) ?? {}
+    document.getElementById('td-sessions').textContent   = today.sessions ?? 0
+    document.getElementById('td-started').textContent    = today.gamesStarted ?? 0
+    document.getElementById('td-completed').textContent  = today.gamesCompleted ?? 0
+    document.getElementById('td-abandoned').textContent  = today.gamesAbandoned ?? 0
+    document.getElementById('td-rematches').textContent  = today.rematches ?? 0
+    document.getElementById('td-questions').textContent  = today.questionsAnswered ?? 0
+  }
+
+  // ── Overview ──────────────────────────────────────────────────────────────────
+  function renderOverview() {
+    let sessions = 0, started = 0, completed = 0, rematches = 0
+    for (const d of dailyDocs) {
+      sessions  += d.sessions ?? 0
+      started   += d.gamesStarted ?? 0
+      completed += d.gamesCompleted ?? 0
+      rematches += d.rematches ?? 0
+    }
+    document.getElementById('ov-sessions').textContent  = sessions
+    document.getElementById('ov-devices').textContent   = deviceDocs.length
+    document.getElementById('ov-started').textContent   = started
+    document.getElementById('ov-completed').textContent = completed
+    document.getElementById('ov-rate').textContent      = pct(completed, started)
+    document.getElementById('ov-rematches').textContent = rematches
+  }
+
+  // ── Daily chart ───────────────────────────────────────────────────────────────
+  function renderDailyChart() {
+    const days = last14Days()
+    const dayMap = {}
+    for (const d of dailyDocs) dayMap[d._id] = d
+
+    const allVals = days.flatMap(day => {
+      const d = dayMap[day] ?? {}
+      return [d.sessions ?? 0, d.gamesStarted ?? 0, d.gamesCompleted ?? 0]
+    })
+    const maxVal = Math.max(...allVals, 1)
+
+    const html = days.map(day => {
+      const d = dayMap[day] ?? {}
+      const s  = d.sessions ?? 0
+      const st = d.gamesStarted ?? 0
+      const c  = d.gamesCompleted ?? 0
+      const label = day.substring(5) // MM-DD
+      const wS  = Math.round((s  / maxVal) * 100)
+      const wSt = Math.round((st / maxVal) * 100)
+      const wC  = Math.round((c  / maxVal) * 100)
+      return `
+        <div class="bar-row">
+          <div class="bar-label">${label}</div>
+          <div style="flex:1; display:flex; flex-direction:column; gap:3px;">
+            <div class="bar-track"><div class="bar-fill bar-sessions" style="width:${wS}%">${s > 0 ? s : ''}</div></div>
+            <div class="bar-track"><div class="bar-fill bar-started"  style="width:${wSt}%">${st > 0 ? st : ''}</div></div>
+            <div class="bar-track"><div class="bar-fill bar-completed"style="width:${wC}%">${c > 0 ? c : ''}</div></div>
+          </div>
+        </div>`
+    }).join('')
+
+    document.getElementById('dailyChart').innerHTML = html || '<div class="empty">No data yet</div>'
+  }
+
+  // ── Game Breakdown ────────────────────────────────────────────────────────────
+  const GAME_BADGE = {
+    'firstbell':    '<span class="badge badge-fb">FirstBell</span>',
+    'thinkfast':    '<span class="badge badge-tf">ThinkFast</span>',
+    'dumb-charades':'<span class="badge badge-dc">Dumb Charades</span>',
+  }
+
+  function renderGameBreakdown() {
+    const stats = {}
+    for (const e of eventDocs) {
+      const g = e.game
+      if (!g) continue
+      if (!stats[g]) stats[g] = { started: 0, completed: 0, abandoned: 0, rematches: 0 }
+      if (e.event === 'game_start')    stats[g].started++
+      if (e.event === 'game_complete') stats[g].completed++
+      if (e.event === 'game_abandon')  stats[g].abandoned++
+      if (e.event === 'rematch')       stats[g].rematches++
+    }
+
+    const games = ['firstbell', 'thinkfast', 'dumb-charades']
+    const rows = games.map(g => {
+      const s = stats[g] ?? {}
+      const started   = s.started ?? 0
+      const completed = s.completed ?? 0
+      const abandoned = s.abandoned ?? 0
+      const rematches = s.rematches ?? 0
+      const rate = pct(completed, started)
+      return `<tr>
+        <td>${GAME_BADGE[g] ?? g}</td>
+        <td class="num">${started}</td>
+        <td class="num">${completed}</td>
+        <td class="num">${abandoned}</td>
+        <td class="num">${rate}</td>
+        <td class="num">${rematches}</td>
+      </tr>`
+    })
+
+    document.getElementById('gameBreakdownBody').innerHTML =
+      rows.join('') || '<tr><td colspan="6" class="empty">No data yet</td></tr>'
+  }
+
+  // ── Funnel ────────────────────────────────────────────────────────────────────
+  function renderFunnel() {
+    let sessions = 0, started = 0, completed = 0, rematches = 0
+    for (const d of dailyDocs) {
+      sessions  += d.sessions ?? 0
+      started   += d.gamesStarted ?? 0
+      completed += d.gamesCompleted ?? 0
+      rematches += d.rematches ?? 0
+    }
+
+    const steps = [
+      { label: 'Sessions',       count: sessions,  prev: sessions },
+      { label: 'Games Started',  count: started,   prev: sessions },
+      { label: 'Completed',      count: completed, prev: started  },
+      { label: 'Rematches',      count: rematches, prev: completed},
+    ]
+
+    const maxCount = Math.max(sessions, 1)
+    const html = steps.map(s => {
+      const width = Math.round((s.count / maxCount) * 100)
+      const p = s.prev !== s.count ? pct(s.count, s.prev) : '100%'
+      return `
+        <div class="funnel-step">
+          <div class="funnel-label">${s.label}</div>
+          <div class="funnel-bar-wrap">
+            <div class="funnel-bar" style="width:${width}%"></div>
+          </div>
+          <div class="funnel-count">${s.count}</div>
+          <div class="funnel-pct">${p}</div>
+        </div>`
+    }).join('')
+
+    document.getElementById('funnelContainer').innerHTML = html || '<div class="empty">No data yet</div>'
+  }
+
+  // ── Devices ───────────────────────────────────────────────────────────────────
+  function renderDevices() {
+    const sorted = [...deviceDocs].sort((a, b) => (b.sessionCount ?? 0) - (a.sessionCount ?? 0)).slice(0, 10)
+
+    if (!sorted.length) {
+      document.getElementById('devicesBody').innerHTML = '<tr><td colspan="6" class="empty">No device data yet</td></tr>'
+      return
+    }
+
+    const rows = sorted.map((d, i) => `
+      <tr>
+        <td class="muted">${i + 1}</td>
+        <td><code style="font-size:0.78rem;color:#a1a1aa">${String(d.deviceId ?? '').substring(0, 8)}…</code></td>
+        <td class="muted">${d.platform ?? '—'}</td>
+        <td class="num">${d.sessionCount ?? 0}</td>
+        <td class="muted">${formatDate(d.firstSeen)}</td>
+        <td class="muted">${formatDate(d.lastSeen)}</td>
+      </tr>`)
+
+    document.getElementById('devicesBody').innerHTML = rows.join('')
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────────
+  loadAll()
+</script>
+</body>
+</html>

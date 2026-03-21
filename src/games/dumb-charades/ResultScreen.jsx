@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { ACTIONS } from './reducer'
+import AdBanner from '../../components/AdBanner'
 
 // ── TurnResultScreen ──────────────────────────────────────────────────────────
 
@@ -197,6 +198,7 @@ export function GameEndScreen({ state, dispatch }) {
 
       {/* CTAs — sticky bottom */}
       <div className="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-4 bg-gradient-to-t from-zinc-900 via-zinc-900/95 to-transparent space-y-3">
+        <AdBanner slot="dumbcharades-end" className="mb-3" />
         <button
           onClick={() => dispatch({ type: ACTIONS.PLAY_AGAIN })}
           className="w-full py-4 rounded-2xl bg-pink-500 hover:bg-pink-400 text-white font-black text-lg transition-colors active:scale-[0.98]"

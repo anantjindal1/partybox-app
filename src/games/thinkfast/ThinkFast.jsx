@@ -12,6 +12,8 @@ import { fetchGameQuestions } from '../../services/questions'
 import { resolveTitle } from '../../utils/strings'
 import { getStats, recordGame } from './stats'
 import { recordQuestionsShown } from '../../services/questionStats'
+import { trackEvent as trackAnalyticsEvent } from '../../services/analytics_events'
+import AdBanner from '../../components/AdBanner'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -280,6 +282,7 @@ export default function ThinkFast({ slug, gameTitle }) {
         clearInterval(countdownRef.current)
         if (!lockedRef.current) {
           lockedRef.current = true
+          trackAnalyticsEvent('question_timeout', 'thinkfast')
           dispatch({ type: 'TIMEOUT', now: Date.now() })
         }
       }
@@ -305,7 +308,17 @@ export default function ThinkFast({ slug, gameTitle }) {
     import('../../services/xp').then(({ awardXP }) => {
       awardXP(Math.floor(state.score / 100)).catch(() => {})
     })
+    // Analytics: game_complete
+    const grade = getGrade(state.score)
+    trackAnalyticsEvent('game_complete', 'thinkfast', { score: state.score, grade: grade.rank })
   }, [state.phase]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Analytics: game_start on first question ─────────────────────────────────
+  useEffect(() => {
+    if (state.phase === 'question' && state.currentIdx === 0) {
+      trackAnalyticsEvent('game_start', 'thinkfast', { category: state.category })
+    }
+  }, [state.phase, state.currentIdx]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Question frequency tracking ─────────────────────────────────────────────
   useEffect(() => {
@@ -336,6 +349,7 @@ export default function ThinkFast({ slug, gameTitle }) {
     lockedRef.current = true
     clearInterval(countdownRef.current)
     const responseMs = Math.min(Date.now() - state.questionStartTime, QUESTION_TIME_MS)
+    trackAnalyticsEvent('question_answered', 'thinkfast')
     dispatch({ type: 'ANSWER', selectedIdx, responseMs })
   }
 
@@ -348,10 +362,12 @@ export default function ThinkFast({ slug, gameTitle }) {
   }
 
   function handleQuit() {
+    trackAnalyticsEvent('game_abandon', 'thinkfast', { phase: state.phase, questionsAnswered: state.currentIdx })
     dispatch({ type: 'QUIT' })
   }
 
   function handlePlayAgain() {
+    trackAnalyticsEvent('rematch', 'thinkfast')
     const questions = fetchGameQuestions({ category: state.category, count: TOTAL_QUESTIONS })
     dispatch({ type: 'START_GAME', category: state.category, questions, startTime: Date.now() })
   }
@@ -811,6 +827,7 @@ function GameEndScreen({ score, category, questionHistory, recordResult, onPlayA
 
       {/* Primary CTA — sticky at bottom */}
       <div className="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-4 bg-gradient-to-t from-zinc-900 via-zinc-900/95 to-transparent space-y-3">
+        <AdBanner slot="thinkfast-end" className="mb-3" />
         <button
           onClick={onPlayAgain}
           className="w-full py-4 rounded-2xl font-bold text-base bg-amber-500 hover:bg-amber-400 text-zinc-900 transition-colors active:scale-[0.98]"
