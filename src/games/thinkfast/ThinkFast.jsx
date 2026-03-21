@@ -11,6 +11,7 @@ import CircularTimer from '../../components/CircularTimer'
 import { fetchGameQuestions } from '../../services/questions'
 import { resolveTitle } from '../../utils/strings'
 import { getStats, recordGame } from './stats'
+import { recordQuestionsShown } from '../../services/questionStats'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -251,6 +252,7 @@ export default function ThinkFast({ slug, gameTitle }) {
   const lockedRef                          = useRef(false)
   const countdownRef                       = useRef(null)
   const revealTimerRef                     = useRef(null)
+  const questionsRecordedRef               = useRef(false)
   const [recordResult, setRecordResult]    = useState(null)
 
   const title = resolveTitle(gameTitle, lang)
@@ -304,6 +306,23 @@ export default function ThinkFast({ slug, gameTitle }) {
       awardXP(Math.floor(state.score / 100)).catch(() => {})
     })
   }, [state.phase]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Question frequency tracking ─────────────────────────────────────────────
+  useEffect(() => {
+    if (state.phase !== 'game_end') return
+    if (questionsRecordedRef.current) return
+    questionsRecordedRef.current = true
+    const questions = state.questions ?? []
+    if (questions.length > 0) {
+      recordQuestionsShown(questions, 'thinkfast')
+    }
+  }, [state.phase]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (state.phase === 'category_select') {
+      questionsRecordedRef.current = false
+    }
+  }, [state.phase])
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 

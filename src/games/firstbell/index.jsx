@@ -7,6 +7,7 @@ import { writeGameStats } from '../../services/stats'
 import { trackEvent } from '../../services/analytics'
 import { fetchGameQuestions } from '../../services/questions'
 import { resolveTieBreak } from './scoring'
+import { recordQuestionsShown } from '../../services/questionStats'
 import CircularTimer from '../../components/CircularTimer'
 import FloatingReactions from '../../components/FloatingReactions'
 
@@ -66,6 +67,7 @@ export default function RapidFireBattle({ code }) {
   const countdownRef = useRef(null)
   const xpAwarded = useRef(false)
   const myAnswerIdxRef = useRef(null)
+  const questionsRecordedRef = useRef(false)
   const myAnswersRef = useRef([])
   const earlyCloseTimerRef = useRef(null)
 
@@ -75,6 +77,25 @@ export default function RapidFireBattle({ code }) {
   useEffect(() => {
     if (phase === 'waiting' || phase === 'countdown') {
       xpAwarded.current = false
+    }
+  }, [phase])
+
+  // ─── Question frequency tracking ────────────────────────────────────────────
+  useEffect(() => {
+    if (phase !== 'results') return
+    if (questionsRecordedRef.current) return
+    if (!isHost) return
+    questionsRecordedRef.current = true
+    const questions = roomState._questions ?? []
+    if (questions.length > 0) {
+      recordQuestionsShown(questions, 'firstbell')
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase])
+
+  useEffect(() => {
+    if (phase === 'countdown') {
+      questionsRecordedRef.current = false
     }
   }, [phase])
 
