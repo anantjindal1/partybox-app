@@ -35,8 +35,8 @@ const CATEGORIES = ['gk', 'bollywood', 'cricket', 'science', 'food', 'brain', 'r
 function computeScore(responseMs, correct) {
   if (!correct) return 0
   if (responseMs <= 5_000)  return 1000
-  if (responseMs <= 10_000) return 600
-  return 300
+  if (responseMs <= 10_000) return 900
+  return 800
 }
 
 function getGrade(score) {
@@ -97,14 +97,31 @@ function reducer(state, action) {
         lastPointsEarned: pts,
         questionHistory: [
           ...state.questionHistory,
-          { correct, responseMs: action.responseMs, pointsEarned: pts },
+          {
+            correct,
+            responseMs:   action.responseMs,
+            pointsEarned: pts,
+            selectedIdx:  action.selectedIdx,
+            correctIdx:   q.correctIdx,
+            question:     q.question,
+            options:      q.options,
+          },
         ],
       }
     }
 
     case 'TIMEOUT': {
-      const newInactive  = state.inactiveStreak + 1
-      const historyEntry = { correct: false, responseMs: QUESTION_TIME_MS, pointsEarned: 0 }
+      const newInactive = state.inactiveStreak + 1
+      const q           = state.questions[state.currentIdx]
+      const historyEntry = {
+        correct:      false,
+        responseMs:   QUESTION_TIME_MS,
+        pointsEarned: 0,
+        selectedIdx:  null,
+        correctIdx:   q.correctIdx,
+        question:     q.question,
+        options:      q.options,
+      }
 
       if (newInactive >= 2) {
         // Two consecutive timeouts → auto-pause (record the miss, stay on current question)
@@ -234,7 +251,7 @@ export default function ThinkFast({ slug, gameTitle }) {
   const lockedRef                          = useRef(false)
   const countdownRef                       = useRef(null)
   const revealTimerRef                     = useRef(null)
-  const recordResultRef                    = useRef(null)
+  const [recordResult, setRecordResult]    = useState(null)
 
   const title = resolveTitle(gameTitle, lang)
 
@@ -280,7 +297,8 @@ export default function ThinkFast({ slug, gameTitle }) {
   // ── Record game on game_end ─────────────────────────────────────────────────
   useEffect(() => {
     if (state.phase !== 'game_end') return
-    recordResultRef.current = recordGame(state.category, state.score, state.questionHistory)
+    const result = recordGame(state.category, state.score, state.questionHistory)
+    setRecordResult(result)
     // Award XP proportional to score
     import('../../services/xp').then(({ awardXP }) => {
       awardXP(Math.floor(state.score / 100)).catch(() => {})
@@ -362,7 +380,7 @@ export default function ThinkFast({ slug, gameTitle }) {
             score={state.score}
             category={state.category}
             questionHistory={state.questionHistory}
-            recordResult={recordResultRef.current}
+            recordResult={recordResult}
             onPlayAgain={handlePlayAgain}
             onChangeCategory={handleChangeCategory}
           />
@@ -445,6 +463,13 @@ function CategorySelectScreen({ onSelect }) {
       <div className="text-center space-y-1">
         <h1 className="text-2xl font-black text-white">ThinkFast ⚡</h1>
         <p className="text-zinc-400 text-sm">10 questions · 15s each · Speed scoring</p>
+        <p className="text-xs text-zinc-400 text-center mt-2">⚡ Faster answers = more points</p>
+        <div className="flex justify-center gap-2 mt-1">
+          <span className="bg-green-500/20 text-green-400 rounded-lg px-2 py-1 text-xs font-medium">⚡ 0–5s = 1000</span>
+          <span className="bg-yellow-500/20 text-yellow-400 rounded-lg px-2 py-1 text-xs font-medium">🕐 5–10s = 900</span>
+          <span className="bg-orange-500/20 text-orange-400 rounded-lg px-2 py-1 text-xs font-medium">🕑 10–15s = 800</span>
+        </div>
+        <p className="text-xs text-zinc-500 text-center mt-1">Wrong or no answer = 0 pts</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -520,6 +545,9 @@ function QuestionScreen({ q, currentIdx, score, streak, countdown, paused, onAns
 
       {/* Question card */}
       <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-5">
+        <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">
+          Question {currentIdx + 1} of {TOTAL_QUESTIONS}
+        </p>
         <p className="text-white font-semibold text-lg leading-snug">{q.question}</p>
       </div>
 
@@ -693,24 +721,51 @@ function GameEndScreen({ score, category, questionHistory, recordResult, onPlayA
       </div>
 
       {/* Per-question breakdown */}
-      <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-4">
-        <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wide mb-3">Breakdown</p>
-        <div className="space-y-1">
-          {questionHistory.map((h, i) => (
-            <FadeInRow key={i} delay={i * 55}>
-              <div className="flex items-center justify-between py-1.5 border-b border-zinc-700/30 last:border-0">
-                <span className="text-zinc-500 text-sm w-8">Q{i + 1}</span>
-                <span className="w-6 text-center">{h.correct ? '✅' : '❌'}</span>
-                <span className={`font-semibold text-sm w-20 text-right ${h.pointsEarned > 0 ? 'text-amber-400' : 'text-zinc-600'}`}>
-                  {h.pointsEarned > 0 ? `+${h.pointsEarned}` : '—'}
-                </span>
-                <span className="text-zinc-500 text-sm w-14 text-right">
-                  {h.correct ? `${(h.responseMs / 1000).toFixed(1)}s` : 'miss'}
-                </span>
+      <div className="space-y-2">
+        <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wide">📋 How You Did</p>
+        {questionHistory.map((h, i) => {
+          const timedOut      = h.selectedIdx === null
+          const selectedAns   = h.selectedIdx != null ? h.options?.[h.selectedIdx] : null
+          const correctAns    = h.options?.[h.correctIdx] ?? null
+          return (
+            <FadeInRow key={i} delay={i * 60}>
+              <div className="bg-zinc-800/60 border border-zinc-700/40 rounded-xl px-3 py-2 mb-2">
+                {/* Question text */}
+                {h.question && (
+                  <p className="text-zinc-500 text-xs mb-1.5 truncate">{h.question}</p>
+                )}
+                {/* Summary row */}
+                <div className="flex items-center gap-2">
+                  <span className="text-base leading-none">
+                    {timedOut ? '⏰' : h.correct ? '✅' : '❌'}
+                  </span>
+                  <span className={`font-bold text-sm ${h.pointsEarned > 0 ? 'text-amber-400' : 'text-zinc-500'}`}>
+                    {h.pointsEarned > 0 ? `+${h.pointsEarned} pts` : '0 pts'}
+                  </span>
+                  {h.correct && (
+                    <span className="text-zinc-500 text-xs ml-auto">
+                      {(h.responseMs / 1000).toFixed(1)}s
+                    </span>
+                  )}
+                </div>
+                {/* Answer detail */}
+                {h.correct && selectedAns && (
+                  <p className="text-emerald-400 text-sm mt-1">✓ {selectedAns}</p>
+                )}
+                {!h.correct && !timedOut && selectedAns && (
+                  <p className="text-sm mt-1">
+                    <span className="text-red-400">✗ {selectedAns}</span>
+                    <span className="text-zinc-500"> → </span>
+                    <span className="text-emerald-400">{correctAns}</span>
+                  </p>
+                )}
+                {timedOut && correctAns && (
+                  <p className="text-emerald-400 text-sm mt-1">✓ {correctAns}</p>
+                )}
               </div>
             </FadeInRow>
-          ))}
-        </div>
+          )
+        })}
       </div>
 
       {/* Share buttons */}

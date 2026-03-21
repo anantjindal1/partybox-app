@@ -78,6 +78,14 @@ export default function RapidFireBattle({ code }) {
     }
   }, [phase])
 
+  // ─── Reset per-game answer log on countdown (new game / rematch) ───────────
+  useEffect(() => {
+    if (phase === 'countdown') {
+      myAnswersRef.current = []
+      myAnswerIdxRef.current = null
+    }
+  }, [phase])
+
   // ─── XP + stats award on results ───────────────────────────────────────────
   useEffect(() => {
     if (phase !== 'results' || !myId || xpAwarded.current) return
@@ -293,9 +301,16 @@ export default function RapidFireBattle({ code }) {
     for (const a of [...actions].sort((a, b) => (a.payload.answeredAt ?? 0) - (b.payload.answeredAt ?? 0))) {
       if (a.type !== 'ANSWER' || seen.has(a.playerId)) continue
       seen.add(a.playerId)
-      const deltaMs = (a.payload.answeredAt ?? 0) - (questionStartedAt ?? 0)
+      let deltaMs
+      if (a.payload.elapsedMs != null) {
+        // Use player's self-reported elapsed time (no cross-device clock skew)
+        deltaMs = a.payload.elapsedMs
+      } else {
+        // Fallback for old clients without elapsedMs
+        deltaMs = (a.payload.answeredAt ?? 0) - (questionStartedAt ?? 0)
+      }
       const delta = deltaMs / 1000
-      if (delta < 0 || delta > 15) continue
+      if (delta < 0 || delta > 16) continue
       const isCorrect = a.payload.optionIdx === currentQuestion.correctIdx
       roundScores[a.playerId] = computeTieredScore(isCorrect, delta)
       responseTimes[a.playerId] = delta
@@ -371,7 +386,9 @@ export default function RapidFireBattle({ code }) {
     if (answered) return
     setAnswered(true)
     myAnswerIdxRef.current = optionIdx
-    await sendAction({ type: 'ANSWER', payload: { optionIdx, answeredAt: Date.now() } })
+    const questionStart = roomState.questionStartedAt ?? Date.now()
+    const elapsedMs = Date.now() - questionStart
+    await sendAction({ type: 'ANSWER', payload: { optionIdx, answeredAt: Date.now(), elapsedMs: Math.min(Math.max(elapsedMs, 0), 15000) } })
     trackEvent('question_answered', { game: 'firstbell', optionIdx })
   }
 
@@ -401,7 +418,16 @@ export default function RapidFireBattle({ code }) {
     const idx = CATEGORY_ROTATION.indexOf(lastCat)
     const nextCategory = CATEGORY_ROTATION[(idx + 1) % CATEGORY_ROTATION.length]
     await clearActions()
-    await setState({ phase: 'rematch', nextCategory })
+    await setState({
+      phase: 'rematch',
+      nextCategory,
+      totalScores: {},
+      roundScores: {},
+      correctCounts: {},
+      fastestTimes: {},
+      bestStreaks: {},
+      streaks: {},
+    })
   }
 
   // ─── handleRematchVote ─────────────────────────────────────────────────────
