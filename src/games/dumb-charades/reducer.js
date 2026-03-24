@@ -52,12 +52,17 @@ export function getInitialState() {
 // ── Word queue helpers ─────────────────────────────────────────────────────────
 
 function pickNextWord(wordQueue, usedWords, settings) {
-  if (wordQueue.length > 0) {
-    return { word: wordQueue[0], queue: wordQueue.slice(1), used: usedWords }
+  // Always filter usedWords from the queue — guards against any state-restoration
+  // edge cases and ensures words never repeat across turns within a game session.
+  const usedSet = new Set(usedWords)
+  const filtered = wordQueue.filter(w => !usedSet.has(w))
+
+  if (filtered.length > 0) {
+    return { word: filtered[0], queue: filtered.slice(1), used: usedWords }
   }
-  // Refill: rebuild pool minus used words, reshuffle
+  // Queue exhausted — rebuild pool minus used words, reshuffle
   const pool = buildWordPool(settings.categories, settings.difficulty, settings.customWords)
-  const fresh = shuffleArray(pool.filter(w => !usedWords.includes(w)))
+  const fresh = shuffleArray(pool.filter(w => !usedSet.has(w)))
   if (fresh.length === 0) {
     // All words exhausted — reshuffle entire pool
     const all = shuffleArray(pool)

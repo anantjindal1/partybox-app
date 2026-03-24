@@ -4,7 +4,7 @@ import { GameChrome } from '../../components/GameChrome'
 import { FadeIn } from '../../components/FadeIn'
 import { useGamePersistence } from '../../hooks/useGamePersistence'
 import { ResumeGate } from '../../components/ResumeGate'
-import { clearSavedState } from '../../services/gameStatePersistence'
+import { saveGameState, clearSavedState } from '../../services/gameStatePersistence'
 import { resolveTitle } from '../../utils/strings'
 import { gameReducer, getInitialState, ACTIONS } from './reducer'
 import { trackEvent as trackAnalyticsEvent } from '../../services/analytics_events'
@@ -14,6 +14,9 @@ import { SettingsScreen } from './SettingsScreen'
 import { HandoffScreen } from './HandoffScreen'
 import { RoundScreen } from './RoundScreen'
 import { TurnResultScreen, GameEndScreen } from './ResultScreen'
+
+// Phases where an in-progress game is worth saving for resume-on-refresh
+const SAVE_PHASES = ['acting', 'turn_result', 'handoff']
 
 export default function DumbCharades({ slug, gameTitle }) {
   const { lang } = useLang()
@@ -60,6 +63,13 @@ export default function DumbCharades({ slug, gameTitle }) {
       }
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Persist state during active game phases so refresh shows ResumeGate
+  useEffect(() => {
+    if (SAVE_PHASES.includes(state.phase)) {
+      saveGameState(slug, state)
+    }
+  }, [state, slug])
 
   // Clear saved state when game ends
   useEffect(() => {

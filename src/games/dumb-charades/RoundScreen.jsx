@@ -35,6 +35,7 @@ export function RoundScreen({ state, dispatch }) {
   // Handle correct — ends the turn immediately
   const handleCorrect = useCallback(() => {
     if (firedRef.current) return // ignore if timer already fired
+    firedRef.current = true // prevent TIMER_END race if timer fires simultaneously
     setFlash('correct')
     setTimeout(() => setFlash(null), 180)
     dispatch({ type: ACTIONS.CORRECT })
