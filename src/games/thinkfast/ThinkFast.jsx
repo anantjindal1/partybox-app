@@ -64,7 +64,8 @@ function getInitialState() {
     lastCorrect: null,
     lastSelectedIdx: -1,
     lastPointsEarned: 0,
-    questionHistory: [],   // [{correct, responseMs, pointsEarned}]
+    lastStreakBonus: 0,
+    questionHistory: [],   // [{correct, responseMs, pointsEarned, streakBonus}]
     // pause state
     paused: false,
     isAutoPause: false,
@@ -85,25 +86,30 @@ function reducer(state, action) {
       }
 
     case 'ANSWER': {
-      const q       = state.questions[state.currentIdx]
-      const correct = action.selectedIdx === q.correctIdx
-      const pts     = computeScore(action.responseMs, correct)
+      const q          = state.questions[state.currentIdx]
+      const correct    = action.selectedIdx === q.correctIdx
+      const speedPts   = computeScore(action.responseMs, correct)
+      const newStreak  = correct ? state.streak + 1 : 0
+      const streakBonus = correct ? newStreak * 100 : 0
+      const pts        = speedPts + streakBonus
       return {
         ...state,
         phase:            'reveal',
         score:            state.score + pts,
-        streak:           correct ? state.streak + 1 : 0,
+        streak:           newStreak,
         inactiveStreak:   0,           // any tap resets inactivity
         lastResponseMs:   action.responseMs,
         lastCorrect:      correct,
         lastSelectedIdx:  action.selectedIdx,
         lastPointsEarned: pts,
+        lastStreakBonus:  streakBonus,
         questionHistory: [
           ...state.questionHistory,
           {
             correct,
             responseMs:   action.responseMs,
             pointsEarned: pts,
+            streakBonus,
             selectedIdx:  action.selectedIdx,
             correctIdx:   q.correctIdx,
             question:     q.question,
@@ -120,6 +126,7 @@ function reducer(state, action) {
         correct:      false,
         responseMs:   QUESTION_TIME_MS,
         pointsEarned: 0,
+        streakBonus:  0,
         selectedIdx:  null,
         correctIdx:   q.correctIdx,
         question:     q.question,
@@ -139,6 +146,7 @@ function reducer(state, action) {
           lastCorrect:      false,
           lastSelectedIdx:  -1,
           lastPointsEarned: 0,
+          lastStreakBonus:  0,
           questionHistory:  [...state.questionHistory, historyEntry],
         }
       }
@@ -153,6 +161,7 @@ function reducer(state, action) {
         lastCorrect:      false,
         lastSelectedIdx:  -1,
         lastPointsEarned: 0,
+        lastStreakBonus:  0,
         questionHistory:  [...state.questionHistory, historyEntry],
       }
     }
@@ -169,6 +178,7 @@ function reducer(state, action) {
         lastCorrect:       null,
         lastSelectedIdx:   -1,
         lastPointsEarned:  0,
+        lastStreakBonus:   0,
       }
     }
 
@@ -406,6 +416,7 @@ export default function ThinkFast({ slug, gameTitle }) {
             lastCorrect={state.lastCorrect}
             lastSelectedIdx={state.lastSelectedIdx}
             lastPointsEarned={state.lastPointsEarned}
+            lastStreakBonus={state.lastStreakBonus}
             score={state.score}
             streak={state.streak}
           />
@@ -605,8 +616,9 @@ function QuestionScreen({ q, currentIdx, score, streak, countdown, paused, onAns
 
 // ── RevealScreen ──────────────────────────────────────────────────────────────
 
-function RevealScreen({ q, currentIdx, lastCorrect, lastSelectedIdx, lastPointsEarned, score, streak }) {
-  const timedOut = lastSelectedIdx === -1 && !lastCorrect
+function RevealScreen({ q, currentIdx, lastCorrect, lastSelectedIdx, lastPointsEarned, lastStreakBonus, score, streak }) {
+  const timedOut  = lastSelectedIdx === -1 && !lastCorrect
+  const speedPts  = lastPointsEarned - (lastStreakBonus ?? 0)
 
   return (
     <div className="px-4 py-4 space-y-4">
@@ -625,10 +637,19 @@ function RevealScreen({ q, currentIdx, lastCorrect, lastSelectedIdx, lastPointsE
         {timedOut
           ? "⏰ Time's up!"
           : lastCorrect
-          ? `+${lastPointsEarned} pts`
+          ? (
+            <>
+              <div>+{lastPointsEarned} pts</div>
+              {(lastStreakBonus ?? 0) > 0 && (
+                <div className="text-xs text-zinc-400 font-normal mt-0.5">
+                  {speedPts} speed + {lastStreakBonus} streak 🔥
+                </div>
+              )}
+            </>
+          )
           : 'Wrong answer'}
         {lastCorrect && streak >= 2 && (
-          <span className="ml-2 text-sm font-semibold text-amber-300">🔥 {streak} streak!</span>
+          <div className="text-sm text-orange-400 font-semibold mt-1">🔥 {streak} Streak!</div>
         )}
       </div>
 
@@ -777,6 +798,9 @@ function GameEndScreen({ score, category, questionHistory, recordResult, onPlayA
                   <span className={`font-bold text-sm ${h.pointsEarned > 0 ? 'text-amber-400' : 'text-zinc-500'}`}>
                     {h.pointsEarned > 0 ? `+${h.pointsEarned} pts` : '0 pts'}
                   </span>
+                  {(h.streakBonus ?? 0) > 0 && (
+                    <span className="text-orange-400 text-xs font-semibold">🔥 +{h.streakBonus}</span>
+                  )}
                   {h.correct && (
                     <span className="text-zinc-500 text-xs ml-auto">
                       {(h.responseMs / 1000).toFixed(1)}s

@@ -45,6 +45,12 @@ function computeTieredScore(isCorrect, deltaSeconds) {
   return 800
 }
 
+// Streak bonus on top of speed points
+function getStreakBonus(streak) {
+  const bonuses = { 1: 0, 2: 100, 3: 200, 4: 400, 5: 600, 6: 800, 7: 1000 }
+  return bonuses[Math.min(streak, 7)] ?? 1000
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function RapidFireBattle({ code }) {
@@ -268,6 +274,7 @@ export default function RapidFireBattle({ code }) {
           roundScores: roomState.roundScores,
           responseTimes: roomState.responseTimes,
           streaks: roomState.streaks,
+          streakBonuses: roomState.streakBonuses,
           _questions: roomState._questions,
           isLastRound: roomState.isLastRound,
         })
@@ -356,16 +363,26 @@ export default function RapidFireBattle({ code }) {
       responseTimes[a.playerId] = delta
     }
 
+    // Compute streaks first so we can apply bonuses before totalling
+    const prevStreaks = roomState.streaks ?? {}
+    const streaks = {}
+    const streakBonuses = {}
+    for (const p of players) {
+      const correct = (roundScores[p.id] ?? 0) > 0
+      const newStreak = correct ? (prevStreaks[p.id] ?? 0) + 1 : 0
+      streaks[p.id] = newStreak
+      if (correct) {
+        const bonus = getStreakBonus(newStreak)
+        streakBonuses[p.id] = bonus
+        roundScores[p.id] += bonus
+      } else {
+        streakBonuses[p.id] = 0
+      }
+    }
+
     const newTotals = { ...totalScores }
     for (const [pid, pts] of Object.entries(roundScores)) {
       newTotals[pid] = (newTotals[pid] ?? 0) + pts
-    }
-
-    const prevStreaks = roomState.streaks ?? {}
-    const streaks = {}
-    for (const p of players) {
-      const correct = (roundScores[p.id] ?? 0) > 0
-      streaks[p.id] = correct ? (prevStreaks[p.id] ?? 0) + 1 : 0
     }
 
     const correctCounts = { ...(roomState.correctCounts ?? {}) }
@@ -407,6 +424,7 @@ export default function RapidFireBattle({ code }) {
       responseTimes,
       totalScores: newTotals,
       streaks,
+      streakBonuses,
       correctCounts,
       fastestTimes,
       bestStreaks,
@@ -552,6 +570,7 @@ export default function RapidFireBattle({ code }) {
           roundScores={roomState.roundScores ?? {}}
           responseTimes={roomState.responseTimes ?? {}}
           streaks={roomState.streaks ?? {}}
+          streakBonuses={roomState.streakBonuses ?? {}}
           players={players}
           myId={myId}
           totalScores={roomState.totalScores ?? {}}
@@ -1105,7 +1124,7 @@ function StreakBanner({ players, streaks }) {
 
 // ─── RevealScreen ─────────────────────────────────────────────────────────────
 
-function RevealScreen({ question, correctIdx, roundScores, responseTimes, streaks, players, myId, totalScores, questionIdx, _questions, t, myAnswerIdx }) {
+function RevealScreen({ question, correctIdx, roundScores, responseTimes, streaks, streakBonuses, players, myId, totalScores, questionIdx, _questions, t, myAnswerIdx }) {
   if (!question) return null
 
   const correctPlayers = players
@@ -1182,9 +1201,19 @@ function RevealScreen({ question, correctIdx, roundScores, responseTimes, streak
       </div>
     )
   } else if (myIsCorrect) {
+    const myStreakBonus = streakBonuses?.[myId] ?? 0
+    const mySpeedPts = (roundScores[myId] ?? 0) - myStreakBonus
+    const myTotalPts = roundScores[myId] ?? 0
+    const myStreak = streaks?.[myId] ?? 0
     resultBanner = (
-      <div className="rounded-xl border px-4 py-3 text-sm font-bold bg-green-500/20 border-green-500/40 text-green-300 text-center">
-        ✓ Correct! +{roundScores[myId] ?? 0} pts
+      <div className="rounded-xl border px-4 py-3 bg-green-500/20 border-green-500/40 text-green-300 text-center">
+        <div className="text-sm font-bold">✓ Correct! +{myTotalPts} pts</div>
+        {myStreakBonus > 0 && (
+          <>
+            <div className="text-xs text-zinc-400 mt-0.5">({mySpeedPts} speed + {myStreakBonus} streak)</div>
+            <div className="text-sm text-orange-400 font-semibold mt-1">🔥 {myStreak}x Streak! +{myStreakBonus} bonus</div>
+          </>
+        )}
       </div>
     )
   } else {
