@@ -770,6 +770,51 @@ function RematchScreen({ nextCategory }) {
 
 // ─── ShareSection ─────────────────────────────────────────────────────────────
 
+function RoomCodeBar({ code }) {
+  const [copied, setCopied] = useState(false)
+  const url = window.location.href
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // clipboard unavailable
+    }
+  }
+
+  const waText = encodeURIComponent(`🎮 Join my FirstBell quiz!\nTap to join: ${url}`)
+  const waUrl = `https://wa.me/?text=${waText}`
+
+  return (
+    <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
+      <div>
+        <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider leading-none mb-1">Room Code</p>
+        <p className="text-white font-mono font-bold text-2xl tracking-widest leading-none">{code}</p>
+      </div>
+      <div className="flex gap-2 shrink-0">
+        <a
+          href={waUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+        >
+          📱 WhatsApp
+        </a>
+        <button
+          onClick={handleCopy}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold border transition-colors ${
+            copied ? 'bg-zinc-700 border-zinc-600/50 text-emerald-400' : 'bg-zinc-700 border-zinc-600/50 text-zinc-200 hover:bg-zinc-600'
+          }`}
+        >
+          {copied ? '✓' : '🔗'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function ShareSection({ code }) {
   const [copied, setCopied] = useState(false)
 
@@ -836,6 +881,9 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
 
   return (
     <div className="space-y-4">
+      {/* Room code — always at top so it's never missed */}
+      {code && <RoomCodeBar code={code} />}
+
       {/* Host: player list */}
       {isHost && players.length > 0 && (
         <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-4 space-y-2">
@@ -907,15 +955,6 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
             </div>
           )}
 
-          {/* 3. Room code + share */}
-          {code && (
-            <div className="bg-zinc-800/60 border border-zinc-700/40 rounded-2xl p-4">
-              <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3">
-                Invite friends
-              </p>
-              <ShareSection code={code} />
-            </div>
-          )}
         </div>
       )}
 
@@ -986,15 +1025,6 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
         </>
       )}
 
-      {/* Share section for host */}
-      {isHost && code && (
-        <div className="bg-zinc-800/60 border border-zinc-700/40 rounded-2xl p-4">
-          <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3">
-            Invite friends
-          </p>
-          <ShareSection code={code} />
-        </div>
-      )}
     </div>
   )
 }
@@ -1321,9 +1351,14 @@ function RevealScreen({ question, correctIdx, roundScores, responseTimes, streak
                     )}
                   </div>
                   {i < correctPlayers.length ? (
-                    <span className="text-zinc-400 text-sm">
+                    <span className="text-zinc-400 text-sm flex items-center gap-1">
                       {rtDisplay}
-                      <span className="text-amber-400 font-bold ml-2">+{roundScores[p.id]}</span>
+                      <span className="text-amber-400 font-bold ml-1">+{roundScores[p.id]}</span>
+                      {(streakBonuses[p.id] ?? 0) > 0 && (
+                        <span className="text-orange-400 text-xs font-semibold bg-orange-500/20 border border-orange-500/30 px-1.5 py-0.5 rounded-full">
+                          +{streakBonuses[p.id]} 🔥
+                        </span>
+                      )}
                     </span>
                   ) : (
                     <span className="text-zinc-600 text-sm">Wrong</span>
