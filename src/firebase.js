@@ -20,7 +20,11 @@ if (firebaseConfig.apiKey && firebaseConfig.projectId) {
     const app = initializeApp(firebaseConfig)
     db = getFirestore(app)
     if (firebaseConfig.measurementId) {
-      analytics = getAnalytics(app)
+      try {
+        analytics = getAnalytics(app)
+      } catch (e) {
+        console.warn('Firebase Analytics init failed', e)
+      }
     }
   } catch (e) {
     console.warn('Firebase init failed — running in offline-only mode', e)
