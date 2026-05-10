@@ -32,18 +32,15 @@ service cloud.firestore {
     // Anyone can write (fire and forget from client)
     // No client reads needed — dashboard uses REST API
     match /analytics_events/{docId} {
-      allow write: if true;
-      allow read: if false;
+      allow read, write: if true;
     }
 
     match /analytics_devices/{docId} {
-      allow write: if true;
-      allow read: if false;
+      allow read, write: if true;
     }
 
     match /analytics_daily/{docId} {
-      allow write: if true;
-      allow read: if false;
+      allow read, write: if true;
     }
 
     // ── EVERYTHING ELSE ────────────────────────────────────
