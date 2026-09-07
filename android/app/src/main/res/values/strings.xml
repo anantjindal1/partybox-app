@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PartyBox</string>
+    <string name="title_activity_main">PartyBox</string>
+    <string name="package_name">com.partybox.app</string>
+    <string name="custom_url_scheme">com.partybox.app</string>
+</resources>

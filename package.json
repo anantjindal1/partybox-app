@@ -14,6 +14,10 @@
     "test:playbook:slow": "CYPRESS_STEP_THROUGH=1 CYPRESS_SLOW_MO=800 cypress open"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.1",
+    "@capacitor/cli": "^8.5.1",
+    "@capacitor/core": "^8.5.1",
+    "@capacitor/ios": "^8.5.1",
     "canvas-confetti": "^1.9.4",
     "firebase": "^10.14.1",
     "idb": "^8.0.0",
