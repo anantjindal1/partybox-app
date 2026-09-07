@@ -43,10 +43,10 @@ function computeScore(responseMs, correct) {
 }
 
 function getGrade(score) {
-  if (score >= 9000) return { rank: 'S', label: 'Genius',          emoji: '🧠', color: 'text-violet-400', bg: 'bg-violet-500/20 border-violet-500/50' }
-  if (score >= 7000) return { rank: 'A', label: 'Sharp',           emoji: '🔥', color: 'text-amber-400',  bg: 'bg-amber-500/20 border-amber-500/50'   }
-  if (score >= 5000) return { rank: 'B', label: 'Good',            emoji: '👍', color: 'text-emerald-400',bg: 'bg-emerald-500/20 border-emerald-500/50'}
-  return               { rank: 'C', label: 'Keep Practicing',  emoji: '📚', color: 'text-zinc-400',   bg: 'bg-zinc-700/50 border-zinc-600/40'      }
+  if (score >= 9000) return { rank: 'S', label: 'Genius',          emoji: '🧠', color: 'text-maroon', bg: 'bg-maroon/20 border-maroon/50' }
+  if (score >= 7000) return { rank: 'A', label: 'Sharp',           emoji: '🔥', color: 'text-gold',  bg: 'bg-gold/20 border-gold/50'   }
+  if (score >= 5000) return { rank: 'B', label: 'Good',            emoji: '👍', color: 'text-teal',bg: 'bg-teal/20 border-teal/50'}
+  return               { rank: 'C', label: 'Keep Practicing',  emoji: '📚', color: 'text-textMuted',   bg: 'bg-surfaceMuted/50 border-border/40'      }
 }
 
 // ── State machine ─────────────────────────────────────────────────────────────
@@ -460,30 +460,30 @@ function PauseOverlay({ score, currentIdx, isAutoPause, onResume, onQuit }) {
       }}
     >
       <style>{`@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
-      <div className="w-full max-w-sm bg-zinc-800/90 border border-zinc-700/60 rounded-2xl p-6 space-y-5 text-center">
+      <div className="w-full max-w-sm bg-surfaceElevated/90 border border-border/60 rounded-2xl p-6 space-y-5 text-center">
         <div className="space-y-1">
           <p className="text-3xl">⏸</p>
-          <h2 className="text-xl font-black text-white">Game Paused</h2>
+          <h2 className="text-xl font-black text-textPrimary">Game Paused</h2>
           {isAutoPause && (
-            <p className="text-zinc-400 text-sm">You seemed to step away — pick up where you left off.</p>
+            <p className="text-textMuted text-sm">You seemed to step away — pick up where you left off.</p>
           )}
         </div>
 
-        <div className="flex justify-center gap-6 text-sm text-zinc-400">
+        <div className="flex justify-center gap-6 text-sm text-textMuted">
           <span>Q {currentIdx + 1} / {TOTAL_QUESTIONS}</span>
-          <span className="text-amber-400 font-bold">{score} pts</span>
+          <span className="text-gold font-bold">{score} pts</span>
         </div>
 
         <div className="space-y-3">
           <button
             onClick={onResume}
-            className="w-full py-4 rounded-2xl font-bold text-base bg-amber-500 hover:bg-amber-400 text-zinc-900 transition-colors active:scale-[0.98]"
+            className="w-full py-4 rounded-2xl font-bold text-base bg-gold hover:bg-gold text-onGold transition-colors active:scale-[0.98]"
           >
             Resume
           </button>
           <button
             onClick={onQuit}
-            className="w-full py-2 text-sm font-semibold text-zinc-500 hover:text-zinc-300 transition-colors"
+            className="w-full py-2 text-sm font-semibold text-textMuted hover:text-textSecondary transition-colors"
           >
             Quit Game
           </button>
@@ -507,15 +507,15 @@ function CategorySelectScreen({ onSelect }) {
   return (
     <div className="px-4 py-6 space-y-5">
       <div className="text-center space-y-1">
-        <h1 className="text-2xl font-black text-white">ThinkFast ⚡</h1>
-        <p className="text-zinc-400 text-sm">10 questions · 15s each · Speed scoring</p>
-        <p className="text-xs text-zinc-400 text-center mt-2">⚡ Faster answers = more points</p>
+        <h1 className="text-2xl font-black text-textPrimary">ThinkFast ⚡</h1>
+        <p className="text-textMuted text-sm">10 questions · 15s each · Speed scoring</p>
+        <p className="text-xs text-textMuted text-center mt-2">⚡ Faster answers = more points</p>
         <div className="flex justify-center gap-2 mt-1">
-          <span className="bg-green-500/20 text-green-400 rounded-lg px-2 py-1 text-xs font-medium">⚡ 0–5s = 1000</span>
-          <span className="bg-yellow-500/20 text-yellow-400 rounded-lg px-2 py-1 text-xs font-medium">🕐 5–10s = 900</span>
-          <span className="bg-orange-500/20 text-orange-400 rounded-lg px-2 py-1 text-xs font-medium">🕑 10–15s = 800</span>
+          <span className="bg-teal/20 text-teal rounded-lg px-2 py-1 text-xs font-medium">⚡ 0–5s = 1000</span>
+          <span className="bg-gold/20 text-gold rounded-lg px-2 py-1 text-xs font-medium">🕐 5–10s = 900</span>
+          <span className="bg-gold/20 text-gold rounded-lg px-2 py-1 text-xs font-medium">🕑 10–15s = 800</span>
         </div>
-        <p className="text-xs text-zinc-500 text-center mt-1">Wrong or no answer = 0 pts</p>
+        <p className="text-xs text-textMuted text-center mt-1">Wrong or no answer = 0 pts</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -526,16 +526,16 @@ function CategorySelectScreen({ onSelect }) {
             <button
               key={cat}
               onClick={() => onSelect(cat)}
-              className="flex flex-col items-center gap-1.5 py-5 px-3 rounded-2xl bg-zinc-800/80 border border-zinc-700/50 hover:bg-zinc-700/80 hover:border-zinc-600/60 active:scale-[0.97] transition-all text-center"
+              className="flex flex-col items-center gap-1.5 py-5 px-3 rounded-2xl bg-surfaceElevated/80 border border-border/50 hover:bg-surfaceMuted/80 hover:border-border/60 active:scale-[0.97] transition-all text-center"
             >
               <span className="text-3xl leading-none">{d.emoji}</span>
-              <span className="text-sm font-semibold text-zinc-200 leading-tight">{d.label}</span>
+              <span className="text-sm font-semibold text-textPrimary leading-tight">{d.label}</span>
               <div className="mt-0.5 space-y-0.5 min-h-[2rem]">
                 {s.highScore > 0 && (
-                  <p className="text-xs text-zinc-500">Best: {s.highScore} pts</p>
+                  <p className="text-xs text-textMuted">Best: {s.highScore} pts</p>
                 )}
                 {s.fastestMs != null && (
-                  <p className="text-xs text-zinc-500">⚡ {(s.fastestMs / 1000).toFixed(1)}s</p>
+                  <p className="text-xs text-textMuted">⚡ {(s.fastestMs / 1000).toFixed(1)}s</p>
                 )}
               </div>
             </button>
@@ -556,20 +556,20 @@ function QuestionScreen({ q, currentIdx, score, streak, countdown, paused, onAns
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-zinc-400 text-sm font-medium">
+          <span className="text-textMuted text-sm font-medium">
             Q {currentIdx + 1} / {TOTAL_QUESTIONS}
           </span>
           {streak >= 2 && (
-            <span className="bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+            <span className="bg-gold text-onGold text-xs font-bold px-2 py-0.5 rounded-full">
               🔥 {streak}
             </span>
           )}
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-amber-400 font-bold tabular-nums">{score} pts</span>
+          <span className="text-gold font-bold tabular-nums">{score} pts</span>
           <button
             onClick={onPause}
-            className="px-3 py-1 rounded-lg bg-amber-500 text-black text-xs font-black tracking-wide"
+            className="px-3 py-1 rounded-lg bg-gold text-black text-xs font-black tracking-wide"
             aria-label="Pause"
           >
             PAUSE
@@ -584,17 +584,17 @@ function QuestionScreen({ q, currentIdx, score, streak, countdown, paused, onAns
 
       {/* Final question callout */}
       {isFinal && (
-        <div className="text-center text-amber-400 font-bold text-sm animate-pulse">
+        <div className="text-center text-gold font-bold text-sm animate-pulse">
           🏆 FINAL QUESTION — Make it count!
         </div>
       )}
 
       {/* Question card */}
-      <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-5">
-        <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">
+      <div className="bg-surfaceElevated/80 border border-border/50 rounded-2xl p-5">
+        <p className="text-xs text-textMuted uppercase tracking-wider mb-1">
           Question {currentIdx + 1} of {TOTAL_QUESTIONS}
         </p>
-        <p className="text-white font-semibold text-lg leading-snug">{q.question}</p>
+        <p className="text-textPrimary font-semibold text-lg leading-snug">{q.question}</p>
       </div>
 
       {/* Options */}
@@ -603,9 +603,9 @@ function QuestionScreen({ q, currentIdx, score, streak, countdown, paused, onAns
           <button
             key={idx}
             onClick={() => onAnswer(idx)}
-            className="w-full text-left px-5 py-4 rounded-2xl font-semibold text-sm bg-zinc-800 border border-zinc-700/60 hover:bg-zinc-700 hover:border-zinc-500 text-zinc-200 transition-colors active:scale-[0.98]"
+            className="w-full text-left px-5 py-4 rounded-2xl font-semibold text-sm bg-surfaceElevated border border-border/60 hover:bg-surfaceMuted hover:border-border text-textPrimary transition-colors active:scale-[0.98]"
           >
-            <span className="text-zinc-500 mr-3 font-mono text-xs">{String.fromCharCode(65 + idx)}.</span>
+            <span className="text-textMuted mr-3 font-mono text-xs">{String.fromCharCode(65 + idx)}.</span>
             {opt}
           </button>
         ))}
@@ -624,15 +624,15 @@ function RevealScreen({ q, currentIdx, lastCorrect, lastSelectedIdx, lastPointsE
     <div className="px-4 py-4 space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <span className="text-zinc-400 text-sm">Q {currentIdx + 1} / {TOTAL_QUESTIONS} — Answer</span>
-        <span className="text-amber-400 font-bold tabular-nums">{score} pts</span>
+        <span className="text-textMuted text-sm">Q {currentIdx + 1} / {TOTAL_QUESTIONS} — Answer</span>
+        <span className="text-gold font-bold tabular-nums">{score} pts</span>
       </div>
 
       {/* Result banner */}
       <div className={`rounded-xl border px-4 py-3 text-center font-bold text-lg ${
         lastCorrect
-          ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300'
-          : 'bg-red-500/15 border-red-500/30 text-red-400'
+          ? 'bg-teal/20 border-teal/50 text-teal'
+          : 'bg-error/15 border-error/30 text-error'
       }`}>
         {timedOut
           ? "⏰ Time's up!"
@@ -641,7 +641,7 @@ function RevealScreen({ q, currentIdx, lastCorrect, lastSelectedIdx, lastPointsE
             <>
               <div>+{lastPointsEarned} pts</div>
               {(lastStreakBonus ?? 0) > 0 && (
-                <div className="text-xs text-zinc-400 font-normal mt-0.5">
+                <div className="text-xs text-textMuted font-normal mt-0.5">
                   {speedPts} speed + {lastStreakBonus} streak 🔥
                 </div>
               )}
@@ -649,7 +649,7 @@ function RevealScreen({ q, currentIdx, lastCorrect, lastSelectedIdx, lastPointsE
           )
           : 'Wrong answer'}
         {lastCorrect && streak >= 2 && (
-          <div className="text-sm text-orange-400 font-semibold mt-1">🔥 {streak} Streak!</div>
+          <div className="text-sm text-gold font-semibold mt-1">🔥 {streak} Streak!</div>
         )}
       </div>
 
@@ -664,15 +664,15 @@ function RevealScreen({ q, currentIdx, lastCorrect, lastSelectedIdx, lastPointsE
               key={idx}
               className={`px-5 py-3.5 rounded-2xl font-semibold text-sm border ${
                 isCorrect
-                  ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300'
+                  ? 'bg-teal/20 border-teal/50 text-teal'
                   : isWrong
-                  ? 'bg-red-500/15 border-red-500/30 text-red-400'
-                  : 'bg-zinc-800/50 border-zinc-700/30 text-zinc-500'
+                  ? 'bg-error/15 border-error/30 text-error'
+                  : 'bg-surfaceElevated/50 border-border/30 text-textMuted'
               }`}
             >
               {isCorrect && <span className="mr-2">✅</span>}
               {isWrong   && <span className="mr-2">❌</span>}
-              <span className="text-zinc-600 mr-2 font-mono text-xs">{String.fromCharCode(65 + idx)}.</span>
+              <span className="text-textMuted mr-2 font-mono text-xs">{String.fromCharCode(65 + idx)}.</span>
               {opt}
             </div>
           )
@@ -682,13 +682,13 @@ function RevealScreen({ q, currentIdx, lastCorrect, lastSelectedIdx, lastPointsE
       {/* Explanation */}
       {q.explanation?.trim() && (
         <FadeInRow delay={500}>
-          <div className="bg-zinc-700/50 rounded-xl px-4 py-3">
-            <p className="text-slate-300 text-sm italic">💡 {q.explanation}</p>
+          <div className="bg-surfaceMuted/50 rounded-xl px-4 py-3">
+            <p className="text-textSecondary text-sm italic">💡 {q.explanation}</p>
           </div>
         </FadeInRow>
       )}
 
-      <p className="text-center text-zinc-600 text-xs">Next question in 3s…</p>
+      <p className="text-center text-textMuted text-xs">Next question in 3s…</p>
     </div>
   )
 }
@@ -751,14 +751,14 @@ function GameEndScreen({ score, category, questionHistory, recordResult, onPlayA
 
       {/* Score */}
       <div className="text-center space-y-1">
-        <p className="text-5xl font-black text-white tabular-nums">{score}</p>
-        <p className="text-zinc-400 text-sm">{d.emoji} {d.label}</p>
+        <p className="text-5xl font-black text-textPrimary tabular-nums">{score}</p>
+        <p className="text-textMuted text-sm">{d.emoji} {d.label}</p>
       </div>
 
       {/* New high score */}
       {recordResult?.newHighScore && (
-        <div className="bg-amber-500/20 border border-amber-500/50 rounded-xl px-4 py-3 text-center">
-          <p className="text-amber-300 font-bold">New High Score! 🎉</p>
+        <div className="bg-gold/20 border border-gold/50 rounded-xl px-4 py-3 text-center">
+          <p className="text-gold font-bold">New High Score! 🎉</p>
         </div>
       )}
 
@@ -769,57 +769,57 @@ function GameEndScreen({ score, category, questionHistory, recordResult, onPlayA
           { label: 'Avg Speed', value: avgMs     ? `${(avgMs / 1000).toFixed(1)}s`     : '—' },
           { label: 'Fastest',   value: fastestMs ? `${(fastestMs / 1000).toFixed(1)}s` : '—' },
         ].map(s => (
-          <div key={s.label} className="bg-zinc-800/80 border border-zinc-700/50 rounded-xl p-3 text-center">
-            <p className="text-white font-bold text-lg">{s.value}</p>
-            <p className="text-zinc-500 text-xs mt-0.5">{s.label}</p>
+          <div key={s.label} className="bg-surfaceElevated/80 border border-border/50 rounded-xl p-3 text-center">
+            <p className="text-textPrimary font-bold text-lg">{s.value}</p>
+            <p className="text-textMuted text-xs mt-0.5">{s.label}</p>
           </div>
         ))}
       </div>
 
       {/* Per-question breakdown */}
       <div className="space-y-2">
-        <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wide">📋 How You Did</p>
+        <p className="text-textMuted text-xs font-semibold uppercase tracking-wide">📋 How You Did</p>
         {questionHistory.map((h, i) => {
           const timedOut      = h.selectedIdx === null
           const selectedAns   = h.selectedIdx != null ? h.options?.[h.selectedIdx] : null
           const correctAns    = h.options?.[h.correctIdx] ?? null
           return (
             <FadeInRow key={i} delay={i * 60}>
-              <div className="bg-zinc-800/60 border border-zinc-700/40 rounded-xl px-3 py-2 mb-2">
+              <div className="bg-surfaceElevated/60 border border-border/40 rounded-xl px-3 py-2 mb-2">
                 {/* Question text */}
                 {h.question && (
-                  <p className="text-zinc-500 text-xs mb-1.5 truncate">{h.question}</p>
+                  <p className="text-textMuted text-xs mb-1.5 truncate">{h.question}</p>
                 )}
                 {/* Summary row */}
                 <div className="flex items-center gap-2">
                   <span className="text-base leading-none">
                     {timedOut ? '⏰' : h.correct ? '✅' : '❌'}
                   </span>
-                  <span className={`font-bold text-sm ${h.pointsEarned > 0 ? 'text-amber-400' : 'text-zinc-500'}`}>
+                  <span className={`font-bold text-sm ${h.pointsEarned > 0 ? 'text-gold' : 'text-textMuted'}`}>
                     {h.pointsEarned > 0 ? `+${h.pointsEarned} pts` : '0 pts'}
                   </span>
                   {(h.streakBonus ?? 0) > 0 && (
-                    <span className="text-orange-400 text-xs font-semibold">🔥 +{h.streakBonus}</span>
+                    <span className="text-gold text-xs font-semibold">🔥 +{h.streakBonus}</span>
                   )}
                   {h.correct && (
-                    <span className="text-zinc-500 text-xs ml-auto">
+                    <span className="text-textMuted text-xs ml-auto">
                       {(h.responseMs / 1000).toFixed(1)}s
                     </span>
                   )}
                 </div>
                 {/* Answer detail */}
                 {h.correct && selectedAns && (
-                  <p className="text-emerald-400 text-sm mt-1">✓ {selectedAns}</p>
+                  <p className="text-teal text-sm mt-1">✓ {selectedAns}</p>
                 )}
                 {!h.correct && !timedOut && selectedAns && (
                   <p className="text-sm mt-1">
-                    <span className="text-red-400">✗ {selectedAns}</span>
-                    <span className="text-zinc-500"> → </span>
-                    <span className="text-emerald-400">{correctAns}</span>
+                    <span className="text-error">✗ {selectedAns}</span>
+                    <span className="text-textMuted"> → </span>
+                    <span className="text-teal">{correctAns}</span>
                   </p>
                 )}
                 {timedOut && correctAns && (
-                  <p className="text-emerald-400 text-sm mt-1">✓ {correctAns}</p>
+                  <p className="text-teal text-sm mt-1">✓ {correctAns}</p>
                 )}
               </div>
             </FadeInRow>
@@ -833,7 +833,7 @@ function GameEndScreen({ score, category, questionHistory, recordResult, onPlayA
           href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-1.5 py-3 rounded-xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+          className="flex items-center justify-center gap-1.5 py-3 rounded-xl font-semibold text-sm bg-teal hover:opacity-90 text-onTeal transition-colors"
         >
           📱 WhatsApp
         </a>
@@ -841,8 +841,8 @@ function GameEndScreen({ score, category, questionHistory, recordResult, onPlayA
           onClick={handleCopy}
           className={`flex items-center justify-center gap-1.5 py-3 rounded-xl font-semibold text-sm border transition-colors ${
             copyStatus === 'copied'
-              ? 'bg-zinc-700 border-zinc-600/50 text-emerald-400'
-              : 'bg-zinc-700 border-zinc-600/50 text-zinc-200 hover:bg-zinc-600'
+              ? 'bg-surfaceMuted border-border/50 text-teal'
+              : 'bg-surfaceMuted border-border/50 text-textPrimary hover:bg-surfaceMuted'
           }`}
         >
           {copyStatus === 'copied' ? '✓ Copied!' : '🔗 Copy Result'}
@@ -850,17 +850,17 @@ function GameEndScreen({ score, category, questionHistory, recordResult, onPlayA
       </div>
 
       {/* Primary CTA — sticky at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-4 bg-gradient-to-t from-zinc-900 via-zinc-900/95 to-transparent space-y-3">
+      <div className="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-4 bg-gradient-to-t from-bg via-bg/95 to-transparent space-y-3">
         <AdBanner slot="thinkfast-end" className="mb-3" />
         <button
           onClick={onPlayAgain}
-          className="w-full py-4 rounded-2xl font-bold text-base bg-amber-500 hover:bg-amber-400 text-zinc-900 transition-colors active:scale-[0.98]"
+          className="w-full py-4 rounded-2xl font-bold text-base bg-gold hover:bg-gold text-onGold transition-colors active:scale-[0.98]"
         >
           Play Again 🔄
         </button>
         <button
           onClick={onChangeCategory}
-          className="w-full py-3 rounded-2xl font-semibold text-sm bg-zinc-800 border border-zinc-700/50 text-zinc-300 hover:bg-zinc-700 transition-colors"
+          className="w-full py-3 rounded-2xl font-semibold text-sm bg-surfaceElevated border border-border/50 text-textSecondary hover:bg-surfaceMuted transition-colors"
         >
           Change Category
         </button>

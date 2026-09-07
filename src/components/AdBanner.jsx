@@ -18,10 +18,10 @@ export default function AdBanner({ slot, className = '' }) {
     <div
       id={`ad-slot-${slot}`}
       data-ad-slot={slot}
-      className={`w-full h-[60px] bg-zinc-900/80 border border-zinc-700/30 rounded-xl flex items-center justify-center ${className}`}
+      className={`w-full h-[60px] bg-surfaceMuted border border-dashed border-border rounded-xl flex items-center justify-center ${className}`}
     >
       {isDev && (
-        <span className="text-zinc-600 text-xs select-none">
+        <span className="text-textMuted text-xs select-none">
           Ad slot: {slot}
         </span>
       )}

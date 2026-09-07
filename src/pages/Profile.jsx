@@ -45,8 +45,8 @@ export default function Profile() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-surface text-zinc-100 flex items-center justify-center">
-        <p className="text-zinc-500 text-xl animate-pulse">Loading...</p>
+      <div className="min-h-screen bg-surface text-textPrimary flex items-center justify-center">
+        <p className="text-textMuted text-xl animate-pulse">Loading...</p>
       </div>
     )
   }
@@ -67,11 +67,11 @@ export default function Profile() {
   const xpPct = xpInLevel  // already 0–99 → treat as percent
 
   return (
-    <div className="min-h-screen bg-surface text-zinc-100 flex flex-col">
+    <div className="min-h-screen bg-surface text-textPrimary flex flex-col">
       <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border/60 shadow-soft">
         <button
           onClick={() => navigate('/')}
-          className="text-zinc-500 hover:text-zinc-300 text-lg flex items-center gap-2 font-medium"
+          className="text-textMuted hover:text-textSecondary text-lg flex items-center gap-2 font-medium"
         >
           ← {t('back')}
         </button>
@@ -79,11 +79,11 @@ export default function Profile() {
       </header>
 
       <div className="flex-1 px-4 sm:px-6 py-8 space-y-8 max-w-xl mx-auto w-full">
-        <h1 className="text-3xl font-bold text-white">{t('profile')}</h1>
+        <h1 className="text-3xl font-bold text-textPrimary">{t('profile')}</h1>
 
         {/* Avatar */}
         <Card className="p-5">
-          <p className="text-zinc-500 text-sm mb-3">{t('avatar')}</p>
+          <p className="text-textMuted text-sm mb-3">{t('avatar')}</p>
           <div className="text-6xl text-center mb-4">{profile.avatar}</div>
           <div className="grid grid-cols-6 gap-2">
             {AVATARS.map(a => (
@@ -92,7 +92,7 @@ export default function Profile() {
                 onClick={() => handleAvatarSelect(a)}
                 className={`text-3xl p-2 rounded-xl transition-colors border ${
                   profile.avatar === a
-                    ? 'bg-accent text-zinc-900 border-accent'
+                    ? 'bg-maroon text-onMaroon border-maroon'
                     : 'bg-surfaceMuted border-border hover:bg-border'
                 }`}
               >
@@ -104,7 +104,7 @@ export default function Profile() {
 
         {/* Name */}
         <div>
-          <label className="text-zinc-500 text-sm block mb-2">{t('name')}</label>
+          <label className="text-textMuted text-sm block mb-2">{t('name')}</label>
           <Input
             type="text"
             value={name || profile.name}
@@ -122,12 +122,12 @@ export default function Profile() {
         <Card className="p-5">
           <div className="flex justify-between items-start mb-3">
             <div>
-              <span className="text-zinc-400 font-semibold block">{t('xp')}</span>
-              <span className="text-2xl font-black text-accent">{profile.xp}</span>
+              <span className="text-textMuted font-semibold block">{t('xp')}</span>
+              <span className="text-2xl font-black text-gold">{profile.xp}</span>
             </div>
             <div className="text-right">
-              <span className="text-zinc-500 text-xs block">{t('level')}</span>
-              <span className="text-3xl font-black text-white">{level}</span>
+              <span className="text-textMuted text-xs block">{t('level')}</span>
+              <span className="text-3xl font-black text-textPrimary">{level}</span>
             </div>
           </div>
           <div className="bg-surfaceMuted rounded-full h-3 overflow-hidden">
@@ -136,15 +136,15 @@ export default function Profile() {
               style={{ width: `${xpPct}%` }}
             />
           </div>
-          <p className="text-zinc-500 text-xs mt-1 text-right">{xpInLevel} / 100 XP to next level</p>
+          <p className="text-textMuted text-xs mt-1 text-right">{xpInLevel} / 100 XP to next level</p>
         </Card>
 
         {/* Badges */}
         <div>
-          <p className="text-zinc-500 text-sm mb-3">{t('badges')}</p>
+          <p className="text-textMuted text-sm mb-3">{t('badges')}</p>
           {profile.badges.length === 0 ? (
             <Card className="p-6 text-center">
-              <p className="text-zinc-500">{t('noBadgesYet')}</p>
+              <p className="text-textMuted">{t('noBadgesYet')}</p>
             </Card>
           ) : (
             <div className="flex flex-wrap gap-2">
@@ -158,7 +158,7 @@ export default function Profile() {
         {/* Game stats (online only) */}
         {online && ONLINE_GAME_SLUGS.length > 0 && (
           <div>
-            <p className="text-zinc-500 text-sm mb-3 uppercase tracking-wider">Game Stats</p>
+            <p className="text-textMuted text-sm mb-3 uppercase tracking-wider">Game Stats</p>
             {statsLoading ? (
               <div className="grid grid-cols-2 gap-3">
                 {ONLINE_GAME_SLUGS.map(slug => (
@@ -175,22 +175,22 @@ export default function Profile() {
                     : (g?.title ?? slug)
                   return (
                     <Card key={slug} className="p-4">
-                      <p className="text-zinc-400 text-xs font-semibold mb-2 truncate">
+                      <p className="text-textMuted text-xs font-semibold mb-2 truncate">
                         {g?.icon} {title}
                       </p>
                       {stats ? (
                         <div className="space-y-1">
                           <div className="flex justify-between text-sm">
-                            <span className="text-zinc-500">{t('wins')}</span>
+                            <span className="text-textMuted">{t('wins')}</span>
                             <span className="text-accent font-bold">{stats.wins ?? 0}</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-zinc-500">{t('gamesPlayed')}</span>
-                            <span className="text-zinc-300 font-bold">{stats.gamesPlayed ?? 0}</span>
+                            <span className="text-textMuted">{t('gamesPlayed')}</span>
+                            <span className="text-textSecondary font-bold">{stats.gamesPlayed ?? 0}</span>
                           </div>
                         </div>
                       ) : (
-                        <p className="text-zinc-600 text-xs">No games yet</p>
+                        <p className="text-textMuted text-xs">No games yet</p>
                       )}
                     </Card>
                   )

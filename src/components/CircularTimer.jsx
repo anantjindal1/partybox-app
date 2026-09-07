@@ -7,7 +7,12 @@ export default function CircularTimer({ totalSeconds, secondsLeft, size = 120, p
   const pct = secondsLeft / totalSeconds
   const dashoffset = circumference * (1 - pct)
 
-  const stroke = pct > 0.6 ? '#22c55e' : pct > 0.3 ? '#f59e0b' : '#ef4444'
+  const stroke =
+    pct > 0.6
+      ? 'var(--color-accent-teal)'
+      : pct > 0.3
+      ? 'var(--color-accent-gold)'
+      : 'var(--color-error)'
   const isUrgent = pct <= 0.3
 
   return (
@@ -23,7 +28,7 @@ export default function CircularTimer({ totalSeconds, secondsLeft, size = 120, p
         cy={size / 2}
         r={radius}
         fill="none"
-        stroke="#374151"
+        stroke="var(--color-surface-muted)"
         strokeWidth={strokeWidth}
       />
       {/* Progress circle */}
@@ -48,7 +53,7 @@ export default function CircularTimer({ totalSeconds, secondsLeft, size = 120, p
         dominantBaseline="central"
         fontSize={size * 0.28}
         fontWeight="bold"
-        fill={isUrgent ? '#ef4444' : '#f4f4f5'}
+        fill={isUrgent ? 'var(--color-error)' : 'var(--color-text-primary)'}
         style={isUrgent ? { animation: 'pulse 1s ease-in-out infinite' } : {}}
       >
         {secondsLeft}

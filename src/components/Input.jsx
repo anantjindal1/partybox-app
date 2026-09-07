@@ -5,7 +5,7 @@
 export function Input({ className = '', ...props }) {
   return (
     <input
-      className={`bg-surfaceElevated border border-border text-white rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent/50 transition-colors ${className}`.trim()}
+      className={`bg-surfaceElevated border border-border text-textPrimary rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold/50 transition-colors ${className}`.trim()}
       {...props}
     />
   )

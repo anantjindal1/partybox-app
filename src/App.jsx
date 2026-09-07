@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { LangProvider } from './store/LangContext'
-import { GameThemeProvider } from './store/GameThemeContext'
+import { ThemeProvider } from './store/ThemeContext'
 import { useOnlineStatus } from './hooks/useOnlineStatus'
 import Home from './pages/Home'
 import Room from './pages/Room'
@@ -17,7 +17,7 @@ function GlobalXPSync() {
 export default function App() {
   return (
     <LangProvider>
-      <GameThemeProvider>
+      <ThemeProvider>
         <BrowserRouter>
           <GlobalXPSync />
           <Routes>
@@ -27,7 +27,7 @@ export default function App() {
             <Route path="/play/:slug" element={<PlayOffline />} />
           </Routes>
         </BrowserRouter>
-      </GameThemeProvider>
+      </ThemeProvider>
     </LangProvider>
   )
 }

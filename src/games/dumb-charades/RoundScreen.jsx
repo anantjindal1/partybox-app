@@ -63,7 +63,7 @@ export function RoundScreen({ state, dispatch }) {
 
   return (
     <div className={`min-h-screen flex flex-col transition-colors duration-100 ${
-      flash === 'correct' ? 'bg-emerald-950/60' : 'bg-transparent'
+      flash === 'correct' ? 'bg-teal/60' : 'bg-transparent'
     }`}>
 
       {/* Timer row */}
@@ -78,7 +78,7 @@ export function RoundScreen({ state, dispatch }) {
       {/* Skip count (shown once at least one skip has happened) */}
       <div className="text-center pb-2 min-h-[1.75rem]">
         {turnSkipped > 0 && (
-          <span className="text-zinc-500 text-sm">
+          <span className="text-textMuted text-sm">
             ➜ {turnSkipped} skipped
           </span>
         )}
@@ -87,16 +87,16 @@ export function RoundScreen({ state, dispatch }) {
       {/* Word card */}
       <div className="flex-1 flex flex-col items-center justify-center px-5 gap-4">
         <div
-          className={`w-full bg-zinc-800/80 border-2 rounded-3xl px-6 py-8 text-center transition-all duration-100 ${
+          className={`w-full bg-surfaceElevated/80 border-2 rounded-3xl px-6 py-8 text-center transition-all duration-100 ${
             flash === 'correct'
-              ? 'border-emerald-500/80 bg-emerald-900/30'
+              ? 'border-teal/80 bg-teal/30'
               : flash === 'skip'
-              ? 'border-zinc-600/60 opacity-60'
-              : 'border-zinc-700/50'
+              ? 'border-border/60 opacity-60'
+              : 'border-border/50'
           }`}
         >
           <p
-            className="text-white font-black leading-tight break-words"
+            className="text-textPrimary font-black leading-tight break-words"
             style={{ fontSize }}
           >
             {currentWord}
@@ -105,32 +105,32 @@ export function RoundScreen({ state, dispatch }) {
 
         {/* Hint card — bollywood_movies only, muted secondary styling */}
         {hints && (
-          <div className="w-full bg-zinc-900/70 border border-zinc-700/40 rounded-2xl px-4 py-3 space-y-1.5">
-            <p className="text-zinc-600 text-[10px] uppercase tracking-widest mb-2">
+          <div className="w-full bg-bg/70 border border-border/40 rounded-2xl px-4 py-3 space-y-1.5">
+            <p className="text-textMuted text-[10px] uppercase tracking-widest mb-2">
               Actor hints 👁 (only you can see this)
             </p>
             <div className="flex items-start gap-2">
               <span className="text-sm w-4 flex-shrink-0">🎭</span>
-              <span className="text-zinc-500 text-xs leading-snug">{hints.cast}</span>
+              <span className="text-textMuted text-xs leading-snug">{hints.cast}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-sm w-4 flex-shrink-0">📅</span>
-              <span className="text-zinc-500 text-xs">{hints.year}</span>
+              <span className="text-textMuted text-xs">{hints.year}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-sm w-4 flex-shrink-0">🎬</span>
-              <span className="text-zinc-500 text-xs">{hints.genre}</span>
+              <span className="text-textMuted text-xs">{hints.genre}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-sm w-4 flex-shrink-0">💬</span>
-              <span className="text-zinc-500 text-xs italic leading-snug">"{hints.tagline}"</span>
+              <span className="text-textMuted text-xs italic leading-snug">"{hints.tagline}"</span>
             </div>
           </div>
         )}
       </div>
 
       {/* Words left hint */}
-      <p className="text-center text-zinc-700 text-xs py-1">
+      <p className="text-center text-textSecondary text-xs py-1">
         {remaining} word{remaining !== 1 ? 's' : ''} left in queue
       </p>
 
@@ -138,14 +138,14 @@ export function RoundScreen({ state, dispatch }) {
       <div className="px-4 pb-8 space-y-3">
         <button
           onPointerDown={handleCorrect}
-          className="w-full py-6 rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98] text-white font-black text-3xl select-none transition-colors"
+          className="w-full py-6 rounded-2xl bg-teal hover:opacity-90 active:scale-[0.98] text-onTeal font-black text-3xl select-none transition-colors"
         >
           ✓ CORRECT
         </button>
 
         <button
           onPointerDown={handleSkip}
-          className="w-full py-4 rounded-2xl bg-transparent border border-zinc-600 hover:border-zinc-500 text-zinc-400 hover:text-zinc-300 font-bold text-lg select-none transition-colors"
+          className="w-full py-4 rounded-2xl bg-transparent border border-border hover:border-border text-textMuted hover:text-textSecondary font-bold text-lg select-none transition-colors"
         >
           ➜ SKIP
         </button>

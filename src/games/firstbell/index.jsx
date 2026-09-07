@@ -501,7 +501,7 @@ export default function RapidFireBattle({ code }) {
   if (!room || !myId) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-zinc-500 animate-pulse">Connecting...</p>
+        <p className="text-textMuted animate-pulse">Connecting...</p>
       </div>
     )
   }
@@ -638,7 +638,7 @@ function LiveScoreBar({ players, totalScores, myId }) {
 
   return (
     <div
-      className="flex overflow-x-auto gap-3 px-4 py-2 mb-4 bg-zinc-800 border-b border-zinc-700/60"
+      className="flex overflow-x-auto gap-3 px-4 py-2 mb-4 bg-surfaceElevated border-b border-border/60"
       style={{ minHeight: 44, scrollbarWidth: 'none', msOverflowStyle: 'none' }}
     >
       {sorted.map(p => {
@@ -651,14 +651,14 @@ function LiveScoreBar({ players, totalScores, myId }) {
             key={p.id}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full shrink-0 text-xs font-semibold transition-all duration-300 border ${
               isMe
-                ? 'bg-amber-500/20 border-amber-500/60 text-amber-300'
-                : 'bg-zinc-700/70 border-zinc-600/40 text-zinc-300'
+                ? 'bg-gold/20 border-gold/60 text-gold'
+                : 'bg-surfaceMuted/70 border-border/40 text-textSecondary'
             }`}
             style={{ width: 82 }}
           >
             <span className="text-sm leading-none shrink-0">{avatar}</span>
             <span className="truncate flex-1 min-w-0">{name}</span>
-            <span className={`font-bold shrink-0 tabular-nums ${isMe ? 'text-amber-400' : 'text-zinc-200'}`}>
+            <span className={`font-bold shrink-0 tabular-nums ${isMe ? 'text-gold' : 'text-textPrimary'}`}>
               {score}
             </span>
           </div>
@@ -673,8 +673,8 @@ function LiveScoreBar({ players, totalScores, myId }) {
 function LockInScreen() {
   return (
     <div className="flex flex-col items-center justify-center py-20 space-y-3">
-      <p className="text-zinc-100 font-bold text-2xl animate-pulse">All answers in...</p>
-      <p className="text-zinc-500 text-base animate-pulse">Revealing answer...</p>
+      <p className="text-textPrimary font-bold text-2xl animate-pulse">All answers in...</p>
+      <p className="text-textMuted text-base animate-pulse">Revealing answer...</p>
     </div>
   )
 }
@@ -707,14 +707,14 @@ function CountdownScreen({ category, players, myId }) {
       `}</style>
       <div className="flex flex-col items-center justify-center py-10 space-y-8">
         {category && (
-          <p className="text-zinc-400 text-sm font-medium tracking-wide uppercase">
+          <p className="text-textMuted text-sm font-medium tracking-wide uppercase">
             {catLabel(category)}
           </p>
         )}
 
         <div
           key={String(display)}
-          className={`font-black select-none leading-none ${isGo ? 'text-7xl text-emerald-400' : 'text-9xl text-white'}`}
+          className={`font-black select-none leading-none ${isGo ? 'text-7xl text-teal' : 'text-9xl text-textPrimary'}`}
           style={{ animation: 'countdownPop 0.95s ease-out forwards' }}
         >
           {display}
@@ -726,12 +726,12 @@ function CountdownScreen({ category, players, myId }) {
               const isMe = p.id === myId
               return (
                 <div key={p.id} className="flex flex-col items-center gap-1">
-                  <div className={`w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center text-base font-bold text-zinc-200 ${
-                    isMe ? 'ring-2 ring-white border-2 border-white/60' : 'border border-zinc-600'
+                  <div className={`w-10 h-10 rounded-full bg-surfaceMuted flex items-center justify-center text-base font-bold text-textPrimary ${
+                    isMe ? 'ring-2 ring-white border-2 border-white/60' : 'border border-border'
                   }`}>
                     {p.avatar ?? p.name?.[0]?.toUpperCase() ?? '?'}
                   </div>
-                  <p className={`text-xs ${isMe ? 'text-white font-semibold' : 'text-zinc-500'}`}>
+                  <p className={`text-xs ${isMe ? 'text-gold font-semibold' : 'text-textMuted'}`}>
                     {p.name?.split(' ')[0]}{isMe ? ' (You)' : ''}
                   </p>
                 </div>
@@ -757,10 +757,10 @@ function RematchScreen({ nextCategory }) {
 
   return (
     <div className="flex flex-col items-center justify-center py-20 space-y-4">
-      <p className="text-white font-black text-3xl animate-pulse">Rematch!</p>
-      <p className="text-zinc-400 text-lg">Starting in {count}...</p>
+      <p className="text-textPrimary font-black text-3xl animate-pulse">Rematch!</p>
+      <p className="text-textMuted text-lg">Starting in {count}...</p>
       {nextCategory && (
-        <p className="text-zinc-500 text-sm">
+        <p className="text-textMuted text-sm">
           Next: {catLabel(nextCategory)}
         </p>
       )}
@@ -788,24 +788,24 @@ function RoomCodeBar({ code }) {
   const waUrl = `https://wa.me/?text=${waText}`
 
   return (
-    <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
+    <div className="bg-surfaceElevated/80 border border-border/50 rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
       <div>
-        <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider leading-none mb-1">Room Code</p>
-        <p className="text-white font-mono font-bold text-2xl tracking-widest leading-none">{code}</p>
+        <p className="text-textMuted text-xs font-semibold uppercase tracking-wider leading-none mb-1">Room Code</p>
+        <p className="text-textPrimary font-mono font-bold text-2xl tracking-widest leading-none">{code}</p>
       </div>
       <div className="flex gap-2 shrink-0">
         <a
           href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold bg-teal hover:opacity-90 text-onTeal transition-colors"
         >
           📱 WhatsApp
         </a>
         <button
           onClick={handleCopy}
           className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold border transition-colors ${
-            copied ? 'bg-zinc-700 border-zinc-600/50 text-emerald-400' : 'bg-zinc-700 border-zinc-600/50 text-zinc-200 hover:bg-zinc-600'
+            copied ? 'bg-surfaceMuted border-border/50 text-teal' : 'bg-surfaceMuted border-border/50 text-textPrimary hover:bg-surfaceMuted'
           }`}
         >
           {copied ? '✓' : '🔗'}
@@ -839,7 +839,7 @@ function ShareSection({ code }) {
           href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-1.5 py-3 rounded-xl font-semibold text-sm bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+          className="flex items-center justify-center gap-1.5 py-3 rounded-xl font-semibold text-sm bg-teal hover:opacity-90 text-onTeal transition-colors"
         >
           📱 Share on WhatsApp
         </a>
@@ -847,8 +847,8 @@ function ShareSection({ code }) {
           onClick={handleCopy}
           className={`flex items-center justify-center gap-1.5 py-3 rounded-xl font-semibold text-sm border transition-colors ${
             copied
-              ? 'bg-zinc-700 border-zinc-600/50 text-emerald-400'
-              : 'bg-zinc-700 border-zinc-600/50 text-zinc-200 hover:bg-zinc-600'
+              ? 'bg-surfaceMuted border-border/50 text-teal'
+              : 'bg-surfaceMuted border-border/50 text-textPrimary hover:bg-surfaceMuted'
           }`}
         >
           {copied ? '✓ Copied!' : '🔗 Copy Link'}
@@ -856,8 +856,8 @@ function ShareSection({ code }) {
       </div>
       {code && (
         <div className="text-center">
-          <p className="text-zinc-600 text-xs mb-1.5">or share code manually</p>
-          <p className="text-zinc-300 font-mono font-bold text-2xl tracking-widest">{code}</p>
+          <p className="text-textMuted text-xs mb-1.5">or share code manually</p>
+          <p className="text-textSecondary font-mono font-bold text-2xl tracking-widest">{code}</p>
         </div>
       )}
     </div>
@@ -886,13 +886,13 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
 
       {/* Host: player list */}
       {isHost && players.length > 0 && (
-        <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-4 space-y-2">
+        <div className="bg-surfaceElevated/80 border border-border/50 rounded-2xl p-4 space-y-2">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider">
+            <p className="text-textMuted text-xs font-semibold uppercase tracking-wider">
               Players ({players.length})
             </p>
             {players.length >= 2 && !hasPickedCategory && (
-              <p className="text-amber-400 text-xs font-semibold">👇 Pick a category to begin</p>
+              <p className="text-gold text-xs font-semibold">👇 Pick a category to begin</p>
             )}
           </div>
           {players.map(p => {
@@ -902,15 +902,15 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
                 key={p.id}
                 className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-colors ${
                   isMe
-                    ? 'bg-zinc-700/80 border-2 border-white/60'
-                    : 'bg-zinc-700/40 border border-zinc-700/50'
+                    ? 'bg-surfaceMuted/80 border-2 border-white/60'
+                    : 'bg-surfaceMuted/40 border border-border/50'
                 }`}
               >
                 <span className="text-xl leading-none">{p.avatar ?? '?'}</span>
-                <span className={`font-semibold text-sm flex-1 ${isMe ? 'text-white' : 'text-zinc-200'}`}>
+                <span className={`font-semibold text-sm flex-1 ${isMe ? 'text-gold' : 'text-textPrimary'}`}>
                   {p.name}
                 </span>
-                {isMe && <span className="text-zinc-400 text-xs">(You)</span>}
+                {isMe && <span className="text-textMuted text-xs">(You)</span>}
               </div>
             )
           })}
@@ -921,16 +921,16 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
       {!isHost && (
         <div className="space-y-4">
           {/* 1. Waiting status */}
-          <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-6 text-center space-y-2">
+          <div className="bg-surfaceElevated/80 border border-border/50 rounded-2xl p-6 text-center space-y-2">
             <p className="text-4xl">🔔</p>
-            <p className="text-zinc-300 font-semibold">{t('rapidFireBattle')}</p>
-            <p className="text-zinc-500 text-sm">Waiting for host to pick a category...</p>
+            <p className="text-textSecondary font-semibold">{t('rapidFireBattle')}</p>
+            <p className="text-textMuted text-sm">Waiting for host to pick a category...</p>
           </div>
 
           {/* 2. Player list */}
           {players.length > 0 && (
-            <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-4 space-y-2">
-              <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-2">
+            <div className="bg-surfaceElevated/80 border border-border/50 rounded-2xl p-4 space-y-2">
+              <p className="text-textMuted text-xs font-semibold uppercase tracking-wider mb-2">
                 Players ({players.length})
               </p>
               {players.map(p => {
@@ -940,15 +940,15 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
                     key={p.id}
                     className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-colors ${
                       isMe
-                        ? 'bg-zinc-700/80 border-2 border-white/60'
-                        : 'bg-zinc-700/40 border border-zinc-700/50'
+                        ? 'bg-surfaceMuted/80 border-2 border-white/60'
+                        : 'bg-surfaceMuted/40 border border-border/50'
                     }`}
                   >
                     <span className="text-xl leading-none">{p.avatar ?? '?'}</span>
-                    <span className={`font-semibold text-sm flex-1 ${isMe ? 'text-white' : 'text-zinc-200'}`}>
+                    <span className={`font-semibold text-sm flex-1 ${isMe ? 'text-gold' : 'text-textPrimary'}`}>
                       {p.name}
                     </span>
-                    {isMe && <span className="text-zinc-400 text-xs">(You)</span>}
+                    {isMe && <span className="text-textMuted text-xs">(You)</span>}
                   </div>
                 )
               })}
@@ -960,8 +960,8 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
 
       {/* Host: category grid */}
       {isHost && (
-        <div ref={categoryRef} className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-5">
-          <p className="text-zinc-300 font-semibold mb-4 text-center">{t('pickCategory')}</p>
+        <div ref={categoryRef} className="bg-surfaceElevated/80 border border-border/50 rounded-2xl p-5">
+          <p className="text-textSecondary font-semibold mb-4 text-center">{t('pickCategory')}</p>
           <div className="grid grid-cols-2 gap-3">
             {CATEGORY_ROTATION.map(cat => {
               const d = CATEGORY_DISPLAY[cat]
@@ -971,8 +971,8 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
                   onClick={() => { setSelected(cat); setHasPickedCategory(true) }}
                   className={`flex flex-col items-center justify-center gap-1.5 py-4 px-3 rounded-xl font-semibold text-sm transition-colors border-2 ${
                     selected === cat
-                      ? 'bg-amber-500 text-zinc-900 border-amber-400'
-                      : 'bg-zinc-700/80 text-zinc-300 border-transparent hover:bg-zinc-600'
+                      ? 'bg-gold text-onGold border-gold'
+                      : 'bg-surfaceMuted/80 text-textSecondary border-transparent hover:bg-surfaceMuted'
                   }`}
                 >
                   <span className="text-3xl leading-none">{d?.emoji}</span>
@@ -989,19 +989,19 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
 
       {/* Game info pill + scoring explainer — visible to all players */}
       <div className="flex justify-center">
-        <span className="bg-zinc-700/60 rounded-full px-4 py-1.5 text-sm font-semibold text-white">
+        <span className="bg-surfaceMuted/60 rounded-full px-4 py-1.5 text-sm font-semibold text-textPrimary">
           {TOTAL_ROUNDS} questions · 15s each ⏱
         </span>
       </div>
 
       <div className="space-y-2">
-        <p className="text-center text-zinc-400 text-sm font-semibold">⚡ Faster answers = more points</p>
+        <p className="text-center text-textMuted text-sm font-semibold">⚡ Faster answers = more points</p>
         <div className="flex gap-2 justify-center flex-wrap">
-          <span className="bg-green-500/20 border border-green-500/40 text-green-300 text-xs font-bold px-3 py-1.5 rounded-full">⚡ 0–5s = 1000</span>
-          <span className="bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 text-xs font-bold px-3 py-1.5 rounded-full">🕐 5–10s = 900</span>
-          <span className="bg-orange-500/20 border border-orange-500/40 text-orange-300 text-xs font-bold px-3 py-1.5 rounded-full">🕑 10–15s = 800</span>
+          <span className="bg-teal/20 border border-teal/40 text-teal text-xs font-bold px-3 py-1.5 rounded-full">⚡ 0–5s = 1000</span>
+          <span className="bg-gold/20 border border-gold/40 text-gold text-xs font-bold px-3 py-1.5 rounded-full">🕐 5–10s = 900</span>
+          <span className="bg-gold/20 border border-gold/40 text-gold text-xs font-bold px-3 py-1.5 rounded-full">🕑 10–15s = 800</span>
         </div>
-        <p className="text-center text-zinc-500 text-xs">Wrong or no answer = 0 pts</p>
+        <p className="text-center text-textMuted text-xs">Wrong or no answer = 0 pts</p>
       </div>
 
       {/* Host: start button */}
@@ -1012,8 +1012,8 @@ function SetupScreen({ isHost, onStart, lang, t, nextCategory, code, loading, my
             onClick={() => onStart(selected)}
             className={`w-full py-3 rounded-xl font-bold text-base transition-all ${
               selected && !loading
-                ? 'bg-amber-500 text-zinc-900 hover:bg-amber-400'
-                : 'bg-zinc-700 text-zinc-500 cursor-not-allowed'
+                ? 'bg-gold text-onGold hover:opacity-90'
+                : 'bg-surfaceMuted text-textMuted cursor-not-allowed'
             }`}
           >
             {loading
@@ -1059,11 +1059,11 @@ function QuestionScreen({ question, questionIdx, answered, localCountdown, onAns
       </div>
 
       {/* Question card — visually distinct from options */}
-      <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-5">
-        <p className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mb-2">
+      <div className="bg-surfaceElevated/80 border border-border/50 rounded-2xl p-5">
+        <p className="text-xs text-textMuted uppercase tracking-wider font-semibold mb-2">
           Question {questionIdx + 1} of {TOTAL_ROUNDS}
         </p>
-        <p className="text-white font-bold text-xl leading-snug">{question.question}</p>
+        <p className="text-textPrimary font-bold text-xl leading-snug">{question.question}</p>
       </div>
 
       {/* Q1 scoring tooltip */}
@@ -1071,10 +1071,10 @@ function QuestionScreen({ question, questionIdx, answered, localCountdown, onAns
         <button
           type="button"
           onClick={dismissTip}
-          className="w-full bg-zinc-700/80 border border-zinc-600/50 rounded-xl px-4 py-2.5 text-center"
+          className="w-full bg-surfaceMuted/80 border border-border/50 rounded-xl px-4 py-2.5 text-center"
         >
-          <p className="text-zinc-200 text-xs font-semibold">⚡ 0–5s = 1000pts · 5–10s = 900pts · 10–15s = 800pts</p>
-          <p className="text-zinc-500 text-xs mt-0.5">Tap to dismiss</p>
+          <p className="text-textPrimary text-xs font-semibold">⚡ 0–5s = 1000pts · 5–10s = 900pts · 10–15s = 800pts</p>
+          <p className="text-textMuted text-xs mt-0.5">Tap to dismiss</p>
         </button>
       )}
 
@@ -1087,17 +1087,17 @@ function QuestionScreen({ question, questionIdx, answered, localCountdown, onAns
             disabled={answered}
             className={`w-full text-left px-5 py-4 rounded-2xl font-semibold text-sm transition-colors border ${
               answered
-                ? 'bg-zinc-800/40 border-zinc-700/30 text-zinc-500 cursor-not-allowed'
-                : 'bg-zinc-800 border-zinc-700/50 text-zinc-200 hover:bg-amber-500/20 hover:border-amber-500/40 active:scale-95'
+                ? 'bg-surfaceElevated/40 border-border/30 text-textMuted cursor-not-allowed'
+                : 'bg-surfaceElevated border-border/50 text-textPrimary hover:bg-gold/20 hover:border-gold/40 active:scale-95'
             }`}
           >
-            <span className="text-zinc-500 mr-3 font-mono text-xs font-bold">{String.fromCharCode(65 + idx)}.</span>
+            <span className="text-textMuted mr-3 font-mono text-xs font-bold">{String.fromCharCode(65 + idx)}.</span>
             {opt}
           </button>
         ))}
       </div>
 
-      <p className="text-center text-zinc-500 text-sm mt-2">
+      <p className="text-center text-textMuted text-sm mt-2">
         {answered
           ? `Waiting for others... (${answeredCount}/${totalPlayers})`
           : `${answeredCount} of ${totalPlayers} answered`}
@@ -1146,7 +1146,7 @@ function StreakBanner({ players, streaks }) {
 
   const n = streaks[topStreaker.id]
   return (
-    <div className="rounded-xl border border-amber-500/40 bg-amber-500/15 px-4 py-2.5 text-sm font-semibold text-amber-300 text-center animate-pulse">
+    <div className="rounded-xl border border-gold/40 bg-gold/15 px-4 py-2.5 text-sm font-semibold text-gold text-center animate-pulse">
       {n >= 5 ? '⚡' : '🔥'} {topStreaker.name} is on a {n}-answer streak!
     </div>
   )
@@ -1196,29 +1196,29 @@ function RevealScreen({ question, correctIdx, roundScores, responseTimes, streak
   let proximityBanner, proximityClass
   if (!myDidAnswer) {
     proximityBanner = "Didn't answer this one — stay focused!"
-    proximityClass = 'bg-zinc-700/60 border-zinc-600/40 text-zinc-400'
+    proximityClass = 'bg-surfaceMuted/60 border-border/40 text-textMuted'
   } else if (myIsCorrect) {
     if (iAmSoleLeader) {
       proximityBanner = "You're leading — stay sharp! 🔥"
-      proximityClass = 'bg-amber-500/20 border-amber-500/40 text-amber-300'
+      proximityClass = 'bg-gold/20 border-gold/40 text-gold'
     } else if (iAmAtTop) {
       proximityBanner = "All tied up — anyone's game! 🤝"
-      proximityClass = 'bg-blue-500/15 border-blue-500/30 text-blue-300'
+      proximityClass = 'bg-teal/15 border-teal/30 text-teal'
     } else {
       proximityBanner = `You're ${gap} pts behind ${leader?.name} — catch up!`
-      proximityClass = 'bg-rose-500/15 border-rose-500/30 text-rose-300'
+      proximityClass = 'bg-terracotta/15 border-terracotta/30 text-terracotta'
     }
   } else {
     // answered wrong
     if (iAmAtTop && playersAtTop.length > 1) {
       proximityBanner = "It's all tied up! 🤝"
-      proximityClass = 'bg-blue-500/15 border-blue-500/30 text-blue-300'
+      proximityClass = 'bg-teal/15 border-teal/30 text-teal'
     } else if (gap === 0) {
       proximityBanner = "It's all tied up! 🤝"
-      proximityClass = 'bg-blue-500/15 border-blue-500/30 text-blue-300'
+      proximityClass = 'bg-teal/15 border-teal/30 text-teal'
     } else {
       proximityBanner = `You're ${gap} pts behind ${leader?.name} — catch up!`
-      proximityClass = 'bg-rose-500/15 border-rose-500/30 text-rose-300'
+      proximityClass = 'bg-terracotta/15 border-terracotta/30 text-terracotta'
     }
   }
 
@@ -1226,7 +1226,7 @@ function RevealScreen({ question, correctIdx, roundScores, responseTimes, streak
   let resultBanner
   if (!myDidAnswer) {
     resultBanner = (
-      <div className="rounded-xl border px-4 py-3 text-sm font-bold bg-zinc-700/60 border-zinc-600/40 text-zinc-400 text-center">
+      <div className="rounded-xl border px-4 py-3 text-sm font-bold bg-surfaceMuted/60 border-border/40 text-textMuted text-center">
         ⏰ You didn't answer
       </div>
     )
@@ -1236,19 +1236,19 @@ function RevealScreen({ question, correctIdx, roundScores, responseTimes, streak
     const myTotalPts = roundScores[myId] ?? 0
     const myStreak = streaks?.[myId] ?? 0
     resultBanner = (
-      <div className="rounded-xl border px-4 py-3 bg-green-500/20 border-green-500/40 text-green-300 text-center">
+      <div className="rounded-xl border px-4 py-3 bg-teal/20 border-teal/40 text-teal text-center">
         <div className="text-sm font-bold">✓ Correct! +{myTotalPts} pts</div>
         {myStreakBonus > 0 && (
           <>
-            <div className="text-xs text-zinc-400 mt-0.5">({mySpeedPts} speed + {myStreakBonus} streak)</div>
-            <div className="text-sm text-orange-400 font-semibold mt-1">🔥 {myStreak}x Streak! +{myStreakBonus} bonus</div>
+            <div className="text-xs text-textMuted mt-0.5">({mySpeedPts} speed + {myStreakBonus} streak)</div>
+            <div className="text-sm text-gold font-semibold mt-1">🔥 {myStreak}x Streak! +{myStreakBonus} bonus</div>
           </>
         )}
       </div>
     )
   } else {
     resultBanner = (
-      <div className="rounded-xl border px-4 py-3 text-sm font-bold bg-red-500/20 border-red-500/40 text-red-300 text-center">
+      <div className="rounded-xl border px-4 py-3 text-sm font-bold bg-error/20 border-error/40 text-error text-center">
         ✗ Wrong answer
       </div>
     )
@@ -1262,17 +1262,17 @@ function RevealScreen({ question, correctIdx, roundScores, responseTimes, streak
     <>
       <FloatingReactions reactions={myReaction} />
       <div className="space-y-4">
-        <p className="text-zinc-500 text-sm text-center font-medium">
+        <p className="text-textMuted text-sm text-center font-medium">
           Q {questionIdx + 1} / {TOTAL_ROUNDS} — {t('correctAnswer')}
         </p>
 
         {/* Question text */}
-        <p className="text-white font-bold text-lg leading-snug text-center px-1">{question.question}</p>
+        <p className="text-textPrimary font-bold text-lg leading-snug text-center px-1">{question.question}</p>
 
         {/* Explanation — prominent, above options */}
         {question.explanation?.trim() && (
-          <div className="bg-zinc-700/60 border border-zinc-600/60 rounded-xl px-4 py-3">
-            <p className="text-sm text-white">💡 {question.explanation}</p>
+          <div className="bg-surfaceMuted/60 border border-border/60 rounded-xl px-4 py-3">
+            <p className="text-sm text-textPrimary">💡 {question.explanation}</p>
           </div>
         )}
 
@@ -1286,20 +1286,20 @@ function RevealScreen({ question, correctIdx, roundScores, responseTimes, streak
             if (myAnswerIdx === null) {
               // player didn't answer
               cls = isCorrect
-                ? 'bg-green-500/40 border-green-500/50 text-green-300'
-                : 'bg-zinc-800/50 border-zinc-700/30 text-zinc-500 opacity-40'
+                ? 'bg-teal/40 border-teal/50 text-teal'
+                : 'bg-surfaceElevated/50 border-border/30 text-textMuted opacity-40'
             } else if (isSelected && isCorrect) {
               // State A: selected + correct
-              cls = 'bg-green-500/80 border-green-400 text-white font-bold'
+              cls = 'bg-teal/80 border-teal text-onTeal font-bold'
             } else if (isSelected && !isCorrect) {
               // State B: selected + wrong
-              cls = 'bg-red-500/60 border-red-400 text-white'
+              cls = 'bg-error/60 border-error text-white'
             } else if (!isSelected && isCorrect) {
               // State C: not selected, correct answer
-              cls = 'bg-green-500/40 border-green-500/50 text-green-300'
+              cls = 'bg-teal/40 border-teal/50 text-teal'
             } else {
               // State D: not selected, wrong
-              cls = 'bg-zinc-800/50 border-zinc-700/30 text-zinc-500 opacity-40'
+              cls = 'bg-surfaceElevated/50 border-border/30 text-textMuted opacity-40'
             }
 
             const icon = isSelected && isCorrect ? '✓' : isSelected && !isCorrect ? '✗' : null
@@ -1330,38 +1330,38 @@ function RevealScreen({ question, correctIdx, roundScores, responseTimes, streak
         </div>
 
         {/* Per-player round results */}
-        <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-4 space-y-1">
+        <div className="bg-surfaceElevated/80 border border-border/50 rounded-2xl p-4 space-y-1">
           {ranked.map((p, i) => {
             const streak = streaks[p.id] ?? 0
             const rt = responseTimes[p.id]
             const rtDisplay = (rt != null && rt >= 0 && rt <= 15) ? `${rt.toFixed(1)}s` : '—'
             return (
               <FadeInRow key={p.id} delay={i * 150}>
-                <div className={`flex items-center justify-between px-3 py-2 rounded-xl ${p.id === myId ? 'bg-zinc-700/60' : ''}`}>
+                <div className={`flex items-center justify-between px-3 py-2 rounded-xl ${p.id === myId ? 'bg-surfaceMuted/60' : ''}`}>
                   <div className="flex items-center gap-2">
                     <span>{i < correctPlayers.length ? (medals[i] ?? `${i + 1}.`) : '❌'}</span>
-                    <span className={`text-sm font-medium ${p.id === myId ? 'text-amber-300 font-bold' : 'text-zinc-200'}`}>
+                    <span className={`text-sm font-medium ${p.id === myId ? 'text-gold font-bold' : 'text-textPrimary'}`}>
                       {p.name}
                     </span>
                     {streak >= 5 && (
-                      <span className="bg-yellow-500 text-zinc-900 text-xs font-bold px-2 py-0.5 rounded-full">{streak} ⚡</span>
+                      <span className="bg-gold text-onGold text-xs font-bold px-2 py-0.5 rounded-full">{streak} ⚡</span>
                     )}
                     {streak >= 3 && streak < 5 && (
-                      <span className="bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{streak} 🔥</span>
+                      <span className="bg-gold text-onGold text-xs font-bold px-2 py-0.5 rounded-full">{streak} 🔥</span>
                     )}
                   </div>
                   {i < correctPlayers.length ? (
-                    <span className="text-zinc-400 text-sm flex items-center gap-1">
+                    <span className="text-textMuted text-sm flex items-center gap-1">
                       {rtDisplay}
-                      <span className="text-amber-400 font-bold ml-1">+{roundScores[p.id]}</span>
+                      <span className="text-gold font-bold ml-1">+{roundScores[p.id]}</span>
                       {(streakBonuses[p.id] ?? 0) > 0 && (
-                        <span className="text-orange-400 text-xs font-semibold bg-orange-500/20 border border-orange-500/30 px-1.5 py-0.5 rounded-full">
+                        <span className="text-gold text-xs font-semibold bg-gold/20 border border-gold/30 px-1.5 py-0.5 rounded-full">
                           +{streakBonuses[p.id]} 🔥
                         </span>
                       )}
                     </span>
                   ) : (
-                    <span className="text-zinc-600 text-sm">Wrong</span>
+                    <span className="text-textMuted text-sm">Wrong</span>
                   )}
                 </div>
               </FadeInRow>
@@ -1370,7 +1370,7 @@ function RevealScreen({ question, correctIdx, roundScores, responseTimes, streak
         </div>
 
         {nextQuestion && (
-          <div className={`text-center font-semibold ${isFinalNext ? 'text-amber-400 text-base' : 'text-zinc-500 text-sm'}`}>
+          <div className={`text-center font-semibold ${isFinalNext ? 'text-gold text-base' : 'text-textMuted text-sm'}`}>
             {isFinalNext
               ? '🏆 FINAL QUESTION — Anything can happen!'
               : `Next up: ${catLabel(nextQuestion.category)}`}
@@ -1384,9 +1384,9 @@ function RevealScreen({ question, correctIdx, roundScores, responseTimes, streak
 // ─── ResultScreen ─────────────────────────────────────────────────────────────
 
 const PODIUM_COLORS = {
-  0: 'bg-amber-400 text-zinc-900',
-  1: 'bg-zinc-400 text-zinc-900',
-  2: 'bg-amber-700 text-zinc-100',
+  0: 'bg-gold text-onGold',
+  1: 'bg-textMuted text-onGold',
+  2: 'bg-gold text-textPrimary',
 }
 
 const LOSER_SUBTEXTS = [
@@ -1488,45 +1488,45 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
     <div className="space-y-5 pb-40">
       {/* Section 1 — Personalised announcement (UX 8 + BUG 3) */}
       {isWinner ? (
-        <div className="text-center py-5 space-y-2 bg-gradient-to-b from-amber-500/20 to-transparent rounded-2xl">
+        <div className="text-center py-5 space-y-2 bg-gradient-to-b from-gold/20 to-transparent rounded-2xl">
           <div className="text-6xl">🏆</div>
-          <p className="text-amber-400 font-black text-2xl leading-tight">You Won!</p>
-          <p className="text-zinc-300 font-semibold text-base">Congratulations {myPlayer?.name}!</p>
-          <p className="text-zinc-400 text-sm">Your score: {myScore} pts</p>
-          <p className="text-amber-400 font-semibold text-sm">
+          <p className="text-gold font-black text-2xl leading-tight">You Won!</p>
+          <p className="text-textSecondary font-semibold text-base">Congratulations {myPlayer?.name}!</p>
+          <p className="text-textMuted text-sm">Your score: {myScore} pts</p>
+          <p className="text-gold font-semibold text-sm">
             You earned +{xpDisplay} XP
             {room?.roomType === 'ranked' && (
-              <span className="text-xs ml-1 text-amber-300/70">(ranked ×1.2)</span>
+              <span className="text-xs ml-1 text-gold/70">(ranked ×1.2)</span>
             )}
           </p>
         </div>
       ) : isSecond && !isTie ? (
-        <div className="text-center py-5 space-y-2 bg-gradient-to-b from-zinc-500/20 to-transparent rounded-2xl">
+        <div className="text-center py-5 space-y-2 bg-gradient-to-b from-textMuted/20 to-transparent rounded-2xl">
           <div className="text-5xl">😅</div>
-          <p className="text-zinc-200 font-black text-xl leading-tight">
+          <p className="text-textPrimary font-black text-xl leading-tight">
             Almost! {winnerPlayer?.name ?? 'Someone'} got you this time
           </p>
-          <p className="text-zinc-400 text-sm">{loserSubtext}</p>
-          <p className="text-zinc-500 text-sm">Your score: {myScore} pts</p>
-          <p className="text-amber-400 font-semibold text-sm">
+          <p className="text-textMuted text-sm">{loserSubtext}</p>
+          <p className="text-textMuted text-sm">Your score: {myScore} pts</p>
+          <p className="text-gold font-semibold text-sm">
             You earned +{xpDisplay} XP
             {room?.roomType === 'ranked' && (
-              <span className="text-xs ml-1 text-amber-300/70">(ranked ×1.2)</span>
+              <span className="text-xs ml-1 text-gold/70">(ranked ×1.2)</span>
             )}
           </p>
         </div>
       ) : isLast && !isTie ? (
         <div className="text-center py-5 space-y-2">
           <div className="text-5xl">🏆</div>
-          <p className="text-zinc-200 font-black text-xl leading-tight">
+          <p className="text-textPrimary font-black text-xl leading-tight">
             {winnerPlayer?.name ?? 'Someone'} won this round
           </p>
-          <p className="text-zinc-400 text-sm">{lastSubtext}</p>
-          <p className="text-zinc-500 text-sm">Your score: {myScore} pts</p>
-          <p className="text-amber-400 font-semibold text-sm">
+          <p className="text-textMuted text-sm">{lastSubtext}</p>
+          <p className="text-textMuted text-sm">Your score: {myScore} pts</p>
+          <p className="text-gold font-semibold text-sm">
             You earned +{xpDisplay} XP
             {room?.roomType === 'ranked' && (
-              <span className="text-xs ml-1 text-amber-300/70">(ranked ×1.2)</span>
+              <span className="text-xs ml-1 text-gold/70">(ranked ×1.2)</span>
             )}
           </p>
         </div>
@@ -1534,19 +1534,19 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
         // Tie or other positions
         <div className="text-center py-5 space-y-2">
           <div className="text-6xl">{isTie ? '🤝' : '🥈'}</div>
-          <p className="text-white font-black text-2xl leading-tight">
+          <p className="text-textPrimary font-black text-2xl leading-tight">
             {isTie ? "It's a tie!" : `${winnerPlayer?.name ?? 'Player'} wins FirstBell!`}
           </p>
           {isTie && (
-            <p className="text-zinc-300 font-semibold text-base">
+            <p className="text-textSecondary font-semibold text-base">
               {tiedWinnerPlayers.map(p => p.name).join(' & ')}
             </p>
           )}
-          <p className="text-zinc-400 text-sm">Your score: {myScore} pts</p>
-          <p className="text-amber-400 font-semibold text-sm">
+          <p className="text-textMuted text-sm">Your score: {myScore} pts</p>
+          <p className="text-gold font-semibold text-sm">
             You earned +{xpDisplay} XP
             {room?.roomType === 'ranked' && (
-              <span className="text-xs ml-1 text-amber-300/70">(ranked ×1.2)</span>
+              <span className="text-xs ml-1 text-gold/70">(ranked ×1.2)</span>
             )}
           </p>
         </div>
@@ -1561,16 +1561,16 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
               <div className="flex flex-col items-center gap-1 flex-[2]">
                 <div className="flex items-center gap-1 justify-center">
                   {tiedWinnerPlayers.slice(0, 2).map((p) => (
-                    <div key={p.id} className={`text-xl w-10 h-10 rounded-full flex items-center justify-center bg-zinc-700 ${p.id === myId ? 'ring-2 ring-amber-400' : ''}`}>
+                    <div key={p.id} className={`text-xl w-10 h-10 rounded-full flex items-center justify-center bg-surfaceMuted ${p.id === myId ? 'ring-2 ring-gold' : ''}`}>
                       {p.avatar ?? p.name?.[0]?.toUpperCase() ?? '?'}
                     </div>
                   ))}
                 </div>
-                <p className="text-zinc-300 text-xs font-semibold text-center leading-tight">
+                <p className="text-textSecondary text-xs font-semibold text-center leading-tight">
                   {tiedWinnerPlayers.slice(0, 2).map(p => p.name.split(' ')[0]).join(' 🤝 ')}
                 </p>
-                <p className="text-zinc-500 text-xs">{maxScore} each</p>
-                <div className="w-full h-20 rounded-t-lg flex items-center justify-center font-black text-base bg-amber-400 text-zinc-900">
+                <p className="text-textMuted text-xs">{maxScore} each</p>
+                <div className="w-full h-20 rounded-t-lg flex items-center justify-center font-black text-base bg-gold text-onGold">
                   TIE
                 </div>
               </div>
@@ -1581,14 +1581,14 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
                 const isMe = thirdPid === myId
                 return (
                   <div className="flex flex-col items-center gap-1 flex-1 max-w-[90px]">
-                    <div className={`text-xl w-10 h-10 rounded-full flex items-center justify-center bg-zinc-700 ${isMe ? 'ring-2 ring-amber-400' : ''}`}>
+                    <div className={`text-xl w-10 h-10 rounded-full flex items-center justify-center bg-surfaceMuted ${isMe ? 'ring-2 ring-gold' : ''}`}>
                       {p?.avatar ?? p?.name?.[0]?.toUpperCase() ?? '?'}
                     </div>
-                    <p className={`text-xs font-semibold truncate w-full text-center ${isMe ? 'text-amber-300' : 'text-zinc-300'}`}>
+                    <p className={`text-xs font-semibold truncate w-full text-center ${isMe ? 'text-gold' : 'text-textSecondary'}`}>
                       {p?.name ?? thirdPid}
                     </p>
-                    <p className="text-zinc-500 text-xs">{totalScores[thirdPid] ?? 0}</p>
-                    <div className="w-full h-10 rounded-t-lg flex items-center justify-center font-bold text-lg bg-amber-700 text-zinc-100">
+                    <p className="text-textMuted text-xs">{totalScores[thirdPid] ?? 0}</p>
+                    <div className="w-full h-10 rounded-t-lg flex items-center justify-center font-bold text-lg bg-gold text-textPrimary">
                       🥉
                     </div>
                   </div>
@@ -1604,14 +1604,14 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
               const initial = p?.avatar ?? p?.name?.[0]?.toUpperCase() ?? '?'
               return (
                 <div key={pid} className="flex flex-col items-center gap-1 flex-1 max-w-[90px]">
-                  <div className={`text-xl w-10 h-10 rounded-full flex items-center justify-center bg-zinc-700 ${isMe ? 'ring-2 ring-amber-400' : ''}`}>
+                  <div className={`text-xl w-10 h-10 rounded-full flex items-center justify-center bg-surfaceMuted ${isMe ? 'ring-2 ring-gold' : ''}`}>
                     {initial}
                   </div>
-                  <p className={`text-xs font-semibold truncate w-full text-center ${isMe ? 'text-amber-300' : 'text-zinc-300'}`}>
+                  <p className={`text-xs font-semibold truncate w-full text-center ${isMe ? 'text-gold' : 'text-textSecondary'}`}>
                     {p?.name ?? pid}
                   </p>
-                  <p className="text-zinc-500 text-xs">{totalScores[pid] ?? 0}</p>
-                  <div className={`w-full rounded-t-lg flex items-center justify-center font-bold text-lg ${podiumSlotHeights[slot]} ${PODIUM_COLORS[trueRank] ?? 'bg-zinc-600 text-zinc-200'}`}>
+                  <p className="text-textMuted text-xs">{totalScores[pid] ?? 0}</p>
+                  <div className={`w-full rounded-t-lg flex items-center justify-center font-bold text-lg ${podiumSlotHeights[slot]} ${PODIUM_COLORS[trueRank] ?? 'bg-surfaceMuted text-textPrimary'}`}>
                     {medals[trueRank] ?? `${trueRank + 1}`}
                   </div>
                 </div>
@@ -1622,8 +1622,8 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
       )}
 
       {/* Section 3 — Full scoreboard */}
-      <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-4">
-        <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3">Scoreboard</p>
+      <div className="bg-surfaceElevated/80 border border-border/50 rounded-2xl p-4">
+        <p className="text-textMuted text-xs font-semibold uppercase tracking-wider mb-3">Scoreboard</p>
         <div className="space-y-1">
           {ranked.map((pid, rank) => {
             const p = players.find(x => x.id === pid)
@@ -1631,14 +1631,14 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
             return (
               <div
                 key={pid}
-                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm ${isMe ? 'bg-zinc-700/60 border border-zinc-600/50' : ''}`}
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm ${isMe ? 'bg-surfaceMuted/60 border border-border/50' : ''}`}
               >
                 <span className="w-6 text-center shrink-0">{medals[rank] ?? `${rank + 1}.`}</span>
-                <span className={`flex-1 font-medium truncate ${isMe ? 'text-amber-300' : 'text-zinc-200'}`}>
+                <span className={`flex-1 font-medium truncate ${isMe ? 'text-gold' : 'text-textPrimary'}`}>
                   {p?.name ?? pid}
                 </span>
-                <span className="text-zinc-500 text-xs shrink-0">{accuracy(pid)}%</span>
-                <span className="text-amber-400 font-bold shrink-0">{totalScores[pid] ?? 0}</span>
+                <span className="text-textMuted text-xs shrink-0">{accuracy(pid)}%</span>
+                <span className="text-gold font-bold shrink-0">{totalScores[pid] ?? 0}</span>
               </div>
             )
           })}
@@ -1674,11 +1674,11 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
               : '—',
           },
         ].map(s => (
-          <div key={s.label} className="bg-zinc-800/80 border border-zinc-700/40 rounded-xl p-3 text-center">
+          <div key={s.label} className="bg-surfaceElevated/80 border border-border/40 rounded-xl p-3 text-center">
             <p className="text-2xl mb-1">{s.icon}</p>
-            <p className="text-zinc-500 text-xs mb-1">{s.label}</p>
+            <p className="text-textMuted text-xs mb-1">{s.label}</p>
             {s.value.split('\n').map((line, i) => (
-              <p key={i} className={`leading-tight ${i === 0 ? 'text-zinc-200 text-xs font-semibold' : 'text-zinc-400 text-xs'}`}>
+              <p key={i} className={`leading-tight ${i === 0 ? 'text-textPrimary text-xs font-semibold' : 'text-textMuted text-xs'}`}>
                 {line}
               </p>
             ))}
@@ -1688,8 +1688,8 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
 
       {/* Section 5 — Per-question breakdown */}
       {questions.length > 0 && (
-        <div className="bg-zinc-800/80 border border-zinc-700/50 rounded-2xl p-4">
-          <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3">📋 How You Did</p>
+        <div className="bg-surfaceElevated/80 border border-border/50 rounded-2xl p-4">
+          <p className="text-textMuted text-xs font-semibold uppercase tracking-wider mb-3">📋 How You Did</p>
           <div className="space-y-2">
             {questions.map((q, i) => {
               const ans = myAnswers?.[i]
@@ -1701,40 +1701,40 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
 
               let cardCls, label
               if (!didAnswer) {
-                cardCls = 'bg-zinc-700/40 border-zinc-600/40'
-                label = <span className="text-zinc-500 text-xs">No answer</span>
+                cardCls = 'bg-surfaceMuted/40 border-border/40'
+                label = <span className="text-textMuted text-xs">No answer</span>
               } else if (isCorrect) {
-                cardCls = 'bg-green-500/10 border-green-500/30'
-                label = <span className="text-green-400 text-xs font-semibold">✓ Correct</span>
+                cardCls = 'bg-teal/10 border-teal/30'
+                label = <span className="text-teal text-xs font-semibold">✓ Correct</span>
               } else {
-                cardCls = 'bg-red-500/10 border-red-500/30'
-                label = <span className="text-red-400 text-xs font-semibold">✗ Wrong</span>
+                cardCls = 'bg-error/10 border-error/30'
+                label = <span className="text-error text-xs font-semibold">✗ Wrong</span>
               }
 
               return (
                 <div key={i} className={`rounded-xl border p-3 ${cardCls}`}>
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <p className="text-zinc-300 text-xs font-medium leading-snug flex-1">
-                      <span className="text-zinc-500 mr-1.5">Q{i + 1}.</span>{q.question}
+                    <p className="text-textSecondary text-xs font-medium leading-snug flex-1">
+                      <span className="text-textMuted mr-1.5">Q{i + 1}.</span>{q.question}
                     </p>
                     {pts > 0 && (
-                      <span className="text-amber-400 text-xs font-bold shrink-0">+{pts}</span>
+                      <span className="text-gold text-xs font-bold shrink-0">+{pts}</span>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
                     {label}
                     {!didAnswer && (
-                      <span className="text-zinc-400 text-xs">→ {q.options[correctIdx]}</span>
+                      <span className="text-textMuted text-xs">→ {q.options[correctIdx]}</span>
                     )}
                     {didAnswer && !isCorrect && (
                       <>
-                        <span className="text-red-400 text-xs line-through opacity-60">{q.options[selectedIdx]}</span>
-                        <span className="text-zinc-500 text-xs">→</span>
-                        <span className="text-green-400 text-xs">{q.options[correctIdx]}</span>
+                        <span className="text-error text-xs line-through opacity-60">{q.options[selectedIdx]}</span>
+                        <span className="text-textMuted text-xs">→</span>
+                        <span className="text-teal text-xs">{q.options[correctIdx]}</span>
                       </>
                     )}
                     {didAnswer && isCorrect && (
-                      <span className="text-green-300 text-xs">{q.options[correctIdx]}</span>
+                      <span className="text-teal text-xs">{q.options[correctIdx]}</span>
                     )}
                   </div>
                 </div>
@@ -1745,43 +1745,43 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
       )}
 
       {/* Section 6 — Share */}
-      <div className="bg-zinc-800/60 border border-zinc-700/40 rounded-2xl p-4 space-y-3">
+      <div className="bg-surfaceElevated/60 border border-border/40 rounded-2xl p-4 space-y-3">
         <div className="text-center">
-          <p className="text-amber-400 font-black text-lg tracking-tight">⚡ FirstBell</p>
-          <p className="text-zinc-500 text-xs">{catDisplay} · {players.length} players · {dateStr}</p>
+          <p className="text-gold font-black text-lg tracking-tight">⚡ FirstBell</p>
+          <p className="text-textMuted text-xs">{catDisplay} · {players.length} players · {dateStr}</p>
           <div className="mt-2 space-y-0.5">
             {ranked.slice(0, 3).map((pid, i) => {
               const p = players.find(x => x.id === pid)
               return (
-                <p key={pid} className="text-zinc-300 text-xs">
+                <p key={pid} className="text-textSecondary text-xs">
                   {medals[i]} {p?.name ?? pid} · {totalScores[pid] ?? 0} pts
                 </p>
               )
             })}
           </div>
-          <p className="text-zinc-600 text-xs mt-2">partybox-app.vercel.app</p>
+          <p className="text-textMuted text-xs mt-2">partybox-app.vercel.app</p>
         </div>
         <button
           onClick={handleShare}
-          className="w-full py-2.5 rounded-xl font-semibold text-sm bg-zinc-700 border border-zinc-600/50 text-zinc-200 hover:bg-zinc-600 transition-colors"
+          className="w-full py-2.5 rounded-xl font-semibold text-sm bg-surfaceMuted border border-border/50 text-textPrimary hover:bg-surfaceMuted transition-colors"
         >
           {shareStatus === 'copied' ? '✅ Copied!' : '📱 Share Result'}
         </button>
       </div>
 
       {/* Section 7 — Actions (sticky) */}
-      <div className="fixed bottom-0 left-0 right-0 bg-zinc-900/95 backdrop-blur-sm px-4 pt-3 pb-6 border-t border-zinc-800 space-y-2">
+      <div className="fixed bottom-0 left-0 right-0 bg-bg/95 backdrop-blur-sm px-4 pt-3 pb-6 border-t border-border space-y-2">
         <AdBanner slot="firstbell-results" className="mb-3" />
         {isHost ? (
           <>
             <button
               onClick={onRematch}
-              className="w-full py-3.5 rounded-xl font-bold text-base bg-amber-500 text-zinc-900 hover:bg-amber-400 transition-colors"
+              className="w-full py-3.5 rounded-xl font-bold text-base bg-gold text-onGold hover:opacity-90 transition-colors"
             >
               🔄 Rematch
             </button>
             {rematchVoteCount > 0 && (
-              <p className="text-center text-zinc-500 text-xs">
+              <p className="text-center text-textMuted text-xs">
                 {rematchVoteCount}/{totalPlayers} want a rematch 🔥
               </p>
             )}
@@ -1793,25 +1793,25 @@ function ResultScreen({ totalScores, winner, players, myId, room, correctCounts,
               disabled={myVoteSubmitted}
               className={`w-full py-3 rounded-xl font-semibold text-sm transition-colors border ${
                 myVoteSubmitted
-                  ? 'bg-zinc-700 border-zinc-600 text-emerald-400 cursor-not-allowed'
-                  : 'bg-zinc-700 border-zinc-600/50 text-zinc-200 hover:bg-zinc-600'
+                  ? 'bg-surfaceMuted border-border text-teal cursor-not-allowed'
+                  : 'bg-surfaceMuted border-border/50 text-textPrimary hover:bg-surfaceMuted'
               }`}
             >
               {myVoteSubmitted ? '✓ Rematch requested!' : '👍 Want a Rematch?'}
             </button>
             {rematchVoteCount > 0 && (
-              <p className="text-center text-zinc-500 text-xs">
+              <p className="text-center text-textMuted text-xs">
                 {rematchVoteCount}/{totalPlayers} want a rematch 🔥
               </p>
             )}
-            <p className="text-center text-zinc-600 text-xs animate-pulse">
+            <p className="text-center text-textMuted text-xs animate-pulse">
               Waiting for host to start a rematch...
             </p>
           </>
         )}
         <button
           onClick={onHome}
-          className="w-full py-2.5 rounded-xl font-semibold text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
+          className="w-full py-2.5 rounded-xl font-semibold text-sm text-textMuted hover:text-textSecondary transition-colors"
         >
           🏠 Home
         </button>

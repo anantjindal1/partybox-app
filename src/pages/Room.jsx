@@ -78,12 +78,12 @@ export default function Room() {
 
   if (expired) {
     return (
-      <div className="min-h-screen bg-surface text-zinc-100 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-surface text-textPrimary flex items-center justify-center px-4">
         <div className="text-center">
-          <p className="text-zinc-400 text-lg">{t('roomExpired')}</p>
+          <p className="text-textMuted text-lg">{t('roomExpired')}</p>
           <button
             onClick={() => navigate('/')}
-            className="mt-4 text-zinc-500 hover:text-zinc-300 underline"
+            className="mt-4 text-textMuted hover:text-textSecondary underline"
           >
             {t('returnHome')}
           </button>
@@ -94,8 +94,8 @@ export default function Room() {
 
   if (!room || !profile) {
     return (
-      <div className="min-h-screen bg-surface text-zinc-100 flex items-center justify-center">
-        <p className="text-zinc-500 text-xl animate-pulse">Connecting...</p>
+      <div className="min-h-screen bg-surface text-textPrimary flex items-center justify-center">
+        <p className="text-textMuted text-xl animate-pulse">Connecting...</p>
       </div>
     )
   }
@@ -130,14 +130,14 @@ export default function Room() {
   }
 
   return (
-    <div className="min-h-screen bg-surface text-zinc-100 flex flex-col">
+    <div className="min-h-screen bg-surface text-textPrimary flex flex-col">
       <ConnectionOverlay connected={connected} />
       {identity === null && <PlayerIdentityModal onComplete={setIdentity} />}
 
       <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border/60 shadow-soft">
         <button
           onClick={() => navigate('/')}
-          className="text-zinc-500 hover:text-zinc-300 text-lg flex items-center gap-2 font-medium"
+          className="text-textMuted hover:text-textSecondary text-lg flex items-center gap-2 font-medium"
         >
           ← {t('back')}
         </button>
@@ -147,14 +147,14 @@ export default function Room() {
               🏆 {t('rankedRoom')}
             </span>
           ) : (
-            <span className="text-xs font-semibold text-zinc-400 border border-border rounded-lg px-2 py-1">
+            <span className="text-xs font-semibold text-textMuted border border-border rounded-lg px-2 py-1">
               🎲 {t('casualRoom')}
             </span>
           )}
           {isHost && gameInProgress && (
             <button
               onClick={handleEndGame}
-              className="text-rose-400 hover:text-rose-300 text-sm font-semibold border border-rose-800/60 rounded-xl px-3 py-1.5"
+              className="text-error hover:text-error text-sm font-semibold border border-error/60 rounded-xl px-3 py-1.5"
             >
               {t('endGame')}
             </button>
@@ -165,7 +165,7 @@ export default function Room() {
 
       {/* Results countdown banner */}
       {countdown !== null && (
-        <div className="mx-4 sm:mx-6 mt-3 py-2 px-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-sm font-medium text-center">
+        <div className="mx-4 sm:mx-6 mt-3 py-2 px-4 rounded-xl bg-error/10 border border-error/30 text-error text-sm font-medium text-center">
           {t('roomClosesIn')} {countdown}s
         </div>
       )}
@@ -174,7 +174,7 @@ export default function Room() {
         <div className="px-4 sm:px-6 pt-6 pb-4 space-y-4">
           {/* Room code */}
           <div className="text-center">
-            <p className="text-zinc-500 text-xs mb-2">or share code manually</p>
+            <p className="text-textMuted text-xs mb-2">or share code manually</p>
             <RoomCode code={code} />
           </div>
 
@@ -191,11 +191,11 @@ export default function Room() {
                       <span className="absolute -top-1 -right-1 text-xs">👑</span>
                     )}
                   </div>
-                  <span className="text-zinc-300 text-xs font-medium max-w-[56px] truncate">{p.name}</span>
+                  <span className="text-textSecondary text-xs font-medium max-w-[56px] truncate">{p.name}</span>
                   {isHost && !gameInProgress && p.id !== room.hostId && (
                     <button
                       onClick={() => handleKick(p.id)}
-                      className="text-xs text-zinc-600 hover:text-rose-400"
+                      className="text-xs text-textMuted hover:text-error"
                       aria-label={`${t('removePlayer')} ${p.name}`}
                     >
                       ✕
@@ -204,7 +204,7 @@ export default function Room() {
                 </div>
               ))}
             </div>
-            <p className="text-zinc-500 text-sm mt-3">
+            <p className="text-textMuted text-sm mt-3">
               Waiting for players... ({room.players.length}/{game?.maxPlayers ?? 6})
             </p>
           </div>
@@ -213,13 +213,13 @@ export default function Room() {
           <div className="flex gap-3">
             <button
               onClick={handleWhatsApp}
-              className="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-semibold text-sm"
+              className="flex-1 py-3 rounded-xl bg-teal hover:bg-teal text-textPrimary font-semibold text-sm"
             >
               Share on WhatsApp
             </button>
             <button
               onClick={handleCopyLink}
-              className="flex-1 py-3 rounded-xl bg-zinc-700 hover:bg-zinc-600 text-zinc-100 font-semibold text-sm"
+              className="flex-1 py-3 rounded-xl bg-surfaceMuted hover:bg-surfaceMuted text-textPrimary font-semibold text-sm"
             >
               {copied ? '✓ Copied!' : 'Copy Link'}
             </button>
@@ -232,8 +232,8 @@ export default function Room() {
               onClick={() => document.querySelector('.game-area')?.scrollIntoView({ behavior: 'smooth' })}
               className={`w-full py-3 rounded-xl font-bold text-base transition-all ${
                 room.players.length >= 2
-                  ? 'bg-amber-500 text-zinc-900 hover:bg-amber-400'
-                  : 'bg-zinc-700 text-zinc-500 cursor-not-allowed'
+                  ? 'bg-gold text-onGold hover:opacity-90'
+                  : 'bg-surfaceMuted text-textMuted cursor-not-allowed'
               }`}
             >
               {room.players.length < 2 ? 'Need 1 more player' : 'Start Game →'}
@@ -250,8 +250,8 @@ export default function Room() {
                 key={p.id}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold ${
                   p.id === room.hostId
-                    ? 'bg-accent text-zinc-900'
-                    : 'bg-surfaceElevated text-zinc-200 border border-border/60'
+                    ? 'bg-maroon text-onMaroon'
+                    : 'bg-surfaceElevated text-textPrimary border border-border/60'
                 }`}
               >
                 {p.id === room.hostId ? '👑 ' : ''}{p.name}
@@ -269,7 +269,7 @@ export default function Room() {
           <GameComponent code={code} />
         ) : (
           <Card className="p-6 text-center">
-            <p className="text-zinc-400">Game not found: {room.gameSlug}</p>
+            <p className="text-textMuted">Game not found: {room.gameSlug}</p>
           </Card>
         )}
       </div>

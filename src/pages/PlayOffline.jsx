@@ -14,12 +14,12 @@ class ErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center px-6 text-center">
+        <div className="min-h-screen bg-bg text-textPrimary flex flex-col items-center justify-center px-6 text-center">
           <p className="text-5xl mb-4">⚠️</p>
-          <p className="text-xl text-zinc-400">Failed to load game. Check your connection.</p>
+          <p className="text-xl text-textMuted">Failed to load game. Check your connection.</p>
           <button
             onClick={() => { this.setState({ hasError: false }); this.props.onRetry?.() }}
-            className="mt-6 text-amber-400 hover:text-amber-300 text-lg font-medium"
+            className="mt-6 text-gold hover:text-gold text-lg font-medium"
           >
             ← Back to Home
           </button>
@@ -52,12 +52,12 @@ export default function PlayOffline() {
 
   if (!game || !game.Component) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center px-6 text-center">
+      <div className="min-h-screen bg-bg text-textPrimary flex flex-col items-center justify-center px-6 text-center">
         <p className="text-5xl mb-4">🎮</p>
-        <p className="text-xl text-zinc-400">Game not found: {slug}</p>
+        <p className="text-xl text-textMuted">Game not found: {slug}</p>
         <button
           onClick={() => navigate('/')}
-          className="mt-6 text-amber-400 hover:text-amber-300 text-lg font-medium"
+          className="mt-6 text-gold hover:text-gold text-lg font-medium"
         >
           ← Back to Home
         </button>

@@ -1,17 +1,15 @@
 import { useNavigate } from 'react-router-dom'
 import { LangToggle } from './LangToggle'
+import { ThemeToggle } from './ThemeToggle'
 import { useLang } from '../store/LangContext'
-import { useGameTheme } from '../store/GameThemeContext'
 import { saveGameState } from '../services/gameStatePersistence'
 
 /**
- * Shared chrome for offline games: Home button (saves state), language toggle, theme selector.
- * Renders children inside a themed wrapper.
+ * Shared chrome for offline games: Home button (saves state), language toggle, theme toggle.
  */
 export function GameChrome({ slug, gameTitle, state, children }) {
   const navigate = useNavigate()
   const { t } = useLang()
-  const { theme } = useGameTheme()
 
   function handleHome() {
     if (slug && state) {
@@ -21,18 +19,21 @@ export function GameChrome({ slug, gameTitle, state, children }) {
   }
 
   return (
-    <div className={`min-h-screen ${theme.bg} ${theme.text} flex flex-col`}>
-      {/* Top bar: Home (saves state), theme switcher, language toggle */}
-      <header className={`flex items-center justify-between px-4 py-3 ${theme.border} border-b shadow-soft`}>
+    <div className="min-h-screen bg-bg text-textPrimary flex flex-col">
+      <header className="flex items-center justify-between px-4 py-3 border-b border-border shadow-soft bg-surface/80 backdrop-blur-sm">
         <button
           onClick={handleHome}
-          className={`px-4 py-2 rounded-xl ${theme.card} ${theme.cardHover} ${theme.text} text-sm font-semibold border ${theme.border}`}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surfaceElevated hover:bg-surfaceMuted text-textPrimary text-sm font-semibold border border-border transition-colors min-h-[44px]"
           aria-label={t('returnHome')}
         >
-          🏠 {t('returnHome')}
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 11l9-8 9 8" />
+            <path d="M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10" />
+          </svg>
+          {t('returnHome')}
         </button>
         <div className="flex items-center gap-2">
-          <ThemeSwitcher />
+          <ThemeToggle />
           <LangToggle />
         </div>
       </header>
@@ -40,25 +41,5 @@ export function GameChrome({ slug, gameTitle, state, children }) {
         {children}
       </div>
     </div>
-  )
-}
-
-function ThemeSwitcher() {
-  const { themeId, setThemeId, themes } = useGameTheme()
-  const { lang } = useLang()
-
-  return (
-    <select
-      value={themeId}
-      onChange={(e) => setThemeId(e.target.value)}
-      className={`px-3 py-2 rounded-xl text-sm font-medium border ${themes[themeId]?.input || 'bg-zinc-800 border-zinc-600'} ${themes[themeId]?.text || 'text-zinc-100'}`}
-      aria-label="Game theme"
-    >
-      {Object.values(themes).map((t) => (
-        <option key={t.id} value={t.id}>
-          {lang === 'hi' ? t.nameHi : t.name}
-        </option>
-      ))}
-    </select>
   )
 }

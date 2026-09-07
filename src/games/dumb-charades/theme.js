@@ -1,17 +1,18 @@
 /**
- * Dumb Charades UI theme: dark background (#141414) + teal accent (#2CE49D).
- * Matches the reference playing screen (room code, timer, cards, scoreboard).
+ * Dumb Charades Online UI theme — unified onto the app-wide Ivory & Jewel
+ * tokens, terracotta as the accent (matches the offline game and its Home
+ * card). Previously an independent hardcoded-hex palette.
  */
 export const DC = {
-  bg: 'bg-[#141414]',
-  card: 'bg-[#1f1f1f]',
-  cardBorder: 'border-white/10',
-  accent: 'text-[#2CE49D]',
-  accentBg: 'bg-[#2CE49D]',
-  accentBgHover: 'hover:bg-[#34f0a8]',
-  accentBorder: 'border-[#2CE49D]/40',
-  accentMuted: 'bg-[#2CE49D]/20',
-  text: 'text-white',
-  textMuted: 'text-zinc-400',
-  dot: 'text-[#2CE49D]', // bullet for active player/team
+  bg: 'bg-bg',
+  card: 'bg-surfaceElevated',
+  cardBorder: 'border-border',
+  accent: 'text-terracotta',
+  accentBg: 'bg-terracotta',
+  accentBgHover: 'hover:opacity-90',
+  accentBorder: 'border-terracotta/40',
+  accentMuted: 'bg-terracotta/20',
+  text: 'text-textPrimary',
+  textMuted: 'text-textMuted',
+  dot: 'text-terracotta', // bullet for active player/team
 }

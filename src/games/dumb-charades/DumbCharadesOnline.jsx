@@ -310,7 +310,7 @@ function OnlineSetupScreen({ isHost, roomState, setState, players, myId, t, lang
     return (
       <div className={`${DC.card} border ${DC.cardBorder} rounded-2xl p-8 text-center space-y-3`}>
         <p className="text-4xl">⏳</p>
-        <p className="text-white font-semibold">Dumb Charades</p>
+        <p className="text-textPrimary font-semibold">Dumb Charades</p>
         <p className={`${DC.textMuted} text-sm`}>{t('waitingForSetup')}</p>
         <div className={`inline-block ${DC.accentMuted} border ${DC.accentBorder} rounded-xl px-4 py-2 mt-2`}>
           <p className={`${DC.accent} text-sm font-semibold`}>{t('youAreTeam')} {myTeamLabel}</p>
@@ -353,7 +353,7 @@ function OnlineSetupScreen({ isHost, roomState, setState, players, myId, t, lang
           onChange={e => setCustomText(e.target.value)}
           placeholder={t('customMoviesPlaceholder')}
           rows={3}
-          className={`w-full ${DC.card} text-zinc-200 rounded-xl px-4 py-3 text-sm border ${DC.cardBorder} outline-none focus:ring-2 focus:ring-[#2CE49D] resize-none`}
+          className={`w-full ${DC.card} text-textPrimary rounded-xl px-4 py-3 text-sm border ${DC.cardBorder} outline-none focus:ring-2 focus:ring-terracotta/50 resize-none`}
         />
       </SettingGroup>
 
@@ -364,7 +364,7 @@ function OnlineSetupScreen({ isHost, roomState, setState, players, myId, t, lang
       ) : (
         <button
           onClick={handleStartGame}
-          className={`w-full py-4 rounded-2xl ${DC.accentBg} ${DC.accentBgHover} text-[#141414] font-black text-lg transition-colors`}
+          className={`w-full py-4 rounded-2xl ${DC.accentBg} ${DC.accentBgHover} text-onTerracotta font-black text-lg transition-colors`}
         >
           {t('startOnlineGame')}
         </button>
@@ -393,7 +393,7 @@ function ToggleBtn({ active, onClick, children }) {
     <button
       onClick={onClick}
       className={`py-3 rounded-xl text-sm font-bold transition-colors ${
-        active ? `${DC.accentBg} text-[#141414]` : `${DC.card} text-zinc-300 border ${DC.cardBorder}`
+        active ? `${DC.accentBg} text-onTerracotta` : `${DC.card} text-textSecondary border ${DC.cardBorder}`
       }`}
     >
       {children}
@@ -410,10 +410,10 @@ function ScoreboardStrip({ teams, winPoints, currentTeamId }) {
         <div key={tm.id} className={`flex justify-between px-4 py-2 rounded-xl ${
           tm.id === currentTeamId ? `${DC.accentMuted} border ${DC.accentBorder}` : DC.card
         }`}>
-          <span className={`${tm.id === currentTeamId ? DC.dot : ''} text-zinc-200 font-medium`}>
+          <span className={`${tm.id === currentTeamId ? DC.dot : ''} text-textPrimary font-medium`}>
             {tm.id === currentTeamId && '• '}{tm.name}
           </span>
-          <span className="text-white font-bold">{tm.score} / {winPoints ?? 5}</span>
+          <span className="text-textPrimary font-bold">{tm.score} / {winPoints ?? 5}</span>
         </div>
       ))}
     </div>
@@ -433,7 +433,7 @@ function HostEndGameButton({ onConfirm, t }) {
     )
   }
   return (
-    <button onClick={() => setConfirming(true)} className="text-zinc-500 text-xs underline mt-2">
+    <button onClick={() => setConfirming(true)} className="text-textMuted text-xs underline mt-2">
       {t('endGame')}
     </button>
   )
@@ -482,14 +482,14 @@ function OnlineActorPrepScreen({ roomState, sendAction, setState, isHost, t, dev
   return (
     <div className={`flex flex-col items-center justify-center min-h-screen space-y-5 text-center ${DC.bg} ${DC.text}`}>
       <div className={`${DC.accentBg} rounded-2xl px-6 py-3 w-full text-center`}>
-        <p className="text-[#141414] font-black text-2xl">🎬 Your Turn to Act!</p>
-        <p className="text-[#141414]/80 text-sm font-semibold">{currentTeam?.name}</p>
+        <p className="text-onTerracotta font-black text-2xl">🎬 Your Turn to Act!</p>
+        <p className="text-onTerracotta/80 text-sm font-semibold">{currentTeam?.name}</p>
       </div>
       <p className={`${DC.textMuted} text-sm uppercase tracking-wider`}>{t('yourMovieIs')}</p>
 
       <div className={`${DC.card} border ${DC.cardBorder} rounded-3xl px-8 py-6 w-full`}>
         <p
-          className="text-white font-black leading-tight break-words"
+          className="text-textPrimary font-black leading-tight break-words"
           style={{ fontSize: currentMovie.length > 20 ? '1.8rem' : currentMovie.length > 12 ? '2.4rem' : '3rem' }}
         >
           {currentMovie}
@@ -509,17 +509,17 @@ function OnlineActorPrepScreen({ roomState, sendAction, setState, isHost, t, dev
       <button
         onClick={handleReplace}
         disabled={replacementsLeft <= 0}
-        className={`flex items-center gap-2 px-6 py-3 rounded-2xl ${DC.card} border ${DC.cardBorder} hover:bg-[#252525] disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold transition-colors`}
+        className={`flex items-center gap-2 px-6 py-3 rounded-2xl ${DC.card} border ${DC.cardBorder} hover:bg-surfaceMuted disabled:opacity-40 disabled:cursor-not-allowed text-textPrimary font-semibold transition-colors`}
       >
         🔄 {t('replaceWord')}
-        <span className={`${DC.accentBg} text-[#141414] text-xs font-black px-2 py-0.5 rounded-full`}>
+        <span className={`${DC.accentBg} text-onTerracotta text-xs font-black px-2 py-0.5 rounded-full`}>
           {replacementsLeft} {t('replacementsLeft')}
         </span>
       </button>
 
       <button
         onClick={handleReadyToAct}
-        className={`w-full py-5 rounded-2xl ${DC.accentBg} ${DC.accentBgHover} text-[#141414] font-black text-2xl transition-colors`}
+        className={`w-full py-5 rounded-2xl ${DC.accentBg} ${DC.accentBgHover} text-onTerracotta font-black text-2xl transition-colors`}
       >
         🎬 {t('readyToAct')}
       </button>
@@ -558,10 +558,10 @@ function GuesserWaitScreen({ roomState, t }) {
           <div key={tm.id} className={`flex justify-between px-4 py-3 rounded-xl ${
             tm.id === roomState.currentTeamId ? `${DC.accentMuted} border ${DC.accentBorder}` : DC.card
           }`}>
-            <span className={`${tm.id === roomState.currentTeamId ? DC.dot : ''} text-zinc-200 font-medium`}>
+            <span className={`${tm.id === roomState.currentTeamId ? DC.dot : ''} text-textPrimary font-medium`}>
               {tm.id === roomState.currentTeamId && '• '}{tm.name}
             </span>
-            <span className="text-white font-bold">{tm.score}</span>
+            <span className="text-textPrimary font-bold">{tm.score}</span>
           </div>
         ))}
       </div>
@@ -606,7 +606,7 @@ function OnlineActorActingScreen({ roomState, sendAction, setState, isHost, t, d
 
       <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
         <p
-          className="text-white font-black leading-tight break-words"
+          className="text-textPrimary font-black leading-tight break-words"
           style={{ fontSize: currentMovie.length > 20 ? '2rem' : currentMovie.length > 12 ? '2.8rem' : '3.8rem' }}
         >
           {currentMovie}
@@ -616,7 +616,7 @@ function OnlineActorActingScreen({ roomState, sendAction, setState, isHost, t, d
       <div className="px-5 pb-4 pt-4">
         <button
           onPointerDown={handleCorrect}
-          className={`w-full ${DC.accentBg} ${DC.accentBgHover} active:opacity-90 text-[#141414] py-8 rounded-2xl text-3xl font-black select-none`}
+          className={`w-full ${DC.accentBg} ${DC.accentBgHover} active:opacity-90 text-onTerracotta py-8 rounded-2xl text-3xl font-black select-none`}
         >
           ✓ {t('correct')}
         </button>
@@ -675,10 +675,10 @@ function GuesserTimerScreen({ roomState, sendAction, isHost, t, devMode }) {
           <div key={tm.id} className={`flex justify-between px-4 py-3 rounded-xl ${
             tm.id === roomState.currentTeamId ? `${DC.accentMuted} border ${DC.accentBorder}` : DC.card
           }`}>
-            <span className={`${tm.id === roomState.currentTeamId ? DC.dot : ''} text-zinc-200 font-medium`}>
+            <span className={`${tm.id === roomState.currentTeamId ? DC.dot : ''} text-textPrimary font-medium`}>
               {tm.id === roomState.currentTeamId && '• '}{tm.name}
             </span>
-            <span className="text-white font-bold">{tm.score} / {roomState.settings?.winPoints ?? 5}</span>
+            <span className="text-textPrimary font-bold">{tm.score} / {roomState.settings?.winPoints ?? 5}</span>
           </div>
         ))}
       </div>
@@ -714,7 +714,7 @@ function OnlineTurnResultScreen({ roomState, isCurrentActor, sendAction, setStat
         </p>
         {!isCorrect && pointTeam && (
           <p className={DC.textMuted}>
-            {t('pointsTo')}: <span className="text-white font-bold">{pointTeam.name}</span>
+            {t('pointsTo')}: <span className="text-textPrimary font-bold">{pointTeam.name}</span>
           </p>
         )}
       </div>
@@ -724,7 +724,7 @@ function OnlineTurnResultScreen({ roomState, isCurrentActor, sendAction, setStat
           <div
             key={tm.id}
             className={`flex justify-between items-center rounded-2xl px-5 py-3 ${
-              tm.id === lastTurnResult.pointsTo ? `${DC.accentBg} text-[#141414]` : DC.card
+              tm.id === lastTurnResult.pointsTo ? `${DC.accentBg} text-onTerracotta` : DC.card
             }`}
           >
             <span className="font-bold">{tm.name}</span>
@@ -739,7 +739,7 @@ function OnlineTurnResultScreen({ roomState, isCurrentActor, sendAction, setStat
       {isCurrentActor && (
         <button
           onClick={handleNextTurn}
-          className={`w-full py-4 rounded-2xl ${DC.accentBg} ${DC.accentBgHover} text-[#141414] font-black text-lg transition-colors`}
+          className={`w-full py-4 rounded-2xl ${DC.accentBg} ${DC.accentBgHover} text-onTerracotta font-black text-lg transition-colors`}
         >
           {t('nextTurn')}
         </button>
@@ -788,7 +788,7 @@ function OnlineGameOverScreen({ roomState, myId, room, t, tApp }) {
             <div
               key={tm.id}
               className={`rounded-2xl px-5 py-4 flex justify-between items-center ${
-                isW ? `${DC.accentBg} text-[#141414]` : DC.card
+                isW ? `${DC.accentBg} text-onTerracotta` : DC.card
               }`}
             >
               <span className="text-xl font-black">

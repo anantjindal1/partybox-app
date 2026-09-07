@@ -2,18 +2,76 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ivory & Jewel design tokens — light theme is the default surface. */
+:root {
+  --color-bg: #FBF3E7;
+  --color-surface: #FFFDF8;
+  --color-surface-elevated: #FFFFFF;
+  --color-surface-muted: #F3E6D3;
+  --color-border: #E9D7BE;
+  --color-border-muted: #D8C2A0;
+  --color-text-primary: #2B1116;
+  --color-text-secondary: #5B4038;
+  --color-text-muted: #7A5F58;
+  --color-accent-maroon: #7A1F2B;
+  --color-accent-gold: #B8873E;
+  --color-accent-teal: #146A58;
+  --color-accent-terracotta: #A6402F;
+  --color-error: #D64545;
+  --hero-overlay-1: rgba(251, 243, 231, 0.55);
+  --hero-overlay-2: rgba(251, 243, 231, 0.78);
+  --hero-overlay-3: rgba(251, 243, 231, 1);
+  /* Text color for content sitting ON TOP of a filled accent (not the accent's own text color) */
+  --on-gold: #2B1116;
+  --on-teal: #FBF3E7;
+  --on-terracotta: #FBF3E7;
+  --on-maroon: #FBF3E7;
+}
+
+/* Dark theme — same hue family, values tuned for a dark ground, not a straight invert. */
+[data-theme='dark'] {
+  --color-bg: #1C0F13;
+  --color-surface: #2B1A1F;
+  --color-surface-elevated: #35212A;
+  --color-surface-muted: #3A232A;
+  --color-border: #473425;
+  --color-border-muted: #61492F;
+  --color-text-primary: #F3E7D9;
+  --color-text-secondary: #D9C3B0;
+  --color-text-muted: #B79A8A;
+  --color-accent-maroon: #A83A52;
+  --color-accent-gold: #C9A15A;
+  --color-accent-teal: #2B8A73;
+  --color-accent-terracotta: #C2543E;
+  --color-error: #E05B4C;
+  --hero-overlay-1: rgba(28, 15, 19, 0.55);
+  --hero-overlay-2: rgba(28, 15, 19, 0.78);
+  --hero-overlay-3: rgba(28, 15, 19, 1);
+  --on-gold: #1C0F13;
+  --on-teal: #0B2A24;
+  --on-terracotta: #2B1116;
+  --on-maroon: #F3E7D9;
+}
+
 /* Base: comfortable reading size, smooth font */
 html {
   font-size: 18px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: var(--color-bg);
+  color-scheme: light;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
 }
 
 body {
-  @apply bg-surface text-zinc-100;
+  @apply bg-bg text-textPrimary;
 }
 
-/* Focus rings for accessibility, aligned with accent */
+/* Focus rings for accessibility, aligned with the gold accent */
 *:focus-visible {
-  @apply outline-none ring-2 ring-amber-500/50 ring-offset-2 ring-offset-surface;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-accent-gold);
 }

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LangToggle } from '../components/LangToggle'
+import { ThemeToggle } from '../components/ThemeToggle'
 import { CreateRoomSheet } from '../components/CreateRoomSheet'
 import { Card } from '../components/Card'
 import { Button } from '../components/Button'
@@ -30,14 +31,95 @@ const COMING_SOON_SLOTS = 0
 //   online: ['firstbell'],
 // }
 
+// Each flagship game owns one accent color as its identity — used consistently
+// for its card border, mode label, and CTA. Literal class strings (not
+// template-interpolated) so Tailwind's content scanner picks them up.
+const ACCENT_STYLES = {
+  teal: {
+    border: 'border-teal',
+    iconRing: 'border-teal text-teal',
+    tab: 'text-teal border-teal',
+    cta: 'bg-teal text-onTeal'
+  },
+  terracotta: {
+    border: 'border-terracotta',
+    iconRing: 'border-terracotta text-terracotta',
+    tab: 'text-terracotta border-terracotta',
+    cta: 'bg-terracotta text-onTerracotta'
+  },
+  gold: {
+    border: 'border-gold',
+    iconRing: 'border-gold text-gold',
+    tab: 'text-gold border-gold',
+    cta: 'bg-gold text-onGold'
+  }
+}
+
+function BoltIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" {...props}>
+      <path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" />
+    </svg>
+  )
+}
+function ClapperboardIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M3 8l1.5-4h4L7 8" /><path d="M7 8l1.5-4h4L11 8" /><path d="M11 8l1.5-4h4L15 8" />
+      <rect x="3" y="8" width="18" height="12" rx="1.5" />
+    </svg>
+  )
+}
+function BellIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.7 21a2 2 0 01-3.4 0" />
+    </svg>
+  )
+}
+function SoloIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" {...props}>
+      <circle cx="12" cy="8" r="3.2" /><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7" />
+    </svg>
+  )
+}
+function PartyIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" {...props}>
+      <circle cx="9" cy="8" r="3" /><circle cx="16" cy="9" r="2.6" />
+      <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" /><path d="M14 20c.3-2.6 2-4.6 4.3-5.4" />
+    </svg>
+  )
+}
+function SignalIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" {...props}>
+      <path d="M4 10a12 12 0 0116 0" /><path d="M7.5 13.5a7.5 7.5 0 019 0" />
+      <circle cx="12" cy="18" r="1.4" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+function LogoMark({ size = 26 }) {
+  return (
+    <svg viewBox="0 0 30 30" width={size} height={size}>
+      <circle cx="15" cy="15" r="14" fill="none" stroke="var(--color-accent-gold)" strokeWidth="1.5" />
+      <circle cx="15" cy="15" r="9" fill="var(--color-accent-maroon)" />
+      <path d="M12 11l7 4-7 4v-8z" fill="var(--color-bg)" />
+    </svg>
+  )
+}
+
 // Static card definitions for the vertical game stack
 const VISIBLE_GAMES = [
   {
     slug: 'thinkfast',
-    icon: '🧠',
+    icon: BoltIcon,
     title: 'ThinkFast',
-    modeBadge: 'Solo 👤',
-    modeBadgeClass: 'bg-zinc-700 text-zinc-300',
+    modeBadge: 'Solo',
+    modeIcon: SoloIcon,
+    accent: 'teal',
     description: '10 questions, answer as fast as you can',
     playersPill: '1 player',
     timePill: '~3 mins',
@@ -46,10 +128,11 @@ const VISIBLE_GAMES = [
   },
   {
     slug: 'dumb-charades-offline',
-    icon: '🎬',
+    icon: ClapperboardIcon,
     title: 'Dumb Charades',
-    modeBadge: 'Party 🎉',
-    modeBadgeClass: 'bg-zinc-700 text-zinc-300',
+    modeBadge: 'Party',
+    modeIcon: PartyIcon,
+    accent: 'terracotta',
     description: 'Act out Bollywood movies, songs & more',
     playersPill: '2+ players',
     timePill: 'Pass the phone',
@@ -58,10 +141,11 @@ const VISIBLE_GAMES = [
   },
   {
     slug: 'firstbell',
-    icon: '🔔',
+    icon: BellIcon,
     title: 'FirstBell',
-    modeBadge: 'Online 📡',
-    modeBadgeClass: 'bg-blue-900/60 text-blue-400',
+    modeBadge: 'Online',
+    modeIcon: SignalIcon,
+    accent: 'gold',
     description: 'Live quiz battle with friends online',
     playersPill: '2-6 players',
     timePill: '~5 mins',
@@ -185,7 +269,7 @@ export default function Home() {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen text-zinc-100 flex flex-col relative overflow-x-hidden">
+    <div className="min-h-screen text-textPrimary flex flex-col relative overflow-x-hidden">
 
       {/* ── Background ───────────────────────────────────────────────────────── */}
       <div className="absolute inset-0 z-0" aria-hidden>
@@ -201,7 +285,7 @@ export default function Home() {
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.65) 50%, rgba(0,0,0,0.75) 100%)',
+              'linear-gradient(180deg, var(--hero-overlay-1) 0%, var(--hero-overlay-2) 50%, var(--hero-overlay-3) 100%)',
           }}
         />
       </div>
@@ -217,32 +301,34 @@ export default function Home() {
         )}
 
         {/* ── Header ─────────────────────────────────────────────────────────── */}
-        <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border/60 shadow-soft bg-surface/80 backdrop-blur-sm">
+        <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border shadow-soft bg-surface/80 backdrop-blur-sm">
           <div className="flex items-center gap-3">
-            <span className="text-2xl" aria-hidden>🎉</span>
-            <h1 className="text-xl font-bold text-white tracking-tight">PartyBox</h1>
+            <LogoMark />
+            <h1 className="text-xl font-bold font-display tracking-tight">PartyBox</h1>
           </div>
           <div className="flex items-center gap-2">
             {profile && (
               <button
                 onClick={() => navigate('/profile')}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-surfaceElevated text-zinc-300 hover:bg-surfaceMuted hover:text-white transition-colors text-sm font-medium border border-border/60"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-surfaceElevated text-textSecondary hover:bg-surfaceMuted hover:text-textPrimary transition-colors text-sm font-medium border border-border min-h-[44px]"
                 aria-label={t('profile')}
               >
                 <span className="text-lg">{profile.avatar}</span>
                 <span className="hidden sm:inline max-w-[100px] truncate">{profile.name}</span>
-                <span className="text-accent font-semibold">{profile.xp}</span>
-                <span className="text-zinc-500 text-xs">{t('xp')}</span>
+                <span className="text-gold font-semibold">{profile.xp}</span>
+                <span className="text-textMuted text-xs">{t('xp')}</span>
               </button>
             )}
+            <ThemeToggle />
             <LangToggle />
           </div>
         </header>
 
         {/* ── Offline banner ─────────────────────────────────────────────────── */}
         {!online && (
-          <div className="mx-4 sm:mx-6 mt-3 py-2 px-4 rounded-xl bg-accentSoft border border-accent/30 text-accent text-sm font-medium text-center">
-            📴 Offline mode — all games work offline
+          <div className="mx-4 sm:mx-6 mt-3 py-2 px-4 rounded-xl bg-surfaceMuted border border-gold/30 text-gold text-sm font-medium text-center flex items-center justify-center gap-2">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 10a12 12 0 0116 0M7.5 13.5a7.5 7.5 0 019 0" strokeOpacity="0.4" /><path d="M1 1l22 22" /></svg>
+            Offline mode — all games work offline
           </div>
         )}
 
@@ -251,10 +337,10 @@ export default function Home() {
           {/* ── Hero (new users only, no in-progress games) ─────────────────── */}
           {showHero && (
             <div className="text-center mb-8 pt-2">
-              <p className="text-2xl font-bold text-white">
-                Party games for every situation 🎉
+              <p className="text-2xl font-bold font-display">
+                Party games for every situation
               </p>
-              <p className="text-sm text-zinc-400 mt-2">
+              <p className="text-sm text-textMuted mt-2">
                 Play solo, pass the phone, or challenge friends online
               </p>
             </div>
@@ -263,7 +349,7 @@ export default function Home() {
           {/* ── In-progress games strip ─────────────────────────────────────── */}
           {inProgressGames.length > 0 && (
             <div className="mb-6">
-              <p className="text-accent text-sm font-semibold mb-3 uppercase tracking-wider">
+              <p className="text-gold text-sm font-semibold mb-3 uppercase tracking-wider">
                 {t('gamesInProgress')}
               </p>
               <div className="flex flex-wrap gap-3">
@@ -276,9 +362,9 @@ export default function Home() {
                     <Card
                       key={g.slug}
                       onClick={() => navigate(`/play/${g.slug}`)}
-                      className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-accent !bg-surfaceElevated/70 backdrop-blur-sm"
+                      className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-gold !bg-surfaceElevated/70 backdrop-blur-sm"
                     >
-                      <span>▶</span>
+                      <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
                       <span>{title}</span>
                     </Card>
                   )
@@ -287,93 +373,14 @@ export default function Home() {
             </div>
           )}
 
-          {/* TODO: restore tabs when game count > 5 */}
-          {/* <div className="flex border-b border-zinc-700/50 mb-6">
-            {TABS.map(tab => (
-              <button
-                key={tab.key}
-                onClick={() => selectTab(tab.key)}
-                className={`flex-1 flex items-center justify-center gap-1.5 pb-3 pt-1 text-sm font-semibold transition-colors relative ${
-                  activeTab === tab.key
-                    ? 'text-white'
-                    : 'text-zinc-500 hover:text-zinc-300'
-                }`}
-              >
-                <span>{tab.emoji}</span>
-                <span>{tab.label}</span>
-                {activeTab === tab.key && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-zinc-200 rounded-full" />
-                )}
-              </button>
-            ))}
-          </div> */}
-
-          {/* TODO: restore tabs when game count > 5 */}
-          {/* <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-3xl">
-            {tabGames.map(game => {
-              const isOnlineTab = activeTab === 'online'
-              const disabled = isOnlineTab && (!online || !profile)
-              const gameTitle =
-                typeof game.title === 'object' ? game.title[lang] : game.title
-              return (
-                <Card
-                  key={game.slug}
-                  onClick={
-                    disabled
-                      ? undefined
-                      : () =>
-                          isOnlineTab
-                            ? setSelectedGame(game)
-                            : handlePlayGame(game)
-                  }
-                  className={`group flex flex-col items-center justify-center p-6 text-left min-h-[160px] !bg-surfaceElevated/70 backdrop-blur-sm ${
-                    disabled ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                >
-                  <span className="text-4xl sm:text-5xl mb-3 block" aria-hidden>
-                    {game.icon}
-                  </span>
-                  <span className={`text-lg font-bold text-white transition-colors ${
-                    !disabled ? isOnlineTab ? 'group-hover:text-blue-400' : 'group-hover:text-accent' : ''
-                  }`}>
-                    {gameTitle}
-                  </span>
-                  <span className="text-xs text-zinc-500 mt-1">
-                    {game.minPlayers}–{game.maxPlayers} {t('players')}
-                  </span>
-                  <span className={`mt-3 inline-flex items-center gap-1.5 text-sm font-semibold ${
-                    isOnlineTab ? 'text-blue-400' : 'text-accent'
-                  }`}>
-                    {isOnlineTab ? '📡' : '▶'}{' '}
-                    {isOnlineTab ? t('createRoom') : t('play')}
-                  </span>
-                  {isOnlineTab && !online && (
-                    <span className="mt-1 text-xs text-zinc-500">
-                      {t('needsInternet')}
-                    </span>
-                  )}
-                </Card>
-              )
-            })}
-            {activeTab === 'solo' &&
-              Array.from({ length: COMING_SOON_SLOTS }, (_, i) => (
-                <div
-                  key={`coming-soon-${i}`}
-                  className="flex flex-col items-center justify-center p-6 rounded-2xl bg-surfaceElevated/50 backdrop-blur-sm border border-border/40 min-h-[160px] cursor-default"
-                >
-                  <span className="text-3xl sm:text-4xl mb-3 text-zinc-600">🎮</span>
-                  <span className="text-sm font-medium text-zinc-500">
-                    {t('comingSoon')}
-                  </span>
-                </div>
-              ))}
-          </div> */}
-
           {/* ── Vertical game cards stack ────────────────────────────────────── */}
           <div className="flex flex-col gap-3 max-w-lg">
             {VISIBLE_GAMES.map(card => {
               const game = games.find(g => g.slug === card.slug)
               const disabled = card.isOnline && (!online || !profile)
+              const accent = ACCENT_STYLES[card.accent]
+              const Icon = card.icon
+              const ModeIcon = card.modeIcon
 
               function handleClick() {
                 if (disabled || !game) return
@@ -389,42 +396,41 @@ export default function Home() {
                   key={card.slug}
                   onClick={handleClick}
                   disabled={disabled}
-                  className={`w-full text-left bg-zinc-800/80 border border-zinc-700/50 rounded-2xl px-4 py-4 transition-colors ${
+                  className={`w-full text-left bg-surfaceElevated border-[1.5px] rounded-2xl px-4 py-4 transition-colors ${accent.border} ${
                     disabled
                       ? 'opacity-50 cursor-not-allowed'
-                      : 'hover:bg-zinc-700/80 hover:border-zinc-600/60 active:scale-[0.99]'
+                      : 'hover:bg-surfaceMuted active:scale-[0.99]'
                   }`}
                 >
-                  {/* Row 1: icon + title + mode badge */}
+                  {/* Row 1: icon + title + mode label */}
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl leading-none">{card.icon}</span>
-                      <span className="text-base font-bold text-white">{card.title}</span>
+                      <div className={`w-9 h-9 rounded-full border-[1.5px] flex items-center justify-center ${accent.iconRing}`}>
+                        <Icon />
+                      </div>
+                      <span className="text-base font-bold text-textPrimary">{card.title}</span>
                     </div>
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${card.modeBadgeClass}`}>
+                    <span className={`flex items-center gap-1 text-xs font-semibold border-b-[1.5px] pb-0.5 ${accent.tab}`}>
+                      <ModeIcon />
                       {card.modeBadge}
                     </span>
                   </div>
 
                   {/* Row 2: description */}
-                  <p className="text-zinc-400 text-sm mb-3 leading-snug">
+                  <p className="text-textMuted text-sm mb-3 leading-snug">
                     {card.description}
                   </p>
 
                   {/* Row 3: pills + CTA */}
                   <div className="flex items-center gap-2">
-                    <span className="bg-zinc-700/60 rounded-full px-2 py-0.5 text-xs text-zinc-400">
+                    <span className="border border-border rounded-full px-2 py-0.5 text-xs text-textMuted">
                       {card.playersPill}
                     </span>
-                    <span className="bg-zinc-700/60 rounded-full px-2 py-0.5 text-xs text-zinc-400">
+                    <span className="border border-border rounded-full px-2 py-0.5 text-xs text-textMuted">
                       {card.timePill}
                     </span>
                     <span
-                      className={`ml-auto text-xs font-semibold px-3 py-1.5 rounded-xl ${
-                        card.isOnline
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-amber-500 text-zinc-900'
-                      }`}
+                      className={`ml-auto text-xs font-semibold px-3 py-1.5 rounded-xl min-h-[36px] flex items-center ${accent.cta}`}
                     >
                       {card.cta}
                     </span>
@@ -432,7 +438,7 @@ export default function Home() {
 
                   {/* Offline notice for online game */}
                   {card.isOnline && !online && (
-                    <p className="mt-2 text-xs text-zinc-500">{t('needsInternet')}</p>
+                    <p className="mt-2 text-xs text-textMuted">{t('needsInternet')}</p>
                   )}
                 </button>
               )
@@ -446,15 +452,16 @@ export default function Home() {
           <div className="flex flex-col items-center">
             <button
               onClick={() => setJoinOpen(!joinOpen)}
-              className="text-zinc-500 hover:text-zinc-300 text-sm font-medium flex items-center gap-2 transition-colors"
+              className="text-textMuted hover:text-textPrimary text-sm font-medium flex items-center gap-2 transition-colors min-h-[44px]"
               aria-label={t('joinRoom')}
             >
-              🚪 {t('joinRoom')}
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4" /><path d="M10 17l5-5-5-5" /><path d="M15 12H3" /></svg>
+              {t('joinRoom')}
             </button>
 
             {joinOpen && (
               <Card className="mt-4 w-full max-w-xs flex flex-col items-center gap-3 p-4 !bg-surfaceElevated/80 backdrop-blur-sm">
-                <p className="text-zinc-400 text-sm">{t('enterCode')}</p>
+                <p className="text-textMuted text-sm">{t('enterCode')}</p>
                 <Input
                   type="text"
                   value={joinCode}
@@ -464,7 +471,7 @@ export default function Home() {
                   className="w-32 text-2xl font-bold text-center tracking-widest"
                 />
                 {error && (
-                  <p className="text-red-400 text-sm text-center">{error}</p>
+                  <p className="text-error text-sm text-center">{error}</p>
                 )}
                 <div className="flex gap-2">
                   <button
@@ -473,7 +480,7 @@ export default function Home() {
                       setError('')
                       setJoinCode('')
                     }}
-                    className="px-4 py-2 rounded-xl text-zinc-400 hover:text-white text-sm font-medium"
+                    className="px-4 py-2 rounded-xl text-textMuted hover:text-textPrimary text-sm font-medium min-h-[44px]"
                   >
                     {t('back')}
                   </button>
@@ -495,9 +502,10 @@ export default function Home() {
             href="https://wa.me/+919001290623?text=PartyBox%20feedback%3A%20"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-zinc-500 text-center hover:text-zinc-300 transition-colors py-4 block w-full"
+            className="text-xs text-textMuted text-center hover:text-textPrimary transition-colors py-4 flex items-center justify-center gap-1.5 w-full"
           >
-            💬 Share feedback
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.5 8.5 0 01-8.5 8.5c-1.3 0-2.5-.3-3.6-.8L3 21l1.8-5.9A8.5 8.5 0 1121 11.5z" /></svg>
+            Share feedback
           </a>
         </main>
       </div>
@@ -505,7 +513,7 @@ export default function Home() {
       {/* ── Onboarding Carousel (first launch only) ─────────────────────────── */}
       {showCarousel && (
         <div
-          className="fixed inset-0 z-50 bg-zinc-900/95 flex flex-col select-none"
+          className="fixed inset-0 z-50 bg-bg flex flex-col select-none"
           onTouchStart={handleCarouselTouchStart}
           onTouchEnd={handleCarouselTouchEnd}
         >
@@ -514,7 +522,7 @@ export default function Home() {
             {carouselSlide < 2 && (
               <button
                 onClick={() => dismissCarousel(false)}
-                className="text-zinc-400 text-sm font-medium hover:text-zinc-200 transition-colors"
+                className="text-textMuted text-sm font-medium hover:text-textPrimary transition-colors min-h-[44px]"
               >
                 Skip
               </button>
@@ -526,11 +534,11 @@ export default function Home() {
 
             {carouselSlide === 0 && (
               <>
-                <p className="text-8xl mb-6 leading-none">🎉</p>
-                <h2 className="text-2xl font-bold text-white mb-3">
+                <div className="mb-6"><LogoMark size={72} /></div>
+                <h2 className="text-2xl font-bold font-display mb-3">
                   Welcome to PartyBox
                 </h2>
-                <p className="text-zinc-400 text-base leading-relaxed max-w-xs">
+                <p className="text-textMuted text-base leading-relaxed max-w-xs">
                   A collection of party games you can play anywhere — solo,
                   with friends in the same room, or with people online.
                 </p>
@@ -539,27 +547,29 @@ export default function Home() {
 
             {carouselSlide === 1 && (
               <>
-                <h2 className="text-2xl font-bold text-white mb-6">
+                <h2 className="text-2xl font-bold font-display mb-6">
                   3 games, every situation
                 </h2>
                 <div className="flex gap-3 mb-6 justify-center">
                   {[
-                    { icon: '🧩', name: 'ThinkFast' },
-                    { icon: '🎭', name: 'Dumb Charades' },
-                    { icon: '⚡', name: 'FirstBell' },
+                    { Icon: BoltIcon, name: 'ThinkFast', accent: 'teal' },
+                    { Icon: ClapperboardIcon, name: 'Dumb Charades', accent: 'terracotta' },
+                    { Icon: BellIcon, name: 'FirstBell', accent: 'gold' },
                   ].map(g => (
                     <div
                       key={g.name}
-                      className="flex flex-col items-center gap-2 bg-zinc-800/80 border border-zinc-700/50 rounded-2xl px-3 py-4 min-w-[80px]"
+                      className={`flex flex-col items-center gap-2 bg-surfaceElevated border-[1.5px] rounded-2xl px-3 py-4 min-w-[80px] ${ACCENT_STYLES[g.accent].border}`}
                     >
-                      <span className="text-3xl leading-none">{g.icon}</span>
-                      <span className="text-xs text-zinc-300 font-medium text-center leading-tight">
+                      <div className={ACCENT_STYLES[g.accent].iconRing.split(' ')[1]}>
+                        <g.Icon width="26" height="26" />
+                      </div>
+                      <span className="text-xs text-textSecondary font-medium text-center leading-tight">
                         {g.name}
                       </span>
                     </div>
                   ))}
                 </div>
-                <p className="text-zinc-400 text-base leading-relaxed max-w-xs">
+                <p className="text-textMuted text-base leading-relaxed max-w-xs">
                   Quiz yourself solo, act out Bollywood movies at a party,
                   or race friends online.
                 </p>
@@ -568,11 +578,11 @@ export default function Home() {
 
             {carouselSlide === 2 && (
               <>
-                <p className="text-8xl mb-6 leading-none">👤</p>
-                <h2 className="text-2xl font-bold text-white mb-3">
+                <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="var(--color-accent-maroon)" strokeWidth="1.6" strokeLinecap="round" className="mb-6 mx-auto"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" /></svg>
+                <h2 className="text-2xl font-bold font-display mb-3">
                   First, what&apos;s your name?
                 </h2>
-                <p className="text-zinc-400 text-base leading-relaxed max-w-xs">
+                <p className="text-textMuted text-base leading-relaxed max-w-xs">
                   Pick a name and avatar to track your scores and challenge
                   friends.
                 </p>
@@ -586,7 +596,7 @@ export default function Home() {
               <span
                 key={i}
                 className={`w-2 h-2 rounded-full transition-colors duration-200 ${
-                  i === carouselSlide ? 'bg-white' : 'bg-zinc-600'
+                  i === carouselSlide ? 'bg-gold' : 'bg-surfaceMuted'
                 }`}
               />
             ))}
@@ -597,16 +607,16 @@ export default function Home() {
             {carouselSlide < 2 ? (
               <button
                 onClick={nextCarouselSlide}
-                className="w-full py-4 rounded-2xl bg-white text-zinc-900 font-bold text-base hover:bg-zinc-100 active:scale-[0.98] transition-all"
+                className="w-full py-4 rounded-2xl bg-maroon text-onMaroon font-bold text-base hover:opacity-90 active:scale-[0.98] transition-all"
               >
                 Next →
               </button>
             ) : (
               <button
                 onClick={() => dismissCarousel(true)}
-                className="w-full py-4 rounded-2xl bg-white text-zinc-900 font-bold text-base hover:bg-zinc-100 active:scale-[0.98] transition-all"
+                className="w-full py-4 rounded-2xl bg-maroon text-onMaroon font-bold text-base hover:opacity-90 active:scale-[0.98] transition-all"
               >
-                {"Let's Go! 🎉"}
+                Let&apos;s Go!
               </button>
             )}
           </div>

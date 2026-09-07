@@ -2,20 +2,38 @@ export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        display: ['"Rozha One"', 'Georgia', '"Times New Roman"', 'serif']
+      },
       colors: {
-        surface: '#0f172a',
-        surfaceElevated: '#1e293b',
-        surfaceMuted: '#334155',
-        accent: '#f59e0b',
-        accentMuted: '#fbbf24',
-        accentSoft: 'rgba(245, 158, 11, 0.15)',
-        border: '#334155',
-        borderMuted: '#475569'
+        bg: 'var(--color-bg)',
+        surface: 'var(--color-surface)',
+        surfaceElevated: 'var(--color-surface-elevated)',
+        surfaceMuted: 'var(--color-surface-muted)',
+        border: 'var(--color-border)',
+        borderMuted: 'var(--color-border-muted)',
+        textPrimary: 'var(--color-text-primary)',
+        textSecondary: 'var(--color-text-secondary)',
+        textMuted: 'var(--color-text-muted)',
+        maroon: 'var(--color-accent-maroon)',
+        gold: 'var(--color-accent-gold)',
+        teal: 'var(--color-accent-teal)',
+        terracotta: 'var(--color-accent-terracotta)',
+        error: 'var(--color-error)',
+        onGold: 'var(--on-gold)',
+        onTeal: 'var(--on-teal)',
+        onTerracotta: 'var(--on-terracotta)',
+        onMaroon: 'var(--on-maroon)',
+        // Legacy aliases so a broad rename can happen incrementally without
+        // breaking every call site in one commit.
+        accent: 'var(--color-accent-maroon)',
+        accentMuted: 'var(--color-accent-gold)',
+        accentSoft: 'var(--color-surface-muted)'
       },
       boxShadow: {
-        soft: '0 2px 8px rgba(0, 0, 0, 0.15)',
-        card: '0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1)',
-        'card-hover': '0 8px 24px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.15)'
+        soft: '0 2px 8px rgba(43, 17, 22, 0.12)',
+        card: '0 4px 12px rgba(43, 17, 22, 0.14), 0 2px 4px rgba(43, 17, 22, 0.08)',
+        'card-hover': '0 8px 24px rgba(43, 17, 22, 0.18), 0 4px 8px rgba(43, 17, 22, 0.1)'
       },
       keyframes: {
         'fade-in': {
