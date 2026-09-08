@@ -10,6 +10,7 @@ import thinkFastMeta from './thinkfast/metadata.js'
 import categoriesMeta from './categories/metadata.js'
 import numberChainMeta from './number-chain/metadata.js'
 import firstBellMeta from './firstbell/metadata.js'
+import rajaMantriMeta from './raja-mantri/metadata.js'
 
 // Lazy-loaded game components — each game is a separate JS chunk.
 // This keeps the initial bundle small for low-end devices.
@@ -24,6 +25,7 @@ const ThinkFast           = lazy(() => import('./thinkfast/ThinkFast.jsx'))
 const AtoZDhamaka         = lazy(() => import('./categories/AtoZDhamaka.jsx'))
 const NumberChain         = lazy(() => import('./number-chain/index.jsx'))
 const FirstBell           = lazy(() => import('./firstbell/index.jsx'))
+const RajaMantri          = lazy(() => import('./raja-mantri/index.jsx'))
 
 export const games = [
   { ...luckyNumberMeta,         Component: LuckyNumber },
@@ -36,7 +38,8 @@ export const games = [
   { ...desiMemoryMasterMeta,    Component: DesiMemoryMaster },
   { ...bollywoodEmojiGuessMeta, Component: BollywoodEmojiGuess },
   { ...thinkFastMeta,           Component: ThinkFast },
-  { ...categoriesMeta,          Component: AtoZDhamaka }
+  { ...categoriesMeta,          Component: AtoZDhamaka },
+  { ...rajaMantriMeta,          Component: RajaMantri }
 ]
 
 export function getGame(slug) {

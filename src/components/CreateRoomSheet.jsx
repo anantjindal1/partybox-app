@@ -4,6 +4,17 @@ import { useLang } from '../store/LangContext'
 import { useProfile } from '../hooks/useProfile'
 import { createRoom } from '../services/room'
 import { Card } from './Card'
+import { getGameIcon, DiceIcon } from './gameIcons'
+
+function TrophyIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M8 4h8v5a4 4 0 01-8 0V4z" />
+      <path d="M8 5H5a3 3 0 003 3M16 5h3a3 3 0 01-3 3" />
+      <path d="M12 13v3M9 20h6M10 16.5h4v3.5h-4z" />
+    </svg>
+  )
+}
 
 export function CreateRoomSheet({ game, onClose }) {
   const navigate = useNavigate()
@@ -36,6 +47,7 @@ export function CreateRoomSheet({ game, onClose }) {
   const gameTitle = typeof game.title === 'object'
     ? (game.title[lang] || game.title.en || game.slug)
     : game.title
+  const GameIcon = getGameIcon(game.slug)
 
   return (
     <>
@@ -53,7 +65,9 @@ export function CreateRoomSheet({ game, onClose }) {
 
         {/* Game header */}
         <div className="flex items-center gap-3 mb-6">
-          <span className="text-4xl">{game.icon}</span>
+          <div className="w-11 h-11 rounded-full border-[1.5px] border-border flex items-center justify-center text-textPrimary flex-shrink-0">
+            <GameIcon width="20" height="20" />
+          </div>
           <div>
             <p className="text-textPrimary text-lg font-bold">{gameTitle}</p>
             <p className="text-textMuted text-sm">
@@ -72,7 +86,7 @@ export function CreateRoomSheet({ game, onClose }) {
             onClick={loading ? undefined : () => handleSelect('casual')}
             className={`w-full flex items-center gap-4 p-4 text-left ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            <span className="text-3xl">🎲</span>
+            <DiceIcon width="24" height="24" className="text-textMuted flex-shrink-0" />
             <div>
               <p className="text-textPrimary font-bold">{t('casualRoom')}</p>
               <p className="text-textMuted text-sm">{t('casualDesc')}</p>
@@ -83,7 +97,7 @@ export function CreateRoomSheet({ game, onClose }) {
             onClick={loading ? undefined : () => handleSelect('ranked')}
             className={`w-full flex items-center gap-4 p-4 text-left border-gold/40 hover:border-gold/60 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            <span className="text-3xl">🏆</span>
+            <TrophyIcon className="text-gold flex-shrink-0" />
             <div>
               <p className="text-gold font-bold">{t('rankedRoom')}</p>
               <p className="text-textMuted text-sm">{t('rankedDesc')}</p>

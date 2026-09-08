@@ -228,15 +228,17 @@ export default function Room() {
           {/* Host start button */}
           {isHost && (
             <button
-              disabled={room.players.length < 2}
+              disabled={room.players.length < (game?.minPlayers ?? 2)}
               onClick={() => document.querySelector('.game-area')?.scrollIntoView({ behavior: 'smooth' })}
               className={`w-full py-3 rounded-xl font-bold text-base transition-all ${
-                room.players.length >= 2
+                room.players.length >= (game?.minPlayers ?? 2)
                   ? 'bg-gold text-onGold hover:opacity-90'
                   : 'bg-surfaceMuted text-textMuted cursor-not-allowed'
               }`}
             >
-              {room.players.length < 2 ? 'Need 1 more player' : 'Start Game →'}
+              {room.players.length < (game?.minPlayers ?? 2)
+                ? `Need ${(game?.minPlayers ?? 2) - room.players.length} more player${(game?.minPlayers ?? 2) - room.players.length === 1 ? '' : 's'}`
+                : 'Start Game →'}
             </button>
           )}
         </div>
