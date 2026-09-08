@@ -1,4 +1,6 @@
-export function ClueRoundScreen({ players, turnOrder, currentTurnIndex, isHost, myId, onNextPlayer, onMoveToVoting, advancing }) {
+import { SecretWordBanner } from './SecretWordBanner'
+
+export function ClueRoundScreen({ players, turnOrder, currentTurnIndex, isHost, myId, isBhed, secretWord, onNextPlayer, onMoveToVoting, advancing }) {
   const activeId = turnOrder[currentTurnIndex % turnOrder.length]
   const activePlayer = players.find(p => p.id === activeId)
   const round = Math.floor(currentTurnIndex / turnOrder.length) + 1
@@ -6,6 +8,7 @@ export function ClueRoundScreen({ players, turnOrder, currentTurnIndex, isHost, 
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center py-6 gap-6 max-w-lg w-full mx-auto text-center">
+      <SecretWordBanner isBhed={isBhed} secretWord={secretWord} />
       <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">Round {round}</p>
 
       <div className={`w-full rounded-2xl p-8 border-[1.5px] ${isMyTurn ? 'border-emerald bg-emerald/10' : 'border-border bg-surfaceElevated'}`}>

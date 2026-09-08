@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { SecretWordBanner } from './SecretWordBanner'
 
-export function VotingScreen({ players, myId, votesIn, totalPlayers, onVote, voted, isHost, onEndVoting }) {
+export function VotingScreen({ players, myId, isBhed, secretWord, votesIn, totalPlayers, onVote, voted, isHost, onEndVoting }) {
   const [localVote, setLocalVote] = useState(null)
   const others = players.filter(p => p.id !== myId)
 
@@ -12,6 +13,7 @@ export function VotingScreen({ players, myId, votesIn, totalPlayers, onVote, vot
 
   return (
     <div className="flex-1 flex flex-col items-center px-4 sm:px-6 py-6 gap-5 max-w-lg w-full mx-auto">
+      <SecretWordBanner isBhed={isBhed} secretWord={secretWord} />
       <p className="text-xl font-bold font-display text-textPrimary text-center">Who is the Bhed?</p>
 
       <div className="grid grid-cols-2 gap-3 w-full">

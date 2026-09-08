@@ -272,10 +272,10 @@ export default function Bhed({ code }) {
                   <button
                     key={key}
                     onClick={() => toggleCategory(key)}
-                    className={`min-h-[44px] rounded-xl border-[1.5px] px-4 text-left font-semibold transition-colors ${
+                    className={`min-h-[44px] rounded-xl border-2 px-4 text-left font-semibold transition-colors ${
                       selectedCategories.includes(key)
-                        ? 'bg-emerald text-onEmerald border-emerald'
-                        : 'bg-surfaceElevated text-textPrimary border-border hover:border-emerald/50'
+                        ? 'bg-surfaceMuted border-emerald text-emerald'
+                        : 'bg-surfaceElevated text-textPrimary border-border'
                     }`}
                   >
                     {label.en}
@@ -320,6 +320,8 @@ export default function Bhed({ code }) {
         currentTurnIndex={roomState.currentTurnIndex ?? 0}
         isHost={isHost}
         myId={myId}
+        isBhed={myId === roomState.bhedId}
+        secretWord={roomState.secretWord}
         onNextPlayer={handleNextPlayer}
         onMoveToVoting={handleMoveToVoting}
         advancing={turnAdvancing}
@@ -334,6 +336,8 @@ export default function Bhed({ code }) {
       <VotingScreen
         players={players}
         myId={myId}
+        isBhed={myId === roomState.bhedId}
+        secretWord={roomState.secretWord}
         votesIn={votesIn}
         totalPlayers={players.length}
         onVote={handleVote}
@@ -352,6 +356,8 @@ export default function Bhed({ code }) {
         players={players}
         actualBhedId={roomState.bhedId}
         caught={roomState.caught}
+        isBhed={myId === roomState.bhedId}
+        secretWord={roomState.secretWord}
         isHost={isHost}
         onContinue={handleContinueFromReveal}
       />
@@ -365,6 +371,7 @@ export default function Bhed({ code }) {
     return (
       <BhedGuessScreen
         isBhed={isBhed}
+        secretWord={roomState.secretWord}
         guessOptions={roomState.guessOptions ?? []}
         onGuess={handleBhedGuess}
         guessed={myGuessSent}

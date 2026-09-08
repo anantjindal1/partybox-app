@@ -1,4 +1,6 @@
-export function RevealScreen({ tally, votedOutId, players, actualBhedId, caught, isHost, onContinue }) {
+import { SecretWordBanner } from './SecretWordBanner'
+
+export function RevealScreen({ tally, votedOutId, players, actualBhedId, caught, isBhed, secretWord, isHost, onContinue }) {
   const votedOutPlayer = players.find(p => p.id === votedOutId)
   const ranked = [...players]
     .filter(p => (tally[p.id] ?? 0) > 0)
@@ -6,6 +8,7 @@ export function RevealScreen({ tally, votedOutId, players, actualBhedId, caught,
 
   return (
     <div className="flex-1 flex flex-col items-center py-6 gap-5 max-w-lg w-full mx-auto">
+      <SecretWordBanner isBhed={isBhed} secretWord={secretWord} />
       <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">Vote Results</p>
 
       <div className="flex flex-col gap-1.5 w-full">

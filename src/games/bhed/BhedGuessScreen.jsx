@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { SecretWordBanner } from './SecretWordBanner'
 
-export function BhedGuessScreen({ isBhed, guessOptions, onGuess, guessed, isHost, onRevealGuess, revealing, hasGuess }) {
+export function BhedGuessScreen({ isBhed, secretWord, guessOptions, onGuess, guessed, isHost, onRevealGuess, revealing, hasGuess }) {
   const [localGuess, setLocalGuess] = useState(null)
 
   function handlePick(wordId) {
@@ -11,6 +12,7 @@ export function BhedGuessScreen({ isBhed, guessOptions, onGuess, guessed, isHost
 
   return (
     <div className="flex-1 flex flex-col items-center py-6 gap-5 max-w-lg w-full mx-auto text-center">
+      <SecretWordBanner isBhed={isBhed} secretWord={secretWord} />
       <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">The Bhed was caught!</p>
       <p className="text-lg font-bold font-display text-textPrimary">One chance to steal the win — guess the secret word</p>
 
