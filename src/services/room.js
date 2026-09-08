@@ -76,6 +76,10 @@ export async function writeAction(code, playerId, action) {
   })
 }
 
+export async function deleteAction(code, playerId) {
+  await deleteDoc(doc(db, 'rooms', code, 'actions', playerId))
+}
+
 export async function clearActions(code) {
   const ref = collection(db, 'rooms', code, 'actions')
   const snap = await getDocs(ref)

@@ -16,7 +16,7 @@ import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import { trackEvent as trackAnalyticsEvent } from '../services/analytics_events'
 import AdBanner from '../components/AdBanner'
-import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
+import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
 
 const COMING_SOON_SLOTS = 0
 
@@ -66,6 +66,12 @@ const ACCENT_STYLES = {
     iconRing: 'border-rose text-rose',
     tab: 'text-rose border-rose',
     cta: 'bg-rose text-onRose'
+  },
+  sapphire: {
+    border: 'border-sapphire',
+    iconRing: 'border-sapphire text-sapphire',
+    tab: 'text-sapphire border-sapphire',
+    cta: 'bg-sapphire text-onSapphire'
   }
 }
 
@@ -147,6 +153,19 @@ const VISIBLE_GAMES = [
     timePill: '~10 mins',
     cta: 'Play →',
   },
+  {
+    slug: 'tambola',
+    icon: TicketIcon,
+    title: 'Tambola',
+    modeBadge: 'Online',
+    modeIcon: SignalIcon,
+    accent: 'sapphire',
+    description: 'Classic Housie — host calls numbers, shout your claims',
+    playersPill: '2-20 players',
+    timePill: '~20 mins',
+    cta: 'Create Room →',
+    isOnline: true,
+  },
 ]
 
 // Every other registered game — surfaced below as a plain, temporary review
@@ -154,7 +173,7 @@ const VISIBLE_GAMES = [
 // and triaged for deletion. Not meant to look "finished."
 const VISIBLE_SLUGS = new Set([
   'thinkfast', 'dumb-charades-offline', 'firstbell', 'raja-mantri',
-  'sabse-zyada-kaun', 'sabse-zyada-kaun-offline',
+  'sabse-zyada-kaun', 'sabse-zyada-kaun-offline', 'tambola',
 ])
 
 export default function Home() {

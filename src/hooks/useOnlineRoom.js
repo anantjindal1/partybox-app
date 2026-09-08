@@ -5,6 +5,7 @@ import {
   writeAction,
   updateRoomState,
   clearActions as clearActionsService,
+  deleteAction as deleteActionService,
   deleteRoom,
   kickPlayer as kickPlayerService,
   isRoomExpired
@@ -62,6 +63,10 @@ export function useOnlineRoom(code) {
     await clearActionsService(code)
   }
 
+  async function deleteAction(playerId) {
+    await deleteActionService(code, playerId)
+  }
+
   async function endGame() {
     await deleteRoom(code)
   }
@@ -77,6 +82,7 @@ export function useOnlineRoom(code) {
     sendAction,
     setState,
     clearActions,
+    deleteAction,
     endGame,
     kickPlayer,
     isHost,

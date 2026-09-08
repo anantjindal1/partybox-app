@@ -70,6 +70,16 @@ export function RaisedHandIcon(props) {
   )
 }
 
+export function TicketIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <rect x="2.5" y="5" width="19" height="14" rx="2" />
+      <path d="M2.5 9.5h19M2.5 14.5h19" />
+      <path d="M7.5 5v4.5M12 5v4.5M16.5 5v4.5M7.5 14.5V19M12 14.5V19M16.5 14.5V19" />
+    </svg>
+  )
+}
+
 export function DiceIcon(props) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -92,6 +102,7 @@ export const GAME_ICONS = {
   'raja-mantri': CrownIcon,
   'sabse-zyada-kaun': RaisedHandIcon,
   'sabse-zyada-kaun-offline': RaisedHandIcon,
+  'tambola': TicketIcon,
 }
 
 export function getGameIcon(slug) {

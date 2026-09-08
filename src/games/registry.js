@@ -9,6 +9,7 @@ import firstBellMeta from './firstbell/metadata.js'
 import rajaMantriMeta from './raja-mantri/metadata.js'
 import sabseZyadaKaunMeta from './sabse-zyada-kaun/metadata.js'
 import sabseZyadaKaunOfflineMeta from './sabse-zyada-kaun/metadata-offline.js'
+import tambolaMeta from './tambola/metadata.js'
 
 // Lazy-loaded game components — each game is a separate JS chunk.
 // This keeps the initial bundle small for low-end devices.
@@ -22,6 +23,7 @@ const FirstBell           = lazy(() => import('./firstbell/index.jsx'))
 const RajaMantri          = lazy(() => import('./raja-mantri/index.jsx'))
 const SabseZyadaKaun        = lazy(() => import('./sabse-zyada-kaun/index.jsx'))
 const SabseZyadaKaunOffline = lazy(() => import('./sabse-zyada-kaun/SabseZyadaKaunOffline.jsx'))
+const Tambola               = lazy(() => import('./tambola/index.jsx'))
 
 export const games = [
   { ...firstBellMeta,           Component: FirstBell },
@@ -33,7 +35,8 @@ export const games = [
   { ...thinkFastMeta,           Component: ThinkFast },
   { ...rajaMantriMeta,          Component: RajaMantri },
   { ...sabseZyadaKaunMeta,        Component: SabseZyadaKaun },
-  { ...sabseZyadaKaunOfflineMeta, Component: SabseZyadaKaunOffline }
+  { ...sabseZyadaKaunOfflineMeta, Component: SabseZyadaKaunOffline },
+  { ...tambolaMeta,               Component: Tambola }
 ]
 
 export function getGame(slug) {

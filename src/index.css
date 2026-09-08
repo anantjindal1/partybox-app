@@ -19,6 +19,7 @@
   --color-accent-terracotta: #A6402F;
   --color-accent-plum: #6B3F73;
   --color-accent-rose: #A6314F;
+  --color-accent-sapphire: #1F5C82;
   --color-error: #D64545;
   --hero-overlay-1: rgba(251, 243, 231, 0.55);
   --hero-overlay-2: rgba(251, 243, 231, 0.78);
@@ -30,6 +31,7 @@
   --on-maroon: #FBF3E7;
   --on-plum: #FBF3E7;
   --on-rose: #FBF3E7;
+  --on-sapphire: #FBF3E7;
 }
 
 /* Dark theme — same hue family, values tuned for a dark ground, not a straight invert. */
@@ -49,6 +51,7 @@
   --color-accent-terracotta: #C2543E;
   --color-accent-plum: #B47FBE;
   --color-accent-rose: #D4587A;
+  --color-accent-sapphire: #4A9FC7;
   --color-error: #E05B4C;
   --hero-overlay-1: rgba(28, 15, 19, 0.55);
   --hero-overlay-2: rgba(28, 15, 19, 0.78);
@@ -59,6 +62,7 @@
   --on-maroon: #F3E7D9;
   --on-plum: #2B1116;
   --on-rose: #2B1116;
+  --on-sapphire: #0B2430;
 }
 
 /* Base: comfortable reading size, smooth font */
