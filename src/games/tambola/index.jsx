@@ -42,6 +42,7 @@ export default function Tambola({ code }) {
   const [starting, setStarting] = useState(false)
   const [drawing, setDrawing] = useState(false)
   const [powerCandidates, setPowerCandidates] = useState(null)
+  const [assistChoice, setAssistChoice] = useState(true)
   const xpAwarded = useRef(false)
   const confettiFired = useRef(false)
 
@@ -68,7 +69,8 @@ export default function Tambola({ code }) {
         calledNumbers: [],
         currentNumber: null,
         prizesWon: {},
-        powerDrawsRemaining: 3
+        powerDrawsRemaining: 3,
+        assistMode: assistChoice
       })
     } finally {
       setStarting(false)
@@ -191,13 +193,29 @@ export default function Tambola({ code }) {
     return (
       <div className="flex flex-col gap-4 max-w-lg w-full mx-auto pt-2">
         {isHost ? (
-          <button
-            onClick={handleStartGame}
-            disabled={players.length < metadata.minPlayers || starting}
-            className="min-h-[48px] rounded-xl bg-sapphire text-onSapphire font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            {starting ? 'Dealing tickets...' : 'Start Game →'}
-          </button>
+          <>
+            <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-surfaceElevated border border-border/60">
+              <div>
+                <p className="font-semibold text-textPrimary text-sm">Assist Mode</p>
+                <p className="text-xs text-textMuted">Highlights called numbers on tickets &amp; shows eligible claims</p>
+              </div>
+              <button
+                onClick={() => setAssistChoice(v => !v)}
+                className={`min-h-[36px] px-4 rounded-lg font-bold text-xs shrink-0 ${
+                  assistChoice ? 'bg-sapphire text-onSapphire' : 'border-[1.5px] border-border text-textMuted'
+                }`}
+              >
+                {assistChoice ? 'On' : 'Off'}
+              </button>
+            </div>
+            <button
+              onClick={handleStartGame}
+              disabled={players.length < metadata.minPlayers || starting}
+              className="min-h-[48px] rounded-xl bg-sapphire text-onSapphire font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {starting ? 'Dealing tickets...' : 'Start Game →'}
+            </button>
+          </>
         ) : (
           <p className="text-center text-textMuted text-sm">Waiting for host to start...</p>
         )}
@@ -233,6 +251,7 @@ export default function Tambola({ code }) {
       <PlayerTicket
         ticket={myTicket}
         roomState={roomState}
+        assistMode={roomState.assistMode ?? true}
         storageKey={`partybox_tambola_marks_${code}_${myId}`}
         myPendingClaim={myPendingClaim}
         onClaim={handleClaim}

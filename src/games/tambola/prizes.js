@@ -55,3 +55,25 @@ export function checkPattern(prizeId, ticket, markedPositions) {
   if (!checker) return false
   return checker(ticket, markedPositions)
 }
+
+// The set of ticket positions whose number has actually been called — the
+// ground truth, independent of anything the player self-reported as marked.
+// Lets the host verify a claim from data it already has (ticket +
+// calledNumbers), with no need to sync a player's local marks.
+export function calledPositions(ticket, calledNumbers) {
+  const positions = new Set()
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const value = getCell(ticket, r, c)
+      if (value !== null && calledNumbers.includes(value)) positions.add(`${r}-${c}`)
+    }
+  }
+  return positions
+}
+
+// Host-facing validity check: is this claim actually true, based on what's
+// really been called? Informational only — the host still approves/rejects
+// manually, this never auto-approves anything.
+export function isClaimValid(prizeId, ticket, calledNumbers) {
+  return checkPattern(prizeId, ticket, calledPositions(ticket, calledNumbers))
+}

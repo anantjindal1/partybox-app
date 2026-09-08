@@ -1,4 +1,4 @@
-import { checkPattern, PRIZES } from '../prizes'
+import { checkPattern, calledPositions, isClaimValid, PRIZES } from '../prizes'
 import { cellIndex } from '../ticket'
 
 // Hand-built ticket (flat, row-major), 15 numbers, valid column ranges/order:
@@ -82,5 +82,39 @@ describe('checkPattern', () => {
     for (const prize of PRIZES) {
       expect(checkPattern(prize, ticket, new Set())).toBe(false)
     }
+  })
+})
+
+describe('calledPositions', () => {
+  test('returns only positions whose ticket number was actually called', () => {
+    const called = calledPositions(ticket, [1, 12, 999])
+    expect(called).toEqual(new Set(['0-0', '0-1']))
+  })
+
+  test('empty when nothing has been called', () => {
+    expect(calledPositions(ticket, [])).toEqual(new Set())
+  })
+})
+
+describe('isClaimValid', () => {
+  test('true when every required number for the prize has been called, regardless of what the player marked', () => {
+    // topLine needs 1, 12, 34, 62, 89 all called
+    expect(isClaimValid('topLine', ticket, [1, 12, 34, 62, 89])).toBe(true)
+  })
+
+  test('false when the prize is not actually complete yet', () => {
+    expect(isClaimValid('topLine', ticket, [1, 12, 34])).toBe(false)
+  })
+
+  test('a dishonest claim with nothing called is invalid', () => {
+    for (const prize of PRIZES) {
+      expect(isClaimValid(prize, ticket, [])).toBe(false)
+    }
+  })
+
+  test('fullHouse valid only once every one of the 15 numbers is called', () => {
+    const allNumbers = ticket.cells.filter(c => c !== null)
+    expect(isClaimValid('fullHouse', ticket, allNumbers.slice(0, 14))).toBe(false)
+    expect(isClaimValid('fullHouse', ticket, allNumbers)).toBe(true)
   })
 })

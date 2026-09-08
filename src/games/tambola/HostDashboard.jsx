@@ -1,4 +1,4 @@
-import { PRIZES } from './prizes'
+import { PRIZES, isClaimValid } from './prizes'
 
 const PRIZE_LABELS = {
   earlyFive: 'Early Five',
@@ -131,28 +131,39 @@ export function HostDashboard({
         <div>
           <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">Claims to Review</p>
           <div className="flex flex-col gap-2">
-            {claims.map(claim => (
-              <div key={claim.playerId} className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg bg-surfaceElevated border border-sapphire/50">
-                <span className="text-sm">
-                  <span className="font-bold">{playerName(claim.playerId)}</span> claims{' '}
-                  <span className="font-bold text-sapphire">{PRIZE_LABELS[claim.payload.prizeId]}</span>
-                </span>
-                <div className="flex gap-2 shrink-0">
-                  <button
-                    onClick={() => onApproveClaim(claim.playerId, claim.payload.prizeId)}
-                    className="min-h-[36px] px-3 rounded-lg bg-sapphire text-onSapphire text-xs font-bold"
-                  >
-                    Approve
-                  </button>
-                  <button
-                    onClick={() => onRejectClaim(claim.playerId)}
-                    className="min-h-[36px] px-3 rounded-lg border border-error/60 text-error text-xs font-bold"
-                  >
-                    Reject
-                  </button>
+            {claims.map(claim => {
+              const ticket = roomState.tickets?.[claim.playerId]
+              const valid = ticket ? isClaimValid(claim.payload.prizeId, ticket, calledNumbers) : null
+              return (
+                <div key={claim.playerId} className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg bg-surfaceElevated border border-sapphire/50">
+                  <div className="text-sm">
+                    <div>
+                      <span className="font-bold">{playerName(claim.playerId)}</span> claims{' '}
+                      <span className="font-bold text-sapphire">{PRIZE_LABELS[claim.payload.prizeId]}</span>
+                    </div>
+                    {valid !== null && (
+                      <span className={`text-xs font-bold ${valid ? 'text-sapphire' : 'text-error'}`}>
+                        {valid ? '✓ Checks out' : '✗ Doesn\'t match called numbers'}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <button
+                      onClick={() => onApproveClaim(claim.playerId, claim.payload.prizeId)}
+                      className="min-h-[36px] px-3 rounded-lg bg-sapphire text-onSapphire text-xs font-bold"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => onRejectClaim(claim.playerId)}
+                      className="min-h-[36px] px-3 rounded-lg border border-error/60 text-error text-xs font-bold"
+                    >
+                      Reject
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}

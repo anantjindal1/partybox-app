@@ -11,11 +11,10 @@ const PRIZE_LABELS = {
   fullHouse: 'Full House'
 }
 
-const ASSIST_KEY = 'partybox_tambola_assist'
-
 export function PlayerTicket({
   ticket,
   roomState,
+  assistMode,
   storageKey,
   myPendingClaim,
   onClaim,
@@ -35,19 +34,10 @@ export function PlayerTicket({
       return new Set()
     }
   })
-  const [assistOn, setAssistOn] = useState(() => localStorage.getItem(ASSIST_KEY) !== 'false')
 
   useEffect(() => {
     localStorage.setItem(storageKey, JSON.stringify([...marked]))
   }, [marked, storageKey])
-
-  function toggleAssist() {
-    setAssistOn(prev => {
-      const next = !prev
-      localStorage.setItem(ASSIST_KEY, String(next))
-      return next
-    })
-  }
 
   function toggleMark(row, col) {
     const pos = `${row}-${col}`
@@ -87,12 +77,7 @@ export function PlayerTicket({
 
       {/* Ticket */}
       <div>
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">Your Ticket</p>
-          <button onClick={toggleAssist} className="text-xs text-textMuted underline">
-            {assistOn ? 'Assist: On' : 'Assist: Off'}
-          </button>
-        </div>
+        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">Your Ticket</p>
         <div className="grid grid-rows-3 gap-1 bg-surfaceElevated border-[1.5px] border-sapphire/60 rounded-xl p-2">
           {Array.from({ length: ROWS }, (_, r) => (
             <div key={r} className="grid grid-cols-9 gap-1">
@@ -104,7 +89,7 @@ export function PlayerTicket({
                 const pos = `${r}-${c}`
                 const isMarked = marked.has(pos)
                 const isCalled = calledNumbers.includes(cell)
-                const showAssist = assistOn && isCalled && !isMarked
+                const showAssist = assistMode && isCalled && !isMarked
                 return (
                   <button
                     key={c}
@@ -132,27 +117,37 @@ export function PlayerTicket({
         <div className="flex flex-col gap-1.5">
           {PRIZES.map(id => {
             const won = prizesWon[id]
-            const eligible = !won && checkPattern(id, ticket, marked)
+            const patternMatches = checkPattern(id, ticket, marked)
+            // With assist off, no eligibility hint is shown — every unclaimed
+            // prize stays tappable and the player judges for themselves.
+            const claimable = !won && (!assistMode || patternMatches)
             const pending = myPendingClaim?.payload?.prizeId === id
+
+            let style = 'bg-surfaceElevated text-textMuted border border-border disabled:opacity-50'
+            let status = ''
+            if (won) {
+              style = 'bg-surfaceMuted text-textMuted'
+              status = `Won: ${won.playerName}`
+            } else if (pending) {
+              style = 'bg-sapphire/20 text-sapphire border-[1.5px] border-sapphire'
+              status = 'Waiting for host...'
+            } else if (assistMode && patternMatches) {
+              style = 'bg-sapphire text-onSapphire'
+              status = 'Claim →'
+            } else if (!assistMode) {
+              style = 'bg-surfaceElevated text-sapphire border-[1.5px] border-sapphire'
+              status = 'Claim →'
+            }
+
             return (
               <button
                 key={id}
                 onClick={() => onClaim(id)}
-                disabled={!!won || !eligible || !!myPendingClaim}
-                className={`min-h-[44px] rounded-xl px-4 flex items-center justify-between font-semibold text-sm transition-colors disabled:cursor-not-allowed ${
-                  won
-                    ? 'bg-surfaceMuted text-textMuted'
-                    : pending
-                      ? 'bg-sapphire/20 text-sapphire border-[1.5px] border-sapphire'
-                      : eligible
-                        ? 'bg-sapphire text-onSapphire'
-                        : 'bg-surfaceElevated text-textMuted border border-border disabled:opacity-50'
-                }`}
+                disabled={!claimable || !!myPendingClaim}
+                className={`min-h-[44px] rounded-xl px-4 flex items-center justify-between font-semibold text-sm transition-colors disabled:cursor-not-allowed ${style}`}
               >
                 <span>{PRIZE_LABELS[id]}</span>
-                <span className="text-xs">
-                  {won ? `Won: ${won.playerName}` : pending ? 'Waiting for host...' : eligible ? 'Claim →' : ''}
-                </span>
+                <span className="text-xs">{status}</span>
               </button>
             )
           })}
