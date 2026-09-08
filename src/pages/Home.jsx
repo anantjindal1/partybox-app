@@ -16,7 +16,7 @@ import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import { trackEvent as trackAnalyticsEvent } from '../services/analytics_events'
 import AdBanner from '../components/AdBanner'
-import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
+import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
 
 const COMING_SOON_SLOTS = 0
 
@@ -72,6 +72,12 @@ const ACCENT_STYLES = {
     iconRing: 'border-sapphire text-sapphire',
     tab: 'text-sapphire border-sapphire',
     cta: 'bg-sapphire text-onSapphire'
+  },
+  emerald: {
+    border: 'border-emerald',
+    iconRing: 'border-emerald text-emerald',
+    tab: 'text-emerald border-emerald',
+    cta: 'bg-emerald text-onEmerald'
   }
 }
 
@@ -166,6 +172,19 @@ const VISIBLE_GAMES = [
     cta: 'Create Room →',
     isOnline: true,
   },
+  {
+    slug: 'bhed',
+    icon: MagnifyingGlassIcon,
+    title: 'Bhed (Jasoos)',
+    modeBadge: 'Online',
+    modeIcon: SignalIcon,
+    accent: 'emerald',
+    description: 'Everyone shares a secret word except one outsider — find the Bhed',
+    playersPill: '4-8 players',
+    timePill: '~15 mins',
+    cta: 'Create Room →',
+    isOnline: true,
+  },
 ]
 
 // Every other registered game — surfaced below as a plain, temporary review
@@ -173,7 +192,7 @@ const VISIBLE_GAMES = [
 // and triaged for deletion. Not meant to look "finished."
 const VISIBLE_SLUGS = new Set([
   'thinkfast', 'dumb-charades-offline', 'firstbell', 'raja-mantri',
-  'sabse-zyada-kaun', 'sabse-zyada-kaun-offline', 'tambola',
+  'sabse-zyada-kaun', 'sabse-zyada-kaun-offline', 'tambola', 'bhed',
 ])
 
 export default function Home() {

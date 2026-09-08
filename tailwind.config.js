@@ -22,6 +22,7 @@ export default {
         plum: 'var(--color-accent-plum)',
         rose: 'var(--color-accent-rose)',
         sapphire: 'var(--color-accent-sapphire)',
+        emerald: 'var(--color-accent-emerald)',
         error: 'var(--color-error)',
         onGold: 'var(--on-gold)',
         onTeal: 'var(--on-teal)',
@@ -30,6 +31,7 @@ export default {
         onPlum: 'var(--on-plum)',
         onRose: 'var(--on-rose)',
         onSapphire: 'var(--on-sapphire)',
+        onEmerald: 'var(--on-emerald)',
         // Legacy aliases so a broad rename can happen incrementally without
         // breaking every call site in one commit.
         accent: 'var(--color-accent-maroon)',
