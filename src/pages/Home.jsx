@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { LangToggle } from '../components/LangToggle'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { CreateRoomSheet } from '../components/CreateRoomSheet'
+import { ModeChooserSheet } from '../components/ModeChooserSheet'
 import { Card } from '../components/Card'
 import { Button } from '../components/Button'
 import { Input } from '../components/Input'
@@ -15,7 +16,7 @@ import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import { trackEvent as trackAnalyticsEvent } from '../services/analytics_events'
 import AdBanner from '../components/AdBanner'
-import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
+import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
 
 const COMING_SOON_SLOTS = 0
 
@@ -59,6 +60,12 @@ const ACCENT_STYLES = {
     iconRing: 'border-plum text-plum',
     tab: 'text-plum border-plum',
     cta: 'bg-plum text-onPlum'
+  },
+  rose: {
+    border: 'border-rose',
+    iconRing: 'border-rose text-rose',
+    tab: 'text-rose border-rose',
+    cta: 'bg-rose text-onRose'
   }
 }
 
@@ -126,7 +133,29 @@ const VISIBLE_GAMES = [
     cta: 'Create Room →',
     isOnline: true,
   },
+  {
+    dualMode: true,
+    offlineSlug: 'sabse-zyada-kaun-offline',
+    onlineSlug: 'sabse-zyada-kaun',
+    icon: RaisedHandIcon,
+    title: 'Sabse Zyada Kaun',
+    modeBadge: 'Party',
+    modeIcon: PartyIcon,
+    accent: 'rose',
+    description: 'Who fits the prompt best? The room decides',
+    playersPill: '3-12 players',
+    timePill: '~10 mins',
+    cta: 'Play →',
+  },
 ]
+
+// Every other registered game — surfaced below as a plain, temporary review
+// list (not full card treatment) so hidden/unfinished games can be played
+// and triaged for deletion. Not meant to look "finished."
+const VISIBLE_SLUGS = new Set([
+  'thinkfast', 'dumb-charades-offline', 'firstbell', 'raja-mantri',
+  'sabse-zyada-kaun', 'sabse-zyada-kaun-offline',
+])
 
 export default function Home() {
   const navigate = useNavigate()
@@ -140,6 +169,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [selectedGame, setSelectedGame] = useState(null)
+  const [selectedDualGame, setSelectedDualGame] = useState(null)
 
   // TODO: restore tabs when game count > 5
   // const [activeTab, setActiveTab] = useState(
@@ -180,6 +210,15 @@ export default function Home() {
   //   setActiveTab(tab)
   //   localStorage.setItem('partybox_home_tab', tab)
   // }
+
+  function handleReviewGameClick(game) {
+    if (!game.singleDevice) {
+      if (!profile) return
+      setSelectedGame(game)
+    } else {
+      handlePlayGame(game)
+    }
+  }
 
   function handlePlayGame(game) {
     if (!game) return
@@ -274,6 +313,24 @@ export default function Home() {
           />
         )}
 
+        {/* ModeChooserSheet overlay — dual-mode games (single device vs online) */}
+        {selectedDualGame && (
+          <ModeChooserSheet
+            game={selectedDualGame}
+            onClose={() => setSelectedDualGame(null)}
+            onChooseOffline={() => {
+              const offlineGame = games.find(g => g.slug === selectedDualGame.offlineSlug)
+              setSelectedDualGame(null)
+              handlePlayGame(offlineGame)
+            }}
+            onChooseOnline={() => {
+              const onlineGame = games.find(g => g.slug === selectedDualGame.onlineSlug)
+              setSelectedDualGame(null)
+              if (onlineGame && profile) setSelectedGame(onlineGame)
+            }}
+          />
+        )}
+
         {/* ── Header ─────────────────────────────────────────────────────────── */}
         <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border shadow-soft bg-surface/80 backdrop-blur-sm">
           <div className="flex items-center gap-3">
@@ -357,6 +414,10 @@ export default function Home() {
               const ModeIcon = card.modeIcon
 
               function handleClick() {
+                if (card.dualMode) {
+                  setSelectedDualGame(card)
+                  return
+                }
                 if (disabled || !game) return
                 if (card.isOnline) {
                   setSelectedGame(game)
@@ -367,7 +428,7 @@ export default function Home() {
 
               return (
                 <button
-                  key={card.slug}
+                  key={card.slug ?? card.offlineSlug}
                   onClick={handleClick}
                   disabled={disabled}
                   className={`w-full text-left bg-surfaceElevated border-[1.5px] rounded-2xl px-4 py-4 transition-colors ${accent.border} ${
@@ -418,6 +479,34 @@ export default function Home() {
               )
             })}
           </div>
+
+          {/* ── For review — hidden/unfinished games, temporary until triaged ── */}
+          {games.filter(g => !VISIBLE_SLUGS.has(g.slug)).length > 0 && (
+            <div className="mt-8 max-w-lg">
+              <p className="text-textMuted text-xs font-semibold mb-3 uppercase tracking-wider">
+                For review (not finalized — play &amp; decide)
+              </p>
+              <div className="flex flex-col gap-2">
+                {games.filter(g => !VISIBLE_SLUGS.has(g.slug)).map(game => {
+                  const title = typeof game.title === 'object' ? (game.title[lang] || game.title.en) : game.title
+                  return (
+                    <button
+                      key={game.slug}
+                      onClick={() => handleReviewGameClick(game)}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-border bg-surface hover:bg-surfaceMuted transition-colors text-left"
+                    >
+                      <span className="text-xl leading-none">{game.icon ?? '🎮'}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-textPrimary truncate">{title}</p>
+                        <p className="text-xs text-textMuted">{game.slug} · {game.singleDevice ? 'offline' : 'online'}</p>
+                      </div>
+                      <span className="text-xs font-semibold text-textMuted">Open →</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
           {/* ── Ad banner ───────────────────────────────────────────────────── */}
           <AdBanner slot="home-bottom" className="mt-8 mb-3" />

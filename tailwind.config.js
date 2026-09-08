@@ -20,12 +20,14 @@ export default {
         teal: 'var(--color-accent-teal)',
         terracotta: 'var(--color-accent-terracotta)',
         plum: 'var(--color-accent-plum)',
+        rose: 'var(--color-accent-rose)',
         error: 'var(--color-error)',
         onGold: 'var(--on-gold)',
         onTeal: 'var(--on-teal)',
         onTerracotta: 'var(--on-terracotta)',
         onMaroon: 'var(--on-maroon)',
         onPlum: 'var(--on-plum)',
+        onRose: 'var(--on-rose)',
         // Legacy aliases so a broad rename can happen incrementally without
         // breaking every call site in one commit.
         accent: 'var(--color-accent-maroon)',

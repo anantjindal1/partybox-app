@@ -59,6 +59,17 @@ export function SignalIcon(props) {
     </svg>
   )
 }
+export function RaisedHandIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M8 12V5a1.5 1.5 0 013 0v5" />
+      <path d="M11 10V4a1.5 1.5 0 013 0v6" />
+      <path d="M14 10V5a1.5 1.5 0 013 0v7" />
+      <path d="M17 12V9a1.5 1.5 0 013 0v6c0 3.9-3.1 7-7 7h-2c-2.5 0-4-1-5.5-3L3 16.5c-.6-.8-.3-2 .7-2.3.6-.2 1.3 0 1.7.5L8 17" />
+    </svg>
+  )
+}
+
 export function DiceIcon(props) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -79,6 +90,8 @@ export const GAME_ICONS = {
   'dumb-charades': ClapperboardIcon,
   'firstbell': BellIcon,
   'raja-mantri': CrownIcon,
+  'sabse-zyada-kaun': RaisedHandIcon,
+  'sabse-zyada-kaun-offline': RaisedHandIcon,
 }
 
 export function getGameIcon(slug) {

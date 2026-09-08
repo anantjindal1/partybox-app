@@ -11,6 +11,8 @@ import categoriesMeta from './categories/metadata.js'
 import numberChainMeta from './number-chain/metadata.js'
 import firstBellMeta from './firstbell/metadata.js'
 import rajaMantriMeta from './raja-mantri/metadata.js'
+import sabseZyadaKaunMeta from './sabse-zyada-kaun/metadata.js'
+import sabseZyadaKaunOfflineMeta from './sabse-zyada-kaun/metadata-offline.js'
 
 // Lazy-loaded game components — each game is a separate JS chunk.
 // This keeps the initial bundle small for low-end devices.
@@ -26,6 +28,8 @@ const AtoZDhamaka         = lazy(() => import('./categories/AtoZDhamaka.jsx'))
 const NumberChain         = lazy(() => import('./number-chain/index.jsx'))
 const FirstBell           = lazy(() => import('./firstbell/index.jsx'))
 const RajaMantri          = lazy(() => import('./raja-mantri/index.jsx'))
+const SabseZyadaKaun        = lazy(() => import('./sabse-zyada-kaun/index.jsx'))
+const SabseZyadaKaunOffline = lazy(() => import('./sabse-zyada-kaun/SabseZyadaKaunOffline.jsx'))
 
 export const games = [
   { ...luckyNumberMeta,         Component: LuckyNumber },
@@ -39,7 +43,9 @@ export const games = [
   { ...bollywoodEmojiGuessMeta, Component: BollywoodEmojiGuess },
   { ...thinkFastMeta,           Component: ThinkFast },
   { ...categoriesMeta,          Component: AtoZDhamaka },
-  { ...rajaMantriMeta,          Component: RajaMantri }
+  { ...rajaMantriMeta,          Component: RajaMantri },
+  { ...sabseZyadaKaunMeta,        Component: SabseZyadaKaun },
+  { ...sabseZyadaKaunOfflineMeta, Component: SabseZyadaKaunOffline }
 ]
 
 export function getGame(slug) {
