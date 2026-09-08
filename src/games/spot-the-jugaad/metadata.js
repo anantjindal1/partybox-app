@@ -10,6 +10,9 @@ export default {
   maxPlayers: 1,
   offline: true,
   singleDevice: true,
+  hidden: true,
+  category: 'learning',
+  ageGroup: 'kids',
   description: {
     en: 'Find the odd one out',
     hi: 'अलग चीज़ पहचानें'

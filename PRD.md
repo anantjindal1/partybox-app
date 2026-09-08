@@ -12,16 +12,13 @@ support English + Hindi (hi).
 
 | Slug | Title (EN) | Type | Players |
 |------|-----------|------|---------|
-| `lucky-number` | Lucky Number | Online multiplayer | 2–8 |
-| `number-chain` | Number Chain | Online multiplayer | 2–4 |
-| `rapid-fire-battle` | Rapid Fire Battle | Online multiplayer | 2–6 |
 | `dumb-charades` | Dumb Charades | Offline single-device | 2–20 |
-| `tez-hisab` | Tez Hisab | Offline single-device | 1 |
-| `spot-the-jugaad` | Spot the Jugaad | Offline single-device | 1 |
+| `tez-hisab` | Tez Hisab | Offline single-device, **hidden** — teen/learning, being refined | 1 |
+| `spot-the-jugaad` | Spot the Jugaad | Offline single-device, **hidden** — kids/learning, being refined | 1 |
 | `desi-memory-master` | Desi Memory Master | Offline single-device | 1 |
-| `bollywood-emoji-guess` | Bollywood Emoji Guess | Offline single-device | 1 |
 | `rapid-fire-quiz` | Tez Dimaag Challenge | Offline single-device | 2–6 |
-| `categories` | A to Z Dhamaka | Offline single-device | 2–6 |
+
+Deleted (triaged out): `lucky-number`, `number-chain`, `bollywood-emoji-guess`, `categories` (A to Z Dhamaka).
 
 `singleDevice: true` in metadata → offline. No flag → online multiplayer.
 

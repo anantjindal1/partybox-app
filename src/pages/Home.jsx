@@ -481,13 +481,13 @@ export default function Home() {
           </div>
 
           {/* ── For review — hidden/unfinished games, temporary until triaged ── */}
-          {games.filter(g => !VISIBLE_SLUGS.has(g.slug)).length > 0 && (
+          {games.filter(g => !VISIBLE_SLUGS.has(g.slug) && !g.hidden).length > 0 && (
             <div className="mt-8 max-w-lg">
               <p className="text-textMuted text-xs font-semibold mb-3 uppercase tracking-wider">
                 For review (not finalized — play &amp; decide)
               </p>
               <div className="flex flex-col gap-2">
-                {games.filter(g => !VISIBLE_SLUGS.has(g.slug)).map(game => {
+                {games.filter(g => !VISIBLE_SLUGS.has(g.slug) && !g.hidden).map(game => {
                   const title = typeof game.title === 'object' ? (game.title[lang] || game.title.en) : game.title
                   return (
                     <button
