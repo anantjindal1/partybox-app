@@ -6,8 +6,6 @@ import { resolveTitle } from '../../utils/strings'
 import { reducer, getInitialState } from './reducer'
 import { SetupScreenOffline } from './SetupScreenOffline'
 import { RoundScreen } from './RoundScreen'
-import { RoundResultScreen } from './RoundResultScreen'
-import { GameEndScreenOffline } from './GameEndScreenOffline'
 
 export default function SabseZyadaKaunOffline({ slug, gameTitle }) {
   const { lang } = useLang()
@@ -19,8 +17,6 @@ export default function SabseZyadaKaunOffline({ slug, gameTitle }) {
       <FadeIn key={state.phase}>
         {state.phase === 'setup' && <SetupScreenOffline state={state} dispatch={dispatch} />}
         {state.phase === 'round' && <RoundScreen state={state} dispatch={dispatch} />}
-        {state.phase === 'round_result' && <RoundResultScreen state={state} dispatch={dispatch} />}
-        {state.phase === 'game_end' && <GameEndScreenOffline state={state} dispatch={dispatch} />}
       </FadeIn>
     </GameChrome>
   )

@@ -13,8 +13,6 @@ import { RevealScreen } from './RevealScreen'
 import { ResultsScreen } from './ResultsScreen'
 import metadata from './metadata'
 
-const VOTING_TIMEOUT_MS = 20000
-
 export default function SabseZyadaKaunOnline({ code }) {
   const navigate = useNavigate()
   const { t } = useLang()
@@ -37,7 +35,6 @@ export default function SabseZyadaKaunOnline({ code }) {
 
   const [starting, setStarting] = useState(false)
   const [advancing, setAdvancing] = useState(false)
-  const [secondsLeft, setSecondsLeft] = useState(VOTING_TIMEOUT_MS / 1000)
 
   useEffect(() => {
     if (phase === 'waiting') xpAwarded.current = false
@@ -47,21 +44,7 @@ export default function SabseZyadaKaunOnline({ code }) {
     if (phase === 'voting') advanceGuard.current = false
   }, [phase, roomState.currentRound])
 
-  // ── Client-side countdown during voting ─────────────────────────────────
-  useEffect(() => {
-    if (phase !== 'voting') return
-    const started = roomState.phaseStartedAt ?? Date.now()
-    const totalSec = VOTING_TIMEOUT_MS / 1000
-    const tick = () => {
-      const elapsed = (Date.now() - started) / 1000
-      setSecondsLeft(Math.max(0, Math.round(totalSec - elapsed)))
-    }
-    tick()
-    const interval = setInterval(tick, 1000)
-    return () => clearInterval(interval)
-  }, [phase, roomState.phaseStartedAt])
-
-  // ── Host: voting -> reveal (all voted, early close) ─────────────────────
+  // ── Host: voting -> reveal, automatically once everyone has voted ──────
   useEffect(() => {
     if (!isHost || phase !== 'voting') return
     const votes = actions.filter((a) => a.type === 'VOTE').length
@@ -75,13 +58,8 @@ export default function SabseZyadaKaunOnline({ code }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actions, isHost, phase, roomState.currentRound])
 
-  // ── Host: voting hard timeout (stragglers don't count) ──────────────────
-  useEffect(() => {
-    if (!isHost || phase !== 'voting') return
-    const timer = setTimeout(() => advanceToReveal(), VOTING_TIMEOUT_MS + 600)
-    return () => clearTimeout(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHost, phase, roomState.currentRound])
+  // No countdown/hard-timeout — the host can see how many have voted and
+  // ends the round manually via handleEndVoting() whenever they choose.
 
   async function advanceToReveal() {
     if (advanceGuard.current) return
@@ -103,6 +81,12 @@ export default function SabseZyadaKaunOnline({ code }) {
       winnerIds,
       cumulativeScores: cumulative,
     })
+  }
+
+  // Host-only manual override — end voting before everyone's in, e.g. if
+  // someone's AFK. Same advance path as the auto early-close above.
+  function handleEndVoting() {
+    advanceToReveal()
   }
 
   // ── XP / stats / badge on results ───────────────────────────────────────
@@ -210,15 +194,18 @@ export default function SabseZyadaKaunOnline({ code }) {
 
   if (phase === 'voting') {
     const myVoteSent = actions.some((a) => a.type === 'VOTE' && a.playerId === myId)
+    const votesIn = actions.filter((a) => a.type === 'VOTE').length
     return (
       <VotingScreen
         prompt={roomState.currentPrompt}
         players={players}
         myId={myId}
-        secondsLeft={secondsLeft}
-        totalSeconds={VOTING_TIMEOUT_MS / 1000}
+        votesIn={votesIn}
+        totalPlayers={players.length}
         onVote={handleVote}
         voted={myVoteSent}
+        isHost={isHost}
+        onEndVoting={handleEndVoting}
         currentRound={roomState.currentRound}
         roundCount={roomState.roundCount}
         t={t}

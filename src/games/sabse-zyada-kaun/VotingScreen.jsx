@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import CircularTimer from '../../components/CircularTimer'
 
-export function VotingScreen({ prompt, players, myId, secondsLeft, totalSeconds, onVote, voted, currentRound, roundCount, t }) {
+export function VotingScreen({ prompt, players, myId, votesIn, totalPlayers, onVote, voted, isHost, onEndVoting, currentRound, roundCount, t }) {
   const [localVote, setLocalVote] = useState(null)
 
   function handlePick(playerId) {
@@ -15,8 +14,6 @@ export function VotingScreen({ prompt, players, myId, secondsLeft, totalSeconds,
       <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">
         {t('round')} {currentRound} {t('of')} {roundCount}
       </p>
-
-      <CircularTimer totalSeconds={totalSeconds} secondsLeft={secondsLeft} size={80} />
 
       <div className="bg-surfaceElevated border-[1.5px] border-rose rounded-2xl p-6 text-center w-full">
         <p className="text-xl font-bold font-display text-textPrimary leading-snug">
@@ -46,6 +43,21 @@ export function VotingScreen({ prompt, players, myId, secondsLeft, totalSeconds,
       </div>
 
       {localVote && <p className="text-sm text-textMuted">Vote locked in — waiting for the room…</p>}
+
+      <div className="w-full flex flex-col items-center gap-3 mt-auto pt-3">
+        <p className="text-sm font-semibold text-textMuted">
+          {votesIn} of {totalPlayers} voted
+        </p>
+        {isHost && (
+          <button
+            onClick={onEndVoting}
+            disabled={votesIn === 0}
+            className="min-h-[44px] w-full rounded-xl border-[1.5px] border-rose text-rose font-bold disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            End Voting &amp; Reveal →
+          </button>
+        )}
+      </div>
     </div>
   )
 }
