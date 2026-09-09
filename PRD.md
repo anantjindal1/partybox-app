@@ -12,13 +12,22 @@ support English + Hindi (hi).
 
 | Slug | Title (EN) | Type | Players |
 |------|-----------|------|---------|
-| `dumb-charades` | Dumb Charades | Offline single-device | 2–20 |
+| `thinkfast` | ThinkFast | Offline single-device | 1 |
+| `dumb-charades-offline` / `dumb-charades` | Dumb Charades | Offline single-device / online (online mode broken, see below) | 2–20 |
+| `firstbell` | FirstBell | Online only | 2–6 |
+| `raja-mantri` | Raja Mantri Chor Sipahi | Online only | 4–8 |
+| `sabse-zyada-kaun-offline` / `sabse-zyada-kaun` | Sabse Zyada Kaun | Dual-mode (offline + online) | 3–12 |
+| `tambola` | Tambola (Housie) | Online only | 2–20 |
+| `bhed` | Bhed (Jasoos) | Online only | 4–8 |
 | `tez-hisab` | Tez Hisab | Offline single-device, **hidden** — teen/learning, being refined | 1 |
 | `spot-the-jugaad` | Spot the Jugaad | Offline single-device, **hidden** — kids/learning, being refined | 1 |
-| `desi-memory-master` | Desi Memory Master | Offline single-device | 1 |
-| `rapid-fire-quiz` | Tez Dimaag Challenge | Offline single-device | 2–6 |
+| `desi-memory-master` | Desi Memory Master | Offline single-device, not yet triaged | 1 |
 
 Deleted (triaged out): `lucky-number`, `number-chain`, `bollywood-emoji-guess`, `categories` (A to Z Dhamaka).
+
+Dumb Charades' online mode (`dumb-charades` slug) is pre-existing broken wiring — both registry entries load the same offline-only component, and the dead `DumbCharadesOnline.jsx` calls a function `wordpacks.js` doesn't export. Not fixed; sits in Home's "For review" list undecided.
+
+Full UI runs on the **"Ivory & Jewel"** design system (`src/index.css` + `tailwind.config.js`) — warm ivory light theme, jewel-tone accents, Rozha One display font, no emoji in any newly-built game (inline SVG icons only via `src/components/gameIcons.jsx`). Each flagship game owns exactly one accent color: `teal`=ThinkFast, `terracotta`=Dumb Charades, `gold`=FirstBell, `plum`=Raja Mantri, `rose`=Sabse Zyada Kaun, `sapphire`=Tambola, `emerald`=Bhed; `maroon` is the reserved app-wide brand color. This supersedes the "emoji-heavy" note in the Design Constraints section below, which predates the rebuild.
 
 `singleDevice: true` in metadata → offline. No flag → online multiplayer.
 
@@ -182,14 +191,15 @@ Sorts ascending by `action.createdAt?.seconds`. First action where `validateFn(a
 
 ## 11. Testing
 
-- **Run:** `npm test` — Jest + jsdom + @testing-library/react; **266 tests, 30 suites, all green**
+- **Run:** `npm test` — Jest + jsdom + @testing-library/react; **618 tests, 75 real suites, all green** (3 suites fail in this checkout only due to stray `.claude/worktrees/*` duplicate-module noise — not a real regression)
 - Game tests: `src/games/<slug>/__tests__/`; service tests: `tests/`; multiplayer util tests: `src/multiplayer/__tests__/`
 - Mock `crypto.randomUUID`: use `Object.defineProperty(global, 'crypto', ...)` — `jest.spyOn` fails on jsdom
 
 ## 12. Design Constraints
 
-**UI:** Big text, big buttons (tap targets ≥ 48dp), emoji-heavy, Indian-themed content. Readable
-at a glance — no small print, no complex navigation. Every screen must work in Hindi and English.
+**UI:** Big text, big buttons (tap targets ≥ 44px), Indian-themed content, no emoji in newly-built
+UI (inline SVG icons only — see the Ivory & Jewel note in section 2). Readable at a glance — no
+small print, no complex navigation. Every screen must work in Hindi and English.
 
 **Performance:** On-device content generation (questions, puzzles, word queues) must complete in
 <20ms. Avoid large static assets — use lightweight identifiers (text/URLs), lazy-load via code

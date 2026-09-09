@@ -11,13 +11,13 @@ not a keep/cut decision.
 
 ## Priority waves
 
-**Wave 1 — no new infra, build first:**
-- Raja Mantri Chor Sipahi
-- Sabse Zyada Kaun
-- Tambola (Housie)
-- Bhed (Jasoos)
+**Wave 1 — no new infra, build first: ✅ COMPLETE (2026-09-09)**
+- ✅ Raja Mantri Chor Sipahi — online, plum accent
+- ✅ Sabse Zyada Kaun — dual-mode (offline + online), rose accent
+- ✅ Tambola (Housie) — online, sapphire accent
+- ✅ Bhed (Jasoos) — online, emerald accent
 
-**Wave 2 — after the card-dealing engine exists, validate it with the cheapest card game:**
+**Wave 2 — next up. Needs the card-dealing engine built first, then validate it with the cheapest card game:**
 - Bluff (no trick-tracking needed — proves the deal/claim/reveal loop first)
 - Kahani Judge
 
@@ -38,12 +38,12 @@ not a keep/cut decision.
 
 ## Party / social (reuse existing vote-tally + event engine)
 
-1. **Sabse Zyada Kaun** — Room votes which player best fits a cheeky superlative; match the majority to score.
-2. **Bhed (Jasoos)** — Everyone gets a secret word except one hidden outsider; players say related words aloud, then vote to find the Bhed.
+1. ✅ **Sabse Zyada Kaun** — Room votes which player best fits a cheeky superlative; match the majority to score.
+2. ✅ **Bhed (Jasoos)** — Everyone gets a secret word except one hidden outsider; players say related words aloud, then vote to find the Bhed.
 3. **Bakwaas Adaalat** — Two players argue a ridiculous case ~30s each; the room votes the winner.
 4. **Kahani Judge** — Fill a prompt's blank with a funny short answer; room votes the best (typing).
 5. **Chugli Detective** — Everyone submits an anonymous "I once…" confession; room guesses who wrote each.
-6. **Raja Mantri Chor Sipahi** — Phone secretly deals the four+ roles; Mantri guesses the Chor to protect the points.
+6. ✅ **Raja Mantri Chor Sipahi** — Phone secretly deals the four+ roles; Mantri guesses the Chor to protect the points.
 
 ## Card games (need a new card-dealing / trick-tracking layer — shared dependency, see epic below)
 
@@ -59,7 +59,7 @@ not a keep/cut decision.
 
 ## Other
 
-16. **Tambola (Housie)** — Indian bingo; phone generates tickets, calls numbers, auto-verifies claims (first line, full house).
+16. ✅ **Tambola (Housie)** — Indian bingo; phone generates tickets, host calls numbers, players self-claim and the host manually approves each prize (built as host-verified, not auto-verified — keeps the real "shout it out" tension of the original game).
 17. **Codenames** — Team spymaster gives one-word clues linking grid words; teams guess their own, avoid the assassin. (Literate audience.)
 
 ## Shared dependency epic
