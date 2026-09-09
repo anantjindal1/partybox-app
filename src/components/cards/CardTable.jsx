@@ -18,6 +18,7 @@ export function CardTable({
   centerCards = [],
   centerSlot = null,
   selectedCardIds = [],
+  disabledCardIds = [],
   onCardTap,
   accent = 'maroon',
   dealing = false
@@ -66,12 +67,14 @@ export function CardTable({
           const offset = i - midIndex
           const rotate = offset * 3.5
           const isSelected = selectedCardIds.includes(cardId)
+          const isDisabled = disabledCardIds.includes(cardId)
           return (
             <button
               key={cardId}
               type="button"
+              disabled={isDisabled}
               onClick={() => onCardTap?.(cardId)}
-              className={`${dealing ? 'animate-deal-in' : ''} transition-transform duration-150`}
+              className={`${dealing ? 'animate-deal-in' : ''} transition-transform duration-150 ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
               style={{
                 marginLeft: i === 0 ? 0 : -18,
                 transform: `rotate(${rotate}deg) translateY(${isSelected ? -14 : 0}px)`,

@@ -1,4 +1,4 @@
-import { resolveTrick } from '../trick'
+import { resolveTrick, getLegalPlays } from '../trick'
 
 function play(playerId, card) {
   return { playerId, card }
@@ -44,5 +44,27 @@ describe('resolveTrick', () => {
   test('ace-low when explicitly requested', () => {
     const played = [play('a', 'KH'), play('b', 'AH')]
     expect(resolveTrick(played, 'hearts', null, { aceHigh: false })).toBe('a')
+  })
+})
+
+describe('getLegalPlays', () => {
+  test('follow-suit is enforced when the hand holds the led suit', () => {
+    const hand = ['5H', 'KH', '2S']
+    expect(getLegalPlays(hand, 'hearts')).toEqual(['5H', 'KH'])
+  })
+
+  test('free dump when the hand has none of the led suit', () => {
+    const hand = ['2S', '3D', '4C']
+    expect(getLegalPlays(hand, 'hearts')).toEqual(hand)
+  })
+
+  test('leading (ledSuit null) returns the whole hand regardless of contents', () => {
+    const hand = ['5H', 'KH', '2S']
+    expect(getLegalPlays(hand, null)).toEqual(hand)
+  })
+
+  test('exactly one matching card returns just that card', () => {
+    const hand = ['5H', '2S', '4C']
+    expect(getLegalPlays(hand, 'hearts')).toEqual(['5H'])
   })
 })

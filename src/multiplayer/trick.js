@@ -24,3 +24,16 @@ export function resolveTrick(playedCards, ledSuit, trumpSuit = null, { aceHigh =
   const ledPlays = playedCards.filter(p => parseCard(p.card).suit === ledSuit)
   return highestRank(ledPlays, aceHigh)
 }
+
+/**
+ * Which cards from `hand` are legal to play against the current trick's
+ * led suit: must follow suit if any card of that suit is held, otherwise
+ * any card is a legal free dump. `ledSuit === null` means this player is
+ * leading the trick, so everything is legal. Generic across every
+ * follow-suit trick game, not specific to any one of them.
+ */
+export function getLegalPlays(hand, ledSuit) {
+  if (ledSuit == null) return [...hand]
+  const followSuit = hand.filter(id => parseCard(id).suit === ledSuit)
+  return followSuit.length > 0 ? followSuit : [...hand]
+}

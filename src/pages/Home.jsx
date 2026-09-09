@@ -16,7 +16,7 @@ import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import { trackEvent as trackAnalyticsEvent } from '../services/analytics_events'
 import AdBanner from '../components/AdBanner'
-import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
+import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
 
 const COMING_SOON_SLOTS = 0
 
@@ -90,6 +90,12 @@ const ACCENT_STYLES = {
     iconRing: 'border-fuchsia text-fuchsia',
     tab: 'text-fuchsia border-fuchsia',
     cta: 'bg-fuchsia text-onFuchsia'
+  },
+  slate: {
+    border: 'border-slate',
+    iconRing: 'border-slate text-slate',
+    tab: 'text-slate border-slate',
+    cta: 'bg-slate text-onSlate'
   }
 }
 
@@ -223,6 +229,19 @@ const VISIBLE_GAMES = [
     cta: 'Create Room →',
     isOnline: true,
   },
+  {
+    slug: 'bhabhi',
+    icon: DoorExitIcon,
+    title: 'Bhabhi (Get Away)',
+    modeBadge: 'Online',
+    modeIcon: SignalIcon,
+    accent: 'slate',
+    description: 'Follow suit or dump — first to empty your hand wins',
+    playersPill: '3-6 players',
+    timePill: '~15 mins',
+    cta: 'Create Room →',
+    isOnline: true,
+  },
 ]
 
 // Every other registered game — surfaced below as a plain, temporary review
@@ -231,7 +250,7 @@ const VISIBLE_GAMES = [
 const VISIBLE_SLUGS = new Set([
   'thinkfast', 'dumb-charades-offline', 'firstbell', 'raja-mantri',
   'sabse-zyada-kaun', 'sabse-zyada-kaun-offline', 'tambola', 'bhed', 'bluff',
-  'bakwaas',
+  'bakwaas', 'bhabhi',
 ])
 
 export default function Home() {

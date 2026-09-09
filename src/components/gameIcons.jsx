@@ -109,6 +109,16 @@ export function SpeechBubbleIcon(props) {
   )
 }
 
+export function DoorExitIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M13 4H6a1 1 0 00-1 1v14a1 1 0 001 1h7" />
+      <path d="M16 12h5m0 0l-3-3m3 3l-3 3" />
+      <path d="M13 4v16" strokeOpacity="0.4" />
+    </svg>
+  )
+}
+
 export function DiceIcon(props) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -135,6 +145,7 @@ export const GAME_ICONS = {
   'bhed': MagnifyingGlassIcon,
   'bluff': MaskIcon,
   'bakwaas': SpeechBubbleIcon,
+  'bhabhi': DoorExitIcon,
 }
 
 export function getGameIcon(slug) {
