@@ -100,6 +100,15 @@ export function MaskIcon(props) {
   )
 }
 
+export function SpeechBubbleIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M4 5h16a1 1 0 011 1v9a1 1 0 01-1 1H9l-4.5 4V16H4a1 1 0 01-1-1V6a1 1 0 011-1z" />
+      <path d="M8 10.5h3M13 10.5h3" />
+    </svg>
+  )
+}
+
 export function DiceIcon(props) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -125,6 +134,7 @@ export const GAME_ICONS = {
   'tambola': TicketIcon,
   'bhed': MagnifyingGlassIcon,
   'bluff': MaskIcon,
+  'bakwaas': SpeechBubbleIcon,
 }
 
 export function getGameIcon(slug) {

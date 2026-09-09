@@ -31,6 +31,7 @@ export default {
         sapphire: 'rgb(var(--color-accent-sapphire-rgb) / <alpha-value>)',
         emerald: 'rgb(var(--color-accent-emerald-rgb) / <alpha-value>)',
         indigo: 'rgb(var(--color-accent-indigo-rgb) / <alpha-value>)',
+        fuchsia: 'rgb(var(--color-accent-fuchsia-rgb) / <alpha-value>)',
         error: 'rgb(var(--color-error-rgb) / <alpha-value>)',
         onGold: 'rgb(var(--on-gold-rgb) / <alpha-value>)',
         onTeal: 'rgb(var(--on-teal-rgb) / <alpha-value>)',
@@ -41,6 +42,7 @@ export default {
         onSapphire: 'rgb(var(--on-sapphire-rgb) / <alpha-value>)',
         onEmerald: 'rgb(var(--on-emerald-rgb) / <alpha-value>)',
         onIndigo: 'rgb(var(--on-indigo-rgb) / <alpha-value>)',
+        onFuchsia: 'rgb(var(--on-fuchsia-rgb) / <alpha-value>)',
         // Playing-card colors — theme-invariant on purpose, see index.css.
         cardFace: 'rgb(var(--color-card-face-rgb) / <alpha-value>)',
         cardRed: 'rgb(var(--color-card-red-rgb) / <alpha-value>)',

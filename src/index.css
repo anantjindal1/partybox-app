@@ -22,6 +22,7 @@
   --color-accent-sapphire: #1F5C82;
   --color-accent-emerald: #1F7A4D;
   --color-accent-indigo: #4A3F8C;
+  --color-accent-fuchsia: #9C2A72;
   --color-error: #D64545;
   --hero-overlay-1: rgba(251, 243, 231, 0.55);
   --hero-overlay-2: rgba(251, 243, 231, 0.78);
@@ -47,6 +48,7 @@
   --on-sapphire: #FBF3E7;
   --on-emerald: #FBF3E7;
   --on-indigo: #FBF3E7;
+  --on-fuchsia: #FBF3E7;
 
   /* RGB-channel companions of the tokens above, for Tailwind's opacity
      modifier syntax (bg-emerald/20, etc). Tailwind can only alpha-blend a
@@ -75,6 +77,7 @@
   --color-accent-sapphire-rgb: 31 92 130;
   --color-accent-emerald-rgb: 31 122 77;
   --color-accent-indigo-rgb: 74 63 140;
+  --color-accent-fuchsia-rgb: 156 42 114;
   --color-error-rgb: 214 69 69;
   --on-gold-rgb: 43 17 22;
   --on-teal-rgb: 251 243 231;
@@ -85,6 +88,7 @@
   --on-sapphire-rgb: 251 243 231;
   --on-emerald-rgb: 251 243 231;
   --on-indigo-rgb: 251 243 231;
+  --on-fuchsia-rgb: 251 243 231;
 }
 
 /* Dark theme — same hue family, values tuned for a dark ground, not a straight invert. */
@@ -107,6 +111,7 @@
   --color-accent-sapphire: #4A9FC7;
   --color-accent-emerald: #3FBB77;
   --color-accent-indigo: #8D82CC;
+  --color-accent-fuchsia: #D5629F;
   --color-error: #E05B4C;
   --hero-overlay-1: rgba(28, 15, 19, 0.55);
   --hero-overlay-2: rgba(28, 15, 19, 0.78);
@@ -120,6 +125,7 @@
   --on-sapphire: #0B2430;
   --on-emerald: #0B2617;
   --on-indigo: #241D3D;
+  --on-fuchsia: #2B1116;
 
   --color-bg-rgb: 28 15 19;
   --color-surface-rgb: 43 26 31;
@@ -139,6 +145,7 @@
   --color-accent-sapphire-rgb: 74 159 199;
   --color-accent-emerald-rgb: 63 187 119;
   --color-accent-indigo-rgb: 141 130 204;
+  --color-accent-fuchsia-rgb: 213 98 159;
   --color-error-rgb: 224 91 76;
   --on-gold-rgb: 28 15 19;
   --on-teal-rgb: 11 42 36;
@@ -149,6 +156,7 @@
   --on-sapphire-rgb: 11 36 48;
   --on-emerald-rgb: 11 38 23;
   --on-indigo-rgb: 36 29 61;
+  --on-fuchsia-rgb: 43 17 22;
 }
 
 /* Base: comfortable reading size, smooth font */
