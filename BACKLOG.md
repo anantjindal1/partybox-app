@@ -17,10 +17,10 @@ not a keep/cut decision.
 - ✅ Tambola (Housie) — online, sapphire accent
 - ✅ Bhed (Jasoos) — online, emerald accent
 
-**Wave 2 — infra ✅ DONE (2026-09-09), games not started:**
+**Wave 2 — infra ✅ DONE (2026-09-09):**
 - Shared card-dealing engine + card-table UI built (`src/multiplayer/{deck,deal,hand,trick}.js`, `src/components/cards/`) — see the shared dependency epic below.
-- Bluff — up next, chosen specifically because it needs no trick-tracking, so it's the cheapest real test of the new engine.
-- Kahani Judge
+- ✅ Bluff — online, indigo accent (2026-09-09). First real game built on the engine — proved it out, one small generic addition to `CardTable` (`centerSlot` prop) along the way.
+- Kahani Judge — next.
 
 **Wave 3 — trick-taking depth, once the engine is proven:**
 - Call Break
@@ -48,7 +48,7 @@ not a keep/cut decision.
 
 ## Card games (need a new card-dealing / trick-tracking layer — shared dependency, see epic below)
 
-7. **Bluff** — Play cards face-down claiming a rank; anyone can call "Bluff!" and the phone reveals.
+7. ✅ **Bluff** — Play cards face-down claiming a rank; anyone can call "Bluff!" and the phone reveals (built as free-choice-of-rank, no forced sequence, no timer — only the current turn-holder can ever challenge the single most recent play).
 8. **Satti (Sevens)** — Build sequences up/down from the 7 in each suit; first to empty their hand wins.
 9. **Donkey (Gadha)** — Pass cards to collect four of a kind; last to react is the donkey.
 10. **3-2-5 (Teen Do Paanch)** — Three-player trick game; each must win an exact target of tricks.
@@ -65,4 +65,4 @@ not a keep/cut decision.
 
 ## Shared dependency epic
 
-- ✅ **Card-dealing / trick-tracking engine** — DONE (2026-09-09). Shared shuffle/deal/trick-resolution layer required by games 7–15, plus a reusable card-table UI (opponent seats with face-down stacks, own hand fanned face-up, center play zone, score bar). `src/multiplayer/{deck,deal,hand,trick}.js` + `src/components/cards/`. Not yet exercised by a real game — Bluff will be the first.
+- ✅ **Card-dealing / trick-tracking engine** — DONE (2026-09-09). Shared shuffle/deal/trick-resolution layer required by games 7–15, plus a reusable card-table UI (opponent seats with face-down stacks, own hand fanned face-up, center play zone, score bar). `src/multiplayer/{deck,deal,hand,trick}.js` + `src/components/cards/`. Proven out by Bluff — `resolveTrick()` itself remains unexercised by a real game until the first Wave 3 trick-taking game.
