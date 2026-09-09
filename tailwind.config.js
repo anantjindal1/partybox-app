@@ -39,6 +39,10 @@ export default {
         onRose: 'rgb(var(--on-rose-rgb) / <alpha-value>)',
         onSapphire: 'rgb(var(--on-sapphire-rgb) / <alpha-value>)',
         onEmerald: 'rgb(var(--on-emerald-rgb) / <alpha-value>)',
+        // Playing-card colors — theme-invariant on purpose, see index.css.
+        cardFace: 'rgb(var(--color-card-face-rgb) / <alpha-value>)',
+        cardRed: 'rgb(var(--color-card-red-rgb) / <alpha-value>)',
+        cardBlack: 'rgb(var(--color-card-black-rgb) / <alpha-value>)',
         // Legacy aliases so a broad rename can happen incrementally without
         // breaking every call site in one commit.
         accent: 'rgb(var(--color-accent-maroon-rgb) / <alpha-value>)',
@@ -63,12 +67,27 @@ export default {
           '0%': { transform: 'scale(1)' },
           '50%': { transform: 'scale(1.15)' },
           '100%': { transform: 'scale(1)' }
+        },
+        'deal-in': {
+          // Motion CURVE only — the DISTANCE (where a card flies in from)
+          // is a per-element --deal-from custom property (a fixed keyframe
+          // can't know where each seat sits on the table), read here so
+          // the animation actually interpolates from it to identity.
+          '0%': { opacity: '0', transform: 'var(--deal-from, translate(0,0))' },
+          '60%': { opacity: '1' },
+          '100%': { opacity: '1', transform: 'translate(0, 0) rotate(0deg)' }
+        },
+        'turn-glow': {
+          '0%, 100%': { boxShadow: '0 0 0 2px var(--turn-glow-color, currentColor)' },
+          '50%': { boxShadow: '0 0 0 5px var(--turn-glow-color, currentColor)' }
         }
       },
       animation: {
         'fade-in': 'fade-in 0.18s ease-out',
         'scale-in': 'scale-in 0.22s ease-out',
-        'pop': 'pop 0.25s ease-in-out'
+        'pop': 'pop 0.25s ease-in-out',
+        'deal-in': 'deal-in 0.35s ease-out both',
+        'turn-glow': 'turn-glow 1.6s ease-in-out infinite'
       }
     }
   },

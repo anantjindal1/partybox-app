@@ -3,7 +3,8 @@ import {
   getCurrentPlayer,
   advanceTurn,
   removePlayer,
-  isRoundComplete
+  isRoundComplete,
+  setCurrentPlayer
 } from '../turnManager'
 
 describe('createTurnState', () => {
@@ -112,5 +113,35 @@ describe('isRoundComplete', () => {
     state = advanceTurn(state) // idx 1
     state = advanceTurn(state) // idx 0, round 2
     expect(isRoundComplete(state)).toBe(true)
+  })
+})
+
+describe('setCurrentPlayer', () => {
+  test('jumps currentIdx directly to an arbitrary player, not just +1', () => {
+    const state = createTurnState(['p1', 'p2', 'p3', 'p4'])
+    const next = setCurrentPlayer(state, 'p4')
+    expect(next.currentIdx).toBe(3)
+    expect(getCurrentPlayer(next)).toEqual({ id: 'p4' })
+  })
+
+  test('increments round on every call, representing a new trick starting', () => {
+    const state = createTurnState(['p1', 'p2', 'p3'])
+    const next = setCurrentPlayer(state, 'p2')
+    expect(next.round).toBe(2)
+    const next2 = setCurrentPlayer(next, 'p1')
+    expect(next2.round).toBe(3)
+  })
+
+  test('jumping to the current player still increments round (still a new trick)', () => {
+    const state = createTurnState(['p1', 'p2'])
+    const next = setCurrentPlayer(state, 'p1')
+    expect(next.currentIdx).toBe(0)
+    expect(next.round).toBe(2)
+  })
+
+  test('returns unchanged state if the player id is not found (e.g. already removed)', () => {
+    const state = createTurnState(['p1', 'p2'])
+    const next = setCurrentPlayer(state, 'ghost')
+    expect(next).toEqual(state)
   })
 })

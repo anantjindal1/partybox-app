@@ -31,3 +31,18 @@ export function removePlayer(turnState, playerId) {
 export function isRoundComplete(turnState) {
   return turnState.currentIdx === 0
 }
+
+// Jumps the lead directly to an arbitrary player — trick-taking games need
+// the next trick led by whoever WON the last trick, not by advancing one
+// seat at a time. Each call represents a new trick starting, so `round`
+// always increments here (unlike advanceTurn, which only increments when
+// the seat index wraps back to 0 — that no longer coincides with "a trick
+// just finished" once the lead can jump around). Callers must track trick
+// completion themselves (cards played this trick === player count) rather
+// than relying on isRoundComplete once this function is in use.
+export function setCurrentPlayer(turnState, playerId) {
+  const { playerIds, round } = turnState
+  const idx = playerIds.indexOf(playerId)
+  if (idx === -1) return turnState
+  return { playerIds, currentIdx: idx, round: round + 1 }
+}

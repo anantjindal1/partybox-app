@@ -25,6 +25,17 @@
   --hero-overlay-1: rgba(251, 243, 231, 0.55);
   --hero-overlay-2: rgba(251, 243, 231, 0.78);
   --hero-overlay-3: rgba(251, 243, 231, 1);
+  /* Playing-card face/suit colors — deliberately defined ONLY here in :root,
+     never overridden in the dark-theme block below. A physical card's face
+     doesn't change color with room lighting, and dark red/black suit
+     glyphs on a dark card face would lose the contrast that makes a card
+     readable at a glance — so these stay fixed regardless of app theme. */
+  --color-card-face: #FFFDF8;
+  --color-card-red: #B3242F;
+  --color-card-black: #2B1116;
+  --color-card-face-rgb: 255 253 248;
+  --color-card-red-rgb: 179 36 47;
+  --color-card-black-rgb: 43 17 22;
   /* Text color for content sitting ON TOP of a filled accent (not the accent's own text color) */
   --on-gold: #2B1116;
   --on-teal: #FBF3E7;
