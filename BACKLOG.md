@@ -27,7 +27,7 @@ not a keep/cut decision.
 - Call Break
 - Judgement (Kachuful)
 - Court Piece (Rang)
-- Bhabhi
+- ✅ Bhabhi — online, slate accent (2026-09-09). First real trick-taking game — first exercise of `resolveTrick()`, first no-trump caller. Sudden-death win condition (first to empty hand wins immediately) made this simpler than a classic scored trick game. Promoted Bluff's `dealUneven` into the shared engine; added `getLegalPlays()` and `CardTable`'s `disabledCardIds` prop, both reusable by the remaining Wave 3 games.
 - Satti (Sevens)
 
 **Post-Wave-3 — full regression pass:**
@@ -59,7 +59,7 @@ not a keep/cut decision.
 8. **Satti (Sevens)** — Build sequences up/down from the 7 in each suit; first to empty their hand wins.
 9. **Donkey (Gadha)** — Pass cards to collect four of a kind; last to react is the donkey.
 10. **3-2-5 (Teen Do Paanch)** — Three-player trick game; each must win an exact target of tricks.
-11. **Bhabhi (Get Away)** — Shedding game; follow suit, avoid being left holding cards.
+11. ✅ **Bhabhi (Get Away)** — Sudden-death shedding game; follow suit or dump, first to empty your hand wins immediately.
 12. **Mendikot (Mindi)** — Four-player partnership trick game; capture the four 10s.
 13. **Court Piece (Coatpees / Rang)** — Four-player fixed-partnership trick game; caller picks trump, race to seven tricks.
 14. **Judgement (Kachuful)** — Bid exactly how many tricks you'll win each round; score only if you hit it.
