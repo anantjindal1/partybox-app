@@ -30,6 +30,12 @@ not a keep/cut decision.
 - Bhabhi
 - Satti (Sevens)
 
+**Post-Wave-3 — full regression pass:**
+- Once all 5 Wave 3 games are shipped, spawn multiple agents in parallel to
+  comprehensively test every game in the app (Wave 1 + Wave 2 + Wave 3, plus
+  anything in the "for review" list) for regressions and bugs before moving
+  on to any unscheduled backlog item.
+
 **Unscheduled — kept in backlog, no wave assigned yet:**
 - Bakwaas Adaalat
 - Chugli Detective
