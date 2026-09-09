@@ -34,6 +34,42 @@
   --on-rose: #FBF3E7;
   --on-sapphire: #FBF3E7;
   --on-emerald: #FBF3E7;
+
+  /* RGB-channel companions of the tokens above, for Tailwind's opacity
+     modifier syntax (bg-emerald/20, etc). Tailwind can only alpha-blend a
+     CSS-var color when it's in `rgb(var(--x) / <alpha-value>)` form with
+     --x stored as space-separated channels — a hex string can't be blended
+     at build time, so opacity classes on the hex vars above silently
+     render as fully transparent. These are consumed ONLY by
+     tailwind.config.js; every direct (non-Tailwind-class) consumer of the
+     hex vars above — CircularTimer.jsx, Home.jsx's LogoMark/hero icons,
+     this file's own focus-ring box-shadow — keeps working unchanged. */
+  --color-bg-rgb: 251 243 231;
+  --color-surface-rgb: 255 253 248;
+  --color-surface-elevated-rgb: 255 255 255;
+  --color-surface-muted-rgb: 243 230 211;
+  --color-border-rgb: 233 215 190;
+  --color-border-muted-rgb: 216 194 160;
+  --color-text-primary-rgb: 43 17 22;
+  --color-text-secondary-rgb: 91 64 56;
+  --color-text-muted-rgb: 122 95 88;
+  --color-accent-maroon-rgb: 122 31 43;
+  --color-accent-gold-rgb: 184 135 62;
+  --color-accent-teal-rgb: 20 106 88;
+  --color-accent-terracotta-rgb: 166 64 47;
+  --color-accent-plum-rgb: 107 63 115;
+  --color-accent-rose-rgb: 166 49 79;
+  --color-accent-sapphire-rgb: 31 92 130;
+  --color-accent-emerald-rgb: 31 122 77;
+  --color-error-rgb: 214 69 69;
+  --on-gold-rgb: 43 17 22;
+  --on-teal-rgb: 251 243 231;
+  --on-terracotta-rgb: 251 243 231;
+  --on-maroon-rgb: 251 243 231;
+  --on-plum-rgb: 251 243 231;
+  --on-rose-rgb: 251 243 231;
+  --on-sapphire-rgb: 251 243 231;
+  --on-emerald-rgb: 251 243 231;
 }
 
 /* Dark theme — same hue family, values tuned for a dark ground, not a straight invert. */
@@ -67,6 +103,33 @@
   --on-rose: #2B1116;
   --on-sapphire: #0B2430;
   --on-emerald: #0B2617;
+
+  --color-bg-rgb: 28 15 19;
+  --color-surface-rgb: 43 26 31;
+  --color-surface-elevated-rgb: 53 33 42;
+  --color-surface-muted-rgb: 58 35 42;
+  --color-border-rgb: 71 52 37;
+  --color-border-muted-rgb: 97 73 47;
+  --color-text-primary-rgb: 243 231 217;
+  --color-text-secondary-rgb: 217 195 176;
+  --color-text-muted-rgb: 183 154 138;
+  --color-accent-maroon-rgb: 168 58 82;
+  --color-accent-gold-rgb: 201 161 90;
+  --color-accent-teal-rgb: 43 138 115;
+  --color-accent-terracotta-rgb: 194 84 62;
+  --color-accent-plum-rgb: 180 127 190;
+  --color-accent-rose-rgb: 212 88 122;
+  --color-accent-sapphire-rgb: 74 159 199;
+  --color-accent-emerald-rgb: 63 187 119;
+  --color-error-rgb: 224 91 76;
+  --on-gold-rgb: 28 15 19;
+  --on-teal-rgb: 11 42 36;
+  --on-terracotta-rgb: 43 17 22;
+  --on-maroon-rgb: 243 231 217;
+  --on-plum-rgb: 43 17 22;
+  --on-rose-rgb: 43 17 22;
+  --on-sapphire-rgb: 11 36 48;
+  --on-emerald-rgb: 11 38 23;
 }
 
 /* Base: comfortable reading size, smooth font */

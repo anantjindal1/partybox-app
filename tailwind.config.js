@@ -6,37 +6,44 @@ export default {
         display: ['"Rozha One"', 'Georgia', '"Times New Roman"', 'serif']
       },
       colors: {
-        bg: 'var(--color-bg)',
-        surface: 'var(--color-surface)',
-        surfaceElevated: 'var(--color-surface-elevated)',
-        surfaceMuted: 'var(--color-surface-muted)',
-        border: 'var(--color-border)',
-        borderMuted: 'var(--color-border-muted)',
-        textPrimary: 'var(--color-text-primary)',
-        textSecondary: 'var(--color-text-secondary)',
-        textMuted: 'var(--color-text-muted)',
-        maroon: 'var(--color-accent-maroon)',
-        gold: 'var(--color-accent-gold)',
-        teal: 'var(--color-accent-teal)',
-        terracotta: 'var(--color-accent-terracotta)',
-        plum: 'var(--color-accent-plum)',
-        rose: 'var(--color-accent-rose)',
-        sapphire: 'var(--color-accent-sapphire)',
-        emerald: 'var(--color-accent-emerald)',
-        error: 'var(--color-error)',
-        onGold: 'var(--on-gold)',
-        onTeal: 'var(--on-teal)',
-        onTerracotta: 'var(--on-terracotta)',
-        onMaroon: 'var(--on-maroon)',
-        onPlum: 'var(--on-plum)',
-        onRose: 'var(--on-rose)',
-        onSapphire: 'var(--on-sapphire)',
-        onEmerald: 'var(--on-emerald)',
+        // Every entry uses the rgb(var(--x-rgb) / <alpha-value>) form so
+        // Tailwind's opacity modifiers (bg-emerald/20, border-sapphire/50,
+        // etc.) actually work — a plain var(--x) reference to a hex string
+        // can't be alpha-blended by Tailwind and silently renders opacity
+        // classes as fully transparent. The -rgb custom properties live in
+        // src/index.css alongside the original hex ones (kept for direct
+        // non-Tailwind consumers like inline SVG strokes).
+        bg: 'rgb(var(--color-bg-rgb) / <alpha-value>)',
+        surface: 'rgb(var(--color-surface-rgb) / <alpha-value>)',
+        surfaceElevated: 'rgb(var(--color-surface-elevated-rgb) / <alpha-value>)',
+        surfaceMuted: 'rgb(var(--color-surface-muted-rgb) / <alpha-value>)',
+        border: 'rgb(var(--color-border-rgb) / <alpha-value>)',
+        borderMuted: 'rgb(var(--color-border-muted-rgb) / <alpha-value>)',
+        textPrimary: 'rgb(var(--color-text-primary-rgb) / <alpha-value>)',
+        textSecondary: 'rgb(var(--color-text-secondary-rgb) / <alpha-value>)',
+        textMuted: 'rgb(var(--color-text-muted-rgb) / <alpha-value>)',
+        maroon: 'rgb(var(--color-accent-maroon-rgb) / <alpha-value>)',
+        gold: 'rgb(var(--color-accent-gold-rgb) / <alpha-value>)',
+        teal: 'rgb(var(--color-accent-teal-rgb) / <alpha-value>)',
+        terracotta: 'rgb(var(--color-accent-terracotta-rgb) / <alpha-value>)',
+        plum: 'rgb(var(--color-accent-plum-rgb) / <alpha-value>)',
+        rose: 'rgb(var(--color-accent-rose-rgb) / <alpha-value>)',
+        sapphire: 'rgb(var(--color-accent-sapphire-rgb) / <alpha-value>)',
+        emerald: 'rgb(var(--color-accent-emerald-rgb) / <alpha-value>)',
+        error: 'rgb(var(--color-error-rgb) / <alpha-value>)',
+        onGold: 'rgb(var(--on-gold-rgb) / <alpha-value>)',
+        onTeal: 'rgb(var(--on-teal-rgb) / <alpha-value>)',
+        onTerracotta: 'rgb(var(--on-terracotta-rgb) / <alpha-value>)',
+        onMaroon: 'rgb(var(--on-maroon-rgb) / <alpha-value>)',
+        onPlum: 'rgb(var(--on-plum-rgb) / <alpha-value>)',
+        onRose: 'rgb(var(--on-rose-rgb) / <alpha-value>)',
+        onSapphire: 'rgb(var(--on-sapphire-rgb) / <alpha-value>)',
+        onEmerald: 'rgb(var(--on-emerald-rgb) / <alpha-value>)',
         // Legacy aliases so a broad rename can happen incrementally without
         // breaking every call site in one commit.
-        accent: 'var(--color-accent-maroon)',
-        accentMuted: 'var(--color-accent-gold)',
-        accentSoft: 'var(--color-surface-muted)'
+        accent: 'rgb(var(--color-accent-maroon-rgb) / <alpha-value>)',
+        accentMuted: 'rgb(var(--color-accent-gold-rgb) / <alpha-value>)',
+        accentSoft: 'rgb(var(--color-surface-muted-rgb) / <alpha-value>)'
       },
       boxShadow: {
         soft: '0 2px 8px rgba(43, 17, 22, 0.12)',
