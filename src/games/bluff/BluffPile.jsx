@@ -6,7 +6,7 @@ function rankLabel(rank) {
   return RANK_LABEL[rank] ?? rank
 }
 
-export function BluffPile({ pileCount, lastPlay, players, pendingReveal, isHost, onResolveReveal }) {
+export function BluffPile({ pileCount, claimedRank, latestHandPlayerId, players, pendingReveal, isHost, onResolveReveal }) {
   function nameOf(id) {
     return players.find(p => p.id === id)?.name ?? 'Player'
   }
@@ -37,23 +37,25 @@ export function BluffPile({ pileCount, lastPlay, players, pendingReveal, isHost,
 
   return (
     <div className="flex flex-col items-center gap-1.5">
-      {lastPlay ? (
+      {claimedRank ? (
         <>
-          <div className="flex" style={{ marginLeft: 0 }}>
-            {lastPlay.cardIds.map((id, i) => (
-              <PlayingCard key={id} face="down" size="sm" style={{ marginLeft: i === 0 ? 0 : -20 }} />
+          <div className="flex">
+            {Array.from({ length: Math.min(pileCount, 8) }).map((_, i) => (
+              <PlayingCard key={i} face="down" size="sm" style={{ marginLeft: i === 0 ? 0 : -20 }} />
             ))}
           </div>
           <p className="text-xs text-textMuted text-center">
-            <span className="font-bold text-textPrimary">{nameOf(lastPlay.playerId)}</span> claims{' '}
-            {lastPlay.cardIds.length} × {rankLabel(lastPlay.claimedRank)}
+            Round claim: <span className="font-bold text-textPrimary">{rankLabel(claimedRank)}</span>
+          </p>
+          <p className="text-[10px] text-textMuted">
+            Latest hand by <span className="font-bold text-textPrimary">{nameOf(latestHandPlayerId)}</span>
           </p>
         </>
       ) : (
-        <p className="text-xs text-textMuted">No cards played yet</p>
+        <p className="text-xs text-textMuted">No round open — waiting for the next player to open one</p>
       )}
       {pileCount > 0 && (
-        <p className="text-[10px] text-textMuted">{pileCount} hidden card{pileCount === 1 ? '' : 's'} in the pile</p>
+        <p className="text-[10px] text-textMuted">{pileCount} card{pileCount === 1 ? '' : 's'} in the pile</p>
       )}
     </div>
   )

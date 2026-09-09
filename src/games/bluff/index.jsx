@@ -46,16 +46,22 @@ export default function Bluff({ code }) {
     if (phase === 'waiting') xpAwarded.current = false
   }, [phase])
 
-  // ── Host: process the current turn-holder's PLAY or CHALLENGE action ────
+  // ── Host: process the current turn-holder's action ───────────────────────
   useEffect(() => {
     if (!isHost || phase !== 'playing' || processingRef.current) return
     const current = roomState.turnOrder?.[roomState.currentIdx]
-    const action = actions.find(a => a.playerId === current && (a.type === 'PLAY' || a.type === 'CHALLENGE'))
+    const action = actions.find(
+      a => a.playerId === current && ['OPEN_ROUND', 'ADD', 'PASS', 'CHALLENGE'].includes(a.type)
+    )
     if (!action) return
     processingRef.current = true
     ;(async () => {
-      if (action.type === 'PLAY') {
-        await applyPlay(action.payload.cardIds, action.payload.claimedRank)
+      if (action.type === 'OPEN_ROUND') {
+        await applyOpenRound(action.payload.cardIds, action.payload.claimedRank)
+      } else if (action.type === 'ADD') {
+        await applyAdd(action.payload.cardIds)
+      } else if (action.type === 'PASS') {
+        await applyPass()
       } else {
         await applyChallenge()
       }
@@ -64,22 +70,9 @@ export default function Bluff({ code }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actions, isHost, phase, roomState.currentIdx])
 
-  async function applyPlay(cardIds, claimedRank) {
+  async function applyOpenRound(cardIds, claimedRank) {
     const current = roomStateRef.current
     const actingPlayerId = current.turnOrder[current.currentIdx]
-
-    // The outgoing lastPlay just went unchallenged — if it emptied that
-    // player's hand, they win right here; this new play never applies.
-    if (current.lastPlay && current.hands[current.lastPlay.playerId].length === 0) {
-      await clearActions()
-      await persist({ phase: 'results', winnerId: current.lastPlay.playerId })
-      return
-    }
-
-    // The outgoing lastPlay's cards join the pile permanently now — this
-    // is the ONLY place that happens, so they're never double-counted
-    // later when a future reveal merges pile + a (different) lastPlay.
-    const pile = current.lastPlay ? [...current.pile, ...current.lastPlay.cardIds] : current.pile
 
     let hand = current.hands[actingPlayerId]
     for (const id of cardIds) hand = removeCardFromHand(hand, id)
@@ -93,26 +86,93 @@ export default function Bluff({ code }) {
     await clearActions()
     await persist({
       hands: { ...current.hands, [actingPlayerId]: hand },
-      pile,
-      lastPlay: { playerId: actingPlayerId, cardIds, claimedRank },
+      pile: cardIds,
+      claimedRank,
+      latestHandPlayerId: actingPlayerId,
+      latestHandCardIds: cardIds,
       currentIdx: turnState.currentIdx,
       round: turnState.round
+    })
+  }
+
+  async function applyAdd(cardIds) {
+    const current = roomStateRef.current
+    const actingPlayerId = current.turnOrder[current.currentIdx]
+
+    // The outgoing latest-hand owner just got buried under this new add —
+    // if that emptied their hand, they win right here; this add is never
+    // applied (the game already ended one tick earlier).
+    if (current.hands[current.latestHandPlayerId].length === 0) {
+      await clearActions()
+      await persist({ phase: 'results', winnerId: current.latestHandPlayerId })
+      return
+    }
+
+    let hand = current.hands[actingPlayerId]
+    for (const id of cardIds) hand = removeCardFromHand(hand, id)
+
+    const turnState = advanceTurn({
+      playerIds: current.turnOrder,
+      currentIdx: current.currentIdx,
+      round: current.round
+    })
+
+    await clearActions()
+    await persist({
+      hands: { ...current.hands, [actingPlayerId]: hand },
+      pile: [...current.pile, ...cardIds],
+      latestHandPlayerId: actingPlayerId,
+      latestHandCardIds: cardIds,
+      currentIdx: turnState.currentIdx,
+      round: turnState.round
+    })
+  }
+
+  async function applyPass() {
+    const current = roomStateRef.current
+    const actingPlayerId = current.turnOrder[current.currentIdx]
+
+    if (actingPlayerId !== current.latestHandPlayerId) {
+      // Ordinary pass — nothing about the round changes, just move on.
+      const turnState = advanceTurn({
+        playerIds: current.turnOrder,
+        currentIdx: current.currentIdx,
+        round: current.round
+      })
+      await clearActions()
+      await persist({ currentIdx: turnState.currentIdx, round: turnState.round })
+      return
+    }
+
+    // A full pass-around just completed — this is a burn.
+    if (current.hands[actingPlayerId].length === 0) {
+      await clearActions()
+      await persist({ phase: 'results', winnerId: actingPlayerId })
+      return
+    }
+
+    await clearActions()
+    await persist({
+      pile: [],
+      claimedRank: null,
+      latestHandPlayerId: null,
+      latestHandCardIds: null
+      // currentIdx unchanged — same player opens the next round
     })
   }
 
   async function applyChallenge() {
     const current = roomStateRef.current
     const challengerId = current.turnOrder[current.currentIdx]
-    const { lastPlay } = current
-    const correct = lastPlay.cardIds.every(id => parseCard(id).rank === lastPlay.claimedRank)
+    const correct = current.latestHandCardIds.every(id => parseCard(id).rank === current.claimedRank)
 
     await clearActions()
     await persist({
       pendingReveal: {
         challengerId,
-        claimantId: lastPlay.playerId,
+        claimantId: current.latestHandPlayerId,
         correct,
-        actualCardIds: lastPlay.cardIds
+        actualCardIds: current.latestHandCardIds
       }
     })
   }
@@ -122,7 +182,7 @@ export default function Bluff({ code }) {
     setRevealResolving(true)
     try {
       const current = roomStateRef.current
-      const { pendingReveal, lastPlay, hands, pile, turnOrder } = current
+      const { pendingReveal, hands, pile, turnOrder } = current
       const claimantId = pendingReveal.claimantId
 
       if (pendingReveal.correct && hands[claimantId].length === 0) {
@@ -132,16 +192,18 @@ export default function Bluff({ code }) {
       }
 
       const pileTakerId = pendingReveal.correct ? pendingReveal.challengerId : claimantId
-      const newHand = addCardsToHand(hands[pileTakerId], [...pile, ...lastPlay.cardIds])
-      const nextIdx = (turnOrder.indexOf(pileTakerId) + 1) % turnOrder.length
+      const nextStarterId = pendingReveal.correct ? claimantId : pendingReveal.challengerId
+      const newHand = addCardsToHand(hands[pileTakerId], pile)
 
       await clearActions()
       await persist({
         hands: { ...hands, [pileTakerId]: newHand },
         pile: [],
-        lastPlay: null,
+        claimedRank: null,
+        latestHandPlayerId: null,
+        latestHandCardIds: null,
         pendingReveal: null,
-        currentIdx: nextIdx,
+        currentIdx: turnOrder.indexOf(nextStarterId),
         round: (current.round ?? 1) + 1
       })
     } finally {
@@ -164,7 +226,9 @@ export default function Bluff({ code }) {
         round: 1,
         hands,
         pile: [],
-        lastPlay: null,
+        claimedRank: null,
+        latestHandPlayerId: null,
+        latestHandCardIds: null,
         pendingReveal: null,
         winnerId: null
       })
@@ -177,9 +241,18 @@ export default function Bluff({ code }) {
     setSelectedCardIds(prev => prev.includes(cardId) ? prev.filter(c => c !== cardId) : [...prev, cardId])
   }
 
-  function handlePlayCards(cardIds, claimedRank) {
-    sendAction({ type: 'PLAY', payload: { cardIds, claimedRank } })
+  function handleOpenRound(cardIds, claimedRank) {
+    sendAction({ type: 'OPEN_ROUND', payload: { cardIds, claimedRank } })
     setSelectedCardIds([])
+  }
+
+  function handleAdd(cardIds) {
+    sendAction({ type: 'ADD', payload: { cardIds } })
+    setSelectedCardIds([])
+  }
+
+  function handlePass() {
+    sendAction({ type: 'PASS', payload: {} })
   }
 
   function handleChallenge() {
@@ -234,6 +307,7 @@ export default function Bluff({ code }) {
   if (phase === 'playing') {
     const myHand = roomState.hands?.[myId] ?? []
     const isMyTurn = roomState.turnOrder?.[roomState.currentIdx] === myId
+    const amLatestHandOwner = roomState.latestHandPlayerId === myId
     const otherSeats = players
       .filter(p => p.id !== myId)
       .map(p => ({
@@ -251,7 +325,8 @@ export default function Bluff({ code }) {
           centerSlot={
             <BluffPile
               pileCount={roomState.pile?.length ?? 0}
-              lastPlay={roomState.lastPlay}
+              claimedRank={roomState.claimedRank}
+              latestHandPlayerId={roomState.latestHandPlayerId}
               players={players}
               pendingReveal={roomState.pendingReveal}
               isHost={isHost}
@@ -265,9 +340,12 @@ export default function Bluff({ code }) {
         {!roomState.pendingReveal && (
           <BluffControls
             isMyTurn={isMyTurn}
-            canChallenge={isMyTurn && !!roomState.lastPlay}
+            roundOpen={roomState.claimedRank != null}
+            amLatestHandOwner={amLatestHandOwner}
             selectedCardIds={selectedCardIds}
-            onPlay={handlePlayCards}
+            onOpenRound={handleOpenRound}
+            onAdd={handleAdd}
+            onPass={handlePass}
             onChallenge={handleChallenge}
           />
         )}
