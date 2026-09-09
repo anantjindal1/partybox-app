@@ -17,8 +17,9 @@ not a keep/cut decision.
 - ✅ Tambola (Housie) — online, sapphire accent
 - ✅ Bhed (Jasoos) — online, emerald accent
 
-**Wave 2 — next up. Needs the card-dealing engine built first, then validate it with the cheapest card game:**
-- Bluff (no trick-tracking needed — proves the deal/claim/reveal loop first)
+**Wave 2 — infra ✅ DONE (2026-09-09), games not started:**
+- Shared card-dealing engine + card-table UI built (`src/multiplayer/{deck,deal,hand,trick}.js`, `src/components/cards/`) — see the shared dependency epic below.
+- Bluff — up next, chosen specifically because it needs no trick-tracking, so it's the cheapest real test of the new engine.
 - Kahani Judge
 
 **Wave 3 — trick-taking depth, once the engine is proven:**
@@ -64,4 +65,4 @@ not a keep/cut decision.
 
 ## Shared dependency epic
 
-- **Card-dealing / trick-tracking engine** — shared shuffle/deal/trick-resolution layer required by games 7–15. Build once, reuse across all card games.
+- ✅ **Card-dealing / trick-tracking engine** — DONE (2026-09-09). Shared shuffle/deal/trick-resolution layer required by games 7–15, plus a reusable card-table UI (opponent seats with face-down stacks, own hand fanned face-up, center play zone, score bar). `src/multiplayer/{deck,deal,hand,trick}.js` + `src/components/cards/`. Not yet exercised by a real game — Bluff will be the first.
