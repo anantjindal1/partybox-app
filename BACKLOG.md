@@ -48,7 +48,7 @@ not a keep/cut decision.
 
 ## Card games (need a new card-dealing / trick-tracking layer — shared dependency, see epic below)
 
-7. ✅ **Bluff** — Play cards face-down claiming a rank; anyone can call "Bluff!" and the phone reveals (built as free-choice-of-rank, no forced sequence, no timer — only the current turn-holder can ever challenge the single most recent play).
+7. ✅ **Bluff** — Play cards face-down claiming a rank; anyone can call "Bluff!" and the phone reveals (round-based: one player fixes a rank per round, others pass/add-more/challenge the latest addition only; three ways a round ends, each opening the next round with a different player).
 8. **Satti (Sevens)** — Build sequences up/down from the 7 in each suit; first to empty their hand wins.
 9. **Donkey (Gadha)** — Pass cards to collect four of a kind; last to react is the donkey.
 10. **3-2-5 (Teen Do Paanch)** — Three-player trick game; each must win an exact target of tricks.
