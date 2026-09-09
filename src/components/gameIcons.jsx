@@ -89,6 +89,17 @@ export function MagnifyingGlassIcon(props) {
   )
 }
 
+export function MaskIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M12 3c-4.5 0-8 1.8-8 5 0 5 3 10 8 10s8-5 8-10c0-3.2-3.5-5-8-5z" />
+      <path d="M7.5 10.5c0-1 .8-1.5 1.8-1.5s1.7.5 1.7 1.5" />
+      <path d="M13 10.5c0-1 .8-1.5 1.8-1.5s1.7.5 1.7 1.5" />
+      <path d="M9 15c1 .8 2 .8 3 0" />
+    </svg>
+  )
+}
+
 export function DiceIcon(props) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -113,6 +124,7 @@ export const GAME_ICONS = {
   'sabse-zyada-kaun-offline': RaisedHandIcon,
   'tambola': TicketIcon,
   'bhed': MagnifyingGlassIcon,
+  'bluff': MaskIcon,
 }
 
 export function getGameIcon(slug) {

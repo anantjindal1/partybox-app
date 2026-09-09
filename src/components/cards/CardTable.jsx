@@ -16,6 +16,7 @@ export function CardTable({
   myHand = [],
   myIsActiveTurn = false,
   centerCards = [],
+  centerSlot = null,
   selectedCardIds = [],
   onCardTap,
   accent = 'maroon',
@@ -38,9 +39,12 @@ export function CardTable({
         ))}
       </div>
 
-      {/* Cards currently in play */}
+      {/* Cards currently in play — a game with unusual center-zone needs
+          (e.g. Bluff's face-down claim pile) passes centerSlot instead of
+          relying on this default face-up rendering, so its own layout
+          never fights this built-in empty zone for space. */}
       <div className="flex-1 flex items-center justify-center gap-2 min-h-[70px] py-2">
-        {centerCards.map((entry, i) => {
+        {centerSlot ?? centerCards.map((entry, i) => {
           const { rank, suit } = parseCard(entry.card)
           return (
             <div key={entry.card} className="flex flex-col items-center gap-1 animate-fade-in" style={{ animationDelay: `${i * 60}ms` }}>

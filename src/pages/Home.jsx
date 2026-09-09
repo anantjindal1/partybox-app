@@ -16,7 +16,7 @@ import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import { trackEvent as trackAnalyticsEvent } from '../services/analytics_events'
 import AdBanner from '../components/AdBanner'
-import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
+import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
 
 const COMING_SOON_SLOTS = 0
 
@@ -78,6 +78,12 @@ const ACCENT_STYLES = {
     iconRing: 'border-emerald text-emerald',
     tab: 'text-emerald border-emerald',
     cta: 'bg-emerald text-onEmerald'
+  },
+  indigo: {
+    border: 'border-indigo',
+    iconRing: 'border-indigo text-indigo',
+    tab: 'text-indigo border-indigo',
+    cta: 'bg-indigo text-onIndigo'
   }
 }
 
@@ -185,6 +191,19 @@ const VISIBLE_GAMES = [
     cta: 'Create Room →',
     isOnline: true,
   },
+  {
+    slug: 'bluff',
+    icon: MaskIcon,
+    title: 'Bluff',
+    modeBadge: 'Online',
+    modeIcon: SignalIcon,
+    accent: 'indigo',
+    description: 'Play cards face-down, claim a rank — anyone can call it out',
+    playersPill: '3-6 players',
+    timePill: '~15 mins',
+    cta: 'Create Room →',
+    isOnline: true,
+  },
 ]
 
 // Every other registered game — surfaced below as a plain, temporary review
@@ -192,7 +211,7 @@ const VISIBLE_GAMES = [
 // and triaged for deletion. Not meant to look "finished."
 const VISIBLE_SLUGS = new Set([
   'thinkfast', 'dumb-charades-offline', 'firstbell', 'raja-mantri',
-  'sabse-zyada-kaun', 'sabse-zyada-kaun-offline', 'tambola', 'bhed',
+  'sabse-zyada-kaun', 'sabse-zyada-kaun-offline', 'tambola', 'bhed', 'bluff',
 ])
 
 export default function Home() {

@@ -11,6 +11,7 @@ import sabseZyadaKaunMeta from './sabse-zyada-kaun/metadata.js'
 import sabseZyadaKaunOfflineMeta from './sabse-zyada-kaun/metadata-offline.js'
 import tambolaMeta from './tambola/metadata.js'
 import bhedMeta from './bhed/metadata.js'
+import bluffMeta from './bluff/metadata.js'
 
 // Lazy-loaded game components — each game is a separate JS chunk.
 // This keeps the initial bundle small for low-end devices.
@@ -26,6 +27,7 @@ const SabseZyadaKaun        = lazy(() => import('./sabse-zyada-kaun/index.jsx'))
 const SabseZyadaKaunOffline = lazy(() => import('./sabse-zyada-kaun/SabseZyadaKaunOffline.jsx'))
 const Tambola               = lazy(() => import('./tambola/index.jsx'))
 const Bhed                  = lazy(() => import('./bhed/index.jsx'))
+const Bluff                 = lazy(() => import('./bluff/index.jsx'))
 
 export const games = [
   { ...firstBellMeta,           Component: FirstBell },
@@ -39,7 +41,8 @@ export const games = [
   { ...sabseZyadaKaunMeta,        Component: SabseZyadaKaun },
   { ...sabseZyadaKaunOfflineMeta, Component: SabseZyadaKaunOffline },
   { ...tambolaMeta,               Component: Tambola },
-  { ...bhedMeta,                   Component: Bhed }
+  { ...bhedMeta,                   Component: Bhed },
+  { ...bluffMeta,                   Component: Bluff }
 ]
 
 export function getGame(slug) {
