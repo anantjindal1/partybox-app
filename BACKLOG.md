@@ -24,7 +24,7 @@ not a keep/cut decision.
 - Wave 2 complete.
 
 **Wave 3 — trick-taking depth, once the engine is proven:**
-- Call Break
+- ✅ Call Break — online, turquoise accent (2026-09-10). Exactly 4 players, spades always trump, 5-round bidding game. First real test of `dealCards()` (exact 13-per-player split) and `resolveTrick()`'s trump branch. Cumulative scores can go negative, which required deliberately diverging from Bakwaas's tie-handling/XP pattern rather than copying it verbatim.
 - Judgement (Kachuful)
 - Court Piece (Rang)
 - ✅ Bhabhi — online, slate accent (2026-09-09). First real trick-taking game — first exercise of `resolveTrick()`, first no-trump caller. Sudden-death win condition (first to empty hand wins immediately) made this simpler than a classic scored trick game. Promoted Bluff's `dealUneven` into the shared engine; added `getLegalPlays()` and `CardTable`'s `disabledCardIds` prop, both reusable by the remaining Wave 3 games.
@@ -63,7 +63,7 @@ not a keep/cut decision.
 12. **Mendikot (Mindi)** — Four-player partnership trick game; capture the four 10s.
 13. **Court Piece (Coatpees / Rang)** — Four-player fixed-partnership trick game; caller picks trump, race to seven tricks.
 14. **Judgement (Kachuful)** — Bid exactly how many tricks you'll win each round; score only if you hit it.
-15. **Call Break** — Thirteen-card spades-style trick game with per-round bidding.
+15. ✅ **Call Break** — Thirteen-card spades-style trick game with per-round bidding.
 
 ## Other
 
