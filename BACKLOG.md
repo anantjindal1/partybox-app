@@ -20,7 +20,8 @@ not a keep/cut decision.
 **Wave 2 — infra ✅ DONE (2026-09-09):**
 - Shared card-dealing engine + card-table UI built (`src/multiplayer/{deck,deal,hand,trick}.js`, `src/components/cards/`) — see the shared dependency epic below.
 - ✅ Bluff — online, indigo accent (2026-09-09). First real game built on the engine — proved it out, one small generic addition to `CardTable` (`centerSlot` prop) along the way.
-- Kahani Judge — next.
+- ✅ Bakwaas (renamed from "Kahani Judge") — online, fuchsia accent (2026-09-09). Fill-a-prompt's-blank + anonymous room voting, extending Sabse Zyada Kaun's prompt/tag/voting pattern with a new free-text answering phase.
+- Wave 2 complete.
 
 **Wave 3 — trick-taking depth, once the engine is proven:**
 - Call Break
@@ -42,7 +43,7 @@ not a keep/cut decision.
 1. ✅ **Sabse Zyada Kaun** — Room votes which player best fits a cheeky superlative; match the majority to score.
 2. ✅ **Bhed (Jasoos)** — Everyone gets a secret word except one hidden outsider; players say related words aloud, then vote to find the Bhed.
 3. **Bakwaas Adaalat** — Two players argue a ridiculous case ~30s each; the room votes the winner.
-4. **Kahani Judge** — Fill a prompt's blank with a funny short answer; room votes the best (typing).
+4. ✅ **Bakwaas** (formerly "Kahani Judge") — Fill a prompt's blank with a funny short answer; room votes the best (typing).
 5. **Chugli Detective** — Everyone submits an anonymous "I once…" confession; room guesses who wrote each.
 6. ✅ **Raja Mantri Chor Sipahi** — Phone secretly deals the four+ roles; Mantri guesses the Chor to protect the points.
 
