@@ -16,7 +16,7 @@ import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import { trackEvent as trackAnalyticsEvent } from '../services/analytics_events'
 import AdBanner from '../components/AdBanner'
-import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
+import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
 
 const COMING_SOON_SLOTS = 0
 
@@ -96,6 +96,12 @@ const ACCENT_STYLES = {
     iconRing: 'border-slate text-slate',
     tab: 'text-slate border-slate',
     cta: 'bg-slate text-onSlate'
+  },
+  turquoise: {
+    border: 'border-turquoise',
+    iconRing: 'border-turquoise text-turquoise',
+    tab: 'text-turquoise border-turquoise',
+    cta: 'bg-turquoise text-onTurquoise'
   }
 }
 
@@ -242,6 +248,19 @@ const VISIBLE_GAMES = [
     cta: 'Create Room →',
     isOnline: true,
   },
+  {
+    slug: 'call-break',
+    icon: CallBreakIcon,
+    title: 'Call Break',
+    modeBadge: 'Online',
+    modeIcon: SignalIcon,
+    accent: 'turquoise',
+    description: 'Bid your tricks, spades are always trump — 5 rounds to the top',
+    playersPill: 'Exactly 4 players',
+    timePill: '~30 mins',
+    cta: 'Create Room →',
+    isOnline: true,
+  },
 ]
 
 // Every other registered game — surfaced below as a plain, temporary review
@@ -250,7 +269,7 @@ const VISIBLE_GAMES = [
 const VISIBLE_SLUGS = new Set([
   'thinkfast', 'dumb-charades-offline', 'firstbell', 'raja-mantri',
   'sabse-zyada-kaun', 'sabse-zyada-kaun-offline', 'tambola', 'bhed', 'bluff',
-  'bakwaas', 'bhabhi',
+  'bakwaas', 'bhabhi', 'call-break',
 ])
 
 export default function Home() {

@@ -5,6 +5,8 @@
  * each re-deriving its own from metadata.icon emoji strings.
  */
 
+import { SpadeIcon as SuitSpadeIcon } from './cards/suitIcons'
+
 export function BoltIcon(props) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" {...props}>
@@ -109,6 +111,10 @@ export function SpeechBubbleIcon(props) {
   )
 }
 
+export function CallBreakIcon(props) {
+  return <SuitSpadeIcon width="18" height="18" {...props} />
+}
+
 export function DoorExitIcon(props) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -146,6 +152,7 @@ export const GAME_ICONS = {
   'bluff': MaskIcon,
   'bakwaas': SpeechBubbleIcon,
   'bhabhi': DoorExitIcon,
+  'call-break': CallBreakIcon,
 }
 
 export function getGameIcon(slug) {

@@ -24,6 +24,7 @@
   --color-accent-indigo: #4A3F8C;
   --color-accent-fuchsia: #9C2A72;
   --color-accent-slate: #525E6F;
+  --color-accent-turquoise: #148F8B;
   --color-error: #D64545;
   --hero-overlay-1: rgba(251, 243, 231, 0.55);
   --hero-overlay-2: rgba(251, 243, 231, 0.78);
@@ -51,6 +52,7 @@
   --on-indigo: #FBF3E7;
   --on-fuchsia: #FBF3E7;
   --on-slate: #FBF3E7;
+  --on-turquoise: #FBF3E7;
 
   /* RGB-channel companions of the tokens above, for Tailwind's opacity
      modifier syntax (bg-emerald/20, etc). Tailwind can only alpha-blend a
@@ -81,6 +83,7 @@
   --color-accent-indigo-rgb: 74 63 140;
   --color-accent-fuchsia-rgb: 156 42 114;
   --color-accent-slate-rgb: 82 94 111;
+  --color-accent-turquoise-rgb: 20 143 139;
   --color-error-rgb: 214 69 69;
   --on-gold-rgb: 43 17 22;
   --on-teal-rgb: 251 243 231;
@@ -93,6 +96,7 @@
   --on-indigo-rgb: 251 243 231;
   --on-fuchsia-rgb: 251 243 231;
   --on-slate-rgb: 251 243 231;
+  --on-turquoise-rgb: 251 243 231;
 }
 
 /* Dark theme — same hue family, values tuned for a dark ground, not a straight invert. */
@@ -117,6 +121,7 @@
   --color-accent-indigo: #8D82CC;
   --color-accent-fuchsia: #D5629F;
   --color-accent-slate: #9CA6B4;
+  --color-accent-turquoise: #33CCC7;
   --color-error: #E05B4C;
   --hero-overlay-1: rgba(28, 15, 19, 0.55);
   --hero-overlay-2: rgba(28, 15, 19, 0.78);
@@ -132,6 +137,7 @@
   --on-indigo: #241D3D;
   --on-fuchsia: #2B1116;
   --on-slate: #1C2530;
+  --on-turquoise: #0B2928;
 
   --color-bg-rgb: 28 15 19;
   --color-surface-rgb: 43 26 31;
@@ -153,6 +159,7 @@
   --color-accent-indigo-rgb: 141 130 204;
   --color-accent-fuchsia-rgb: 213 98 159;
   --color-accent-slate-rgb: 156 166 180;
+  --color-accent-turquoise-rgb: 51 204 199;
   --color-error-rgb: 224 91 76;
   --on-gold-rgb: 28 15 19;
   --on-teal-rgb: 11 42 36;
@@ -165,6 +172,7 @@
   --on-indigo-rgb: 36 29 61;
   --on-fuchsia-rgb: 43 17 22;
   --on-slate-rgb: 28 37 48;
+  --on-turquoise-rgb: 11 41 40;
 }
 
 /* Base: comfortable reading size, smooth font */
