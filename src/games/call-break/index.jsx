@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
+import { useLang } from '../../store/LangContext'
 import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
 import { removeCardFromHand, sortHand } from '../../multiplayer/hand'
 import { dealCards } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
 import { CardTable } from '../../components/cards/CardTable'
+import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { BiddingScreen } from './BiddingScreen'
 import { RoundRevealScreen } from './RoundRevealScreen'
 import { ResultsScreen } from './ResultsScreen'
@@ -21,6 +23,7 @@ const TOTAL_ROUNDS = 5
 
 export default function CallBreak({ code }) {
   const navigate = useNavigate()
+  const { lang } = useLang()
   const {
     room,
     roomState,
@@ -278,6 +281,13 @@ export default function CallBreak({ code }) {
     const roomFull = players.length > 4
     return (
       <div className="flex flex-col gap-4 max-w-lg w-full mx-auto pt-2">
+        <GameRulesPanel
+          title={metadata.title[lang]}
+          rules={metadata.rules[lang]}
+          tutorialSlides={metadata.tutorial[lang]}
+          accent="turquoise"
+          phase={phase}
+        />
         {roomFull && (
           <p className="text-center text-error text-sm">
             Room full (4/4) — ask the host to remove a player to start.

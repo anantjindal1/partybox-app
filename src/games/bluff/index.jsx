@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
+import { useLang } from '../../store/LangContext'
 import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
 import { removeCardFromHand, addCardsToHand, sortHandByRank } from '../../multiplayer/hand'
 import { advanceTurn } from '../../multiplayer/turnManager'
 import { dealEven } from '../../multiplayer/deal'
 import { CardTable } from '../../components/cards/CardTable'
+import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { BluffPile } from './BluffPile'
 import { BluffControls } from './BluffControls'
 import { ResultsScreen } from './ResultsScreen'
@@ -16,6 +18,7 @@ import metadata from './metadata'
 
 export default function Bluff({ code }) {
   const navigate = useNavigate()
+  const { lang } = useLang()
   const {
     room,
     roomState,
@@ -289,6 +292,13 @@ export default function Bluff({ code }) {
   if (phase === 'waiting') {
     return (
       <div className="flex flex-col gap-4 max-w-lg w-full mx-auto pt-2">
+        <GameRulesPanel
+          title={metadata.title[lang]}
+          rules={metadata.rules[lang]}
+          tutorialSlides={metadata.tutorial[lang]}
+          accent="indigo"
+          phase={phase}
+        />
         {isHost ? (
           <button
             onClick={handleStartGame}

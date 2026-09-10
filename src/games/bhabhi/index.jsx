@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
+import { useLang } from '../../store/LangContext'
 import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
 import { removeCardFromHand, sortHand } from '../../multiplayer/hand'
 import { dealEven } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
 import { CardTable } from '../../components/cards/CardTable'
+import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { ResultsScreen } from './ResultsScreen'
 import { awardXP } from '../../services/xp'
 import { writeGameStats } from '../../services/stats'
@@ -17,6 +19,7 @@ const SUIT_LABEL = { spades: '♠', hearts: '♥', diamonds: '♦', clubs: '♣'
 
 export default function Bhabhi({ code }) {
   const navigate = useNavigate()
+  const { lang } = useLang()
   const {
     room,
     roomState,
@@ -168,6 +171,13 @@ export default function Bhabhi({ code }) {
   if (phase === 'waiting') {
     return (
       <div className="flex flex-col gap-4 max-w-lg w-full mx-auto pt-2">
+        <GameRulesPanel
+          title={metadata.title[lang]}
+          rules={metadata.rules[lang]}
+          tutorialSlides={metadata.tutorial[lang]}
+          accent="slate"
+          phase={phase}
+        />
         {isHost ? (
           <button
             onClick={handleStartGame}
