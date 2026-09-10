@@ -66,6 +66,7 @@ future one.
 - 3-2-5 (Teen Do Paanch)
 - Mendikot (Mindi)
 - Codenames
+- Teri — rules TBD, user to detail later
 
 ## Party / social (reuse existing vote-tally + event engine)
 
