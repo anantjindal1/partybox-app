@@ -1,4 +1,4 @@
-import { dealCards, dealEven } from '../deal'
+import { dealCards, dealEven, dealAll } from '../deal'
 import { createDeck, shuffleDeck } from '../deck'
 
 describe('dealCards', () => {
@@ -101,5 +101,50 @@ describe('dealEven', () => {
     for (const h of Object.values(hands)) {
       expect(h.length).toBe(10)
     }
+  })
+})
+
+describe('dealAll', () => {
+  test('deals every card in the deck, none left over', () => {
+    const deck = createDeck()
+    const { hands } = dealAll(deck, ['a', 'b', 'c', 'd'])
+    const allDealt = Object.values(hands).flat()
+    expect(allDealt.length).toBe(52)
+    expect(new Set(allDealt).size).toBe(52)
+  })
+
+  test('divides evenly when it can (52 / 4 = 13 each)', () => {
+    const deck = createDeck()
+    const { hands } = dealAll(deck, ['a', 'b', 'c', 'd'])
+    for (const h of Object.values(hands)) {
+      expect(h.length).toBe(13)
+    }
+  })
+
+  test('hand sizes differ by at most 1 when it does not divide evenly', () => {
+    const deck = createDeck() // 52 / 5 = 10.4
+    const { hands } = dealAll(deck, ['a', 'b', 'c', 'd', 'e'])
+    const sizes = Object.values(hands).map(h => h.length)
+    expect(Math.max(...sizes) - Math.min(...sizes)).toBeLessThanOrEqual(1)
+    expect(sizes.reduce((sum, n) => sum + n, 0)).toBe(52)
+  })
+
+  test('the first (deck.length % playerIds.length) players in order get the extra card', () => {
+    const deck = createDeck() // 52 / 5 -> 2 extra cards, players a and b get 11, rest get 10
+    const { hands } = dealAll(deck, ['a', 'b', 'c', 'd', 'e'])
+    expect(hands.a.length).toBe(11)
+    expect(hands.b.length).toBe(11)
+    expect(hands.c.length).toBe(10)
+    expect(hands.d.length).toBe(10)
+    expect(hands.e.length).toBe(10)
+  })
+
+  test('deals round-robin in order from the front of the deck', () => {
+    const deck = createDeck()
+    const { hands } = dealAll(deck, ['a', 'b'])
+    expect(hands.a[0]).toBe(deck[0])
+    expect(hands.b[0]).toBe(deck[1])
+    expect(hands.a[1]).toBe(deck[2])
+    expect(hands.b[1]).toBe(deck[3])
   })
 })

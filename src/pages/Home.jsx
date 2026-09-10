@@ -16,7 +16,7 @@ import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import { trackEvent as trackAnalyticsEvent } from '../services/analytics_events'
 import AdBanner from '../components/AdBanner'
-import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, PartnershipIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
+import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, PartnershipIcon, SevenIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
 
 const COMING_SOON_SLOTS = 0
 
@@ -114,6 +114,12 @@ const ACCENT_STYLES = {
     iconRing: 'border-jade text-jade',
     tab: 'text-jade border-jade',
     cta: 'bg-jade text-onJade'
+  },
+  amethyst: {
+    border: 'border-amethyst',
+    iconRing: 'border-amethyst text-amethyst',
+    tab: 'text-amethyst border-amethyst',
+    cta: 'bg-amethyst text-onAmethyst'
   }
 }
 
@@ -299,6 +305,19 @@ const VISIBLE_GAMES = [
     cta: 'Create Room →',
     isOnline: true,
   },
+  {
+    slug: 'satti',
+    icon: SevenIcon,
+    title: 'Satti (Sevens)',
+    modeBadge: 'Online',
+    modeIcon: SignalIcon,
+    accent: 'amethyst',
+    description: 'Open each suit with its 7, build up and down, first to empty your hand wins',
+    playersPill: '4-8 players',
+    timePill: '~20-40 mins',
+    cta: 'Create Room →',
+    isOnline: true,
+  },
 ]
 
 // Every other registered game — surfaced below as a plain, temporary review
@@ -307,7 +326,7 @@ const VISIBLE_GAMES = [
 const VISIBLE_SLUGS = new Set([
   'thinkfast', 'dumb-charades-offline', 'firstbell', 'raja-mantri',
   'sabse-zyada-kaun', 'sabse-zyada-kaun-offline', 'tambola', 'bhed', 'bluff',
-  'bakwaas', 'bhabhi', 'call-break', 'judgement', 'court-piece',
+  'bakwaas', 'bhabhi', 'call-break', 'judgement', 'court-piece', 'satti',
 ])
 
 export default function Home() {

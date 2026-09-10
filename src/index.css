@@ -27,6 +27,7 @@
   --color-accent-turquoise: #148F8B;
   --color-accent-peridot: #4E711E;
   --color-accent-jade: #217328;
+  --color-accent-amethyst: #6B3AA0;
   --color-error: #D64545;
   --hero-overlay-1: rgba(251, 243, 231, 0.55);
   --hero-overlay-2: rgba(251, 243, 231, 0.78);
@@ -57,6 +58,7 @@
   --on-turquoise: #FBF3E7;
   --on-peridot: #FBF3E7;
   --on-jade: #FBF3E7;
+  --on-amethyst: #FBF3E7;
 
   /* RGB-channel companions of the tokens above, for Tailwind's opacity
      modifier syntax (bg-emerald/20, etc). Tailwind can only alpha-blend a
@@ -90,6 +92,7 @@
   --color-accent-turquoise-rgb: 20 143 139;
   --color-accent-peridot-rgb: 78 113 30;
   --color-accent-jade-rgb: 33 115 40;
+  --color-accent-amethyst-rgb: 107 58 160;
   --color-error-rgb: 214 69 69;
   --on-gold-rgb: 43 17 22;
   --on-teal-rgb: 251 243 231;
@@ -105,6 +108,7 @@
   --on-turquoise-rgb: 251 243 231;
   --on-peridot-rgb: 251 243 231;
   --on-jade-rgb: 251 243 231;
+  --on-amethyst-rgb: 251 243 231;
 }
 
 /* Dark theme — same hue family, values tuned for a dark ground, not a straight invert. */
@@ -132,6 +136,7 @@
   --color-accent-turquoise: #33CCC7;
   --color-accent-peridot: #7DAA35;
   --color-accent-jade: #3FAB45;
+  --color-accent-amethyst: #A88AD1;
   --color-error: #E05B4C;
   --hero-overlay-1: rgba(28, 15, 19, 0.55);
   --hero-overlay-2: rgba(28, 15, 19, 0.78);
@@ -150,6 +155,7 @@
   --on-turquoise: #0B2928;
   --on-peridot: #17210A;
   --on-jade: #0B220D;
+  --on-amethyst: #1F1530;
 
   --color-bg-rgb: 28 15 19;
   --color-surface-rgb: 43 26 31;
@@ -174,6 +180,7 @@
   --color-accent-turquoise-rgb: 51 204 199;
   --color-accent-peridot-rgb: 125 170 53;
   --color-accent-jade-rgb: 63 171 69;
+  --color-accent-amethyst-rgb: 168 138 209;
   --color-error-rgb: 224 91 76;
   --on-gold-rgb: 28 15 19;
   --on-teal-rgb: 11 42 36;
@@ -189,6 +196,7 @@
   --on-turquoise-rgb: 11 41 40;
   --on-peridot-rgb: 23 33 10;
   --on-jade-rgb: 11 34 13;
+  --on-amethyst-rgb: 31 21 48;
 }
 
 /* Base: comfortable reading size, smooth font */

@@ -51,10 +51,12 @@ future one.
 - ✅ Judgement (Kachuful) — online, peridot accent (2026-09-10). 3-9 players, hill-shaped hand sizes (1..max..1), blind bidding then highest-bidder-picks-trump, hook rule, exact-match scoring. Most rule-complex card game built so far.
 - ✅ Court Piece (Rang) — online, jade accent (2026-09-10). Exactly 4 players, fixed 2v2 partnerships (seats 0+2 vs 1+3). Two-stage deal (5 cards to call trump, then the remaining 8), caller = winner of the previous hand's final trick. First team-scored card game (not per-player) — first real use of `TableScoreBar`, first opt-in `PlayerSeat`/`CardTable` "Partner" label. Match target 7 points (kot = 2, normal win = 1), with a shutout-extension exception: if a team hits 7 while the other has won zero hands, play continues until the leader reaches 13 or the trailing team wins their first hand. Hands-won tracked and displayed separately from match points since a kot makes them diverge.
 - ✅ Bhabhi — online, slate accent (2026-09-09). First real trick-taking game — first exercise of `resolveTrick()`, first no-trump caller. Sudden-death win condition (first to empty hand wins immediately) made this simpler than a classic scored trick game. Promoted Bluff's `dealUneven` into the shared engine; added `getLegalPlays()` and `CardTable`'s `disabledCardIds` prop, both reusable by the remaining Wave 3 games.
-- Satti (Sevens) — only Wave 3 game remaining
+- ✅ Satti (Sevens) — online, amethyst accent (2026-09-10). 4-8 players, fifth and final Wave 3 game — no tricks, no trump, no bidding, a sequence-building shedding game instead. Full deck dealt out completely (new `dealAll()`, a deliberate one-off exception to `dealEven`'s discard-the-remainder policy — some players legitimately hold one extra card). All four 7s open independently; each suit then extends up (8...K) and down (6...A). Sudden death win (first to empty hand), with a rare fallback: if every player passes in a row, whoever holds the fewest cards wins (genuine co-winner ties supported).
+
+**Wave 3 — COMPLETE (2026-09-10).** All 5 games shipped: Bhabhi, Call Break, Judgement, Court Piece, Satti.
 
 **Post-Wave-3 — full regression pass:**
-- Once all 5 Wave 3 games are shipped, spawn multiple agents in parallel to
+- Now that all 5 Wave 3 games are shipped, spawn multiple agents in parallel to
   comprehensively test every game in the app (Wave 1 + Wave 2 + Wave 3, plus
   anything in the "for review" list) for regressions and bugs before moving
   on to any unscheduled backlog item.
@@ -80,7 +82,7 @@ future one.
 ## Card games (need a new card-dealing / trick-tracking layer — shared dependency, see epic below)
 
 7. ✅ **Bluff** — Play cards face-down claiming a rank; anyone can call "Bluff!" and the phone reveals (round-based: one player fixes a rank per round, others pass/add-more/challenge the latest addition only; three ways a round ends, each opening the next round with a different player).
-8. **Satti (Sevens)** — Build sequences up/down from the 7 in each suit; first to empty their hand wins.
+8. ✅ **Satti (Sevens)** — Build sequences up/down from the 7 in each suit; first to empty their hand wins.
 9. **Donkey (Gadha)** — Pass cards to collect four of a kind; last to react is the donkey.
 10. **3-2-5 (Teen Do Paanch)** — Three-player trick game; each must win an exact target of tricks.
 11. ✅ **Bhabhi (Get Away)** — Sudden-death shedding game; follow suit or dump, first to empty your hand wins immediately.

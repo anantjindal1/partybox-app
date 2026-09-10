@@ -148,6 +148,14 @@ export function DoorExitIcon(props) {
   )
 }
 
+export function SevenIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M5 5h14L10 20" />
+    </svg>
+  )
+}
+
 export function DiceIcon(props) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -178,6 +186,7 @@ export const GAME_ICONS = {
   'call-break': CallBreakIcon,
   'judgement': GavelIcon,
   'court-piece': PartnershipIcon,
+  'satti': SevenIcon,
 }
 
 export function getGameIcon(slug) {

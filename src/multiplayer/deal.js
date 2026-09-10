@@ -35,3 +35,20 @@ export function dealEven(deck, playerIds) {
   const cardsPerPlayer = Math.floor(deck.length / playerIds.length)
   return dealCards(deck, playerIds, cardsPerPlayer)
 }
+
+/**
+ * Deals every card in the deck, round-robin, one at a time — nothing is
+ * ever left undealt. If the deck doesn't divide evenly, the first
+ * `deck.length % playerIds.length` players (in order) simply hold one
+ * more card than everyone else. This is a deliberate exception to
+ * `dealEven`'s discard-the-remainder policy, for games (like Satti)
+ * that structurally need the entire deck in play.
+ */
+export function dealAll(deck, playerIds) {
+  const hands = {}
+  for (const id of playerIds) hands[id] = []
+  deck.forEach((card, i) => {
+    hands[playerIds[i % playerIds.length]].push(card)
+  })
+  return { hands }
+}
