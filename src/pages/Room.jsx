@@ -225,20 +225,17 @@ export default function Room() {
             </button>
           </div>
 
-          {/* Host start button */}
+          {/* Host scroll shortcut — jumps to the game's own waiting screen
+              below, where the REAL start button lives. This is navigation
+              only, not a duplicate action, so it's styled as a secondary
+              link rather than a primary CTA to avoid looking like a second
+              (broken) Start Game button. */}
           {isHost && (
             <button
-              disabled={room.players.length < (game?.minPlayers ?? 2)}
               onClick={() => document.querySelector('.game-area')?.scrollIntoView({ behavior: 'smooth' })}
-              className={`w-full py-3 rounded-xl font-bold text-base transition-all ${
-                room.players.length >= (game?.minPlayers ?? 2)
-                  ? 'bg-gold text-onGold hover:opacity-90'
-                  : 'bg-surfaceMuted text-textMuted cursor-not-allowed'
-              }`}
+              className="w-full py-3 rounded-xl font-semibold text-sm border-[1.5px] border-border text-textMuted hover:text-textPrimary hover:border-textMuted transition-colors"
             >
-              {room.players.length < (game?.minPlayers ?? 2)
-                ? `Need ${(game?.minPlayers ?? 2) - room.players.length} more player${(game?.minPlayers ?? 2) - room.players.length === 1 ? '' : 's'}`
-                : 'Start Game →'}
+              Jump to Start ↓
             </button>
           )}
         </div>
