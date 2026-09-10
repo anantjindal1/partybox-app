@@ -49,9 +49,9 @@ future one.
 **Wave 3 — trick-taking depth, once the engine is proven:**
 - ✅ Call Break — online, turquoise accent (2026-09-10). Exactly 4 players, spades always trump, 5-round bidding game. First real test of `dealCards()` (exact 13-per-player split) and `resolveTrick()`'s trump branch. Cumulative scores can go negative, which required deliberately diverging from Bakwaas's tie-handling/XP pattern rather than copying it verbatim.
 - ✅ Judgement (Kachuful) — online, peridot accent (2026-09-10). 3-9 players, hill-shaped hand sizes (1..max..1), blind bidding then highest-bidder-picks-trump, hook rule, exact-match scoring. Most rule-complex card game built so far.
-- Court Piece (Rang)
+- ✅ Court Piece (Rang) — online, jade accent (2026-09-10). Exactly 4 players, fixed 2v2 partnerships (seats 0+2 vs 1+3). Two-stage deal (5 cards to call trump, then the remaining 8), caller = winner of the previous hand's final trick. First team-scored card game (not per-player) — first real use of `TableScoreBar`, first opt-in `PlayerSeat`/`CardTable` "Partner" label. Match target 7 points (kot = 2, normal win = 1), with a shutout-extension exception: if a team hits 7 while the other has won zero hands, play continues until the leader reaches 13 or the trailing team wins their first hand. Hands-won tracked and displayed separately from match points since a kot makes them diverge.
 - ✅ Bhabhi — online, slate accent (2026-09-09). First real trick-taking game — first exercise of `resolveTrick()`, first no-trump caller. Sudden-death win condition (first to empty hand wins immediately) made this simpler than a classic scored trick game. Promoted Bluff's `dealUneven` into the shared engine; added `getLegalPlays()` and `CardTable`'s `disabledCardIds` prop, both reusable by the remaining Wave 3 games.
-- Satti (Sevens)
+- Satti (Sevens) — only Wave 3 game remaining
 
 **Post-Wave-3 — full regression pass:**
 - Once all 5 Wave 3 games are shipped, spawn multiple agents in parallel to
@@ -84,7 +84,7 @@ future one.
 10. **3-2-5 (Teen Do Paanch)** — Three-player trick game; each must win an exact target of tricks.
 11. ✅ **Bhabhi (Get Away)** — Sudden-death shedding game; follow suit or dump, first to empty your hand wins immediately.
 12. **Mendikot (Mindi)** — Four-player partnership trick game; capture the four 10s.
-13. **Court Piece (Coatpees / Rang)** — Four-player fixed-partnership trick game; caller picks trump, race to seven tricks.
+13. ✅ **Court Piece (Coatpees / Rang)** — Four-player fixed-partnership trick game; caller picks trump, race to seven match points (with a shutout-extension exception).
 14. ✅ **Judgement (Kachuful)** — Bid exactly how many tricks you'll win each round; score only if you hit it.
 15. ✅ **Call Break** — Thirteen-card spades-style trick game with per-round bidding.
 
