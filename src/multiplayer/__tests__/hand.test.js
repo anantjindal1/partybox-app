@@ -1,4 +1,4 @@
-import { removeCardFromHand, addCardsToHand, sortHand } from '../hand'
+import { removeCardFromHand, addCardsToHand, sortHand, sortHandByRank } from '../hand'
 
 describe('removeCardFromHand', () => {
   test('removes exactly the named card', () => {
@@ -62,6 +62,40 @@ describe('sortHand', () => {
     const hand = ['KC', 'AS']
     const copy = [...hand]
     sortHand(hand)
+    expect(hand).toEqual(copy)
+  })
+})
+
+describe('sortHandByRank', () => {
+  test('groups same-rank cards together, ranks ascending overall', () => {
+    const hand = ['7H', '2S', '7C', '2D']
+    const sorted = sortHandByRank(hand)
+    const ranks = sorted.map(id => id.slice(0, -1))
+    expect(ranks).toEqual(['2', '2', '7', '7'])
+  })
+
+  test('uses suit as a tie-break within a rank (fixed SUITS order)', () => {
+    const hand = ['7C', '7S', '7H', '7D']
+    const sorted = sortHandByRank(hand)
+    expect(sorted).toEqual(['7S', '7H', '7D', '7C'])
+  })
+
+  test('ace-high by default, sorts to the end', () => {
+    const hand = ['AS', '2H', 'KD']
+    const sorted = sortHandByRank(hand)
+    expect(sorted).toEqual(['2H', 'KD', 'AS'])
+  })
+
+  test('ace-low when explicitly requested', () => {
+    const hand = ['AS', '2H', 'KD']
+    const sorted = sortHandByRank(hand, { aceHigh: false })
+    expect(sorted).toEqual(['AS', '2H', 'KD'])
+  })
+
+  test('does not mutate the input array', () => {
+    const hand = ['7C', '2S']
+    const copy = [...hand]
+    sortHandByRank(hand)
     expect(hand).toEqual(copy)
   })
 })

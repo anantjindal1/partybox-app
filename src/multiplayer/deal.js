@@ -24,22 +24,14 @@ export function dealCards(deck, playerIds, cardsPerPlayer) {
 }
 
 /**
- * Deals the WHOLE deck out, even when it doesn't divide evenly across
- * players — dealCards() above deliberately refuses this. Round-robin one
- * card at a time so any remainder spreads across the first few seats (at
- * most one extra card each) rather than dumping it all on one player.
- * Fully generic — used by any game that wants every card dealt out with
- * no leftover, regardless of player count.
+ * Deals as many cards as possible while keeping every player's hand the
+ * SAME size — if the deck doesn't divide evenly, the leftover cards are
+ * simply never dealt (removed from play for this hand/round), rather
+ * than spread unevenly across a few seats. Fully generic — used by any
+ * game that wants every player to always hold an equal number of cards
+ * regardless of player count.
  */
-export function dealUneven(deck, playerIds) {
-  const hands = {}
-  for (const id of playerIds) hands[id] = []
-
-  let seat = 0
-  for (const card of deck) {
-    hands[playerIds[seat]].push(card)
-    seat = (seat + 1) % playerIds.length
-  }
-
-  return { hands }
+export function dealEven(deck, playerIds) {
+  const cardsPerPlayer = Math.floor(deck.length / playerIds.length)
+  return dealCards(deck, playerIds, cardsPerPlayer)
 }

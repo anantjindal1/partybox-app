@@ -1,4 +1,4 @@
-import { dealCards, dealUneven } from '../deal'
+import { dealCards, dealEven } from '../deal'
 import { createDeck, shuffleDeck } from '../deck'
 
 describe('dealCards', () => {
@@ -62,49 +62,44 @@ describe('dealCards', () => {
   })
 })
 
-describe('dealUneven', () => {
-  test('deals the entire deck with no leftover', () => {
+describe('dealEven', () => {
+  test('deals the same number of cards to every player', () => {
     const deck = createDeck()
-    const { hands } = dealUneven(deck, ['a', 'b', 'c'])
+    const { hands } = dealEven(deck, ['a', 'b', 'c'])
+    for (const h of Object.values(hands)) {
+      expect(h.length).toBe(17)
+    }
+  })
+
+  test('leaves the remainder undealt rather than distributing it unevenly', () => {
+    const deck = createDeck() // 52 cards, 3 players -> floor(52/3) = 17 each, 1 leftover
+    const { hands, remaining } = dealEven(deck, ['a', 'b', 'c'])
     const total = Object.values(hands).reduce((sum, h) => sum + h.length, 0)
-    expect(total).toBe(52)
+    expect(total).toBe(51)
+    expect(remaining.length).toBe(1)
   })
 
   test('every dealt card is unique (no duplicates across hands)', () => {
     const deck = createDeck()
-    const { hands } = dealUneven(deck, ['a', 'b', 'c', 'd'])
+    const { hands } = dealEven(deck, ['a', 'b', 'c', 'd'])
     const allDealt = Object.values(hands).flat()
     expect(new Set(allDealt).size).toBe(allDealt.length)
   })
 
-  test('distributes the remainder fairly — no seat gets more than one extra card', () => {
-    const deck = createDeck() // 52 cards
-    const { hands } = dealUneven(deck, ['a', 'b', 'c']) // 52 / 3 = 17 r1
-    const sizes = Object.values(hands).map(h => h.length)
-    expect(Math.max(...sizes) - Math.min(...sizes)).toBeLessThanOrEqual(1)
-    expect(sizes.reduce((a, b) => a + b, 0)).toBe(52)
-  })
-
-  test('divides evenly when it can (52 / 4 = 13 each)', () => {
+  test('divides evenly when it can, with nothing left over (52 / 4 = 13 each)', () => {
     const deck = createDeck()
-    const { hands } = dealUneven(deck, ['a', 'b', 'c', 'd'])
+    const { hands, remaining } = dealEven(deck, ['a', 'b', 'c', 'd'])
     for (const h of Object.values(hands)) {
       expect(h.length).toBe(13)
     }
+    expect(remaining.length).toBe(0)
   })
 
   test('works on a shuffled deck too', () => {
     const deck = shuffleDeck(createDeck(), () => 0.5)
-    const { hands } = dealUneven(deck, ['a', 'b', 'c', 'd', 'e'])
-    const allDealt = new Set(Object.values(hands).flat())
-    expect(allDealt.size).toBe(52)
-  })
-
-  test('deals in round-robin order (first seat gets the extra card when remainder is 1)', () => {
-    const deck = createDeck() // 52 cards, 3 players -> 18,17,17
-    const { hands } = dealUneven(deck, ['a', 'b', 'c'])
-    expect(hands.a.length).toBe(18)
-    expect(hands.b.length).toBe(17)
-    expect(hands.c.length).toBe(17)
+    const { hands } = dealEven(deck, ['a', 'b', 'c', 'd', 'e'])
+    for (const h of Object.values(hands)) {
+      expect(h.length).toBe(10)
+    }
   })
 })

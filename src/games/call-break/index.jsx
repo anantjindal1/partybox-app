@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
 import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
-import { removeCardFromHand } from '../../multiplayer/hand'
+import { removeCardFromHand, sortHand } from '../../multiplayer/hand'
 import { dealCards } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
@@ -312,10 +312,11 @@ export default function CallBreak({ code }) {
   }
 
   if (phase === 'playing') {
-    const myHand = roomState.hands?.[myId] ?? []
+    const myHand = sortHand(roomState.hands?.[myId] ?? [])
     const isMyTurn = roomState.turnOrder?.[roomState.currentIdx] === myId
     const legalPlays = isMyTurn ? getLegalPlays(myHand, roomState.ledSuit) : []
     const disabledCardIds = isMyTurn ? myHand.filter(id => !legalPlays.includes(id)) : myHand
+    const highlightedCardIds = myHand.filter(id => parseCard(id).suit === 'spades')
     const centerCards = (roomState.currentTrick ?? []).map(({ playerId, card }) => ({
       card,
       playerName: players.find(p => p.id === playerId)?.name
@@ -339,6 +340,7 @@ export default function CallBreak({ code }) {
           myIsActiveTurn={isMyTurn}
           centerCards={centerCards}
           disabledCardIds={disabledCardIds}
+          highlightedCardIds={highlightedCardIds}
           onCardTap={handlePlayCard}
           accent="turquoise"
         />

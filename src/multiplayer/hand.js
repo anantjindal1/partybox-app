@@ -25,3 +25,22 @@ export function sortHand(hand, { aceHigh = true } = {}) {
     return ra - rb
   })
 }
+
+/**
+ * Rank-primary sort: same-rank cards grouped together, ranks ascending
+ * overall, suit used only as a tie-break within a rank (fixed SUITS
+ * order, purely for stable/consistent display). For games like Bluff
+ * where the suit doesn't matter to gameplay and grouping same-rank
+ * cards together is what actually helps a player scan their hand.
+ */
+export function sortHandByRank(hand, { aceHigh = true } = {}) {
+  const suitOrder = SUITS
+  return [...hand].sort((a, b) => {
+    const ca = parseCard(a)
+    const cb = parseCard(b)
+    const ra = aceHigh && ca.rank === 'A' ? 999 : rankIndex(ca.rank)
+    const rb = aceHigh && cb.rank === 'A' ? 999 : rankIndex(cb.rank)
+    if (ra !== rb) return ra - rb
+    return suitOrder.indexOf(ca.suit) - suitOrder.indexOf(cb.suit)
+  })
+}

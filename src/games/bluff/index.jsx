@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
 import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
-import { removeCardFromHand, addCardsToHand } from '../../multiplayer/hand'
+import { removeCardFromHand, addCardsToHand, sortHandByRank } from '../../multiplayer/hand'
 import { advanceTurn } from '../../multiplayer/turnManager'
-import { dealUneven } from '../../multiplayer/deal'
+import { dealEven } from '../../multiplayer/deal'
 import { CardTable } from '../../components/cards/CardTable'
 import { BluffPile } from './BluffPile'
 import { BluffControls } from './BluffControls'
@@ -217,7 +217,7 @@ export default function Bluff({ code }) {
     try {
       const deck = shuffleDeck(createDeck())
       const playerIds = players.map(p => p.id)
-      const { hands } = dealUneven(deck, playerIds)
+      const { hands } = dealEven(deck, playerIds)
       await clearActions()
       await persist({
         phase: 'playing',
@@ -305,7 +305,7 @@ export default function Bluff({ code }) {
   }
 
   if (phase === 'playing') {
-    const myHand = roomState.hands?.[myId] ?? []
+    const myHand = sortHandByRank(roomState.hands?.[myId] ?? [])
     const isMyTurn = roomState.turnOrder?.[roomState.currentIdx] === myId
     const amLatestHandOwner = roomState.latestHandPlayerId === myId
     const otherSeats = players

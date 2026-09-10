@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
 import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
-import { removeCardFromHand } from '../../multiplayer/hand'
-import { dealUneven } from '../../multiplayer/deal'
+import { removeCardFromHand, sortHand } from '../../multiplayer/hand'
+import { dealEven } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
 import { CardTable } from '../../components/cards/CardTable'
@@ -113,8 +113,11 @@ export default function Bhabhi({ code }) {
     try {
       const deck = shuffleDeck(createDeck())
       const playerIds = players.map(p => p.id)
-      const { hands } = dealUneven(deck, playerIds)
-      const aceHolderId = playerIds.find(id => hands[id].includes('AS'))
+      const { hands } = dealEven(deck, playerIds)
+      // With an uneven player count, a few cards (including possibly the
+      // Ace of Spades) are never dealt at all — fall back to the first
+      // seat if nobody actually holds it.
+      const aceHolderId = playerIds.find(id => hands[id].includes('AS')) ?? playerIds[0]
       await clearActions()
       await persist({
         phase: 'playing',
@@ -181,7 +184,7 @@ export default function Bhabhi({ code }) {
   }
 
   if (phase === 'playing') {
-    const myHand = roomState.hands?.[myId] ?? []
+    const myHand = sortHand(roomState.hands?.[myId] ?? [])
     const isMyTurn = roomState.turnOrder?.[roomState.currentIdx] === myId
     const legalPlays = isMyTurn ? getLegalPlays(myHand, roomState.ledSuit) : []
     const disabledCardIds = isMyTurn ? myHand.filter(id => !legalPlays.includes(id)) : myHand

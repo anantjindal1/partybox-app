@@ -19,6 +19,7 @@ export function CardTable({
   centerSlot = null,
   selectedCardIds = [],
   disabledCardIds = [],
+  highlightedCardIds = [],
   onCardTap,
   accent = 'maroon',
   dealing = false
@@ -68,6 +69,7 @@ export function CardTable({
           const rotate = offset * 3.5
           const isSelected = selectedCardIds.includes(cardId)
           const isDisabled = disabledCardIds.includes(cardId)
+          const isHighlighted = highlightedCardIds.includes(cardId)
           return (
             <button
               key={cardId}
@@ -83,7 +85,14 @@ export function CardTable({
                 '--deal-from': 'translateY(-50px) scale(0.6)'
               }}
             >
-              <PlayingCard face="up" rank={rank} suit={suit} size="lg" />
+              <PlayingCard
+                face="up"
+                rank={rank}
+                suit={suit}
+                size="lg"
+                className={isHighlighted ? 'animate-turn-glow' : ''}
+                style={isHighlighted ? { '--turn-glow-color': 'var(--color-accent-gold)' } : undefined}
+              />
             </button>
           )
         })}
