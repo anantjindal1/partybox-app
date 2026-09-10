@@ -9,37 +9,29 @@ infrastructure, except where flagged.
 All 17 concepts are kept — nothing cut. Priority waves below reflect build order,
 not a keep/cut decision.
 
-## HIGH PRIORITY — card-game UX gaps (raised 2026-09-10, before continuing Wave 3)
+## HIGH PRIORITY — card-game UX gaps (raised 2026-09-10)
 
 Affects every shipped card game (Bluff, Bhabhi, Call Break) and every
-future one. Evaluated below; not yet implemented.
+future one.
 
-- **A. Hand sorting** — hands currently render in raw shuffle order
-  (`sortHand()` exists in `src/multiplayer/hand.js` but is never called by
-  any game). Bluff needs a NEW rank-primary sort (group same-rank cards
-  together, ranks increasing) — `sortHand()`'s existing suit-primary sort
-  is wrong for it. Bhabhi/Call Break (and future trick games) want
-  `sortHand()`'s existing suit-grouped, rank-increasing-within-suit order
-  — just needs to actually be called.
-- **B. Highlight important cards** (e.g. trump) — no highlight concept
-  exists on `CardTable`/`PlayingCard` today (only `selectedCardIds`
-  offset and `disabledCardIds` dimming). Needs a new generic
-  `highlightedCardIds` prop, e.g. a yellow glow ring.
-- **C. Card-game tutorials** — written rules on the waiting screen, a
-  "How to Play" 2-3 slide tutorial modal, auto-dismissing if the game
-  actually starts while it's open. Currently zero rules text or tutorial
-  content exists anywhere in any game. Biggest of the four — needs a
-  reusable modal/carousel component plus real written content per game.
-- **D. Even card distribution** — `dealUneven()` (used by Bluff and
-  Bhabhi) deliberately deals the WHOLE deck round-robin even when it
-  doesn't divide evenly (some players get one extra card). New
-  requirement: everyone gets the SAME number of cards; if the deck
-  doesn't divide evenly, the leftover cards are simply not dealt at all
-  (removed from play for that hand/round), not distributed unevenly.
-  This reverses a deliberate Wave-2 design decision — `dealCards()`
-  already supports this exactly (deal `Math.floor(52/players)` each,
-  ignore `remaining`), so the fix is smaller than it sounds, but it
-  changes two already-shipped games' behavior.
+- ✅ **A. Hand sorting** — DONE (2026-09-10). `sortHand()` (suit-grouped)
+  now actually wired up for Bhabhi/Call Break; new `sortHandByRank()`
+  (same-rank grouped, ranks increasing) added and wired for Bluff. Both
+  render-time-only, never persisted.
+- ✅ **B. Highlight important cards** — DONE (2026-09-10). New
+  `CardTable.highlightedCardIds` prop (reuses the existing `turn-glow`
+  keyframe with a gold color). Call Break highlights its spades (trump);
+  future trump games compute their own the same way.
+- **C. Card-game tutorials** — NOT started, deliberately deferred to its
+  own plan (bigger: needs a new reusable modal component plus real
+  written rules content for every game). Confirmed bilingual (English +
+  Hindi, matching the app's existing convention) when it's picked up.
+  Written rules on the waiting screen, a "How to Play" 2-3 slide tutorial
+  modal, auto-dismissing if the game actually starts while it's open.
+- ✅ **D. Even card distribution** — DONE (2026-09-10). `dealUneven()`
+  (round-robin, uneven) replaced by `dealEven()` (equal cards per player,
+  leftover simply never dealt) in Bluff and Bhabhi. Reverses a deliberate
+  Wave-2 design decision, per explicit request.
 
 ## Priority waves
 
