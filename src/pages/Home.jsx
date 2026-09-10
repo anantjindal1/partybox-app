@@ -16,7 +16,7 @@ import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import { trackEvent as trackAnalyticsEvent } from '../services/analytics_events'
 import AdBanner from '../components/AdBanner'
-import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
+import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, PartnershipIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
 
 const COMING_SOON_SLOTS = 0
 
@@ -108,6 +108,12 @@ const ACCENT_STYLES = {
     iconRing: 'border-peridot text-peridot',
     tab: 'text-peridot border-peridot',
     cta: 'bg-peridot text-onPeridot'
+  },
+  jade: {
+    border: 'border-jade',
+    iconRing: 'border-jade text-jade',
+    tab: 'text-jade border-jade',
+    cta: 'bg-jade text-onJade'
   }
 }
 
@@ -280,6 +286,19 @@ const VISIBLE_GAMES = [
     cta: 'Create Room →',
     isOnline: true,
   },
+  {
+    slug: 'court-piece',
+    icon: PartnershipIcon,
+    title: 'Court Piece (Rang)',
+    modeBadge: 'Online',
+    modeIcon: SignalIcon,
+    accent: 'jade',
+    description: 'Fixed 2v2 partnerships — sweep a Kot or race to 7 match points',
+    playersPill: 'Exactly 4 players',
+    timePill: '~30-45 mins',
+    cta: 'Create Room →',
+    isOnline: true,
+  },
 ]
 
 // Every other registered game — surfaced below as a plain, temporary review
@@ -288,7 +307,7 @@ const VISIBLE_GAMES = [
 const VISIBLE_SLUGS = new Set([
   'thinkfast', 'dumb-charades-offline', 'firstbell', 'raja-mantri',
   'sabse-zyada-kaun', 'sabse-zyada-kaun-offline', 'tambola', 'bhed', 'bluff',
-  'bakwaas', 'bhabhi', 'call-break', 'judgement',
+  'bakwaas', 'bhabhi', 'call-break', 'judgement', 'court-piece',
 ])
 
 export default function Home() {

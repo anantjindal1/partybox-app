@@ -8,7 +8,7 @@ import { PlayingCard } from './PlayingCard'
  * name (e.g. 'gold') — this component is shared across many future games,
  * so it never hard-codes a color.
  */
-export function PlayerSeat({ player, cardCount, isActiveTurn, accent = 'maroon', style, className = '' }) {
+export function PlayerSeat({ player, cardCount, isActiveTurn, accent = 'maroon', label, style, className = '' }) {
   const glowStyle = isActiveTurn ? { '--turn-glow-color': `rgb(var(--color-accent-${accent}-rgb))` } : {}
 
   return (
@@ -23,6 +23,7 @@ export function PlayerSeat({ player, cardCount, isActiveTurn, accent = 'maroon',
         <span className="text-xl leading-none">{player?.avatar ?? '🎮'}</span>
       </div>
       <span className="text-xs font-semibold text-textPrimary truncate max-w-[64px]">{player?.name ?? 'Player'}</span>
+      {label && <span className="text-[10px] text-textMuted -mt-1">{label}</span>}
       <div className="relative h-[45px]" style={{ width: 32 + (Math.min(cardCount, 3) - 1) * 8 }}>
         {Array.from({ length: Math.min(cardCount, 3) }, (_, i) => (
           <PlayingCard

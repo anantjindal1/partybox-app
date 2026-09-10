@@ -37,6 +37,7 @@ export function CardTable({
             cardCount={seat.cardCount}
             isActiveTurn={seat.isActiveTurn}
             accent={accent}
+            label={seat.label}
           />
         ))}
       </div>

@@ -21,4 +21,5 @@ export const CARD_GAME_ACCENT_CLASSES = {
   slate: { border: 'border-slate', soft: 'bg-slate/10', text: 'text-slate', dot: 'bg-slate', button: 'bg-slate text-onSlate' },
   turquoise: { border: 'border-turquoise', soft: 'bg-turquoise/10', text: 'text-turquoise', dot: 'bg-turquoise', button: 'bg-turquoise text-onTurquoise' },
   peridot: { border: 'border-peridot', soft: 'bg-peridot/10', text: 'text-peridot', dot: 'bg-peridot', button: 'bg-peridot text-onPeridot' },
+  jade: { border: 'border-jade', soft: 'bg-jade/10', text: 'text-jade', dot: 'bg-jade', button: 'bg-jade text-onJade' },
 }

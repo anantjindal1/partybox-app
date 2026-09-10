@@ -127,6 +127,17 @@ export function GavelIcon(props) {
   )
 }
 
+export function PartnershipIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <circle cx="8" cy="8" r="3" />
+      <circle cx="16" cy="8" r="3" />
+      <path d="M3 20c0-3.3 2.2-6 5-6s5 2.7 5 6" />
+      <path d="M11 20c0-3.3 2.2-6 5-6s5 2.7 5 6" />
+    </svg>
+  )
+}
+
 export function DoorExitIcon(props) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -166,6 +177,7 @@ export const GAME_ICONS = {
   'bhabhi': DoorExitIcon,
   'call-break': CallBreakIcon,
   'judgement': GavelIcon,
+  'court-piece': PartnershipIcon,
 }
 
 export function getGameIcon(slug) {
