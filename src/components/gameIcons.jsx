@@ -115,6 +115,18 @@ export function CallBreakIcon(props) {
   return <SuitSpadeIcon width="18" height="18" {...props} />
 }
 
+export function GavelIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <rect x="12.5" y="2.5" width="4" height="8" rx="1" transform="rotate(45 14.5 6.5)" />
+      <path d="M11 6l-6 6" />
+      <path d="M9 10l3 3" strokeOpacity="0.4" />
+      <path d="M3.5 14.5l4-4 4 4-4 4z" />
+      <path d="M3 21h8" />
+    </svg>
+  )
+}
+
 export function DoorExitIcon(props) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -153,6 +165,7 @@ export const GAME_ICONS = {
   'bakwaas': SpeechBubbleIcon,
   'bhabhi': DoorExitIcon,
   'call-break': CallBreakIcon,
+  'judgement': GavelIcon,
 }
 
 export function getGameIcon(slug) {

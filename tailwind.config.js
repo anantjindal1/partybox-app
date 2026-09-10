@@ -34,6 +34,7 @@ export default {
         fuchsia: 'rgb(var(--color-accent-fuchsia-rgb) / <alpha-value>)',
         slate: 'rgb(var(--color-accent-slate-rgb) / <alpha-value>)',
         turquoise: 'rgb(var(--color-accent-turquoise-rgb) / <alpha-value>)',
+        peridot: 'rgb(var(--color-accent-peridot-rgb) / <alpha-value>)',
         error: 'rgb(var(--color-error-rgb) / <alpha-value>)',
         onGold: 'rgb(var(--on-gold-rgb) / <alpha-value>)',
         onTeal: 'rgb(var(--on-teal-rgb) / <alpha-value>)',
@@ -47,6 +48,7 @@ export default {
         onFuchsia: 'rgb(var(--on-fuchsia-rgb) / <alpha-value>)',
         onSlate: 'rgb(var(--on-slate-rgb) / <alpha-value>)',
         onTurquoise: 'rgb(var(--on-turquoise-rgb) / <alpha-value>)',
+        onPeridot: 'rgb(var(--on-peridot-rgb) / <alpha-value>)',
         // Playing-card colors — theme-invariant on purpose, see index.css.
         cardFace: 'rgb(var(--color-card-face-rgb) / <alpha-value>)',
         cardRed: 'rgb(var(--color-card-red-rgb) / <alpha-value>)',

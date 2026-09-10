@@ -15,6 +15,7 @@ import bluffMeta from './bluff/metadata.js'
 import bakwaasMeta from './bakwaas/metadata.js'
 import bhabhiMeta from './bhabhi/metadata.js'
 import callBreakMeta from './call-break/metadata.js'
+import judgementMeta from './judgement/metadata.js'
 
 // Lazy-loaded game components — each game is a separate JS chunk.
 // This keeps the initial bundle small for low-end devices.
@@ -34,6 +35,7 @@ const Bluff                 = lazy(() => import('./bluff/index.jsx'))
 const Bakwaas                = lazy(() => import('./bakwaas/index.jsx'))
 const Bhabhi                 = lazy(() => import('./bhabhi/index.jsx'))
 const CallBreak               = lazy(() => import('./call-break/index.jsx'))
+const Judgement                = lazy(() => import('./judgement/index.jsx'))
 
 export const games = [
   { ...firstBellMeta,           Component: FirstBell },
@@ -51,7 +53,8 @@ export const games = [
   { ...bluffMeta,                   Component: Bluff },
   { ...bakwaasMeta,                  Component: Bakwaas },
   { ...bhabhiMeta,                   Component: Bhabhi },
-  { ...callBreakMeta,                 Component: CallBreak }
+  { ...callBreakMeta,                 Component: CallBreak },
+  { ...judgementMeta,                  Component: Judgement }
 ]
 
 export function getGame(slug) {

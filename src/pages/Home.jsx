@@ -16,7 +16,7 @@ import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import { trackEvent as trackAnalyticsEvent } from '../services/analytics_events'
 import AdBanner from '../components/AdBanner'
-import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
+import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
 
 const COMING_SOON_SLOTS = 0
 
@@ -102,6 +102,12 @@ const ACCENT_STYLES = {
     iconRing: 'border-turquoise text-turquoise',
     tab: 'text-turquoise border-turquoise',
     cta: 'bg-turquoise text-onTurquoise'
+  },
+  peridot: {
+    border: 'border-peridot',
+    iconRing: 'border-peridot text-peridot',
+    tab: 'text-peridot border-peridot',
+    cta: 'bg-peridot text-onPeridot'
   }
 }
 
@@ -261,6 +267,19 @@ const VISIBLE_GAMES = [
     cta: 'Create Room →',
     isOnline: true,
   },
+  {
+    slug: 'judgement',
+    icon: GavelIcon,
+    title: 'Judgement (Kachuful)',
+    modeBadge: 'Online',
+    modeIcon: SignalIcon,
+    accent: 'peridot',
+    description: 'Bid blind, the highest bidder picks trump — hit it exactly or lose it all',
+    playersPill: '3-9 players',
+    timePill: '~20-45 mins',
+    cta: 'Create Room →',
+    isOnline: true,
+  },
 ]
 
 // Every other registered game — surfaced below as a plain, temporary review
@@ -269,7 +288,7 @@ const VISIBLE_GAMES = [
 const VISIBLE_SLUGS = new Set([
   'thinkfast', 'dumb-charades-offline', 'firstbell', 'raja-mantri',
   'sabse-zyada-kaun', 'sabse-zyada-kaun-offline', 'tambola', 'bhed', 'bluff',
-  'bakwaas', 'bhabhi', 'call-break',
+  'bakwaas', 'bhabhi', 'call-break', 'judgement',
 ])
 
 export default function Home() {
