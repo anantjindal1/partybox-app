@@ -22,12 +22,11 @@ future one.
   `CardTable.highlightedCardIds` prop (reuses the existing `turn-glow`
   keyframe with a gold color). Call Break highlights its spades (trump);
   future trump games compute their own the same way.
-- **C. Card-game tutorials** — NOT started, deliberately deferred to its
-  own plan (bigger: needs a new reusable modal component plus real
-  written rules content for every game). Confirmed bilingual (English +
-  Hindi, matching the app's existing convention) when it's picked up.
-  Written rules on the waiting screen, a "How to Play" 2-3 slide tutorial
-  modal, auto-dismissing if the game actually starts while it's open.
+- ✅ **C. Card-game tutorials** — DONE (2026-09-10). Bilingual (English +
+  Hindi) written rules on every card game's waiting screen plus a "How
+  to Play" 2-3 slide tutorial sheet, auto-dismissing the instant the
+  game actually starts. New shared `GameRulesPanel`/`HowToPlaySheet`
+  components. All 4 items (A/B/C/D) now complete.
 - ✅ **D. Even card distribution** — DONE (2026-09-10). `dealUneven()`
   (round-robin, uneven) replaced by `dealEven()` (equal cards per player,
   leftover simply never dealt) in Bluff and Bhabhi. Reverses a deliberate
