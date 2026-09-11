@@ -20,6 +20,7 @@ import courtPieceMeta from './court-piece/metadata.js'
 import sattiMeta from './satti/metadata.js'
 import mendikotMeta from './mendikot/metadata.js'
 import teenDoPaanchMeta from './teen-do-paanch/metadata.js'
+import teriMeta from './teri/metadata.js'
 
 // Lazy-loaded game components — each game is a separate JS chunk.
 // This keeps the initial bundle small for low-end devices.
@@ -44,6 +45,7 @@ const CourtPiece                = lazy(() => import('./court-piece/index.jsx'))
 const Satti                     = lazy(() => import('./satti/index.jsx'))
 const Mendikot                  = lazy(() => import('./mendikot/index.jsx'))
 const TeenDoPaanch               = lazy(() => import('./teen-do-paanch/index.jsx'))
+const Teri                       = lazy(() => import('./teri/index.jsx'))
 
 export const games = [
   { ...firstBellMeta,           Component: FirstBell },
@@ -66,7 +68,8 @@ export const games = [
   { ...courtPieceMeta,                  Component: CourtPiece },
   { ...sattiMeta,                       Component: Satti },
   { ...mendikotMeta,                    Component: Mendikot },
-  { ...teenDoPaanchMeta,                 Component: TeenDoPaanch }
+  { ...teenDoPaanchMeta,                 Component: TeenDoPaanch },
+  { ...teriMeta,                          Component: Teri }
 ]
 
 export function getGame(slug) {

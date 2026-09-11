@@ -16,7 +16,7 @@ import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import { trackEvent as trackAnalyticsEvent } from '../services/analytics_events'
 import AdBanner from '../components/AdBanner'
-import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, PartnershipIcon, SevenIcon, MendikotIcon, TargetIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
+import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, PartnershipIcon, SevenIcon, MendikotIcon, TargetIcon, RotationIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
 
 const COMING_SOON_SLOTS = 0
 
@@ -132,6 +132,12 @@ const ACCENT_STYLES = {
     iconRing: 'border-orchid text-orchid',
     tab: 'text-orchid border-orchid',
     cta: 'bg-orchid text-onOrchid'
+  },
+  cobalt: {
+    border: 'border-cobalt',
+    iconRing: 'border-cobalt text-cobalt',
+    tab: 'text-cobalt border-cobalt',
+    cta: 'bg-cobalt text-onCobalt'
   }
 }
 
@@ -356,6 +362,19 @@ const VISIBLE_GAMES = [
     cta: 'Create Room →',
     isOnline: true,
   },
+  {
+    slug: 'teri',
+    icon: RotationIcon,
+    title: 'Teri',
+    modeBadge: 'Online',
+    modeIcon: SignalIcon,
+    accent: 'cobalt',
+    description: 'Fixed partnerships, a dummy hand, and a rotating single score to 52',
+    playersPill: 'Exactly 4 players',
+    timePill: '~40-60 mins',
+    cta: 'Create Room →',
+    isOnline: true,
+  },
 ]
 
 // Every other registered game — surfaced below as a plain, temporary review
@@ -365,7 +384,7 @@ const VISIBLE_SLUGS = new Set([
   'thinkfast', 'dumb-charades-offline', 'firstbell', 'raja-mantri',
   'sabse-zyada-kaun', 'sabse-zyada-kaun-offline', 'tambola', 'bhed', 'bluff',
   'bakwaas', 'bhabhi', 'call-break', 'judgement', 'court-piece', 'satti',
-  'mendikot', 'teen-do-paanch',
+  'mendikot', 'teen-do-paanch', 'teri',
 ])
 
 export default function Home() {

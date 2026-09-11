@@ -25,4 +25,5 @@ export const CARD_GAME_ACCENT_CLASSES = {
   amethyst: { border: 'border-amethyst', soft: 'bg-amethyst/10', text: 'text-amethyst', dot: 'bg-amethyst', button: 'bg-amethyst text-onAmethyst' },
   citrine: { border: 'border-citrine', soft: 'bg-citrine/10', text: 'text-citrine', dot: 'bg-citrine', button: 'bg-citrine text-onCitrine' },
   orchid: { border: 'border-orchid', soft: 'bg-orchid/10', text: 'text-orchid', dot: 'bg-orchid', button: 'bg-orchid text-onOrchid' },
+  cobalt: { border: 'border-cobalt', soft: 'bg-cobalt/10', text: 'text-cobalt', dot: 'bg-cobalt', button: 'bg-cobalt text-onCobalt' },
 }

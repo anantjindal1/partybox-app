@@ -178,6 +178,17 @@ export function TargetIcon(props) {
   )
 }
 
+export function RotationIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M4 12a8 8 0 0113-6" />
+      <path d="M20 12a8 8 0 01-13 6" />
+      <path d="M17 4v3h-3" />
+      <path d="M7 20v-3h3" />
+    </svg>
+  )
+}
+
 export function DiceIcon(props) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -211,6 +222,7 @@ export const GAME_ICONS = {
   'satti': SevenIcon,
   'mendikot': MendikotIcon,
   'teen-do-paanch': TargetIcon,
+  'teri': RotationIcon,
 }
 
 export function getGameIcon(slug) {

@@ -30,6 +30,7 @@
   --color-accent-amethyst: #6B3AA0;
   --color-accent-citrine: #726E1D;
   --color-accent-orchid: #8A2881;
+  --color-accent-cobalt: #2D3776;
   --color-error: #D64545;
   --hero-overlay-1: rgba(251, 243, 231, 0.55);
   --hero-overlay-2: rgba(251, 243, 231, 0.78);
@@ -63,6 +64,7 @@
   --on-amethyst: #FBF3E7;
   --on-citrine: #FBF3E7;
   --on-orchid: #FBF3E7;
+  --on-cobalt: #FBF3E7;
 
   /* RGB-channel companions of the tokens above, for Tailwind's opacity
      modifier syntax (bg-emerald/20, etc). Tailwind can only alpha-blend a
@@ -99,6 +101,7 @@
   --color-accent-amethyst-rgb: 107 58 160;
   --color-accent-citrine-rgb: 114 110 29;
   --color-accent-orchid-rgb: 138 40 129;
+  --color-accent-cobalt-rgb: 45 55 118;
   --color-error-rgb: 214 69 69;
   --on-gold-rgb: 43 17 22;
   --on-teal-rgb: 251 243 231;
@@ -117,6 +120,7 @@
   --on-amethyst-rgb: 251 243 231;
   --on-citrine-rgb: 251 243 231;
   --on-orchid-rgb: 251 243 231;
+  --on-cobalt-rgb: 251 243 231;
 }
 
 /* Dark theme — same hue family, values tuned for a dark ground, not a straight invert. */
@@ -147,6 +151,7 @@
   --color-accent-amethyst: #A88AD1;
   --color-accent-citrine: #CBC54D;
   --color-accent-orchid: #CF6EC5;
+  --color-accent-cobalt: #6E7BCF;
   --color-error: #E05B4C;
   --hero-overlay-1: rgba(28, 15, 19, 0.55);
   --hero-overlay-2: rgba(28, 15, 19, 0.78);
@@ -168,6 +173,7 @@
   --on-amethyst: #1F1530;
   --on-citrine: #241F08;
   --on-orchid: #2B1116;
+  --on-cobalt: #10163A;
 
   --color-bg-rgb: 28 15 19;
   --color-surface-rgb: 43 26 31;
@@ -195,6 +201,7 @@
   --color-accent-amethyst-rgb: 168 138 209;
   --color-accent-citrine-rgb: 203 197 77;
   --color-accent-orchid-rgb: 207 110 197;
+  --color-accent-cobalt-rgb: 110 123 207;
   --color-error-rgb: 224 91 76;
   --on-gold-rgb: 28 15 19;
   --on-teal-rgb: 11 42 36;
@@ -213,6 +220,7 @@
   --on-amethyst-rgb: 31 21 48;
   --on-citrine-rgb: 36 31 8;
   --on-orchid-rgb: 43 17 22;
+  --on-cobalt-rgb: 16 22 58;
 }
 
 /* Base: comfortable reading size, smooth font */
