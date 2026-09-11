@@ -189,6 +189,18 @@ export function RotationIcon(props) {
   )
 }
 
+export function DonkeyIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <ellipse cx="8" cy="6" rx="2" ry="4.5" transform="rotate(-15 8 6)" />
+      <ellipse cx="16" cy="6" rx="2" ry="4.5" transform="rotate(15 16 6)" />
+      <circle cx="12" cy="15" r="6" />
+      <circle cx="9.5" cy="14" r="0.8" fill="currentColor" stroke="none" />
+      <circle cx="14.5" cy="14" r="0.8" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+
 export function DiceIcon(props) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -223,6 +235,7 @@ export const GAME_ICONS = {
   'mendikot': MendikotIcon,
   'teen-do-paanch': TargetIcon,
   'teri': RotationIcon,
+  'donkey': DonkeyIcon,
 }
 
 export function getGameIcon(slug) {

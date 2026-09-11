@@ -26,4 +26,5 @@ export const CARD_GAME_ACCENT_CLASSES = {
   citrine: { border: 'border-citrine', soft: 'bg-citrine/10', text: 'text-citrine', dot: 'bg-citrine', button: 'bg-citrine text-onCitrine' },
   orchid: { border: 'border-orchid', soft: 'bg-orchid/10', text: 'text-orchid', dot: 'bg-orchid', button: 'bg-orchid text-onOrchid' },
   cobalt: { border: 'border-cobalt', soft: 'bg-cobalt/10', text: 'text-cobalt', dot: 'bg-cobalt', button: 'bg-cobalt text-onCobalt' },
+  amber: { border: 'border-amber', soft: 'bg-amber/10', text: 'text-amber', dot: 'bg-amber', button: 'bg-amber text-onAmber' },
 }
