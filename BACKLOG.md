@@ -57,7 +57,8 @@ future one.
 
 **Post-Wave-3 card games — building the remaining unscheduled card games one by one (started 2026-09-11):**
 - ✅ Mendikot (Mindi) — online, citrine accent (2026-09-11). Exactly 4 players, fixed 2v2 partnerships. No trump, no bidding, decided in a single hand: capture all four 10s for an outright "Mendikot" win, else whoever captured more 10s wins, a 2-2 split broken by trick count. Promoted Court Piece's team-derivation helpers into a shared `src/multiplayer/partnerships.js` rather than duplicating them.
-- Donkey (Gadha) and 3-2-5 (Teen Do Paanch) remain.
+- ✅ 3-2-5 (Teen Do Paanch) — online, orchid accent (2026-09-11). Exactly 3 players, no partnerships. Reduced 30-card deck, every hand all three players get a fixed rotating trick target (3, 2, 5 — summing to the 10-trick hand); score = tricksWon - target (surplus/deficit, not exact-match), first to 10 cumulative wins (co-winners possible). Two-stage deal, the "5"-target holder calls trump with a choice of declared (everyone sees it) or hidden (revealed only when a stuck player asks) mode — the app's first hidden/revealable-mid-hand mechanic.
+- Donkey (Gadha) remains — last unscheduled card game.
 
 **Post-Wave-3 — full regression pass (not yet started):**
 - Once the remaining card games are built (or whenever picked up), spawn
@@ -69,7 +70,6 @@ future one.
 - Bakwaas Adaalat
 - Chugli Detective
 - Donkey (Gadha)
-- 3-2-5 (Teen Do Paanch)
 - Codenames
 - Teri — rules TBD, user to detail later
 
@@ -87,7 +87,7 @@ future one.
 7. ✅ **Bluff** — Play cards face-down claiming a rank; anyone can call "Bluff!" and the phone reveals (round-based: one player fixes a rank per round, others pass/add-more/challenge the latest addition only; three ways a round ends, each opening the next round with a different player).
 8. ✅ **Satti (Sevens)** — Build sequences up/down from the 7 in each suit; first to empty their hand wins.
 9. **Donkey (Gadha)** — Pass cards to collect four of a kind; last to react is the donkey.
-10. **3-2-5 (Teen Do Paanch)** — Three-player trick game; each must win an exact target of tricks.
+10. ✅ **3-2-5 (Teen Do Paanch)** — Three-player trick game; each must win a target number of tricks (surplus/deficit scoring, not exact-match).
 11. ✅ **Bhabhi (Get Away)** — Sudden-death shedding game; follow suit or dump, first to empty your hand wins immediately.
 12. ✅ **Mendikot (Mindi)** — Four-player partnership trick game; capture the four 10s.
 13. ✅ **Court Piece (Coatpees / Rang)** — Four-player fixed-partnership trick game; caller picks trump, race to seven match points (with a shutout-extension exception).
