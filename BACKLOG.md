@@ -59,18 +59,19 @@ future one.
 - ✅ Mendikot (Mindi) — online, citrine accent (2026-09-11). Exactly 4 players, fixed 2v2 partnerships. No trump, no bidding, decided in a single hand: capture all four 10s for an outright "Mendikot" win, else whoever captured more 10s wins, a 2-2 split broken by trick count. Promoted Court Piece's team-derivation helpers into a shared `src/multiplayer/partnerships.js` rather than duplicating them.
 - ✅ 3-2-5 (Teen Do Paanch) — online, orchid accent (2026-09-11). Exactly 3 players, no partnerships. Reduced 30-card deck, every hand all three players get a fixed rotating trick target (3, 2, 5 — summing to the 10-trick hand); score = tricksWon - target (surplus/deficit, not exact-match), first to 10 cumulative wins (co-winners possible). Two-stage deal, the "5"-target holder calls trump with a choice of declared (everyone sees it) or hidden (revealed only when a stuck player asks) mode — the app's first hidden/revealable-mid-hand mechanic.
 - ✅ Teri — online, cobalt accent (2026-09-11). Rules specified directly by the user. Exactly 4 players, fixed 2v2 partnerships, a 2-round sequential bidding auction, and a bridge-style dummy hand — GameLead's partner's cards are shown to everyone and GameLead plays for them (partner can suggest, GameLead decides). Hands can end early once a side crosses its trick threshold, with a symmetric "Teri" exception (play continues to a full 13-trick sweep if the trailing side is still at zero). The standout mechanic: a single running score tied to whichever player currently holds the "shuffler" role, mirrored to their own team's result each hand — drop below zero and the role rotates with the score sign-flipped, cross 52 and it passes to your own partner at zero (a "burst"); the match ends once both players on a team have burst.
-- Donkey (Gadha) remains — last unscheduled card game.
+- ✅ Donkey (Gadha) — online, amber accent (2026-09-11). 3-8 players, no partnerships. The odd one out among all the card games: a real-time reaction game, not trick-taking — no CardTable, no trump, no bidding. Timed simultaneous pass-rounds (everyone picks a card to pass at once, auto-random-pick on timeout) until someone collects four of a kind, then a "Copy the Signal" reaction race resolved by server timestamp; whoever's last (or never reacts) gains a letter of D-O-N-K-E-Y, eliminated on the full word. Last player standing wins. Live verification caught and fixed a real Firestore-timestamp-propagation race in the reaction-race resolver.
+
+**Card games backlog — ALL DONE (2026-09-11).** Every card game concept originally listed is now shipped.
 
 **Post-Wave-3 — full regression pass (not yet started):**
-- Once the remaining card games are built (or whenever picked up), spawn
-  multiple agents in parallel to comprehensively test every game in the app
-  (Wave 1 + Wave 2 + Wave 3 + these) for regressions and bugs before moving
-  on to any other unscheduled backlog item.
+- Now that every card game is built, spawn multiple agents in parallel to
+  comprehensively test every game in the app (Wave 1 + Wave 2 + Wave 3 +
+  every post-Wave-3 card game) for regressions and bugs before moving on to
+  any other unscheduled backlog item.
 
 **Unscheduled — kept in backlog, no wave assigned yet:**
 - Bakwaas Adaalat
 - Chugli Detective
-- Donkey (Gadha)
 - Codenames
 
 ## Party / social (reuse existing vote-tally + event engine)
@@ -86,7 +87,7 @@ future one.
 
 7. ✅ **Bluff** — Play cards face-down claiming a rank; anyone can call "Bluff!" and the phone reveals (round-based: one player fixes a rank per round, others pass/add-more/challenge the latest addition only; three ways a round ends, each opening the next round with a different player).
 8. ✅ **Satti (Sevens)** — Build sequences up/down from the 7 in each suit; first to empty their hand wins.
-9. **Donkey (Gadha)** — Pass cards to collect four of a kind; last to react is the donkey.
+9. ✅ **Donkey (Gadha)** — Pass cards to collect four of a kind; last to react is the donkey.
 10. ✅ **3-2-5 (Teen Do Paanch)** — Three-player trick game; each must win a target number of tricks (surplus/deficit scoring, not exact-match).
 11. ✅ **Bhabhi (Get Away)** — Sudden-death shedding game; follow suit or dump, first to empty your hand wins immediately.
 12. ✅ **Mendikot (Mindi)** — Four-player partnership trick game; capture the four 10s.
