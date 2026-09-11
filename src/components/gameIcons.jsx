@@ -168,6 +168,16 @@ export function MendikotIcon(props) {
   )
 }
 
+export function TargetIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="5" />
+      <circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+
 export function DiceIcon(props) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -200,6 +210,7 @@ export const GAME_ICONS = {
   'court-piece': PartnershipIcon,
   'satti': SevenIcon,
   'mendikot': MendikotIcon,
+  'teen-do-paanch': TargetIcon,
 }
 
 export function getGameIcon(slug) {

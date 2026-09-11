@@ -16,7 +16,7 @@ import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import { trackEvent as trackAnalyticsEvent } from '../services/analytics_events'
 import AdBanner from '../components/AdBanner'
-import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, PartnershipIcon, SevenIcon, MendikotIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
+import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, PartnershipIcon, SevenIcon, MendikotIcon, TargetIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
 
 const COMING_SOON_SLOTS = 0
 
@@ -126,6 +126,12 @@ const ACCENT_STYLES = {
     iconRing: 'border-citrine text-citrine',
     tab: 'text-citrine border-citrine',
     cta: 'bg-citrine text-onCitrine'
+  },
+  orchid: {
+    border: 'border-orchid',
+    iconRing: 'border-orchid text-orchid',
+    tab: 'text-orchid border-orchid',
+    cta: 'bg-orchid text-onOrchid'
   }
 }
 
@@ -337,6 +343,19 @@ const VISIBLE_GAMES = [
     cta: 'Create Room →',
     isOnline: true,
   },
+  {
+    slug: 'teen-do-paanch',
+    icon: TargetIcon,
+    title: '3-2-5 (Teen Do Paanch)',
+    modeBadge: 'Online',
+    modeIcon: SignalIcon,
+    accent: 'orchid',
+    description: 'Fixed rotating targets of 3, 2, and 5 tricks — declared or hidden trump',
+    playersPill: 'Exactly 3 players',
+    timePill: '~30-45 mins',
+    cta: 'Create Room →',
+    isOnline: true,
+  },
 ]
 
 // Every other registered game — surfaced below as a plain, temporary review
@@ -346,7 +365,7 @@ const VISIBLE_SLUGS = new Set([
   'thinkfast', 'dumb-charades-offline', 'firstbell', 'raja-mantri',
   'sabse-zyada-kaun', 'sabse-zyada-kaun-offline', 'tambola', 'bhed', 'bluff',
   'bakwaas', 'bhabhi', 'call-break', 'judgement', 'court-piece', 'satti',
-  'mendikot',
+  'mendikot', 'teen-do-paanch',
 ])
 
 export default function Home() {

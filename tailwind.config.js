@@ -38,6 +38,7 @@ export default {
         jade: 'rgb(var(--color-accent-jade-rgb) / <alpha-value>)',
         amethyst: 'rgb(var(--color-accent-amethyst-rgb) / <alpha-value>)',
         citrine: 'rgb(var(--color-accent-citrine-rgb) / <alpha-value>)',
+        orchid: 'rgb(var(--color-accent-orchid-rgb) / <alpha-value>)',
         error: 'rgb(var(--color-error-rgb) / <alpha-value>)',
         onGold: 'rgb(var(--on-gold-rgb) / <alpha-value>)',
         onTeal: 'rgb(var(--on-teal-rgb) / <alpha-value>)',
@@ -55,6 +56,7 @@ export default {
         onJade: 'rgb(var(--on-jade-rgb) / <alpha-value>)',
         onAmethyst: 'rgb(var(--on-amethyst-rgb) / <alpha-value>)',
         onCitrine: 'rgb(var(--on-citrine-rgb) / <alpha-value>)',
+        onOrchid: 'rgb(var(--on-orchid-rgb) / <alpha-value>)',
         // Playing-card colors — theme-invariant on purpose, see index.css.
         cardFace: 'rgb(var(--color-card-face-rgb) / <alpha-value>)',
         cardRed: 'rgb(var(--color-card-red-rgb) / <alpha-value>)',

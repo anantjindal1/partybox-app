@@ -19,6 +19,7 @@ import judgementMeta from './judgement/metadata.js'
 import courtPieceMeta from './court-piece/metadata.js'
 import sattiMeta from './satti/metadata.js'
 import mendikotMeta from './mendikot/metadata.js'
+import teenDoPaanchMeta from './teen-do-paanch/metadata.js'
 
 // Lazy-loaded game components — each game is a separate JS chunk.
 // This keeps the initial bundle small for low-end devices.
@@ -42,6 +43,7 @@ const Judgement                = lazy(() => import('./judgement/index.jsx'))
 const CourtPiece                = lazy(() => import('./court-piece/index.jsx'))
 const Satti                     = lazy(() => import('./satti/index.jsx'))
 const Mendikot                  = lazy(() => import('./mendikot/index.jsx'))
+const TeenDoPaanch               = lazy(() => import('./teen-do-paanch/index.jsx'))
 
 export const games = [
   { ...firstBellMeta,           Component: FirstBell },
@@ -63,7 +65,8 @@ export const games = [
   { ...judgementMeta,                  Component: Judgement },
   { ...courtPieceMeta,                  Component: CourtPiece },
   { ...sattiMeta,                       Component: Satti },
-  { ...mendikotMeta,                    Component: Mendikot }
+  { ...mendikotMeta,                    Component: Mendikot },
+  { ...teenDoPaanchMeta,                 Component: TeenDoPaanch }
 ]
 
 export function getGame(slug) {
