@@ -55,18 +55,21 @@ future one.
 
 **Wave 3 — COMPLETE (2026-09-10).** All 5 games shipped: Bhabhi, Call Break, Judgement, Court Piece, Satti.
 
-**Post-Wave-3 — full regression pass:**
-- Now that all 5 Wave 3 games are shipped, spawn multiple agents in parallel to
-  comprehensively test every game in the app (Wave 1 + Wave 2 + Wave 3, plus
-  anything in the "for review" list) for regressions and bugs before moving
-  on to any unscheduled backlog item.
+**Post-Wave-3 card games — building the remaining unscheduled card games one by one (started 2026-09-11):**
+- ✅ Mendikot (Mindi) — online, citrine accent (2026-09-11). Exactly 4 players, fixed 2v2 partnerships. No trump, no bidding, decided in a single hand: capture all four 10s for an outright "Mendikot" win, else whoever captured more 10s wins, a 2-2 split broken by trick count. Promoted Court Piece's team-derivation helpers into a shared `src/multiplayer/partnerships.js` rather than duplicating them.
+- Donkey (Gadha) and 3-2-5 (Teen Do Paanch) remain.
+
+**Post-Wave-3 — full regression pass (not yet started):**
+- Once the remaining card games are built (or whenever picked up), spawn
+  multiple agents in parallel to comprehensively test every game in the app
+  (Wave 1 + Wave 2 + Wave 3 + these) for regressions and bugs before moving
+  on to any other unscheduled backlog item.
 
 **Unscheduled — kept in backlog, no wave assigned yet:**
 - Bakwaas Adaalat
 - Chugli Detective
 - Donkey (Gadha)
 - 3-2-5 (Teen Do Paanch)
-- Mendikot (Mindi)
 - Codenames
 - Teri — rules TBD, user to detail later
 
@@ -86,7 +89,7 @@ future one.
 9. **Donkey (Gadha)** — Pass cards to collect four of a kind; last to react is the donkey.
 10. **3-2-5 (Teen Do Paanch)** — Three-player trick game; each must win an exact target of tricks.
 11. ✅ **Bhabhi (Get Away)** — Sudden-death shedding game; follow suit or dump, first to empty your hand wins immediately.
-12. **Mendikot (Mindi)** — Four-player partnership trick game; capture the four 10s.
+12. ✅ **Mendikot (Mindi)** — Four-player partnership trick game; capture the four 10s.
 13. ✅ **Court Piece (Coatpees / Rang)** — Four-player fixed-partnership trick game; caller picks trump, race to seven match points (with a shutout-extension exception).
 14. ✅ **Judgement (Kachuful)** — Bid exactly how many tricks you'll win each round; score only if you hit it.
 15. ✅ **Call Break** — Thirteen-card spades-style trick game with per-round bidding.
