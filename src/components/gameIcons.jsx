@@ -156,6 +156,18 @@ export function SevenIcon(props) {
   )
 }
 
+export function MendikotIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M12 3l9 9-9 9-9-9z" />
+      <circle cx="12" cy="7" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="17" cy="12" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="17" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="7" cy="12" r="1.4" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+
 export function DiceIcon(props) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -187,6 +199,7 @@ export const GAME_ICONS = {
   'judgement': GavelIcon,
   'court-piece': PartnershipIcon,
   'satti': SevenIcon,
+  'mendikot': MendikotIcon,
 }
 
 export function getGameIcon(slug) {

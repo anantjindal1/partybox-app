@@ -18,6 +18,7 @@ import callBreakMeta from './call-break/metadata.js'
 import judgementMeta from './judgement/metadata.js'
 import courtPieceMeta from './court-piece/metadata.js'
 import sattiMeta from './satti/metadata.js'
+import mendikotMeta from './mendikot/metadata.js'
 
 // Lazy-loaded game components — each game is a separate JS chunk.
 // This keeps the initial bundle small for low-end devices.
@@ -40,6 +41,7 @@ const CallBreak               = lazy(() => import('./call-break/index.jsx'))
 const Judgement                = lazy(() => import('./judgement/index.jsx'))
 const CourtPiece                = lazy(() => import('./court-piece/index.jsx'))
 const Satti                     = lazy(() => import('./satti/index.jsx'))
+const Mendikot                  = lazy(() => import('./mendikot/index.jsx'))
 
 export const games = [
   { ...firstBellMeta,           Component: FirstBell },
@@ -60,7 +62,8 @@ export const games = [
   { ...callBreakMeta,                 Component: CallBreak },
   { ...judgementMeta,                  Component: Judgement },
   { ...courtPieceMeta,                  Component: CourtPiece },
-  { ...sattiMeta,                       Component: Satti }
+  { ...sattiMeta,                       Component: Satti },
+  { ...mendikotMeta,                    Component: Mendikot }
 ]
 
 export function getGame(slug) {

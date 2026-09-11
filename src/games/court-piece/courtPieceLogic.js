@@ -1,26 +1,13 @@
 /**
- * Court Piece — pure team/match-scoring utilities. No Firebase, no React.
+ * Court Piece — pure match-scoring utilities. No Firebase, no React.
+ * Team-derivation helpers live in the shared multiplayer/partnerships.js
+ * (Mendikot needs the exact same ones) — re-exported here so nothing
+ * else in this game has to change its import path.
  */
+export { getTeamA, getTeamB, getTeamOf, computeTeamTricks } from '../../multiplayer/partnerships'
 
 export const MATCH_TARGET = 7
 export const SHUTOUT_EXTENSION_TARGET = 13
-
-export function getTeamA(turnOrder) {
-  return [turnOrder[0], turnOrder[2]]
-}
-
-export function getTeamB(turnOrder) {
-  return [turnOrder[1], turnOrder[3]]
-}
-
-export function getTeamOf(playerId, turnOrder) {
-  return getTeamA(turnOrder).includes(playerId) ? 'teamA' : 'teamB'
-}
-
-export function computeTeamTricks(turnOrder, tricksWon) {
-  const sum = (ids) => ids.reduce((total, id) => total + (tricksWon[id] ?? 0), 0)
-  return { teamA: sum(getTeamA(turnOrder)), teamB: sum(getTeamB(turnOrder)) }
-}
 
 export function computeHandOutcome(teamTricks) {
   const winningTeam = teamTricks.teamA > teamTricks.teamB ? 'teamA' : 'teamB'

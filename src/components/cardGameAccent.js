@@ -23,4 +23,5 @@ export const CARD_GAME_ACCENT_CLASSES = {
   peridot: { border: 'border-peridot', soft: 'bg-peridot/10', text: 'text-peridot', dot: 'bg-peridot', button: 'bg-peridot text-onPeridot' },
   jade: { border: 'border-jade', soft: 'bg-jade/10', text: 'text-jade', dot: 'bg-jade', button: 'bg-jade text-onJade' },
   amethyst: { border: 'border-amethyst', soft: 'bg-amethyst/10', text: 'text-amethyst', dot: 'bg-amethyst', button: 'bg-amethyst text-onAmethyst' },
+  citrine: { border: 'border-citrine', soft: 'bg-citrine/10', text: 'text-citrine', dot: 'bg-citrine', button: 'bg-citrine text-onCitrine' },
 }

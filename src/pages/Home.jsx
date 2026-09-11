@@ -16,7 +16,7 @@ import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import { trackEvent as trackAnalyticsEvent } from '../services/analytics_events'
 import AdBanner from '../components/AdBanner'
-import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, PartnershipIcon, SevenIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
+import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, PartnershipIcon, SevenIcon, MendikotIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
 
 const COMING_SOON_SLOTS = 0
 
@@ -120,6 +120,12 @@ const ACCENT_STYLES = {
     iconRing: 'border-amethyst text-amethyst',
     tab: 'text-amethyst border-amethyst',
     cta: 'bg-amethyst text-onAmethyst'
+  },
+  citrine: {
+    border: 'border-citrine',
+    iconRing: 'border-citrine text-citrine',
+    tab: 'text-citrine border-citrine',
+    cta: 'bg-citrine text-onCitrine'
   }
 }
 
@@ -318,6 +324,19 @@ const VISIBLE_GAMES = [
     cta: 'Create Room →',
     isOnline: true,
   },
+  {
+    slug: 'mendikot',
+    icon: MendikotIcon,
+    title: 'Mendikot (Mindi)',
+    modeBadge: 'Online',
+    modeIcon: SignalIcon,
+    accent: 'citrine',
+    description: 'Fixed partnerships, no trump — capture all four 10s for a Mendikot',
+    playersPill: 'Exactly 4 players',
+    timePill: '~20-30 mins',
+    cta: 'Create Room →',
+    isOnline: true,
+  },
 ]
 
 // Every other registered game — surfaced below as a plain, temporary review
@@ -327,6 +346,7 @@ const VISIBLE_SLUGS = new Set([
   'thinkfast', 'dumb-charades-offline', 'firstbell', 'raja-mantri',
   'sabse-zyada-kaun', 'sabse-zyada-kaun-offline', 'tambola', 'bhed', 'bluff',
   'bakwaas', 'bhabhi', 'call-break', 'judgement', 'court-piece', 'satti',
+  'mendikot',
 ])
 
 export default function Home() {
