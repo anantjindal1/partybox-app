@@ -50,18 +50,24 @@ future one.
   join-order pairing exactly, unchanged. New shared
   `src/components/cards/PartnerPicker.jsx` +
   `buildTurnOrderFromPartner()` in `src/multiplayer/partnerships.js`.
-- **Spectator / viewing-lobby mode** — a player who joins after a game has
-  started can watch live gameplay and scores, optionally following one
-  player's perspective, across any multiplayer game (not just card games).
-  **Scoped, not started (2026-09-12)**: research found there is currently
-  ZERO player/spectator distinction anywhere — `Room.jsx`'s auto-join
-  effect unconditionally adds any late joiner as a full player regardless
-  of phase, and every game's `handleStartGame`/render logic assumes every
-  entry in `players` is a real dealt-in participant. This needs a new
-  role concept in the data model, a change to the auto-join effect, AND a
-  new "I'm here but not in turnOrder/hands" render branch added
-  individually to every one of the ~20+ games (their private-data field
-  differs per game). Its own dedicated planning session, not a quick add-on.
+- ✅ **Spectator mode** — DONE (2026-09-12), watch-live-gameplay half
+  only. A player who opens a room link after the game has started now
+  joins a separate `room.spectators` array instead of becoming a broken
+  "ghost player" in `room.players`. Deeper research reversed the
+  original invasiveness estimate: since a spectator's id never matches
+  a real player, every game's existing `players.filter(p => p.id !==
+  myId)` pattern already renders a sensible read-only board for free —
+  no per-game changes needed at all. The one real gap it surfaced —
+  `useOnlineRoom`'s `sendAction` had no check that the sender was an
+  actual player, so a spectator's stray tap on 7+ games' unguarded
+  vote/bid/ack buttons could corrupt an `actions.length >=
+  players.length` auto-advance count — was fixed centrally with a
+  one-line membership guard, not per game. New `joinAsSpectator`/
+  `kickSpectator` in `src/services/room.js`, a "Spectating" badge +
+  host-kickable "Watching" chip row in `Room.jsx`. **Not built**:
+  spectator→player promotion, and "follow one player's private hand"
+  (needs a `viewingId` swap in every game's private-data lookups —
+  real per-game work, its own fast-follow whenever picked up).
 - **Voice broadcast / push-to-talk** — a table-wide "talk" button that
   broadcasts to everyone in the room (not a real group call), across all
   games. **Scoped, not started (2026-09-12)**: research found zero audio
