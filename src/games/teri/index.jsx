@@ -7,9 +7,11 @@ import { removeCardFromHand, sortHand } from '../../multiplayer/hand'
 import { dealCards } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
+import { buildTurnOrderFromPartner } from '../../multiplayer/partnerships'
 import { CardTable } from '../../components/cards/CardTable'
 import { TableScoreBar } from '../../components/cards/TableScoreBar'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
+import { PartnerPicker } from '../../components/cards/PartnerPicker'
 import { BiddingScreen } from './BiddingScreen'
 import { HandRevealScreen } from './HandRevealScreen'
 import { ResultsScreen } from './ResultsScreen'
@@ -278,13 +280,14 @@ export default function Teri({ code }) {
   async function handleStartGame() {
     setStarting(true)
     try {
-      const playerIds = players.map(p => p.id)
+      const playerIds = buildTurnOrderFromPartner(players.map(p => p.id), room.hostId, roomState.pendingPartnerId)
       const shufflerId = determineInitialShuffler(shuffleDeck(createDeck()), playerIds)
       const { hands } = dealCards(shuffleDeck(createDeck()), playerIds, 13)
       const biddingOrder = computeBiddingOrder(playerIds, shufflerId)
       await clearActions()
       await persist({
         phase: 'bidding',
+        pendingPartnerId: null,
         turnOrder: playerIds,
         shufflerId,
         shufflerScore: 0,
@@ -390,6 +393,16 @@ export default function Teri({ code }) {
           accent="cobalt"
           phase={phase}
         />
+        {players.length === 4 && (
+          <PartnerPicker
+            players={players}
+            hostId={room.hostId}
+            myId={myId}
+            pendingPartnerId={roomState.pendingPartnerId}
+            onSelectPartner={id => persist({ pendingPartnerId: id })}
+            accent="cobalt"
+          />
+        )}
         {isHost ? (
           <button
             onClick={handleStartGame}

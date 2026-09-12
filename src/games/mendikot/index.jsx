@@ -7,9 +7,11 @@ import { removeCardFromHand, sortHand } from '../../multiplayer/hand'
 import { dealCards } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
+import { buildTurnOrderFromPartner } from '../../multiplayer/partnerships'
 import { CardTable } from '../../components/cards/CardTable'
 import { TableScoreBar } from '../../components/cards/TableScoreBar'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
+import { PartnerPicker } from '../../components/cards/PartnerPicker'
 import { ResultsScreen } from './ResultsScreen'
 import { getTeamOf, computeTeamTricks, countTensInTrick, computeMendikotOutcome } from './mendikotLogic'
 import { awardXP } from '../../services/xp'
@@ -131,11 +133,12 @@ export default function Mendikot({ code }) {
     setStarting(true)
     try {
       const deck = shuffleDeck(createDeck())
-      const playerIds = players.map(p => p.id)
+      const playerIds = buildTurnOrderFromPartner(players.map(p => p.id), room.hostId, roomState.pendingPartnerId)
       const { hands } = dealCards(deck, playerIds, 13)
       await clearActions()
       await persist({
         phase: 'playing',
+        pendingPartnerId: null,
         turnOrder: playerIds,
         currentIdx: 0,
         hands,
@@ -190,6 +193,16 @@ export default function Mendikot({ code }) {
           accent="citrine"
           phase={phase}
         />
+        {players.length === 4 && (
+          <PartnerPicker
+            players={players}
+            hostId={room.hostId}
+            myId={myId}
+            pendingPartnerId={roomState.pendingPartnerId}
+            onSelectPartner={id => persist({ pendingPartnerId: id })}
+            accent="citrine"
+          />
+        )}
         {isHost ? (
           <button
             onClick={handleStartGame}

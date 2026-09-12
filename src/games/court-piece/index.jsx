@@ -7,8 +7,10 @@ import { removeCardFromHand, addCardsToHand, sortHand } from '../../multiplayer/
 import { dealCards } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
+import { buildTurnOrderFromPartner } from '../../multiplayer/partnerships'
 import { CardTable } from '../../components/cards/CardTable'
 import { TableScoreBar } from '../../components/cards/TableScoreBar'
+import { PartnerPicker } from '../../components/cards/PartnerPicker'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { TrumpCallScreen } from './TrumpCallScreen'
 import { HandRevealScreen } from './HandRevealScreen'
@@ -192,13 +194,14 @@ export default function CourtPiece({ code }) {
   async function handleStartGame() {
     setStarting(true)
     try {
-      const playerIds = players.map(p => p.id)
+      const playerIds = buildTurnOrderFromPartner(players.map(p => p.id), room.hostId, roomState.pendingPartnerId)
       const deck = shuffleDeck(createDeck())
       const { hands, remaining } = dealCards(deck, playerIds, 5)
       const zeroed = Object.fromEntries(playerIds.map(id => [id, 0]))
       await clearActions()
       await persist({
         phase: 'calling_trump',
+        pendingPartnerId: null,
         turnOrder: playerIds,
         handNumber: 1,
         callerId: playerIds[0],
@@ -303,6 +306,16 @@ export default function CourtPiece({ code }) {
           <p className="text-center text-error text-sm">
             Room full (4/4) — ask the host to remove a player to start.
           </p>
+        )}
+        {players.length === 4 && (
+          <PartnerPicker
+            players={players}
+            hostId={room.hostId}
+            myId={myId}
+            pendingPartnerId={roomState.pendingPartnerId}
+            onSelectPartner={id => persist({ pendingPartnerId: id })}
+            accent="jade"
+          />
         )}
         {isHost ? (
           <button
