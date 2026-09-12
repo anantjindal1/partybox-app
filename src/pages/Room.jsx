@@ -11,8 +11,13 @@ import { useRoom } from '../hooks/useRoom'
 import { useProfile } from '../hooks/useProfile'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
 import { useOnlineRoom } from '../hooks/useOnlineRoom'
-import { joinRoom } from '../services/room'
+import { joinRoom, joinAsSpectator } from '../services/room'
 import { getGame } from '../games/registry'
+
+// Game is active once phase moves past setup (waiting/setup = lobby,
+// anything else = in-game). Module scope since both the auto-join
+// effect and gameInProgress need the exact same set.
+const LOBBY_PHASES = new Set([undefined, null, 'waiting', 'setup'])
 
 export default function Room() {
   const { code } = useParams()
@@ -31,7 +36,7 @@ export default function Room() {
   const joinedRef = useRef(false)
 
   // useOnlineRoom for host controls (kick, end game) and roomState
-  const { isHost, kickPlayer, endGame, expired, roomState, myId } = useOnlineRoom(code)
+  const { isHost, kickPlayer, kickSpectator, endGame, expired, roomState, myId } = useOnlineRoom(code)
 
   // Auto-close room after results phase starts (duration configurable per-game via resultsDurationMs)
   // Games with noAutoClose: true handle their own navigation (e.g. FirstBell has Rematch/Home buttons)
@@ -62,16 +67,21 @@ export default function Room() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomState?.phase])
 
-  // Auto-join: if player arrived via share link they won't be in room.players yet
+  // Auto-join: if player arrived via share link they won't be in
+  // room.players yet. Anyone arriving once the game is already past
+  // the lobby joins as a spectator instead — they'd never get dealt
+  // in by any game's handleStartGame either way.
   useEffect(() => {
     if (!room || !myId || !identity || joinedRef.current) return
-    const alreadyIn = room.players.some(p => p.id === myId)
+    const alreadyIn = room.players.some(p => p.id === myId) ||
+      (room.spectators ?? []).some(p => p.id === myId)
     if (alreadyIn) {
       joinedRef.current = true
       return
     }
     joinedRef.current = true
-    joinRoom(code, myId, identity.name, identity.avatar).catch(() => {
+    const join = LOBBY_PHASES.has(room.state?.phase) ? joinRoom : joinAsSpectator
+    join(code, myId, identity.name, identity.avatar).catch(() => {
       joinedRef.current = false
     })
   }, [room, myId, identity, code])
@@ -103,9 +113,9 @@ export default function Room() {
   const game = getGame(room.gameSlug)
   const GameComponent = game?.Component
 
-  // Game is active once phase moves past setup (waiting/setup = lobby, anything else = in-game)
-  const LOBBY_PHASES = new Set([undefined, null, 'waiting', 'setup'])
   const gameInProgress = !LOBBY_PHASES.has(roomState?.phase)
+  const spectators = room.spectators ?? []
+  const isSpectator = !!myId && spectators.some(p => p.id === myId)
 
   async function handleEndGame() {
     await endGame()
@@ -114,6 +124,10 @@ export default function Room() {
 
   async function handleKick(playerId) {
     await kickPlayer(playerId)
+  }
+
+  async function handleKickSpectator(spectatorId) {
+    await kickSpectator(spectatorId)
   }
 
   function getInviteText() {
@@ -248,7 +262,12 @@ export default function Room() {
       )}
 
       {gameInProgress && (
-        <div className="px-4 sm:px-6 pt-4 pb-4">
+        <div className="px-4 sm:px-6 pt-4 pb-4 space-y-2">
+          {isSpectator && (
+            <p className="text-center text-textMuted text-sm">
+              👁️ Spectating — you can watch but not play this round.
+            </p>
+          )}
           <div className="flex flex-wrap gap-2">
             {room.players.map(p => (
               <span
@@ -263,6 +282,28 @@ export default function Room() {
               </span>
             ))}
           </div>
+          {spectators.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-textMuted text-xs">Watching:</span>
+              {spectators.map(p => (
+                <span
+                  key={p.id}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-surfaceMuted text-textMuted border border-border/40"
+                >
+                  {p.avatar ?? '🎮'} {p.name}
+                  {isHost && (
+                    <button
+                      onClick={() => handleKickSpectator(p.id)}
+                      className="text-textMuted hover:text-error"
+                      aria-label={`${t('removePlayer')} ${p.name}`}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

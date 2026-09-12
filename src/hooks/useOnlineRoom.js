@@ -8,6 +8,7 @@ import {
   deleteAction as deleteActionService,
   deleteRoom,
   kickPlayer as kickPlayerService,
+  kickSpectator as kickSpectatorService,
   isRoomExpired
 } from '../services/room'
 import { getProfile } from '../services/profile'
@@ -51,7 +52,7 @@ export function useOnlineRoom(code) {
   const players = room?.players ?? []
 
   async function sendAction(action) {
-    if (!myId) return
+    if (!myId || !players.some(p => p.id === myId)) return
     await writeAction(code, myId, action)
   }
 
@@ -75,6 +76,10 @@ export function useOnlineRoom(code) {
     await kickPlayerService(code, playerId)
   }
 
+  async function kickSpectator(spectatorId) {
+    await kickSpectatorService(code, spectatorId)
+  }
+
   return {
     room,
     roomState,
@@ -85,6 +90,7 @@ export function useOnlineRoom(code) {
     deleteAction,
     endGame,
     kickPlayer,
+    kickSpectator,
     isHost,
     players,
     connected,

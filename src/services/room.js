@@ -108,6 +108,27 @@ export async function kickPlayer(code, playerId) {
   await updateDoc(ref, { players: arrayRemove(player) })
 }
 
+export async function joinAsSpectator(code, id, name, avatar) {
+  const ref = doc(db, 'rooms', code)
+  const snap = await getDoc(ref)
+  if (!snap.exists()) throw new Error('room-not-found')
+  const room = snap.data()
+  if (isRoomExpired(room)) throw new Error('room-expired')
+  await updateDoc(ref, {
+    spectators: arrayUnion({ id, name, avatar: avatar ?? '🎲' })
+  })
+}
+
+export async function kickSpectator(code, id) {
+  const ref = doc(db, 'rooms', code)
+  const snap = await getDoc(ref)
+  if (!snap.exists()) return
+  const room = snap.data()
+  const spectator = (room.spectators ?? []).find(p => p.id === id)
+  if (!spectator) return
+  await updateDoc(ref, { spectators: arrayRemove(spectator) })
+}
+
 // Deprecated — use updateRoomState instead
 export async function sendRoomAction(code, action) {
   return updateRoomState(code, action)
