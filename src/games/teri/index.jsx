@@ -463,17 +463,24 @@ export default function Teri({ code }) {
     const otherSeats = players
       .filter(p => p.id !== myId)
       .map(p => {
-        const isPartnerSeat = p.id === partnerOfGameLead
+        // Two independent concepts that only coincide when the viewer is
+        // on GameLead's team: "Your Partner" is team-relative (correct
+        // from every viewer's own perspective), while "Open Hand" marks
+        // GameLead's partner specifically — the dummy seat exposed to
+        // EVERYONE regardless of whose team they're on.
+        const isMyPartner = getTeamOf(myId, roomState.turnOrder) === getTeamOf(p.id, roomState.turnOrder)
+        const isDummySeat = p.id === partnerOfGameLead
         const labels = []
+        if (isMyPartner) labels.push('Your Partner')
         if (p.id === roomState.shufflerId) labels.push('Shuffler')
         if (p.id === gameLeadId) labels.push('GameLead')
-        if (isPartnerSeat) labels.push('Partner')
+        if (isDummySeat) labels.push('Open Hand')
         return {
           player: p,
           cardCount: roomState.hands?.[p.id]?.length ?? 0,
           isActiveTurn: currentTurnHolder === p.id,
           label: labels.length ? labels.join(' · ') : undefined,
-          exposedCards: isPartnerSeat ? roomState.hands?.[p.id] : undefined
+          exposedCards: isDummySeat ? roomState.hands?.[p.id] : undefined
         }
       })
 

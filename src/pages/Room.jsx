@@ -17,7 +17,7 @@ import { getGame } from '../games/registry'
 export default function Room() {
   const { code } = useParams()
   const navigate = useNavigate()
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const room = useRoom(code)
   const { profile } = useProfile()
   const connected = useOnlineStatus()
@@ -116,17 +116,23 @@ export default function Room() {
     await kickPlayer(playerId)
   }
 
+  function getInviteText() {
+    const rawTitle = game?.title
+    const gameName = (typeof rawTitle === 'string' ? rawTitle : rawTitle?.[lang] ?? rawTitle?.en) ?? 'PartyBox'
+    const playerName = identity?.name ?? 'Someone'
+    return `${playerName} is inviting you to play ${gameName}! Come play:\n${window.location.href}\nRoom code: ${code}`
+  }
+
   function handleCopyLink() {
-    navigator.clipboard.writeText(window.location.href)
+    navigator.clipboard.writeText(getInviteText())
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
   function handleWhatsApp() {
-    const msg = encodeURIComponent(
-      `Join my FirstBell quiz!\nTap to join: ${window.location.href}\nRoom code: ${code}`
-    )
-    window.open(`https://wa.me/+919001290623?text=${msg}`, '_blank')
+    // No number = WhatsApp opens its own contact picker instead of a
+    // fixed recipient.
+    window.open(`https://wa.me/?text=${encodeURIComponent(getInviteText())}`, '_blank')
   }
 
   return (

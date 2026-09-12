@@ -102,6 +102,11 @@ export default {
         'turn-glow': {
           '0%, 100%': { boxShadow: '0 0 0 2px var(--turn-glow-color, currentColor)' },
           '50%': { boxShadow: '0 0 0 5px var(--turn-glow-color, currentColor)' }
+        },
+        'play-out': {
+          '0%': { transform: 'translateY(0) scale(1)', opacity: '1' },
+          '40%': { transform: 'translateY(-10px) scale(1.08)', opacity: '1' },
+          '100%': { transform: 'translateY(-70px) scale(0.55)', opacity: '0' }
         }
       },
       animation: {
@@ -109,7 +114,8 @@ export default {
         'scale-in': 'scale-in 0.22s ease-out',
         'pop': 'pop 0.25s ease-in-out',
         'deal-in': 'deal-in 0.35s ease-out both',
-        'turn-glow': 'turn-glow 1.6s ease-in-out infinite'
+        'turn-glow': 'turn-glow 1.6s ease-in-out infinite',
+        'play-out': 'play-out 0.32s ease-in forwards'
       }
     }
   },
