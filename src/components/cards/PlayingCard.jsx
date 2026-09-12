@@ -36,7 +36,7 @@ export function PlayingCard({ face = 'up', rank, suit, size = 'md', className = 
       className={`rounded-md border border-border bg-cardFace shadow-soft flex flex-col justify-between p-1 ${className}`}
       style={boxStyle}
     >
-      <div className={`flex flex-col items-center leading-none ${dims.rank} font-bold ${colorClass}`}>
+      <div className={`flex flex-col items-start leading-none ${dims.rank} font-bold ${colorClass}`}>
         <span>{rank}</span>
         <SuitGlyph width={dims.suit} height={dims.suit} />
       </div>
