@@ -31,6 +31,29 @@ future one.
   (round-robin, uneven) replaced by `dealEven()` (equal cards per player,
   leftover simply never dealt) in Bluff and Bhabhi. Reverses a deliberate
   Wave-2 design decision, per explicit request.
+- ✅ **E. Table graphic, mobile hand overflow, partner clarity, play-cue,
+  share bugs** — DONE (2026-09-12). Raised via Teri playtesting but fixed
+  as shared components so every card game inherits them: oval table with
+  seats around it (`seatLayout.js`), hand sizing tuned to fit a phone
+  screen at any hand size (4-17 cards), clearer illegal-card graying,
+  a tap-to-play animation, Teri's partner-label fix, and `Room.jsx`'s
+  WhatsApp/copy-link share bugs (hardcoded number + wrong game name).
+  See `src/components/cards/CardTable.jsx` + `seatLayout.js`.
+
+## Cross-game UX — raised via Teri playtesting (2026-09-12), backlog only
+
+Confirmed as real feature requests, not fixed this session (deliberately
+scoped out — see item E above for what *was* fixed):
+
+- **Partner-selection UI** — host assigns pairs before a partnership game
+  starts, instead of the current random/seat-order assignment. Applies to
+  every partnership game (Court Piece, Mendikot, Teri).
+- **Spectator / viewing-lobby mode** — a player who joins after a game has
+  started can watch live gameplay and scores, optionally following one
+  player's perspective, across any multiplayer game (not just card games).
+- **Voice broadcast / push-to-talk** — a table-wide "talk" button that
+  broadcasts to everyone in the room (not a real group call), across all
+  games.
 
 ## Priority waves
 
