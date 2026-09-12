@@ -40,20 +40,39 @@ future one.
   WhatsApp/copy-link share bugs (hardcoded number + wrong game name).
   See `src/components/cards/CardTable.jsx` + `seatLayout.js`.
 
-## Cross-game UX — raised via Teri playtesting (2026-09-12), backlog only
+## Cross-game UX — raised via Teri playtesting (2026-09-12)
 
-Confirmed as real feature requests, not fixed this session (deliberately
-scoped out — see item E above for what *was* fixed):
-
-- **Partner-selection UI** — host assigns pairs before a partnership game
-  starts, instead of the current random/seat-order assignment. Applies to
-  every partnership game (Court Piece, Mendikot, Teri).
+- ✅ **Partner-selection UI** — DONE (2026-09-12). Host taps one of the
+  other 3 players as their partner before Start, on Court Piece,
+  Mendikot, and Teri's waiting screens; the pick live-syncs
+  (`roomState.pendingPartnerId`) so everyone sees the team preview
+  before the game begins. Skipping it falls back to the original
+  join-order pairing exactly, unchanged. New shared
+  `src/components/cards/PartnerPicker.jsx` +
+  `buildTurnOrderFromPartner()` in `src/multiplayer/partnerships.js`.
 - **Spectator / viewing-lobby mode** — a player who joins after a game has
   started can watch live gameplay and scores, optionally following one
   player's perspective, across any multiplayer game (not just card games).
+  **Scoped, not started (2026-09-12)**: research found there is currently
+  ZERO player/spectator distinction anywhere — `Room.jsx`'s auto-join
+  effect unconditionally adds any late joiner as a full player regardless
+  of phase, and every game's `handleStartGame`/render logic assumes every
+  entry in `players` is a real dealt-in participant. This needs a new
+  role concept in the data model, a change to the auto-join effect, AND a
+  new "I'm here but not in turnOrder/hands" render branch added
+  individually to every one of the ~20+ games (their private-data field
+  differs per game). Its own dedicated planning session, not a quick add-on.
 - **Voice broadcast / push-to-talk** — a table-wide "talk" button that
   broadcasts to everyone in the room (not a real group call), across all
-  games.
+  games. **Scoped, not started (2026-09-12)**: research found zero audio
+  infrastructure anywhere in the app (no `MediaRecorder`/`getUserMedia`/
+  WebRTC in source or dependencies), Firebase Storage configured but never
+  wired into `src/firebase.js`, and no microphone permission entries in
+  either the iOS or Android Capacitor shell. Needs real design decisions
+  (record-and-broadcast-a-clip via Storage vs. live streaming) plus native
+  permission work — and can't be verified live in a browser sandbox with
+  no real microphone the way every other feature in this app has been.
+  Its own dedicated planning session.
 
 ## Priority waves
 
