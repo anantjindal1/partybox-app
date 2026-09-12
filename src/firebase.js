@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
 import { getAnalytics } from 'firebase/analytics'
+import { getStorage } from 'firebase/storage'
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -15,10 +16,12 @@ const firebaseConfig = {
 // Only initialize Firebase when config is provided — app runs offline-only without it
 let db = null
 let analytics = null
+let storage = null
 if (firebaseConfig.apiKey && firebaseConfig.projectId) {
   try {
     const app = initializeApp(firebaseConfig)
     db = getFirestore(app)
+    storage = getStorage(app)
     if (firebaseConfig.measurementId) {
       try {
         analytics = getAnalytics(app)
@@ -31,4 +34,4 @@ if (firebaseConfig.apiKey && firebaseConfig.projectId) {
   }
 }
 
-export { db, analytics }
+export { db, analytics, storage }

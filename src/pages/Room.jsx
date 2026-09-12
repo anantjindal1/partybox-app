@@ -5,6 +5,7 @@ import { RoomCode } from '../components/RoomCode'
 import { Card } from '../components/Card'
 import { ConnectionOverlay } from '../components/ConnectionOverlay'
 import { ReactionBar } from '../components/ReactionBar'
+import { VoiceBroadcastButton } from '../components/VoiceBroadcastButton'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import { useLang } from '../store/LangContext'
 import { useRoom } from '../hooks/useRoom'
@@ -308,6 +309,7 @@ export default function Room() {
       )}
 
       <ReactionBar roomCode={code} />
+      <VoiceBroadcastButton roomCode={code} playerName={identity?.name} />
 
       {/* Game area */}
       <div className="game-area flex-1 px-4 sm:px-6 pb-8">
