@@ -65,6 +65,13 @@ export function CardTable({
       >
         {otherSeats.map((seat, i) => {
           const pos = getSeatPosition(i, otherSeats.length)
+          // Which side of the table this seat sits on — an exposed hand
+          // (Teri's dummy) needs to grow away from the center play area,
+          // not into it, and which direction "away" is depends on this.
+          const middleIndex = Math.floor((otherSeats.length - 1) / 2)
+          const exposedHandSide = otherSeats.length <= 1 || i === middleIndex
+            ? 'front'
+            : i < middleIndex ? 'left' : 'right'
           return (
             <div
               key={seat.player.id}
@@ -78,6 +85,7 @@ export function CardTable({
                 accent={accent}
                 label={seat.label}
                 exposedCards={seat.exposedCards}
+                exposedHandSide={exposedHandSide}
                 onExposedCardTap={seat.onExposedCardTap}
                 disabledExposedCardIds={seat.disabledExposedCardIds}
                 highlightedExposedCardIds={seat.highlightedExposedCardIds}

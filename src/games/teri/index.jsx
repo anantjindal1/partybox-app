@@ -161,6 +161,15 @@ export default function Teri({ code }) {
 
   async function applyBidAction(playerId, action) {
     const current = roomStateRef.current
+    // Never trust a submitted bid number blindly — a client whose UI
+    // hasn't yet caught up with a newer high bid (or any other race)
+    // could otherwise submit an equal-or-lower number and corrupt the
+    // auction. Drop it silently rather than accept it; the same
+    // player's turn stays active for a valid retry once their UI syncs.
+    if (action.type === 'BID' && action.payload.number <= (current.currentHighBid?.number ?? 6)) {
+      await clearActions()
+      return
+    }
     const passedPlayers = action.type === 'PASS'
       ? [...(current.passedPlayers ?? []), playerId]
       : (current.passedPlayers ?? [])
