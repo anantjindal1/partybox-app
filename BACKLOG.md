@@ -68,35 +68,26 @@ future one.
   spectator→player promotion, and "follow one player's private hand"
   (needs a `viewingId` swap in every game's private-data lookups —
   real per-game work, its own fast-follow whenever picked up).
-- 🟡 **Voice broadcast / push-to-talk** — CODE DONE, BLOCKED ON 2 MANUAL
-  INFRA STEPS (2026-09-12). Press-and-hold `VoiceBroadcastButton`
-  records a clip (`MediaRecorder`, 15s cap, cross-browser mime-type
-  fallback), uploads to Firebase Storage, broadcasts a pointer doc the
-  same way `ReactionBar` broadcasts reactions, and every client queues
-  + plays received clips sequentially (never overlapping). Mounted once
-  in `Room.jsx`, works in every game and for spectators too, same as
-  `ReactionBar`. **Confirmed live against the real Firebase project —
-  currently non-functional until you do 2 things, neither of which
-  this environment has the access to do:**
-  1. **Add a Firestore rule.** Writing to `rooms/{code}/voice/{id}`
-     currently returns `permission-denied` (tested directly). Add this
-     inside the existing `match /rooms/{roomId} { ... }` block in
-     `firestore.rules` and deploy it:
-     ```
-     match /voice/{voiceId} { allow read, write: if true; }
-     ```
-  2. **Fix Storage CORS.** Uploads fail with a CORS preflight error
-     against the real bucket (confirmed via browser console). This
-     needs `gsutil cors set` against the `partybox-cd9ab.firebasestorage.app`
-     bucket (Google Cloud SDK, needs your GCP credentials) — and first
-     confirm Storage is actually enabled for the project in Firebase
-     Console (Storage tab — if it still says "Get Started", enable it
-     first). New `storage.rules` (repo root) is ready to paste into
-     Console → Storage → Rules once Storage is enabled.
-  **Also not verifiable here regardless of the above**: real
-  `getUserMedia` permission prompts, actual recording quality, and true
-  cross-browser (especially iOS Safari) `MediaRecorder` behavior — needs
-  a real device once the infra steps above are done.
+- ✅ **Voice broadcast / push-to-talk** — DONE (2026-09-12/13). Original
+  design uploaded clips to Firebase Storage, but that turned out to need
+  the paid Blaze plan (a late-2024 Google policy change) plus a manual
+  `gsutil` CORS fix — neither acceptable/available. **Reworked to skip
+  Storage entirely**: a 15s clip capped at 24kbps is only ~45KB raw,
+  ~60KB base64 — comfortably fits directly inside the same Firestore
+  pointer doc `ReactionBar` already uses this pattern for, no bucket, no
+  billing, no CORS (that was Storage-specific; Firestore's SDK doesn't
+  have it). Press-and-hold `VoiceBroadcastButton` records via
+  `MediaRecorder` (cross-browser mime-type fallback for Safari), embeds
+  the clip as a `data:` URI in `rooms/{code}/voice/{id}`, and every
+  client queues + plays received clips sequentially (never overlapping).
+  Mounted once in `Room.jsx` — works in every game and for spectators
+  too. Verified live end-to-end against the real Firebase project: a
+  synthetic clip write succeeds against the (now-deployed) `voice` rule,
+  a second client receives it live, and a real `<audio>` element loads
+  the embedded data URI successfully. **Still not verifiable here**:
+  real `getUserMedia` permission prompts, actual recording quality, and
+  true cross-browser (especially iOS Safari) `MediaRecorder` behavior —
+  needs a real device as the final check.
 
 ## Priority waves
 
