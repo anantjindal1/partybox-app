@@ -78,6 +78,10 @@ export function CardTable({
                 accent={accent}
                 label={seat.label}
                 exposedCards={seat.exposedCards}
+                onExposedCardTap={seat.onExposedCardTap}
+                disabledExposedCardIds={seat.disabledExposedCardIds}
+                highlightedExposedCardIds={seat.highlightedExposedCardIds}
+                selectedExposedCardIds={seat.selectedExposedCardIds}
               />
             </div>
           )

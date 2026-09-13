@@ -1,5 +1,6 @@
 export default {
   slug: 'teri',
+  hidePlayerListInGame: true,
   title: { en: 'Teri', hi: 'तेरी' },
   minPlayers: 4,
   maxPlayers: 4,

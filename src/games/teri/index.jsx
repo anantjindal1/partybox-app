@@ -538,31 +538,36 @@ export default function Teri({ code }) {
     const isPartnerTurn = currentTurnHolder === partnerOfGameLead
     const isMyTurnNormally = currentTurnHolder === myId
 
-    let activeHand
-    let onCardTap
-    let activeLabel = null
-    if (isGameLead && isPartnerTurn) {
-      activeHand = sortHand(roomState.hands?.[partnerOfGameLead] ?? [])
-      onCardTap = handlePlayCard
-      activeLabel = `Playing for ${players.find(p => p.id === partnerOfGameLead)?.name ?? 'partner'}`
-    } else if (isPartnerOfGameLead && isPartnerTurn) {
-      activeHand = sortHand(roomState.hands?.[myId] ?? [])
-      onCardTap = handleSuggestCard
-      activeLabel = 'GameLead is choosing your card — tap to suggest'
-    } else {
-      activeHand = sortHand(roomState.hands?.[myId] ?? [])
-      onCardTap = handlePlayCard
-    }
+    // My own hand always renders at the bottom, in CardTable's normal
+    // position — it never gets swapped out for the dummy's hand. When
+    // GameLead needs to play for the dummy, the ACTION happens by
+    // tapping the dummy's own exposed-hand fan (rendered at her seat,
+    // see otherSeats below) instead — own hand just goes fully
+    // non-interactive for that turn so it can't be mistaken for the
+    // live hand (and, critically, so a stray tap here can never submit
+    // a card that only exists in the wrong hand).
+    const activeHand = sortHand(roomState.hands?.[myId] ?? [])
+    const onCardTap = (isGameLead && isPartnerTurn) ? undefined : (isPartnerOfGameLead && isPartnerTurn) ? handleSuggestCard : handlePlayCard
 
     // currentIdx doesn't advance until the trick-reveal pause finishes
     // (see applyPlay), so nothing should be tappable while a completed
     // trick is still being held on screen for review.
     const isInteractive = !roomState.trickWinnerId &&
-      (isMyTurnNormally || (isGameLead && isPartnerTurn) || (isPartnerOfGameLead && isPartnerTurn))
+      (isMyTurnNormally || (isPartnerOfGameLead && isPartnerTurn))
     const legalPlays = isInteractive ? getLegalPlays(activeHand, roomState.ledSuit) : []
-    const disabledCardIds = isInteractive ? activeHand.filter(id => !legalPlays.includes(id)) : []
+    const disabledCardIds = (isGameLead && isPartnerTurn)
+      ? activeHand // fully inert while the dummy's hand is the live one
+      : isInteractive ? activeHand.filter(id => !legalPlays.includes(id)) : []
     const highlightedCardIds = activeHand.filter(id => parseCard(id).suit === roomState.trumpSuit)
-    const selectedCardIds = (isPartnerTurn && roomState.suggestedCardId) ? [roomState.suggestedCardId] : []
+    const selectedCardIds = (isPartnerOfGameLead && isPartnerTurn && roomState.suggestedCardId) ? [roomState.suggestedCardId] : []
+
+    // Dummy's exposed hand becomes the live, tappable one specifically
+    // when GameLead needs to act on her behalf — computed separately
+    // from the seat-display data below since it needs suit-following
+    // legality against the dummy's actual cards, not GameLead's own.
+    const isPlayingForDummy = isGameLead && isPartnerTurn && !roomState.trickWinnerId
+    const dummyHand = sortHand(roomState.hands?.[partnerOfGameLead] ?? [])
+    const dummyLegalPlays = isPlayingForDummy ? getLegalPlays(dummyHand, roomState.ledSuit) : []
 
     const centerCards = (roomState.currentTrick ?? []).map(({ playerId, card }) => ({
       card,
@@ -621,7 +626,20 @@ export default function Teri({ code }) {
           cardCount: roomState.hands?.[p.id]?.length ?? 0,
           isActiveTurn: currentTurnHolder === p.id,
           label: labels.length ? labels.join(' · ') : undefined,
-          exposedCards: isDummySeat ? sortHand(roomState.hands?.[p.id] ?? []) : undefined
+          exposedCards: isDummySeat ? dummyHand : undefined,
+          // Only GameLead ever gets a tappable dummy hand, and only on
+          // her actual turn — every other viewer (including the dummy
+          // herself) sees the exact same cards as a pure display.
+          onExposedCardTap: (isDummySeat && isPlayingForDummy) ? handlePlayCard : undefined,
+          disabledExposedCardIds: (isDummySeat && isPlayingForDummy)
+            ? dummyHand.filter(id => !dummyLegalPlays.includes(id))
+            : undefined,
+          highlightedExposedCardIds: isDummySeat
+            ? dummyHand.filter(id => parseCard(id).suit === roomState.trumpSuit)
+            : undefined,
+          selectedExposedCardIds: (isDummySeat && roomState.suggestedCardId)
+            ? [roomState.suggestedCardId]
+            : undefined
         }
       })
 
@@ -634,28 +652,21 @@ export default function Teri({ code }) {
       { label: 'Trump', value: SUIT_LABEL[roomState.trumpSuit] }
     ]
 
-    // While playing from the dummy's exposed hand, GameLead's own cards
-    // stay visible (dimmed, non-interactive) instead of disappearing —
-    // otherwise there's no way to tell whose hand is even being shown.
-    const myOwnHandWhilePlayingDummy = (isGameLead && isPartnerTurn)
-      ? sortHand(roomState.hands?.[myId] ?? [])
-      : null
+    const partnerName = players.find(p => p.id === partnerOfGameLead)?.name ?? 'partner'
+    const statusText = isPlayingForDummy
+      ? `Tap a card in ${partnerName}'s hand above to play it`
+      : (isPartnerOfGameLead && isPartnerTurn)
+        ? 'GameLead is choosing your card — tap to suggest'
+        : !isMyTurnNormally
+          ? 'Waiting for your turn...'
+          : roomState.ledSuit
+            ? `Follow suit: ${SUIT_LABEL[roomState.ledSuit]}`
+            : 'Lead any card'
 
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
         {renderLastHandButton()}
         <TableScoreBar entries={scoreEntries} />
-        {myOwnHandWhilePlayingDummy && (
-          <div className="flex flex-col items-center gap-1">
-            <p className="text-[10px] text-textMuted uppercase tracking-wider">Your hand</p>
-            <div className="flex justify-center flex-wrap gap-1 opacity-50 pointer-events-none">
-              {myOwnHandWhilePlayingDummy.map(cardId => {
-                const { rank, suit } = parseCard(cardId)
-                return <PlayingCard key={cardId} face="up" rank={rank} suit={suit} size="sm" />
-              })}
-            </div>
-          </div>
-        )}
         <CardTable
           otherSeats={otherSeats}
           myHand={activeHand}
@@ -668,13 +679,7 @@ export default function Teri({ code }) {
           onCardTap={onCardTap}
           accent="cobalt"
         />
-        <p className="text-center text-textMuted text-sm py-2">
-          {activeLabel ?? (!isMyTurnNormally
-            ? 'Waiting for your turn...'
-            : roomState.ledSuit
-              ? `Follow suit: ${SUIT_LABEL[roomState.ledSuit]}`
-              : 'Lead any card')}
-        </p>
+        <p className="text-center text-textMuted text-sm py-2">{statusText}</p>
       </div>
     )
   }

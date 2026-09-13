@@ -1,5 +1,6 @@
 export default {
   slug: 'bluff',
+  hidePlayerListInGame: true,
   title: { en: 'Bluff', hi: 'ब्लफ' },
   minPlayers: 3,
   maxPlayers: 6,

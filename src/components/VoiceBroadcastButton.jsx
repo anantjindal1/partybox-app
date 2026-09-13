@@ -132,7 +132,7 @@ export function VoiceBroadcastButton({ roomCode, playerName }) {
   const isBusy = status === 'uploading' || status === 'cooldown'
 
   return (
-    <div className="flex flex-col items-center gap-1 px-4 py-2">
+    <div className="flex flex-col items-center gap-1 px-4 py-1">
       {nowPlaying && (
         <p className="text-xs text-textMuted">🔊 {nowPlaying} is talking…</p>
       )}

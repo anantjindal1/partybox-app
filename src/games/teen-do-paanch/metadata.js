@@ -1,5 +1,6 @@
 export default {
   slug: 'teen-do-paanch',
+  hidePlayerListInGame: true,
   title: { en: '3-2-5 (Teen Do Paanch)', hi: 'तीन दो पांच' },
   minPlayers: 3,
   maxPlayers: 3,

@@ -54,7 +54,7 @@ export function ReactionBar({ roomCode }) {
   return (
     <>
       <FloatingReactions reactions={floatingBurst} />
-      <div className="flex justify-center gap-4 px-4 py-2">
+      <div className="flex justify-center gap-4 px-4 py-1">
         {EMOJIS.map(emoji => (
           <button
             key={emoji}

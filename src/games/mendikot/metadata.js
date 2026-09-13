@@ -1,5 +1,6 @@
 export default {
   slug: 'mendikot',
+  hidePlayerListInGame: true,
   title: { en: 'Mendikot (Mindi)', hi: 'मेंडीकोट (मिंडी)' },
   minPlayers: 4,
   maxPlayers: 4,

@@ -271,6 +271,11 @@ export default function Room() {
               👁️ Spectating — you can watch but not play this round.
             </p>
           )}
+          {/* Games that already show every player's name/avatar on their
+              own table (CardTable's seats) skip this redundant strip —
+              reclaims real vertical space for the actual game area on a
+              phone screen, where every row above the game counts. */}
+          {!game?.hidePlayerListInGame && (
           <div className="flex flex-wrap gap-2">
             {room.players.map(p => (
               <span
@@ -285,6 +290,7 @@ export default function Room() {
               </span>
             ))}
           </div>
+          )}
           {spectators.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-textMuted text-xs">Watching:</span>

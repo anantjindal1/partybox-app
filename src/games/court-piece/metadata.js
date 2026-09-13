@@ -1,5 +1,6 @@
 export default {
   slug: 'court-piece',
+  hidePlayerListInGame: true,
   title: { en: 'Court Piece (Rang)', hi: 'कोर्ट पीस (रंग)' },
   minPlayers: 4,
   maxPlayers: 4,
