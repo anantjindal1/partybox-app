@@ -7,8 +7,9 @@ import { removeCardFromHand, sortHand } from '../../multiplayer/hand'
 import { dealCards } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
-import { buildTurnOrderFromPartner } from '../../multiplayer/partnerships'
+import { buildTurnOrderFromPartner, orderSeatsForViewer } from '../../multiplayer/partnerships'
 import { CardTable } from '../../components/cards/CardTable'
+import { PlayingCard } from '../../components/cards/PlayingCard'
 import { TableScoreBar } from '../../components/cards/TableScoreBar'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { PartnerPicker } from '../../components/cards/PartnerPicker'
@@ -62,13 +63,67 @@ export default function Teri({ code }) {
 
   const [starting, setStarting] = useState(false)
   const [advancing, setAdvancing] = useState(false)
+  const [showShufflerIntro, setShowShufflerIntro] = useState(false)
+  const [showLastHand, setShowLastHand] = useState(false)
+  const shufflerIntroHandRef = useRef(null)
 
   const xpAwarded = useRef(false)
   const processingBidRef = useRef(false)
   const processingRef = useRef(false)
 
+  // Show a brief explainer once per hand for who's shuffling and why —
+  // otherwise the only trace of the role is a terse "Shuffler" chip
+  // stacked among other seat labels during play.
+  useEffect(() => {
+    if (roomState.handNumber == null || !roomState.shufflerId) return
+    if (shufflerIntroHandRef.current === roomState.handNumber) return
+    shufflerIntroHandRef.current = roomState.handNumber
+    setShowShufflerIntro(true)
+    const timer = setTimeout(() => setShowShufflerIntro(false), 10000)
+    return () => clearTimeout(timer)
+  }, [roomState.handNumber, roomState.shufflerId])
+
   function persist(overrides) {
     return setState({ ...roomStateRef.current, ...overrides })
+  }
+
+  // Small "review the last hand" affordance, reused by both the bidding
+  // and playing phases — HandRevealScreen is already a clean, reusable
+  // presentational component; isHost={false} suppresses its "Next Hand"
+  // button with no changes needed to it.
+  function renderLastHandButton() {
+    if (!roomState.lastHandResult) return null
+    return (
+      <>
+        <button
+          onClick={() => setShowLastHand(true)}
+          className="self-center text-xs font-semibold text-textMuted hover:text-textPrimary border border-border/60 rounded-lg px-3 py-1.5"
+        >
+          📜 Last Hand
+        </button>
+        {showLastHand && (
+          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-4 py-8 overflow-y-auto">
+            <div className="bg-surface rounded-2xl max-w-lg w-full">
+              <div className="flex justify-end p-2">
+                <button
+                  onClick={() => setShowLastHand(false)}
+                  className="text-textMuted hover:text-textPrimary text-sm font-semibold px-3 py-1"
+                >
+                  ✕ Close
+                </button>
+              </div>
+              <HandRevealScreen
+                lastHandResult={roomState.lastHandResult}
+                players={players}
+                isHost={false}
+                onNextHand={() => {}}
+                advancing={false}
+              />
+            </div>
+          </div>
+        )}
+      </>
+    )
   }
 
   useEffect(() => {
@@ -84,8 +139,11 @@ export default function Teri({ code }) {
     if (!action) return
     processingBidRef.current = true
     ;(async () => {
-      await applyBidAction(current, action)
-      processingBidRef.current = false
+      try {
+        await applyBidAction(current, action)
+      } finally {
+        processingBidRef.current = false
+      }
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actions, isHost, phase, roomState.bidTurnIndex])
@@ -153,9 +211,12 @@ export default function Teri({ code }) {
     if (!action) return
     processingRef.current = true
     ;(async () => {
-      if (action.type === 'SUGGEST_CARD') await applySuggest(action.payload.cardId)
-      else await applyPlay(action.payload.cardId)
-      processingRef.current = false
+      try {
+        if (action.type === 'SUGGEST_CARD') await applySuggest(action.payload.cardId)
+        else await applyPlay(action.payload.cardId)
+      } finally {
+        processingRef.current = false
+      }
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actions, isHost, phase, roomState.currentIdx])
@@ -188,6 +249,13 @@ export default function Teri({ code }) {
       // the hand-empty check below is a defensive fallback only.
       const outcome = checkTeriHandWinner(gameLeadTricks, defenderTricks, current.bid)
 
+      // Keep all 4 cards visible and reveal the winner for a beat before
+      // clearing/advancing — otherwise the trick vanishes the instant the
+      // 4th card lands, with no chance to see what happened.
+      await clearActions()
+      await persist({ hands: newHands, currentTrick: newTrick, trickWinnerId: winnerId })
+      await new Promise(resolve => setTimeout(resolve, 1500))
+
       if (outcome || newHand.length === 0) {
         const resolved = outcome ?? {
           winner: gameLeadTricks > defenderTricks ? 'gameLead' : 'defender',
@@ -218,11 +286,10 @@ export default function Teri({ code }) {
         const gameLeadTeamIds = gameLeadTeam === 'teamA' ? getTeamA(current.turnOrder) : getTeamB(current.turnOrder)
         const defenderTeamIds = defenderTeam === 'teamA' ? getTeamA(current.turnOrder) : getTeamB(current.turnOrder)
 
-        await clearActions()
         await persist({
-          hands: newHands,
           tricksWon: newTricksWon,
           currentTrick: [],
+          trickWinnerId: null,
           ledSuit: null,
           shufflerId: shufflerResult.shufflerId,
           shufflerScore: shufflerResult.score,
@@ -249,11 +316,10 @@ export default function Teri({ code }) {
         return
       }
 
-      await clearActions()
       await persist({
-        hands: newHands,
         tricksWon: newTricksWon,
         currentTrick: [],
+        trickWinnerId: null,
         ledSuit: null,
         currentIdx: current.turnOrder.indexOf(winnerId),
         suggestedCardId: null
@@ -424,16 +490,42 @@ export default function Teri({ code }) {
     const isMyTurn = currentBidder === myId
     const isFirstTurn = roomState.bidTurnIndex === 0
     const currentBidderName = players.find(p => p.id === currentBidder)?.name ?? 'Player'
+    const seats = orderSeatsForViewer(roomState.turnOrder, myId)
+      .map(id => players.find(p => p.id === id))
+      .filter(Boolean)
+      .map(p => ({
+        id: p.id,
+        name: p.name,
+        isPartner: getTeamOf(myId, roomState.turnOrder) === getTeamOf(p.id, roomState.turnOrder),
+        isCurrentBidder: currentBidder === p.id,
+        hasPassed: (roomState.passedPlayers ?? []).includes(p.id),
+        isHighBidder: roomState.currentHighBid?.playerId === p.id
+      }))
+    const shufflerName = players.find(p => p.id === roomState.shufflerId)?.name ?? 'Someone'
     return (
-      <BiddingScreen
-        myHand={myHand}
-        isMyTurn={isMyTurn}
-        isFirstTurn={isFirstTurn}
-        currentHighBid={roomState.currentHighBid}
-        currentBidderName={currentBidderName}
-        onBid={handleBid}
-        onPass={handlePass}
-      />
+      <>
+        {renderLastHandButton()}
+        {showShufflerIntro && (
+          <button
+            onClick={() => setShowShufflerIntro(false)}
+            className="mx-4 sm:mx-6 mt-3 py-2.5 px-4 rounded-xl bg-cobalt/10 border border-cobalt/30 text-cobalt text-sm font-medium text-center"
+          >
+            🔀 {shufflerName} is the Shuffler this hand — their running score
+            (currently {roomState.shufflerScore}) decides when the role passes
+            to someone else. Tap to dismiss.
+          </button>
+        )}
+        <BiddingScreen
+          myHand={myHand}
+          seats={seats}
+          isMyTurn={isMyTurn}
+          isFirstTurn={isFirstTurn}
+          currentHighBid={roomState.currentHighBid}
+          currentBidderName={currentBidderName}
+          onBid={handleBid}
+          onPass={handlePass}
+        />
+      </>
     )
   }
 
@@ -462,7 +554,11 @@ export default function Teri({ code }) {
       onCardTap = handlePlayCard
     }
 
-    const isInteractive = isMyTurnNormally || (isGameLead && isPartnerTurn) || (isPartnerOfGameLead && isPartnerTurn)
+    // currentIdx doesn't advance until the trick-reveal pause finishes
+    // (see applyPlay), so nothing should be tappable while a completed
+    // trick is still being held on screen for review.
+    const isInteractive = !roomState.trickWinnerId &&
+      (isMyTurnNormally || (isGameLead && isPartnerTurn) || (isPartnerOfGameLead && isPartnerTurn))
     const legalPlays = isInteractive ? getLegalPlays(activeHand, roomState.ledSuit) : []
     const disabledCardIds = isInteractive ? activeHand.filter(id => !legalPlays.includes(id)) : []
     const highlightedCardIds = activeHand.filter(id => parseCard(id).suit === roomState.trumpSuit)
@@ -470,11 +566,43 @@ export default function Teri({ code }) {
 
     const centerCards = (roomState.currentTrick ?? []).map(({ playerId, card }) => ({
       card,
+      playerId,
       playerName: players.find(p => p.id === playerId)?.name
     }))
 
-    const otherSeats = players
-      .filter(p => p.id !== myId)
+    // Once a trick completes, hold all 4 cards on screen with the winner
+    // called out (and highlighted) before the next trick's empty center
+    // takes over — trick-settle fades/shrinks the whole reveal over the
+    // same window applyPlay pauses for, so it dissolves right on cue.
+    const trickWinnerId = roomState.trickWinnerId
+    const trickWinnerName = trickWinnerId ? (players.find(p => p.id === trickWinnerId)?.name ?? 'Player') : null
+    const centerSlot = trickWinnerId ? (
+      <div className="flex flex-col items-center gap-1.5 animate-trick-settle">
+        <div className="flex gap-2 flex-wrap justify-center">
+          {centerCards.map(entry => {
+            const { rank, suit } = parseCard(entry.card)
+            const isWinningCard = entry.playerId === trickWinnerId
+            return (
+              <div key={entry.card} className="flex flex-col items-center gap-1">
+                <PlayingCard
+                  face="up"
+                  rank={rank}
+                  suit={suit}
+                  size="sm"
+                  className={isWinningCard ? 'shadow-[0_0_0_3px_var(--color-accent-gold)]' : ''}
+                />
+                {entry.playerName && <span className="text-[10px] text-textMuted">{entry.playerName}</span>}
+              </div>
+            )
+          })}
+        </div>
+        <p className="text-xs font-bold text-cobalt">{trickWinnerName} won the trick!</p>
+      </div>
+    ) : null
+
+    const otherSeats = orderSeatsForViewer(roomState.turnOrder, myId)
+      .map(id => players.find(p => p.id === id))
+      .filter(Boolean)
       .map(p => {
         // Two independent concepts that only coincide when the viewer is
         // on GameLead's team: "Your Partner" is team-relative (correct
@@ -493,7 +621,7 @@ export default function Teri({ code }) {
           cardCount: roomState.hands?.[p.id]?.length ?? 0,
           isActiveTurn: currentTurnHolder === p.id,
           label: labels.length ? labels.join(' · ') : undefined,
-          exposedCards: isDummySeat ? roomState.hands?.[p.id] : undefined
+          exposedCards: isDummySeat ? sortHand(roomState.hands?.[p.id] ?? []) : undefined
         }
       })
 
@@ -506,14 +634,34 @@ export default function Teri({ code }) {
       { label: 'Trump', value: SUIT_LABEL[roomState.trumpSuit] }
     ]
 
+    // While playing from the dummy's exposed hand, GameLead's own cards
+    // stay visible (dimmed, non-interactive) instead of disappearing —
+    // otherwise there's no way to tell whose hand is even being shown.
+    const myOwnHandWhilePlayingDummy = (isGameLead && isPartnerTurn)
+      ? sortHand(roomState.hands?.[myId] ?? [])
+      : null
+
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
+        {renderLastHandButton()}
         <TableScoreBar entries={scoreEntries} />
+        {myOwnHandWhilePlayingDummy && (
+          <div className="flex flex-col items-center gap-1">
+            <p className="text-[10px] text-textMuted uppercase tracking-wider">Your hand</p>
+            <div className="flex justify-center flex-wrap gap-1 opacity-50 pointer-events-none">
+              {myOwnHandWhilePlayingDummy.map(cardId => {
+                const { rank, suit } = parseCard(cardId)
+                return <PlayingCard key={cardId} face="up" rank={rank} suit={suit} size="sm" />
+              })}
+            </div>
+          </div>
+        )}
         <CardTable
           otherSeats={otherSeats}
           myHand={activeHand}
           myIsActiveTurn={isInteractive}
           centerCards={centerCards}
+          centerSlot={centerSlot}
           disabledCardIds={disabledCardIds}
           highlightedCardIds={highlightedCardIds}
           selectedCardIds={selectedCardIds}

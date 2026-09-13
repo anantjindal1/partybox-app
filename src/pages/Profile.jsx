@@ -43,6 +43,14 @@ export default function Profile() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [online, profile?.id])
 
+  // Local edit state starts empty until the profile loads, then tracks
+  // the input directly — no `name || profile.name` fallback, since that
+  // silently substitutes the old name back in the instant the field is
+  // cleared, making it impossible to ever see (or save) a blank value.
+  useEffect(() => {
+    if (profile) setName(profile.name)
+  }, [profile])
+
   if (!profile) {
     return (
       <div className="min-h-screen bg-surface text-textPrimary flex items-center justify-center">
@@ -51,8 +59,11 @@ export default function Profile() {
     )
   }
 
+  const trimmedName = name.trim()
+
   async function handleSave() {
-    await update({ name: name || profile.name })
+    if (!trimmedName) return
+    await update({ name: trimmedName })
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -107,14 +118,14 @@ export default function Profile() {
           <label className="text-textMuted text-sm block mb-2">{t('name')}</label>
           <Input
             type="text"
-            value={name || profile.name}
+            value={name}
             onChange={e => setName(e.target.value)}
             maxLength={20}
             className="w-full text-xl rounded-2xl px-5 py-4"
           />
         </div>
 
-        <Button onClick={handleSave}>
+        <Button onClick={handleSave} disabled={!trimmedName}>
           {saved ? `✅ ${t('savedSuccess')}` : t('save')}
         </Button>
 

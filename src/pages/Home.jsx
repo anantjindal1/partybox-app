@@ -409,7 +409,7 @@ const VISIBLE_SLUGS = new Set([
 export default function Home() {
   const navigate = useNavigate()
   const { t, lang } = useLang()
-  const { profile } = useProfile()
+  const { profile, update: updateProfile } = useProfile()
   const online = useOnlineStatus()
 
   // Existing state
@@ -937,7 +937,13 @@ export default function Home() {
 
       {/* ── Identity modal (shown after carousel "Let's Go!") ───────────────── */}
       {showIdentityModal && (
-        <PlayerIdentityModal onComplete={() => setShowIdentityModal(false)} />
+        <PlayerIdentityModal
+          onComplete={async ({ name, avatar }) => {
+            await updateProfile({ name, avatar })
+            localStorage.setItem('partybox_identity_set', '1')
+            setShowIdentityModal(false)
+          }}
+        />
       )}
     </div>
   )

@@ -18,7 +18,7 @@ export function PlayerSeat({ player, cardCount, isActiveTurn, accent = 'maroon',
 
   return (
     <div
-      className={`flex flex-col items-center gap-1 ${className}`}
+      className={`relative flex flex-col items-center gap-1 ${className}`}
       style={style}
     >
       <div
@@ -30,7 +30,12 @@ export function PlayerSeat({ player, cardCount, isActiveTurn, accent = 'maroon',
       <span className="text-xs font-semibold text-textPrimary truncate max-w-[64px]">{player?.name ?? 'Player'}</span>
       {label && <span className="text-[10px] text-textMuted -mt-1">{label}</span>}
       {exposedCards ? (
-        <div className="flex flex-wrap justify-center gap-1 max-w-[160px]">
+        // Absolutely positioned (not in normal flow) so a large exposed
+        // hand doesn't inflate this seat's own height — CardTable centers
+        // each seat wrapper on its avatar+name via -translate-y-1/2, and a
+        // 12-card grid counted in that height would push the anchor (and
+        // everything above it, like a game's score bar) far off target.
+        <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-1 w-max max-w-[160px]">
           {exposedCards.map(cardId => {
             const { rank, suit } = parseCard(cardId)
             return <PlayingCard key={cardId} face="up" rank={rank} suit={suit} size="sm" />

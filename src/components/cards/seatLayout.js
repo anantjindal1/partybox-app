@@ -5,18 +5,18 @@
  */
 
 /**
- * Distributes `total` opponent seats across the table's top arc
- * (170° down to 10°, standard math angle where 90° is top-center) so
- * "me" — always rendered below/outside the table — never collides
- * with an opponent seat. Returns CSS percentage coordinates relative
- * to the table surface.
+ * Distributes `total` opponent seats across the table's top arc (155°
+ * down to 25°, standard math angle where 90° is top-center) so "me" —
+ * always rendered below/outside the table — never collides with an
+ * opponent seat. Returns CSS percentage coordinates relative to the
+ * table surface.
  */
 export function getSeatPosition(index, total) {
   if (total <= 1) return { left: '50%', top: '20%' }
   const angle = 155 - index * (130 / (total - 1))
   const rad = (angle * Math.PI) / 180
   return {
-    left: `${50 + 38 * Math.cos(rad)}%`,
+    left: `${50 + 40 * Math.cos(rad)}%`,
     top: `${50 - 34 * Math.sin(rad)}%`
   }
 }

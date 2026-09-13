@@ -56,11 +56,11 @@ export function CardTable({
     <div className="flex flex-col gap-4 w-full">
       {/* Table surface — an oval with other seats positioned around its
           top arc via getSeatPosition, "me" always below/outside it.
-          mt-8 gives seats room to sit partly ON the table's edge (as a
+          mt-10 gives seats room to sit partly ON the table's edge (as a
           real seat would) without colliding with whatever renders
           above CardTable (e.g. a game's score bar). */}
       <div
-        className={`relative w-full mt-8 rounded-[50%] border-[1.5px] ${accentClasses.border} ${accentClasses.soft}`}
+        className={`relative w-full mt-10 rounded-[50%] border-[3px] shadow-inner ${accentClasses.border} ${accentClasses.soft}`}
         style={{ aspectRatio: '2.1 / 1', minHeight: 140 }}
       >
         {otherSeats.map((seat, i) => {
@@ -83,10 +83,13 @@ export function CardTable({
           )
         })}
 
-        {/* Cards currently in play — a game with unusual center-zone
-            needs (e.g. Bluff's face-down claim pile) passes centerSlot
-            instead of relying on this default face-up rendering. */}
-        <div className="absolute inset-0 flex items-center justify-center gap-2 px-4 flex-wrap">
+        {/* Cards currently in play — inset well within the seat ring so
+            this reads as a distinct play area rather than sharing the
+            exact same rect the seats are positioned on. A game with
+            unusual center-zone needs (e.g. Bluff's face-down claim
+            pile) passes centerSlot instead of relying on this default
+            face-up rendering. */}
+        <div className="absolute inset-[18%] flex items-center justify-center gap-2 px-2 flex-wrap">
           {centerSlot ?? centerCards.map((entry, i) => {
             const { rank, suit } = parseCard(entry.card)
             return (
@@ -138,8 +141,7 @@ export function CardTable({
                   rank={rank}
                   suit={suit}
                   size="md"
-                  className={`${isHighlighted ? 'animate-turn-glow' : ''} ${isPlaying ? `border-2 ${accentClasses.border}` : ''}`}
-                  style={isHighlighted ? { '--turn-glow-color': 'var(--color-accent-gold)' } : undefined}
+                  className={`${isHighlighted ? 'shadow-[0_0_0_3px_var(--color-accent-gold)]' : ''} ${isPlaying ? `border-2 ${accentClasses.border}` : ''}`}
                 />
               </button>
             )

@@ -45,3 +45,18 @@ export function buildTurnOrderFromPartner(playerIds, hostId, partnerId) {
   const others = playerIds.filter(id => id !== hostId && id !== partnerId)
   return [hostId, others[0], partnerId, others[1]]
 }
+
+/**
+ * Rotates turnOrder to start right after myId, returning the other 3
+ * seats in viewer-relative, turn-order-preserving sequence. Since
+ * turnOrder's ±2 spacing already places partners opposite each other
+ * (see getTeamA/getTeamB), the middle element of the returned array is
+ * always myId's partner — rendering opponent seats in this order (top
+ * arc) puts the partner at top-center for free, with no separate
+ * partner-lookup needed by the caller.
+ */
+export function orderSeatsForViewer(turnOrder, myId) {
+  const i = turnOrder.indexOf(myId)
+  if (i === -1) return turnOrder.filter(id => id !== myId)
+  return [...turnOrder.slice(i + 1), ...turnOrder.slice(0, i)]
+}

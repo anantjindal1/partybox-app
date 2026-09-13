@@ -25,14 +25,10 @@ export default function Room() {
   const navigate = useNavigate()
   const { t, lang } = useLang()
   const room = useRoom(code)
-  const { profile } = useProfile()
+  const { profile, update: updateProfile } = useProfile()
   const connected = useOnlineStatus()
   const [countdown, setCountdown] = useState(null)
-  const [identity, setIdentity] = useState(() => {
-    const name = localStorage.getItem('firstbell_player_name')
-    const avatar = localStorage.getItem('firstbell_player_avatar')
-    return name && avatar ? { name, avatar } : null
-  })
+  const [onboarded, setOnboarded] = useState(() => !!localStorage.getItem('partybox_identity_set'))
   const [copied, setCopied] = useState(false)
   const joinedRef = useRef(false)
 
@@ -73,7 +69,7 @@ export default function Room() {
   // the lobby joins as a spectator instead — they'd never get dealt
   // in by any game's handleStartGame either way.
   useEffect(() => {
-    if (!room || !myId || !identity || joinedRef.current) return
+    if (!room || !myId || !profile || !onboarded || joinedRef.current) return
     const alreadyIn = room.players.some(p => p.id === myId) ||
       (room.spectators ?? []).some(p => p.id === myId)
     if (alreadyIn) {
@@ -82,10 +78,16 @@ export default function Room() {
     }
     joinedRef.current = true
     const join = LOBBY_PHASES.has(room.state?.phase) ? joinRoom : joinAsSpectator
-    join(code, myId, identity.name, identity.avatar).catch(() => {
+    join(code, myId, profile.name, profile.avatar).catch(() => {
       joinedRef.current = false
     })
-  }, [room, myId, identity, code])
+  }, [room, myId, profile, onboarded, code])
+
+  async function handleIdentityComplete({ name, avatar }) {
+    await updateProfile({ name, avatar })
+    localStorage.setItem('partybox_identity_set', '1')
+    setOnboarded(true)
+  }
 
   if (expired) {
     return (
@@ -134,7 +136,7 @@ export default function Room() {
   function getInviteText() {
     const rawTitle = game?.title
     const gameName = (typeof rawTitle === 'string' ? rawTitle : rawTitle?.[lang] ?? rawTitle?.en) ?? 'PartyBox'
-    const playerName = identity?.name ?? 'Someone'
+    const playerName = profile?.name ?? 'Someone'
     return `${playerName} is inviting you to play ${gameName}! Come play:\n${window.location.href}\nRoom code: ${code}`
   }
 
@@ -153,31 +155,31 @@ export default function Room() {
   return (
     <div className="min-h-screen bg-surface text-textPrimary flex flex-col">
       <ConnectionOverlay connected={connected} />
-      {identity === null && <PlayerIdentityModal onComplete={setIdentity} />}
+      {!onboarded && <PlayerIdentityModal onComplete={handleIdentityComplete} />}
 
-      <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border/60 shadow-soft">
+      <header className="flex items-center justify-between flex-wrap gap-y-2 px-4 sm:px-6 py-4 border-b border-border/60 shadow-soft">
         <button
           onClick={() => navigate('/')}
-          className="text-textMuted hover:text-textSecondary text-lg flex items-center gap-2 font-medium"
+          className="text-textMuted hover:text-textSecondary text-lg flex items-center gap-2 font-medium min-w-0 truncate"
         >
           ← {t('back')}
         </button>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap gap-y-2">
           {room.roomType === 'ranked' ? (
-            <span className="text-xs font-semibold text-accent border border-accent/40 rounded-lg px-2 py-1">
+            <span className="whitespace-nowrap text-xs font-semibold text-accent border border-accent/40 rounded-lg px-2 py-1">
               🏆 {t('rankedRoom')}
             </span>
           ) : (
-            <span className="text-xs font-semibold text-textMuted border border-border rounded-lg px-2 py-1">
+            <span className="whitespace-nowrap text-xs font-semibold text-textMuted border border-border rounded-lg px-2 py-1">
               🎲 {t('casualRoom')}
             </span>
           )}
-          {isHost && gameInProgress && (
+          {isHost && (
             <button
               onClick={handleEndGame}
-              className="text-error hover:text-error text-sm font-semibold border border-error/60 rounded-xl px-3 py-1.5"
+              className="whitespace-nowrap text-error hover:text-error text-sm font-semibold border border-error/60 rounded-xl px-3 py-1.5"
             >
-              {t('endGame')}
+              {gameInProgress ? t('endGame') : 'Close Room'}
             </button>
           )}
           <LangToggle />
@@ -309,7 +311,7 @@ export default function Room() {
       )}
 
       <ReactionBar roomCode={code} />
-      <VoiceBroadcastButton roomCode={code} playerName={identity?.name} />
+      <VoiceBroadcastButton roomCode={code} playerName={profile?.name} />
 
       {/* Game area */}
       <div className="game-area flex-1 px-4 sm:px-6 pb-8">

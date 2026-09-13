@@ -2,36 +2,22 @@ import { useState, useEffect, useRef } from 'react'
 
 const AVATARS = ['🦁', '🐯', '🦊', '🐻', '🦅', '🐺', '🦋', '🐸']
 
+// Presentation-only — the caller decides whether this should be shown
+// at all (once per device, until `onComplete` fires) and owns actually
+// persisting the result (the profile store, see src/services/profile.js).
 export default function PlayerIdentityModal({ onComplete }) {
   const [name, setName] = useState('')
   const [avatar, setAvatar] = useState('🦁')
-  const [visible, setVisible] = useState(false)
   const inputRef = useRef(null)
 
   useEffect(() => {
-    const savedName = localStorage.getItem('firstbell_player_name')
-    const savedAvatar = localStorage.getItem('firstbell_player_avatar')
-    if (savedName && savedAvatar) {
-      onComplete({ name: savedName, avatar: savedAvatar })
-    } else {
-      setVisible(true)
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (visible && inputRef.current) {
-      inputRef.current.focus()
-    }
-  }, [visible])
-
-  if (!visible) return null
+    inputRef.current?.focus()
+  }, [])
 
   function handleSubmit(e) {
     e.preventDefault()
     const trimmed = name.trim()
     if (!trimmed) return
-    localStorage.setItem('firstbell_player_name', trimmed)
-    localStorage.setItem('firstbell_player_avatar', avatar)
     onComplete({ name: trimmed, avatar })
   }
 

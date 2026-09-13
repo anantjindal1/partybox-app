@@ -1,4 +1,4 @@
-import { getTeamA, getTeamB, getTeamOf, computeTeamTricks, buildTurnOrderFromPartner } from '../partnerships'
+import { getTeamA, getTeamB, getTeamOf, computeTeamTricks, buildTurnOrderFromPartner, orderSeatsForViewer } from '../partnerships'
 
 const turnOrder = ['p0', 'p1', 'p2', 'p3']
 
@@ -63,5 +63,27 @@ describe('buildTurnOrderFromPartner', () => {
 
   test('falls back for a player count other than 4', () => {
     expect(buildTurnOrderFromPartner(['host', 'a', 'b'], 'host', 'a')).toEqual(['host', 'a', 'b'])
+  })
+})
+
+describe('orderSeatsForViewer', () => {
+  const order = ['p0', 'p1', 'p2', 'p3']
+
+  test('rotates to start right after the viewer, wrapping around', () => {
+    expect(orderSeatsForViewer(order, 'p0')).toEqual(['p1', 'p2', 'p3'])
+    expect(orderSeatsForViewer(order, 'p1')).toEqual(['p2', 'p3', 'p0'])
+    expect(orderSeatsForViewer(order, 'p3')).toEqual(['p0', 'p1', 'p2'])
+  })
+
+  test('the middle seat is always the viewer\'s partner, regardless of who is viewing', () => {
+    // getTeamA/getTeamB: p0+p2 are partners, p1+p3 are partners
+    expect(orderSeatsForViewer(order, 'p0')[1]).toBe('p2')
+    expect(orderSeatsForViewer(order, 'p1')[1]).toBe('p3')
+    expect(orderSeatsForViewer(order, 'p2')[1]).toBe('p0')
+    expect(orderSeatsForViewer(order, 'p3')[1]).toBe('p1')
+  })
+
+  test('falls back to a plain filter when the viewer is not in turnOrder', () => {
+    expect(orderSeatsForViewer(order, 'ghost')).toEqual(order)
   })
 })

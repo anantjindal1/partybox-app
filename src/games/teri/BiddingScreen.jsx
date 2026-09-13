@@ -10,7 +10,7 @@ const SUITS = [
   { suit: 'clubs', Icon: ClubIcon, colorClass: 'text-cardBlack' }
 ]
 
-export function BiddingScreen({ myHand, isMyTurn, isFirstTurn, currentHighBid, currentBidderName, onBid, onPass }) {
+export function BiddingScreen({ myHand, seats = [], isMyTurn, isFirstTurn, currentHighBid, currentBidderName, onBid, onPass }) {
   const [selectedNumber, setSelectedNumber] = useState(null)
   const [selectedSuit, setSelectedSuit] = useState(null)
 
@@ -20,6 +20,31 @@ export function BiddingScreen({ myHand, isMyTurn, isFirstTurn, currentHighBid, c
 
   return (
     <div className="flex-1 flex flex-col items-center px-4 sm:px-6 py-6 gap-4 max-w-lg w-full mx-auto">
+      {seats.length > 0 && (
+        <div className="w-full flex flex-wrap justify-center gap-2">
+          {seats.map(seat => (
+            <div
+              key={seat.id}
+              className={`flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl border-[1.5px] min-w-[86px] ${
+                seat.isCurrentBidder ? 'border-cobalt bg-cobalt/10' : 'border-border bg-surfaceElevated'
+              }`}
+            >
+              <span className="text-xs font-semibold text-textPrimary truncate max-w-[90px]">{seat.name}</span>
+              {seat.isPartner && <span className="text-[10px] text-textMuted">Your Partner</span>}
+              <span className="text-[10px] font-semibold">
+                {seat.hasPassed
+                  ? <span className="text-textMuted">Passed</span>
+                  : seat.isHighBidder
+                    ? <span className="text-cobalt">{currentHighBid.number} in {currentHighBid.suit}</span>
+                    : seat.isCurrentBidder
+                      ? <span className="text-cobalt">Bidding…</span>
+                      : <span className="text-textMuted">Waiting</span>}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
       <p className="text-xs font-semibold text-textMuted uppercase tracking-wider text-center">
         {currentHighBid
           ? `High bid: ${currentHighBid.number} in ${currentHighBid.suit}`
