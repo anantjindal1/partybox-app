@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { db, storage } from '../firebase'
+import { db } from '../firebase'
 import { doc, setDoc, collection, onSnapshot, serverTimestamp } from 'firebase/firestore'
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
 const MAX_RECORD_MS = 15000
-const EXPIRE_MS = 30000 // wider than ReactionBar's 5s — upload takes real time
+const AUDIO_BITS_PER_SECOND = 24000 // keeps a 15s clip's base64 well under Firestore's 1MiB doc cap
+const MAX_BASE64_BYTES = 700000 // hard safety net in case a browser ignores the bitrate hint
+const EXPIRE_MS = 15000
 const COOLDOWN_MS = 2000
 
 // Safari's audio MediaRecorder support is real but differs from
@@ -17,9 +18,13 @@ function pickMimeType() {
   return MIME_CANDIDATES.find(type => MediaRecorder.isTypeSupported(type)) ?? ''
 }
 
-function extensionFor(mimeType) {
-  if (mimeType.includes('mp4')) return 'm4a'
-  return 'webm'
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
 }
 
 export function VoiceBroadcastButton({ roomCode, playerName }) {
@@ -69,11 +74,12 @@ export function VoiceBroadcastButton({ roomCode, playerName }) {
   }, [roomCode, playNext])
 
   async function startRecording() {
-    if (status !== 'idle' || !db || !storage || !myId || !roomCode) return
+    if (status !== 'idle' || !db || !myId || !roomCode) return
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       const mimeType = pickMimeType()
-      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream)
+      const options = { audioBitsPerSecond: AUDIO_BITS_PER_SECOND, ...(mimeType ? { mimeType } : {}) }
+      const recorder = new MediaRecorder(stream, options)
       mediaRecorderRef.current = recorder
       chunksRef.current = []
 
@@ -104,17 +110,15 @@ export function VoiceBroadcastButton({ roomCode, playerName }) {
     setStatus('uploading')
     try {
       const blob = new Blob(chunksRef.current, { type: mimeType || 'audio/webm' })
-      const ext = extensionFor(mimeType || '')
-      const path = `voice/${roomCode}/${myId}-${Date.now()}.${ext}`
-      const storageRef = ref(storage, path)
-      await uploadBytes(storageRef, blob)
-      const url = await getDownloadURL(storageRef)
-      await setDoc(doc(db, 'rooms', roomCode, 'voice', myId), {
-        playerId: myId,
-        playerName: playerName ?? 'Someone',
-        url,
-        createdAt: serverTimestamp()
-      })
+      const dataUrl = await blobToDataUrl(blob)
+      if (dataUrl.length <= MAX_BASE64_BYTES) {
+        await setDoc(doc(db, 'rooms', roomCode, 'voice', myId), {
+          playerId: myId,
+          playerName: playerName ?? 'Someone',
+          url: dataUrl,
+          createdAt: serverTimestamp()
+        })
+      }
     } catch {
       // fire-and-forget, same posture as ReactionBar
     }
@@ -122,7 +126,7 @@ export function VoiceBroadcastButton({ roomCode, playerName }) {
     setTimeout(() => setStatus('idle'), COOLDOWN_MS)
   }
 
-  if (!db || !storage || !roomCode) return null
+  if (!db || !roomCode) return null
 
   const isRecording = status === 'recording'
   const isBusy = status === 'uploading' || status === 'cooldown'
