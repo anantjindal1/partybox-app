@@ -13,6 +13,12 @@ const SUITS = [
 export function BiddingScreen({ myHand, seats = [], isMyTurn, isFirstTurn, currentHighBid, currentBidderName, onBid, onPass }) {
   const [selectedNumber, setSelectedNumber] = useState(null)
   const [selectedSuit, setSelectedSuit] = useState(null)
+  const [passClicked, setPassClicked] = useState(false)
+
+  function handlePass() {
+    setPassClicked(true)
+    onPass()
+  }
 
   const minNumber = currentHighBid ? currentHighBid.number + 1 : 7
   const numbers = []
@@ -98,10 +104,11 @@ export function BiddingScreen({ myHand, seats = [], isMyTurn, isFirstTurn, curre
           </button>
           {!isFirstTurn && (
             <button
-              onClick={onPass}
-              className="min-h-[44px] rounded-xl border-[1.5px] border-border text-textPrimary font-semibold"
+              onClick={handlePass}
+              disabled={passClicked}
+              className="min-h-[44px] rounded-xl border-[1.5px] border-border text-textPrimary font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Pass
+              {passClicked ? 'Passed' : 'Pass'}
             </button>
           )}
         </div>

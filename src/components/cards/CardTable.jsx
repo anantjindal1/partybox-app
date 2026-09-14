@@ -35,6 +35,14 @@ export function CardTable({
   const step = getHandStep(myHand.length, HAND_CARD_WIDTH)
   const midIndex = (myHand.length - 1) / 2
 
+  // The front (opposite-the-viewer) seat's exposed hand grows UPWARD,
+  // outside the table, into this exact margin — needs comfortably more
+  // than a normal seat's clearance, and only when that seat actually
+  // has an exposed hand (every other game leaves this untouched).
+  const middleIndex = Math.floor((otherSeats.length - 1) / 2)
+  const frontSeatHasExposedHand = otherSeats.length > 0 && !!otherSeats[middleIndex]?.exposedCards
+  const tableTopMargin = frontSeatHasExposedHand ? 'mt-20' : 'mt-10'
+
   // Once the real state update actually removes the played card from
   // myHand, clear the local "mid-animation" flag — tying the play-out
   // animation's lifecycle to real data instead of a guessed timeout, so
@@ -56,11 +64,13 @@ export function CardTable({
     <div className="flex flex-col gap-4 w-full">
       {/* Table surface — an oval with other seats positioned around its
           top arc via getSeatPosition, "me" always below/outside it.
-          mt-10 gives seats room to sit partly ON the table's edge (as a
-          real seat would) without colliding with whatever renders
-          above CardTable (e.g. a game's score bar). */}
+          The top margin gives seats room to sit partly ON the table's
+          edge (as a real seat would) without colliding with whatever
+          renders above CardTable (e.g. a game's score bar) — bigger
+          specifically when the front seat has an exposed hand growing
+          upward into that same space (see tableTopMargin above). */}
       <div
-        className={`relative w-full mt-10 rounded-[50%] border-[3px] shadow-inner ${accentClasses.border} ${accentClasses.soft}`}
+        className={`relative w-full ${tableTopMargin} rounded-[50%] border-[3px] shadow-inner ${accentClasses.border} ${accentClasses.soft}`}
         style={{ aspectRatio: '2.1 / 1', minHeight: 140 }}
       >
         {otherSeats.map((seat, i) => {
@@ -97,11 +107,17 @@ export function CardTable({
 
         {/* Cards currently in play — inset well within the seat ring so
             this reads as a distinct play area rather than sharing the
-            exact same rect the seats are positioned on. A game with
+            exact same rect the seats are positioned on. The vertical
+            inset is deliberately larger than the horizontal one: the
+            oval is wide and short (2.1:1), so seats above/below (the
+            front seat's own face-down stack in particular) sit much
+            closer to the play area vertically than opponents do
+            horizontally — without the extra vertical squeeze, trick
+            cards can still touch a seat's card stack. A game with
             unusual center-zone needs (e.g. Bluff's face-down claim
             pile) passes centerSlot instead of relying on this default
             face-up rendering. */}
-        <div className="absolute inset-[18%] flex items-center justify-center gap-2 px-2 flex-wrap">
+        <div className="absolute inset-x-[15%] inset-y-[30%] flex items-center justify-center gap-2 px-2 flex-wrap">
           {centerSlot ?? centerCards.map((entry, i) => {
             const { rank, suit } = parseCard(entry.card)
             return (
