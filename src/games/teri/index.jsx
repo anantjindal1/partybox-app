@@ -555,7 +555,7 @@ export default function Teri({ code }) {
     // non-interactive for that turn so it can't be mistaken for the
     // live hand (and, critically, so a stray tap here can never submit
     // a card that only exists in the wrong hand).
-    const activeHand = sortHand(roomState.hands?.[myId] ?? [])
+    const activeHand = sortHand(roomState.hands?.[myId] ?? [], { trumpSuit: roomState.trumpSuit })
     const onCardTap = (isGameLead && isPartnerTurn) ? undefined : (isPartnerOfGameLead && isPartnerTurn) ? handleSuggestCard : handlePlayCard
 
     // currentIdx doesn't advance until the trick-reveal pause finishes
@@ -575,7 +575,7 @@ export default function Teri({ code }) {
     // from the seat-display data below since it needs suit-following
     // legality against the dummy's actual cards, not GameLead's own.
     const isPlayingForDummy = isGameLead && isPartnerTurn && !roomState.trickWinnerId
-    const dummyHand = sortHand(roomState.hands?.[partnerOfGameLead] ?? [])
+    const dummyHand = sortHand(roomState.hands?.[partnerOfGameLead] ?? [], { trumpSuit: roomState.trumpSuit })
     const dummyLegalPlays = isPlayingForDummy ? getLegalPlays(dummyHand, roomState.ledSuit) : []
 
     const centerCards = (roomState.currentTrick ?? []).map(({ playerId, card }) => ({

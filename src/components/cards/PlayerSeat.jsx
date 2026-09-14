@@ -4,6 +4,12 @@ import { getHandStep } from './seatLayout'
 
 const EXPOSED_CARD_WIDTH = 32
 const EXPOSED_TARGET_WIDTH = 150
+// The front seat sits centered above the table with the same open room
+// "my hand" gets below it — no reason to cram it into the same narrow
+// width the left/right rows need to avoid running off a phone's edge.
+// Scaled from HAND_CARD_WIDTH's own 340 target by the sm/md card-width
+// ratio, so the fan reads with roughly the same density as a real hand.
+const EXPOSED_FRONT_TARGET_WIDTH = 240
 
 /**
  * One opponent's seat: avatar, name, a shallow face-down card stack (always
@@ -44,8 +50,8 @@ export function PlayerSeat({
   const glowStyle = isActiveTurn ? { '--turn-glow-color': `rgb(var(--color-accent-${accent}-rgb))` } : {}
   const interactive = !!onExposedCardTap
 
-  function renderFanRow(cards) {
-    const step = getHandStep(cards.length, EXPOSED_CARD_WIDTH, EXPOSED_TARGET_WIDTH)
+  function renderFanRow(cards, targetWidth = EXPOSED_TARGET_WIDTH) {
+    const step = getHandStep(cards.length, EXPOSED_CARD_WIDTH, targetWidth)
     return (
       <div className="flex items-end w-max mx-auto">
         {cards.map((cardId, i) => {
@@ -72,7 +78,7 @@ export function PlayerSeat({
                 rank={rank}
                 suit={suit}
                 size="sm"
-                className={isHighlighted ? 'shadow-[0_0_0_2px_var(--color-accent-gold)]' : ''}
+                highlighted={isHighlighted}
               />
             </Wrapper>
           )
@@ -102,7 +108,7 @@ export function PlayerSeat({
         // everything above it, like a game's score bar) far off target.
         exposedHandSide === 'front' ? (
           <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2">
-            {renderFanRow(exposedCards)}
+            {renderFanRow(exposedCards, EXPOSED_FRONT_TARGET_WIDTH)}
           </div>
         ) : (
           // Anchored from the edge nearer this seat's own position (not

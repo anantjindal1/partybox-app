@@ -172,7 +172,8 @@ export function CardTable({
                   rank={rank}
                   suit={suit}
                   size="md"
-                  className={`${isHighlighted ? 'shadow-[0_0_0_3px_var(--color-accent-gold)]' : ''} ${isPlaying ? `border-2 ${accentClasses.border}` : ''}`}
+                  highlighted={isHighlighted && !isPlaying}
+                  className={isPlaying ? `border-2 ${accentClasses.border}` : ''}
                 />
               </button>
             )

@@ -11,7 +11,7 @@ const SIZES = {
  * footprint (not a Tailwind scale step) since cards need a precise,
  * consistent aspect ratio across hand/table/opponent-stack contexts.
  */
-export function PlayingCard({ face = 'up', rank, suit, size = 'md', className = '', style }) {
+export function PlayingCard({ face = 'up', rank, suit, size = 'md', highlighted = false, className = '', style }) {
   const dims = SIZES[size]
   const boxStyle = { width: dims.w, height: dims.h, ...style }
 
@@ -30,10 +30,14 @@ export function PlayingCard({ face = 'up', rank, suit, size = 'md', className = 
 
   const SuitGlyph = SUIT_ICONS[suit]
   const colorClass = SUIT_COLOR[suit] === 'cardRed' ? 'text-cardRed' : 'text-cardBlack'
+  // Highlighted (e.g. trump) cards get a real, thick border instead of
+  // the normal hairline one — three times the width so it reads clearly
+  // even at the small "sm" card size used for opponents' exposed hands.
+  const borderClasses = highlighted ? 'border-[3px] border-gold' : 'border border-border'
 
   return (
     <div
-      className={`rounded-md border border-border bg-cardFace shadow-soft flex flex-col justify-between p-1 ${className}`}
+      className={`rounded-md ${borderClasses} bg-cardFace shadow-soft flex flex-col justify-between p-1 ${className}`}
       style={boxStyle}
     >
       <div className={`flex flex-col items-start leading-none ${dims.rank} font-bold ${colorClass}`}>

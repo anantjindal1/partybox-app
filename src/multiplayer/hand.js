@@ -13,8 +13,11 @@ export function addCardsToHand(hand, ids) {
   return [...hand, ...ids]
 }
 
-export function sortHand(hand, { aceHigh = true } = {}) {
-  const suitOrder = SUITS
+export function sortHand(hand, { aceHigh = true, trumpSuit = null } = {}) {
+  // Trump is the suit a player reaches for most, so it belongs at the
+  // most habitual, easiest-to-find spot in the fan — the extreme right
+  // (rather than wherever it happens to fall in the fixed SUITS order).
+  const suitOrder = trumpSuit ? [...SUITS.filter(s => s !== trumpSuit), trumpSuit] : SUITS
   return [...hand].sort((a, b) => {
     const ca = parseCard(a)
     const cb = parseCard(b)
