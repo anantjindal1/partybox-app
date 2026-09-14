@@ -35,13 +35,18 @@ export function CardTable({
   const step = getHandStep(myHand.length, HAND_CARD_WIDTH)
   const midIndex = (myHand.length - 1) / 2
 
-  // The front (opposite-the-viewer) seat's exposed hand grows UPWARD,
-  // outside the table, into this exact margin — needs comfortably more
-  // than a normal seat's clearance, and only when that seat actually
-  // has an exposed hand (every other game leaves this untouched).
+  // The seat directly opposite the viewer (when one exists — only an
+  // ODD opponent count puts any seat exactly at the top of the arc;
+  // an even count has two seats straddling that point, neither of
+  // them truly "opposite") sits fully OUTSIDE the table instead of
+  // straddling its edge — a real seat, and its cards, wouldn't be
+  // drawn half-on-half-off the table rim. This needs real clearance
+  // above the oval, more again when that seat also has an exposed
+  // hand growing further upward from it.
   const middleIndex = Math.floor((otherSeats.length - 1) / 2)
-  const frontSeatHasExposedHand = otherSeats.length > 0 && !!otherSeats[middleIndex]?.exposedCards
-  const tableTopMargin = frontSeatHasExposedHand ? 'mt-20' : 'mt-10'
+  const hasFrontSeat = otherSeats.length % 2 === 1
+  const frontSeatHasExposedHand = hasFrontSeat && !!otherSeats[middleIndex]?.exposedCards
+  const tableTopMargin = frontSeatHasExposedHand ? 'mt-44' : hasFrontSeat ? 'mt-32' : 'mt-10'
 
   // Once the real state update actually removes the played card from
   // myHand, clear the local "mid-animation" flag — tying the play-out
@@ -75,18 +80,16 @@ export function CardTable({
       >
         {otherSeats.map((seat, i) => {
           const pos = getSeatPosition(i, otherSeats.length)
+          const isFrontSeat = hasFrontSeat && i === middleIndex
           // Which side of the table this seat sits on — an exposed hand
           // (Teri's dummy) needs to grow away from the center play area,
           // not into it, and which direction "away" is depends on this.
-          const middleIndex = Math.floor((otherSeats.length - 1) / 2)
-          const exposedHandSide = otherSeats.length <= 1 || i === middleIndex
-            ? 'front'
-            : i < middleIndex ? 'left' : 'right'
+          const exposedHandSide = isFrontSeat ? 'front' : i < middleIndex ? 'left' : 'right'
           return (
             <div
               key={seat.player.id}
-              className="absolute -translate-x-1/2 -translate-y-1/2"
-              style={{ left: pos.left, top: pos.top }}
+              className={`absolute -translate-x-1/2 ${isFrontSeat ? 'bottom-full mb-2' : '-translate-y-1/2'}`}
+              style={isFrontSeat ? { left: pos.left } : { left: pos.left, top: pos.top }}
             >
               <PlayerSeat
                 player={seat.player}
