@@ -55,7 +55,9 @@ export default function Teri({ code }) {
     clearActions,
     isHost,
     myId,
-    players
+    players,
+    leaveSeat,
+    claimSeat
   } = useOnlineRoom(code)
 
   const phase = roomState.phase || 'waiting'
@@ -746,6 +748,8 @@ export default function Teri({ code }) {
   }
 
   if (phase === 'hand_reveal') {
+    const openSeats = room?.openSeats ?? []
+    const isSpectator = (room?.spectators ?? []).some(p => p.id === myId)
     return (
       <HandRevealScreen
         lastHandResult={roomState.lastHandResult}
@@ -753,6 +757,25 @@ export default function Teri({ code }) {
         isHost={isHost}
         onNextHand={handleNextHand}
         advancing={advancing}
+        seatManagement={{
+          turnOrder: roomState.turnOrder ?? [],
+          openSeats,
+          myId,
+          isSpectator,
+          onLeaveSeat: leaveSeat,
+          onClaimSeat: (seatPlayerId) => {
+            // The departed player's id can still be sitting in a couple
+            // of cross-hand fields that live outside turnOrder — only
+            // shufflerId, here, since everything else Teri persists by
+            // player id (hands, tricksWon, passedPlayers, etc.) gets
+            // fully recomputed by the next deal anyway.
+            const statePatch = {
+              turnOrder: roomState.turnOrder.map(id => id === seatPlayerId ? myId : id)
+            }
+            if (roomState.shufflerId === seatPlayerId) statePatch.shufflerId = myId
+            claimSeat(seatPlayerId, statePatch)
+          }
+        }}
       />
     )
   }

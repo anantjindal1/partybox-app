@@ -9,6 +9,8 @@ import {
   deleteRoom,
   kickPlayer as kickPlayerService,
   kickSpectator as kickSpectatorService,
+  leaveSeat as leaveSeatService,
+  claimSeat as claimSeatService,
   isRoomExpired
 } from '../services/room'
 import { getProfile } from '../services/profile'
@@ -80,6 +82,17 @@ export function useOnlineRoom(code) {
     await kickSpectatorService(code, spectatorId)
   }
 
+  async function leaveSeat() {
+    if (!myId) return
+    await leaveSeatService(code, myId)
+  }
+
+  async function claimSeat(seatPlayerId, statePatch) {
+    if (!myId) return
+    const profile = players.find(p => p.id === myId) ?? (room?.spectators ?? []).find(p => p.id === myId)
+    await claimSeatService(code, myId, profile?.name ?? 'Player', profile?.avatar, seatPlayerId, statePatch)
+  }
+
   return {
     room,
     roomState,
@@ -91,6 +104,8 @@ export function useOnlineRoom(code) {
     endGame,
     kickPlayer,
     kickSpectator,
+    leaveSeat,
+    claimSeat,
     isHost,
     players,
     connected,
