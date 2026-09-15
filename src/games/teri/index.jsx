@@ -14,6 +14,7 @@ import { TableScoreBar } from '../../components/cards/TableScoreBar'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { PartnerPicker } from '../../components/cards/PartnerPicker'
 import { BiddingScreen } from './BiddingScreen'
+import { formatBidHi } from './suitNames'
 import { HandRevealScreen } from './HandRevealScreen'
 import { ResultsScreen } from './ResultsScreen'
 import {
@@ -65,11 +66,42 @@ export default function Teri({ code }) {
   const [advancing, setAdvancing] = useState(false)
   const [showShufflerIntro, setShowShufflerIntro] = useState(false)
   const [showLastHand, setShowLastHand] = useState(false)
+  const [bidAnnouncement, setBidAnnouncement] = useState(null)
   const shufflerIntroHandRef = useRef(null)
+  const lastAnnouncedBidRef = useRef(undefined)
 
   const xpAwarded = useRef(false)
   const processingBidRef = useRef(false)
   const processingRef = useRef(false)
+
+  // Announce every new high bid — a toast plus a spoken callout in the
+  // table lingo (e.g. "Hukum mein aath"), the way players actually call
+  // bids out loud at a real table. Comparing against a ref (rather than
+  // just reacting to any change) is what stops a client that joins or
+  // reconnects mid-auction from replaying every bid that already
+  // happened before it arrived — the first render only records the
+  // current bid as a baseline, it never announces it.
+  useEffect(() => {
+    const bid = roomState.currentHighBid
+    const signature = bid ? `${bid.playerId}-${bid.number}-${bid.suit}` : null
+    if (lastAnnouncedBidRef.current === undefined) {
+      lastAnnouncedBidRef.current = signature
+      return
+    }
+    if (!bid || signature === lastAnnouncedBidRef.current) return
+    lastAnnouncedBidRef.current = signature
+    const bidderName = players.find(p => p.id === bid.playerId)?.name ?? 'Player'
+    const phrase = formatBidHi(bid.number, bid.suit)
+    setBidAnnouncement(`${bidderName}: ${phrase}!`)
+    const dismiss = setTimeout(() => setBidAnnouncement(null), 2500)
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      const utterance = new SpeechSynthesisUtterance(phrase)
+      utterance.lang = 'hi-IN'
+      window.speechSynthesis.speak(utterance)
+    }
+    return () => clearTimeout(dismiss)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomState.currentHighBid])
 
   // Show a brief explainer once per hand for who's shuffling and why —
   // otherwise the only trace of the role is a terse "Shuffler" chip
@@ -97,9 +129,9 @@ export default function Teri({ code }) {
       <>
         <button
           onClick={() => setShowLastHand(true)}
-          className="self-center text-xs font-semibold text-textMuted hover:text-textPrimary border border-border/60 rounded-lg px-3 py-1.5"
+          className="self-center text-sm font-bold text-cobalt border-[1.5px] border-cobalt bg-cobalt/10 rounded-xl px-4 py-2"
         >
-          📜 Last Hand
+          📜 View Last Hand
         </button>
         {showLastHand && (
           <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-4 py-8 overflow-y-auto">
@@ -176,6 +208,12 @@ export default function Teri({ code }) {
     const currentHighBid = action.type === 'BID'
       ? { number: action.payload.number, suit: action.payload.suit, playerId }
       : current.currentHighBid
+    const bidHistory = [
+      ...(current.bidHistory ?? []),
+      action.type === 'BID'
+        ? { playerId, type: 'BID', number: action.payload.number, suit: action.payload.suit }
+        : { playerId, type: 'PASS' }
+    ]
     const nextIdx = current.bidTurnIndex + 1
     await clearActions()
     if (nextIdx >= 8) {
@@ -184,6 +222,7 @@ export default function Teri({ code }) {
       await persist({
         passedPlayers,
         currentHighBid,
+        bidHistory,
         gameLeadId,
         trumpSuit: currentHighBid.suit,
         bid: currentHighBid.number,
@@ -196,7 +235,7 @@ export default function Teri({ code }) {
       })
       return
     }
-    await persist({ passedPlayers, currentHighBid, bidTurnIndex: nextIdx })
+    await persist({ passedPlayers, currentHighBid, bidHistory, bidTurnIndex: nextIdx })
   }
 
   // ── Host: process the current turn-holder's play (or GameLead's play for
@@ -372,6 +411,7 @@ export default function Teri({ code }) {
         bidTurnIndex: 0,
         passedPlayers: [],
         currentHighBid: null,
+        bidHistory: [],
         hands,
         gameLeadId: null,
         trumpSuit: null,
@@ -420,6 +460,7 @@ export default function Teri({ code }) {
         bidTurnIndex: 0,
         passedPlayers: [],
         currentHighBid: null,
+        bidHistory: [],
         hands,
         gameLeadId: null,
         trumpSuit: null,
@@ -511,9 +552,18 @@ export default function Teri({ code }) {
         isHighBidder: roomState.currentHighBid?.playerId === p.id
       }))
     const shufflerName = players.find(p => p.id === roomState.shufflerId)?.name ?? 'Someone'
+    const bidHistory = (roomState.bidHistory ?? []).map(entry => ({
+      ...entry,
+      playerName: players.find(p => p.id === entry.playerId)?.name ?? 'Player'
+    }))
     return (
       <>
         {renderLastHandButton()}
+        {bidAnnouncement && (
+          <p className="mx-4 sm:mx-6 mt-3 py-2.5 px-4 rounded-xl bg-cobalt/10 border border-cobalt/30 text-cobalt text-sm font-bold text-center animate-fade-in">
+            📣 {bidAnnouncement}
+          </p>
+        )}
         {showShufflerIntro && (
           <button
             onClick={() => setShowShufflerIntro(false)}
@@ -527,6 +577,7 @@ export default function Teri({ code }) {
         <BiddingScreen
           myHand={myHand}
           seats={seats}
+          bidHistory={bidHistory}
           isMyTurn={isMyTurn}
           isFirstTurn={isFirstTurn}
           currentHighBid={roomState.currentHighBid}
