@@ -23,6 +23,11 @@ export function BiddingScreen({ myHand, seats = [], isMyTurn, isFirstTurn, curre
   const minNumber = currentHighBid ? currentHighBid.number + 1 : 7
   const numbers = []
   for (let n = minNumber; n <= 13; n++) numbers.push(n)
+  // A number picked on an earlier turn (before someone else's bid raised
+  // the floor) can outlive that bid and no longer appear in `numbers` at
+  // all — the Bid button must not stay live for a number that's since
+  // become invalid, even though it's still sitting in local state.
+  const isSelectionValid = numbers.includes(selectedNumber)
 
   return (
     <div className="flex-1 flex flex-col items-center px-4 sm:px-6 py-6 gap-4 max-w-lg w-full mx-auto">
@@ -97,7 +102,7 @@ export function BiddingScreen({ myHand, seats = [], isMyTurn, isFirstTurn, curre
           </div>
           <button
             onClick={() => onBid(selectedNumber, selectedSuit)}
-            disabled={!selectedNumber || !selectedSuit}
+            disabled={!selectedNumber || !selectedSuit || !isSelectionValid}
             className="min-h-[48px] rounded-xl bg-cobalt text-onCobalt font-bold disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {selectedNumber && selectedSuit ? `Bid ${selectedNumber} in ${selectedSuit} →` : 'Pick a number and a suit'}
