@@ -612,9 +612,19 @@ export default function Teri({ code }) {
     const isInteractive = !roomState.trickWinnerId &&
       (isMyTurnNormally || (isPartnerOfGameLead && isPartnerTurn))
     const legalPlays = isInteractive ? getLegalPlays(activeHand, roomState.ledSuit) : []
-    const disabledCardIds = (isGameLead && isPartnerTurn)
-      ? activeHand // fully inert while the dummy's hand is the live one
-      : isInteractive ? activeHand.filter(id => !legalPlays.includes(id)) : []
+    // Whenever it genuinely isn't my turn to act (which includes GameLead
+    // during the dummy's turn, since isInteractive is false there too),
+    // the WHOLE hand must be disabled — not just the illegal cards. The
+    // previous version fell back to an empty disabled list for anyone
+    // who wasn't GameLead-playing-for-the-dummy specifically, silently
+    // leaving every other non-turn player's own cards fully tappable:
+    // onCardTap stays wired to handlePlayCard regardless of whose turn
+    // it is, so a stray tap would fire a real PLAY action (harmlessly
+    // rejected by the host, which only trusts turnOrder/currentIdx, not
+    // the tapper's identity) but still play the local "card flies away"
+    // animation and freeze the rest of the hand, since the card never
+    // actually leaves a hand the host never touched.
+    const disabledCardIds = isInteractive ? activeHand.filter(id => !legalPlays.includes(id)) : activeHand
     const highlightedCardIds = activeHand.filter(id => parseCard(id).suit === roomState.trumpSuit)
     const selectedCardIds = (isPartnerOfGameLead && isPartnerTurn && roomState.suggestedCardId) ? [roomState.suggestedCardId] : []
 
