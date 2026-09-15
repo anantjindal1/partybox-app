@@ -662,12 +662,13 @@ export default function Teri({ code }) {
     ]
 
     const partnerName = players.find(p => p.id === partnerOfGameLead)?.name ?? 'partner'
+    const currentTurnName = players.find(p => p.id === currentTurnHolder)?.name ?? 'player'
     const statusText = isPlayingForDummy
       ? `Tap a card in ${partnerName}'s hand above to play it`
       : (isPartnerOfGameLead && isPartnerTurn)
         ? 'GameLead is choosing your card — tap to suggest'
         : !isMyTurnNormally
-          ? 'Waiting for your turn...'
+          ? `Waiting for ${currentTurnName} to play...`
           : roomState.ledSuit
             ? `Follow suit: ${SUIT_LABEL[roomState.ledSuit]}`
             : 'Lead any card'

@@ -100,8 +100,8 @@ export default {
           '100%': { opacity: '1', transform: 'translate(0, 0) rotate(0deg)' }
         },
         'turn-glow': {
-          '0%, 100%': { boxShadow: '0 0 0 2px var(--turn-glow-color, currentColor)' },
-          '50%': { boxShadow: '0 0 0 5px var(--turn-glow-color, currentColor)' }
+          '0%, 100%': { boxShadow: '0 0 0 3px var(--turn-glow-color, currentColor)' },
+          '50%': { boxShadow: '0 0 0 7px var(--turn-glow-color, currentColor)' }
         },
         'play-out': {
           '0%': { transform: 'translateY(0) scale(1)', opacity: '1' },

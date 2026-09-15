@@ -221,6 +221,7 @@ export default function Mendikot({ code }) {
   if (phase === 'playing') {
     const myHand = sortHand(roomState.hands?.[myId] ?? [])
     const isMyTurn = roomState.turnOrder?.[roomState.currentIdx] === myId
+    const currentTurnName = players.find(p => p.id === roomState.turnOrder?.[roomState.currentIdx])?.name ?? 'player'
     const legalPlays = isMyTurn ? getLegalPlays(myHand, roomState.ledSuit) : []
     const disabledCardIds = isMyTurn ? myHand.filter(id => !legalPlays.includes(id)) : myHand
     const highlightedCardIds = myHand.filter(id => TEN_IDS.includes(id))
@@ -259,7 +260,7 @@ export default function Mendikot({ code }) {
         />
         <p className="text-center text-textMuted text-sm py-2">
           {!isMyTurn
-            ? 'Waiting for your turn...'
+            ? `Waiting for ${currentTurnName} to play...`
             : roomState.ledSuit
               ? `Follow suit: ${SUIT_LABEL[roomState.ledSuit]}`
               : 'Lead any card'}

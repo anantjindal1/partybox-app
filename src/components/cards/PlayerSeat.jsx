@@ -98,7 +98,12 @@ export function PlayerSeat({
       >
         <span className="text-xl leading-none">{player?.avatar ?? '🎮'}</span>
       </div>
-      <span className="text-xs font-semibold text-textPrimary truncate max-w-[64px]">{player?.name ?? 'Player'}</span>
+      <span
+        className={`text-xs truncate max-w-[64px] ${isActiveTurn ? 'font-extrabold' : 'font-semibold text-textPrimary'}`}
+        style={isActiveTurn ? { color: `rgb(var(--color-accent-${accent}-rgb))` } : undefined}
+      >
+        {player?.name ?? 'Player'}
+      </span>
       {label && <span className="text-[10px] text-textMuted -mt-1">{label}</span>}
       {exposedCards ? (
         // Absolutely positioned (not in normal flow) so a large exposed

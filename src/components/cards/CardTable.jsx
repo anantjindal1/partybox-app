@@ -135,11 +135,19 @@ export function CardTable({
 
       {/* My hand — width-tuned via getHandStep so a 13-17 card hand still
           fits a phone-width screen; overflow-x-auto is a safety net for
-          anything beyond that tuned range. */}
+          anything beyond that tuned range. A flat muted background was
+          too subtle a cue for "it's your turn" on a small phone screen —
+          an explicit label plus the game's own accent color reads clearly
+          without needing to spot a faint tint. */}
+      {myIsActiveTurn && (
+        <p className={`text-center text-xs font-extrabold uppercase tracking-wide -mb-2 ${accentClasses.text}`}>
+          Your Turn
+        </p>
+      )}
       <div className="overflow-x-auto">
         <div
-          className={`flex justify-center items-end w-fit mx-auto px-2 pb-1 pt-3 rounded-2xl ${
-            myIsActiveTurn ? 'bg-surfaceMuted' : ''
+          className={`flex justify-center items-end w-fit mx-auto px-2 pb-1 pt-3 rounded-2xl border-2 ${
+            myIsActiveTurn ? `${accentClasses.soft} ${accentClasses.border}` : 'border-transparent'
           }`}
         >
           {myHand.map((cardId, i) => {

@@ -24,7 +24,7 @@ export default function Room() {
   const { code } = useParams()
   const navigate = useNavigate()
   const { t, lang } = useLang()
-  const room = useRoom(code)
+  const { room, notFound } = useRoom(code)
   const { profile, update: updateProfile } = useProfile()
   const connected = useOnlineStatus()
   const [countdown, setCountdown] = useState(null)
@@ -94,6 +94,22 @@ export default function Room() {
       <div className="min-h-screen bg-surface text-textPrimary flex items-center justify-center px-4">
         <div className="text-center">
           <p className="text-textMuted text-lg">{t('roomExpired')}</p>
+          <button
+            onClick={() => navigate('/')}
+            className="mt-4 text-textMuted hover:text-textSecondary underline"
+          >
+            {t('returnHome')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (notFound) {
+    return (
+      <div className="min-h-screen bg-surface text-textPrimary flex items-center justify-center px-4">
+        <div className="text-center">
+          <p className="text-textMuted text-lg">{t('roomEnded')}</p>
           <button
             onClick={() => navigate('/')}
             className="mt-4 text-textMuted hover:text-textSecondary underline"

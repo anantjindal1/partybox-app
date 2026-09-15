@@ -54,7 +54,12 @@ export async function joinRoom(code, playerId, playerName, playerAvatar) {
 export function subscribeToRoom(code, callback) {
   const ref = doc(db, 'rooms', code)
   return onSnapshot(ref, (snap) => {
-    if (snap.exists()) callback(snap.data())
+    // Always call back, even when the doc is gone — a caller that only
+    // hears about existence can't tell "no snapshot yet" (still
+    // connecting) apart from "confirmed deleted" (host ended the game),
+    // and silently swallowing the latter is what left a client that
+    // reconnects after deletion stuck on "Connecting..." forever.
+    callback(snap.exists() ? snap.data() : null)
   })
 }
 

@@ -202,6 +202,7 @@ export default function Satti({ code }) {
     const board = roomState.board ?? createEmptyBoard()
     const myHand = sortHand(roomState.hands?.[myId] ?? [], { aceHigh: false })
     const isMyTurn = roomState.turnOrder?.[roomState.currentIdx] === myId
+    const currentTurnName = players.find(p => p.id === roomState.turnOrder?.[roomState.currentIdx])?.name ?? 'player'
     const legalPlays = isMyTurn ? getLegalPlays(myHand, board) : []
     const disabledCardIds = isMyTurn ? myHand.filter(id => !legalPlays.includes(id)) : myHand
     const mustPass = isMyTurn && legalPlays.length === 0
@@ -233,7 +234,7 @@ export default function Satti({ code }) {
           </button>
         ) : (
           <p className="text-center text-textMuted text-sm py-2">
-            {!isMyTurn ? 'Waiting for your turn...' : 'Tap a card to play it'}
+            {!isMyTurn ? `Waiting for ${currentTurnName} to play...` : 'Tap a card to play it'}
           </p>
         )}
       </div>
