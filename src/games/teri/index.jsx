@@ -76,13 +76,13 @@ export default function Teri({ code }) {
   const processingBidRef = useRef(false)
   const processingRef = useRef(false)
 
-  // Announce every new high bid — a toast plus a spoken callout in the
-  // table lingo (e.g. "Hukum mein aath"), the way players actually call
-  // bids out loud at a real table. Comparing against a ref (rather than
-  // just reacting to any change) is what stops a client that joins or
-  // reconnects mid-auction from replaying every bid that already
-  // happened before it arrived — the first render only records the
-  // current bid as a baseline, it never announces it.
+  // Announce every new high bid — a toast in the table lingo (e.g.
+  // "Hukum mein aath"), the way players actually call bids out loud at
+  // a real table. Comparing against a ref (rather than just reacting to
+  // any change) is what stops a client that joins or reconnects
+  // mid-auction from replaying every bid that already happened before
+  // it arrived — the first render only records the current bid as a
+  // baseline, it never announces it.
   useEffect(() => {
     const bid = roomState.currentHighBid
     const signature = bid ? `${bid.playerId}-${bid.number}-${bid.suit}` : null
@@ -96,11 +96,6 @@ export default function Teri({ code }) {
     const phrase = formatBidHi(bid.number, bid.suit)
     setBidAnnouncement(`${bidderName}: ${phrase}!`)
     const dismiss = setTimeout(() => setBidAnnouncement(null), 2500)
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      const utterance = new SpeechSynthesisUtterance(phrase)
-      utterance.lang = 'hi-IN'
-      window.speechSynthesis.speak(utterance)
-    }
     return () => clearTimeout(dismiss)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomState.currentHighBid])
