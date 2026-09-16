@@ -216,11 +216,16 @@ export default function Satti({ code }) {
 
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
+        {/* Four suits building independently needs real vertical room no
+            oval table's tight center inset can offer (that space is
+            tuned for a single row of trick cards) — rendered as its own
+            full-width section above the table instead of squeezed into
+            centerSlot, which used to visibly overlap the seats above it. */}
+        <SattiBoard board={board} />
         <CardTable
           otherSeats={otherSeats}
           myHand={myHand}
           myIsActiveTurn={isMyTurn}
-          centerSlot={<SattiBoard board={board} />}
           disabledCardIds={disabledCardIds}
           onCardTap={handlePlayCard}
           accent="amethyst"

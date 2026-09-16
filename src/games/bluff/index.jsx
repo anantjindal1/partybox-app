@@ -328,21 +328,24 @@ export default function Bluff({ code }) {
 
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
+        {/* The claim pile's card row plus 2-3 lines of status text is
+            taller than the oval's center inset can fit (that space is
+            tuned for a single row of trick cards) — rendered as its own
+            section above the table instead of via centerSlot, which
+            used to clip its last line against the oval's edge. */}
+        <BluffPile
+          pileCount={roomState.pile?.length ?? 0}
+          claimedRank={roomState.claimedRank}
+          latestHandPlayerId={roomState.latestHandPlayerId}
+          players={players}
+          pendingReveal={roomState.pendingReveal}
+          isHost={isHost}
+          onResolveReveal={handleResolveReveal}
+        />
         <CardTable
           otherSeats={otherSeats}
           myHand={myHand}
           myIsActiveTurn={isMyTurn}
-          centerSlot={
-            <BluffPile
-              pileCount={roomState.pile?.length ?? 0}
-              claimedRank={roomState.claimedRank}
-              latestHandPlayerId={roomState.latestHandPlayerId}
-              players={players}
-              pendingReveal={roomState.pendingReveal}
-              isHost={isHost}
-              onResolveReveal={handleResolveReveal}
-            />
-          }
           selectedCardIds={selectedCardIds}
           onCardTap={toggleCard}
           accent="indigo"
