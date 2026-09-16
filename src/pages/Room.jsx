@@ -7,6 +7,7 @@ import { ConnectionOverlay } from '../components/ConnectionOverlay'
 import { ReactionBar } from '../components/ReactionBar'
 import { VoiceBroadcastButton } from '../components/VoiceBroadcastButton'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
+import { LobbyTable } from '../components/cards/LobbyTable'
 import { useLang } from '../store/LangContext'
 import { useRoom } from '../hooks/useRoom'
 import { useProfile } from '../hooks/useProfile'
@@ -217,32 +218,44 @@ export default function Room() {
             <RoomCode code={code} />
           </div>
 
-          {/* Player avatars */}
+          {/* Player avatars — seated around a table for games where
+              that's the actual in-game layout (see each game's own
+              lobbySeatCircle metadata flag), a plain wrapped row for
+              everything else. */}
           <div>
-            <div className="flex flex-wrap gap-4 mt-2">
-              {room.players.map(p => (
-                <div key={p.id} className="flex flex-col items-center gap-1">
-                  <div className="relative">
-                    <span className="text-4xl" style={{ minWidth: 48, display: 'inline-block', textAlign: 'center' }}>
-                      {p.avatar ?? '🎮'}
-                    </span>
-                    {p.id === room.hostId && (
-                      <span className="absolute -top-1 -right-1 text-xs">👑</span>
+            {game?.lobbySeatCircle && room.players.length >= 2 ? (
+              <LobbyTable
+                players={room.players}
+                hostId={room.hostId}
+                isHost={isHost && !gameInProgress}
+                onKick={handleKick}
+              />
+            ) : (
+              <div className="flex flex-wrap gap-4 mt-2">
+                {room.players.map(p => (
+                  <div key={p.id} className="flex flex-col items-center gap-1">
+                    <div className="relative">
+                      <span className="text-4xl" style={{ minWidth: 48, display: 'inline-block', textAlign: 'center' }}>
+                        {p.avatar ?? '🎮'}
+                      </span>
+                      {p.id === room.hostId && (
+                        <span className="absolute -top-1 -right-1 text-xs">👑</span>
+                      )}
+                    </div>
+                    <span className="text-textSecondary text-xs font-medium max-w-[56px] truncate">{p.name}</span>
+                    {isHost && !gameInProgress && p.id !== room.hostId && (
+                      <button
+                        onClick={() => handleKick(p.id)}
+                        className="text-xs text-textMuted hover:text-error"
+                        aria-label={`${t('removePlayer')} ${p.name}`}
+                      >
+                        ✕
+                      </button>
                     )}
                   </div>
-                  <span className="text-textSecondary text-xs font-medium max-w-[56px] truncate">{p.name}</span>
-                  {isHost && !gameInProgress && p.id !== room.hostId && (
-                    <button
-                      onClick={() => handleKick(p.id)}
-                      className="text-xs text-textMuted hover:text-error"
-                      aria-label={`${t('removePlayer')} ${p.name}`}
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
             <p className="text-textMuted text-sm mt-3">
               Waiting for players... ({room.players.length}/{game?.maxPlayers ?? 6})
             </p>

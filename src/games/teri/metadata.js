@@ -1,6 +1,7 @@
 export default {
   slug: 'teri',
   hidePlayerListInGame: true,
+  lobbySeatCircle: true,
   title: { en: 'Teri', hi: 'तेरी' },
   minPlayers: 4,
   maxPlayers: 4,

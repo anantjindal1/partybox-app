@@ -1,6 +1,7 @@
 export default {
   slug: 'bluff',
   hidePlayerListInGame: true,
+  lobbySeatCircle: true,
   title: { en: 'Bluff', hi: 'ब्लफ' },
   minPlayers: 3,
   maxPlayers: 6,

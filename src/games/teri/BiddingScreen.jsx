@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { SpadeIcon, HeartIcon, DiamondIcon, ClubIcon } from '../../components/cards/suitIcons'
 import { PlayingCard } from '../../components/cards/PlayingCard'
 import { parseCard } from '../../multiplayer/deck'
@@ -11,10 +11,20 @@ const SUITS = [
   { suit: 'clubs', Icon: ClubIcon, colorClass: 'text-cardBlack' }
 ]
 
-export function BiddingScreen({ myHand, seats = [], bidHistory = [], isMyTurn, isFirstTurn, currentHighBid, currentBidderName, onBid, onPass }) {
+export function BiddingScreen({ myHand, seats = [], bidHistory = [], isMyTurn, isFirstTurn, currentHighBid, currentBidderName, iAlreadyPassed, onBid, onPass }) {
   const [selectedNumber, setSelectedNumber] = useState(null)
   const [selectedSuit, setSelectedSuit] = useState(null)
   const [passClicked, setPassClicked] = useState(false)
+  const bidHistoryRef = useRef(null)
+
+  // Keep the latest bid in view as the auction progresses — a fixed-
+  // height scrollable list otherwise stays pinned to wherever it was
+  // first scrolled, hiding new entries below the fold.
+  useEffect(() => {
+    if (bidHistoryRef.current) {
+      bidHistoryRef.current.scrollTop = bidHistoryRef.current.scrollHeight
+    }
+  }, [bidHistory.length])
 
   function handlePass() {
     setPassClicked(true)
@@ -64,7 +74,7 @@ export function BiddingScreen({ myHand, seats = [], bidHistory = [], isMyTurn, i
       </p>
 
       {bidHistory.length > 0 && (
-        <div className="w-full max-h-24 overflow-y-auto rounded-xl border-[1.5px] border-border bg-surfaceElevated">
+        <div ref={bidHistoryRef} className="w-full max-h-44 overflow-y-auto rounded-xl border-[1.5px] border-border bg-surfaceElevated">
           {bidHistory.map((entry, i) => (
             <div
               key={i}
@@ -137,7 +147,7 @@ export function BiddingScreen({ myHand, seats = [], bidHistory = [], isMyTurn, i
         </div>
       ) : (
         <p className="text-center text-textMuted text-sm py-8">
-          Waiting for {currentBidderName}…
+          {iAlreadyPassed ? 'You already passed — waiting for the auction to continue…' : `Waiting for ${currentBidderName}…`}
         </p>
       )}
     </div>

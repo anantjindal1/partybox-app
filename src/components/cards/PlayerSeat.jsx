@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { PlayingCard } from './PlayingCard'
 import { parseCard } from '../../multiplayer/deck'
 import { getHandStep } from './seatLayout'
@@ -7,9 +8,15 @@ const EXPOSED_TARGET_WIDTH = 150
 // The front seat sits centered above the table with the same open room
 // "my hand" gets below it — no reason to cram it into the same narrow
 // width the left/right rows need to avoid running off a phone's edge.
-// Scaled from HAND_CARD_WIDTH's own 340 target by the sm/md card-width
-// ratio, so the fan reads with roughly the same density as a real hand.
-const EXPOSED_FRONT_TARGET_WIDTH = 240
+// The front row is also the ONLY exposed-hand rendering that's ever
+// actually tappable (orderSeatsForViewer guarantees GameLead always
+// sees the dummy at front, and only GameLead ever gets onExposedCardTap
+// wired up) — so it uses full "md" cards, matching own-hand size
+// exactly, since that's where mis-taps from too-small cards actually
+// happen. Left/right stay at the smaller "sm" size — pure display for
+// defenders, never tapped, no accuracy concern to fix there.
+const EXPOSED_FRONT_CARD_WIDTH = 46
+const EXPOSED_FRONT_TARGET_WIDTH = 340
 
 /**
  * One opponent's seat: avatar, name, a shallow face-down card stack (always
@@ -50,8 +57,26 @@ export function PlayerSeat({
   const glowStyle = isActiveTurn ? { '--turn-glow-color': `rgb(var(--color-accent-${accent}-rgb))` } : {}
   const interactive = !!onExposedCardTap
 
-  function renderFanRow(cards, targetWidth = EXPOSED_TARGET_WIDTH) {
-    const step = getHandStep(cards.length, EXPOSED_CARD_WIDTH, targetWidth)
+  // Mirrors CardTable's own-hand play-out animation exactly, so tapping
+  // a card in the dummy's hand feels the same as playing from your own
+  // — tied to the card actually disappearing from real data (never a
+  // guessed timeout), and blocking the rest of the fan mid-animation so
+  // a second tap can't race the first one's network round-trip.
+  const [playingCardId, setPlayingCardId] = useState(null)
+  useEffect(() => {
+    if (playingCardId && !(exposedCards ?? []).includes(playingCardId)) {
+      setPlayingCardId(null)
+    }
+  }, [exposedCards, playingCardId])
+
+  function handleExposedTap(cardId) {
+    if (playingCardId) return
+    setPlayingCardId(cardId)
+    onExposedCardTap(cardId)
+  }
+
+  function renderFanRow(cards, targetWidth = EXPOSED_TARGET_WIDTH, cardWidth = EXPOSED_CARD_WIDTH, size = 'sm') {
+    const step = getHandStep(cards.length, cardWidth, targetWidth)
     return (
       <div className="flex items-end w-max mx-auto">
         {cards.map((cardId, i) => {
@@ -59,25 +84,26 @@ export function PlayerSeat({
           const isDisabled = disabledExposedCardIds.includes(cardId)
           const isHighlighted = highlightedExposedCardIds.includes(cardId)
           const isSelected = selectedExposedCardIds.includes(cardId)
+          const isPlaying = playingCardId === cardId
           const Wrapper = interactive ? 'button' : 'div'
           return (
             <Wrapper
               key={cardId}
               type={interactive ? 'button' : undefined}
-              disabled={interactive ? isDisabled : undefined}
-              onClick={interactive ? () => onExposedCardTap(cardId) : undefined}
-              className={`transition-transform duration-150 ${isDisabled ? 'grayscale opacity-40 pointer-events-none' : ''}`}
+              disabled={interactive ? (isDisabled || (!!playingCardId && !isPlaying)) : undefined}
+              onClick={interactive ? () => handleExposedTap(cardId) : undefined}
+              className={`${isPlaying ? 'animate-play-out' : 'transition-transform duration-150'} ${isDisabled ? 'grayscale opacity-40 pointer-events-none' : ''}`}
               style={{
-                marginLeft: i === 0 ? 0 : step - EXPOSED_CARD_WIDTH,
-                transform: isSelected ? 'translateY(-8px)' : undefined,
-                zIndex: isSelected ? 50 : i
+                marginLeft: i === 0 ? 0 : step - cardWidth,
+                transform: isPlaying ? undefined : isSelected ? 'translateY(-8px)' : undefined,
+                zIndex: isSelected || isPlaying ? 50 : i
               }}
             >
               <PlayingCard
                 face="up"
                 rank={rank}
                 suit={suit}
-                size="sm"
+                size={size}
                 highlighted={isHighlighted}
               />
             </Wrapper>
@@ -113,7 +139,7 @@ export function PlayerSeat({
         // everything above it, like a game's score bar) far off target.
         exposedHandSide === 'front' ? (
           <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2">
-            {renderFanRow(exposedCards, EXPOSED_FRONT_TARGET_WIDTH)}
+            {renderFanRow(exposedCards, EXPOSED_FRONT_TARGET_WIDTH, EXPOSED_FRONT_CARD_WIDTH, 'md')}
           </div>
         ) : (
           // Anchored from the edge nearer this seat's own position (not

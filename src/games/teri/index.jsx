@@ -534,7 +534,16 @@ export default function Teri({ code }) {
   if (phase === 'bidding') {
     const myHand = sortHand(roomState.hands?.[myId] ?? [])
     const currentBidder = roomState.biddingOrder?.[roomState.bidTurnIndex]
-    const isMyTurn = currentBidder === myId
+    // Once a player has passed, their slot still comes back around on
+    // the second pass through biddingOrder — the client-side effect
+    // above auto-submits a PASS for them, but that's a real round-trip,
+    // not instant. Without this check, isMyTurn briefly goes true for
+    // an already-passed player on their own re-appearing slot, showing
+    // the full interactive "bid higher, or pass" form for a moment
+    // before it gets yanked away — reads exactly like "it auto-passed
+    // on me," and worse, a fast tap could race the auto-pass action.
+    const iAlreadyPassed = (roomState.passedPlayers ?? []).includes(myId)
+    const isMyTurn = currentBidder === myId && !iAlreadyPassed
     const isFirstTurn = roomState.bidTurnIndex === 0
     const currentBidderName = players.find(p => p.id === currentBidder)?.name ?? 'Player'
     const seats = orderSeatsForViewer(roomState.turnOrder, myId)
@@ -579,6 +588,7 @@ export default function Teri({ code }) {
           isFirstTurn={isFirstTurn}
           currentHighBid={roomState.currentHighBid}
           currentBidderName={currentBidderName}
+          iAlreadyPassed={iAlreadyPassed}
           onBid={handleBid}
           onPass={handlePass}
         />

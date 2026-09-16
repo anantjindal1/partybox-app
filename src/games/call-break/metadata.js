@@ -1,6 +1,7 @@
 export default {
   slug: 'call-break',
   hidePlayerListInGame: true,
+  lobbySeatCircle: true,
   title: { en: 'Call Break', hi: 'कॉल ब्रेक' },
   minPlayers: 4,
   maxPlayers: 4,

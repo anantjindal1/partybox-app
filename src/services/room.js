@@ -136,11 +136,19 @@ export async function leaveSeat(code, playerId) {
   const room = snap.data()
   const player = room.players.find(p => p.id === playerId)
   if (!player) return
-  await updateDoc(ref, {
+  const updates = {
     players: arrayRemove(player),
     spectators: arrayUnion(player),
     openSeats: arrayUnion(playerId)
-  })
+  }
+  // The host taking a seat with them would otherwise leave every host-
+  // only control (kick, end game, deal the next hand) permanently stuck
+  // to someone who's now just a spectator — hand it to whoever's left.
+  if (room.hostId === playerId) {
+    const nextHost = room.players.find(p => p.id !== playerId)
+    if (nextHost) updates.hostId = nextHost.id
+  }
+  await updateDoc(ref, updates)
 }
 
 // A spectator taking over an open seat. `statePatch` lets the calling

@@ -1,6 +1,7 @@
 export default {
   slug: 'satti',
   hidePlayerListInGame: true,
+  lobbySeatCircle: true,
   title: { en: 'Satti (Sevens)', hi: 'सत्ती (सेवन्स)' },
   minPlayers: 4,
   maxPlayers: 8,

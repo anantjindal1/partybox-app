@@ -46,7 +46,12 @@ export function CardTable({
   const middleIndex = Math.floor((otherSeats.length - 1) / 2)
   const hasFrontSeat = otherSeats.length % 2 === 1
   const frontSeatHasExposedHand = hasFrontSeat && !!otherSeats[middleIndex]?.exposedCards
-  const tableTopMargin = frontSeatHasExposedHand ? 'mt-44' : hasFrontSeat ? 'mt-32' : 'mt-10'
+  // The exposed-hand fan now uses full "md" cards (see PlayerSeat.jsx),
+  // taller than the "sm" cards this margin was originally tuned for —
+  // widened accordingly so the taller fan doesn't push the seat's own
+  // avatar/name above the table's top clearance again (a real bug hit
+  // once already, see PlayerSeat.jsx's absolute-positioning comment).
+  const tableTopMargin = frontSeatHasExposedHand ? 'mt-56' : hasFrontSeat ? 'mt-32' : 'mt-10'
 
   // Once the real state update actually removes the played card from
   // myHand, clear the local "mid-animation" flag — tying the play-out

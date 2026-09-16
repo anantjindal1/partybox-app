@@ -1,6 +1,7 @@
 export default {
   slug: 'bhabhi',
   hidePlayerListInGame: true,
+  lobbySeatCircle: true,
   title: { en: 'Bhabhi', hi: 'भाभी' },
   minPlayers: 3,
   maxPlayers: 6,

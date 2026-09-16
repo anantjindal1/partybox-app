@@ -1,6 +1,7 @@
 export default {
   slug: 'judgement',
   hidePlayerListInGame: true,
+  lobbySeatCircle: true,
   title: { en: 'Judgement (Kachuful)', hi: 'जजमेंट (कचुफुल)' },
   minPlayers: 3,
   maxPlayers: 9,
