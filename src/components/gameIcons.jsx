@@ -214,6 +214,42 @@ export function DiceIcon(props) {
   )
 }
 
+export function MegaphoneIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M3 10v4h3l6 4V6l-6 4H3z" />
+      <path d="M15 9a4 4 0 010 6" />
+      <path d="M18 6a8 8 0 010 12" />
+    </svg>
+  )
+}
+
+export function DetectiveHatIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <ellipse cx="12" cy="15" rx="10" ry="2.2" />
+      <path d="M6 15c0-4 2.5-8 6-8s6 4 6 8" />
+      <rect x="8" y="7" width="8" height="4" rx="1" />
+    </svg>
+  )
+}
+
+export function GridIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <rect x="3" y="3" width="6" height="6" rx="1" />
+      <rect x="9.5" y="3" width="6" height="6" rx="1" />
+      <rect x="16" y="3" width="5" height="6" rx="1" />
+      <rect x="3" y="9.5" width="6" height="6" rx="1" />
+      <rect x="9.5" y="9.5" width="6" height="6" rx="1" />
+      <rect x="16" y="9.5" width="5" height="6" rx="1" />
+      <rect x="3" y="16" width="6" height="5" rx="1" />
+      <rect x="9.5" y="16" width="6" height="5" rx="1" />
+      <rect x="16" y="16" width="5" height="5" rx="1" />
+    </svg>
+  )
+}
+
 /** slug -> icon component, for anywhere a game needs its icon outside Home.jsx's own card layout. */
 export const GAME_ICONS = {
   'thinkfast': BoltIcon,
@@ -236,6 +272,9 @@ export const GAME_ICONS = {
   'teen-do-paanch': TargetIcon,
   'teri': RotationIcon,
   'donkey': DonkeyIcon,
+  'bakwaas-adaalat': MegaphoneIcon,
+  'chugli-detective': DetectiveHatIcon,
+  'codenames': GridIcon,
 }
 
 export function getGameIcon(slug) {

@@ -16,7 +16,7 @@ import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import { trackEvent as trackAnalyticsEvent } from '../services/analytics_events'
 import AdBanner from '../components/AdBanner'
-import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, PartnershipIcon, SevenIcon, MendikotIcon, TargetIcon, RotationIcon, DonkeyIcon, SoloIcon, PartyIcon, SignalIcon } from '../components/gameIcons'
+import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, PartnershipIcon, SevenIcon, MendikotIcon, TargetIcon, RotationIcon, DonkeyIcon, SoloIcon, PartyIcon, SignalIcon, MegaphoneIcon, DetectiveHatIcon, GridIcon } from '../components/gameIcons'
 
 const COMING_SOON_SLOTS = 0
 
@@ -144,6 +144,24 @@ const ACCENT_STYLES = {
     iconRing: 'border-amber text-amber',
     tab: 'text-amber border-amber',
     cta: 'bg-amber text-onAmber'
+  },
+  taupe: {
+    border: 'border-taupe',
+    iconRing: 'border-taupe text-taupe',
+    tab: 'text-taupe border-taupe',
+    cta: 'bg-taupe text-onTaupe'
+  },
+  cerulean: {
+    border: 'border-cerulean',
+    iconRing: 'border-cerulean text-cerulean',
+    tab: 'text-cerulean border-cerulean',
+    cta: 'bg-cerulean text-onCerulean'
+  },
+  sage: {
+    border: 'border-sage',
+    iconRing: 'border-sage text-sage',
+    tab: 'text-sage border-sage',
+    cta: 'bg-sage text-onSage'
   }
 }
 
@@ -391,6 +409,45 @@ const VISIBLE_GAMES = [
     description: 'Pass cards to collect four of a kind — react fastest or spell D-O-N-K-E-Y',
     playersPill: '3-8 players',
     timePill: '~10-20 mins',
+    cta: 'Create Room →',
+    isOnline: true,
+  },
+  {
+    slug: 'bakwaas-adaalat',
+    icon: MegaphoneIcon,
+    title: 'Bakwaas Adaalat',
+    modeBadge: 'Online',
+    modeIcon: SignalIcon,
+    accent: 'taupe',
+    description: 'Two lawyers argue a silly case out loud on a timer — the room votes on the winner',
+    playersPill: '3-12 players',
+    timePill: '~15 mins',
+    cta: 'Create Room →',
+    isOnline: true,
+  },
+  {
+    slug: 'chugli-detective',
+    icon: DetectiveHatIcon,
+    title: 'Chugli Detective',
+    modeBadge: 'Online',
+    modeIcon: SignalIcon,
+    accent: 'cerulean',
+    description: 'Everyone writes an anonymous confession — guess who wrote it, or fool the room',
+    playersPill: '3-12 players',
+    timePill: '~15 mins',
+    cta: 'Create Room →',
+    isOnline: true,
+  },
+  {
+    slug: 'codenames',
+    icon: GridIcon,
+    title: 'Codenames',
+    modeBadge: 'Online',
+    modeIcon: SignalIcon,
+    accent: 'sage',
+    description: 'Two teams, one spymaster each — give a one-word clue to guess your words first',
+    playersPill: '4-12 players',
+    timePill: '~20-30 mins',
     cta: 'Create Room →',
     isOnline: true,
   },
