@@ -404,7 +404,7 @@ const VISIBLE_SLUGS = new Set([
   'sabse-zyada-kaun', 'sabse-zyada-kaun-offline', 'tambola', 'bhed', 'bluff',
   'bakwaas', 'bhabhi', 'call-break', 'judgement', 'court-piece', 'satti',
   'mendikot', 'teen-do-paanch', 'teri', 'donkey', 'bakwaas-adaalat',
-  'chugli-detective',
+  'chugli-detective', 'codenames',
 ])
 
 export default function Home() {
