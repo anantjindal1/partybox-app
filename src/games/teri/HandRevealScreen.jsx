@@ -1,3 +1,5 @@
+import { SeatManagement } from '../../components/cards/SeatManagement'
+
 const SUIT_LABEL = { spades: '♠', hearts: '♥', diamonds: '♦', clubs: '♣' }
 
 export function HandRevealScreen({ lastHandResult, players, isHost, onNextHand, advancing, seatManagement }) {
@@ -68,42 +70,15 @@ export function HandRevealScreen({ lastHandResult, players, isHost, onNextHand, 
           something to tap, and the host can't deal the next hand until
           every seat is filled again. */}
       {seatManagement && (
-        <div className="flex flex-col gap-2">
-          <p className="text-xs text-textMuted uppercase tracking-wider text-center">Seats</p>
-          {seatManagement.turnOrder.map(seatId => {
-            const isOpen = seatManagement.openSeats.includes(seatId)
-            const isMe = seatId === seatManagement.myId
-            return (
-              <div
-                key={seatId}
-                className={`flex items-center justify-between px-4 py-2.5 rounded-xl border-[1.5px] ${
-                  isOpen ? 'border-error/50 bg-error/5' : 'border-border bg-surfaceElevated'
-                }`}
-              >
-                <span className="text-sm font-semibold text-textPrimary">
-                  {isOpen ? 'Empty seat' : nameOf(seatId)}
-                </span>
-                {isOpen && seatManagement.isSpectator ? (
-                  <button
-                    onClick={() => seatManagement.onClaimSeat(seatId)}
-                    className="text-xs font-bold text-cobalt border-[1.5px] border-cobalt rounded-lg px-3 py-1.5"
-                  >
-                    Join this seat →
-                  </button>
-                ) : isOpen ? (
-                  <span className="text-xs text-textMuted">Waiting for a player…</span>
-                ) : isMe ? (
-                  <button
-                    onClick={seatManagement.onLeaveSeat}
-                    className="text-xs font-semibold text-error border-[1.5px] border-error/40 rounded-lg px-3 py-1.5"
-                  >
-                    Leave Seat
-                  </button>
-                ) : null}
-              </div>
-            )
-          })}
-        </div>
+        <SeatManagement
+          turnOrder={seatManagement.turnOrder}
+          openSeats={seatManagement.openSeats}
+          myId={seatManagement.myId}
+          isSpectator={seatManagement.isSpectator}
+          nameOf={nameOf}
+          onLeaveSeat={seatManagement.onLeaveSeat}
+          onClaimSeat={seatManagement.onClaimSeat}
+        />
       )}
 
       {seatManagement && seatManagement.openSeats.length > 0 ? (

@@ -1,8 +1,9 @@
 import { getTeamA, getTeamB, MATCH_TARGET, SHUTOUT_EXTENSION_TARGET } from './courtPieceLogic'
+import { SeatManagement } from '../../components/cards/SeatManagement'
 
 const SUIT_LABEL = { spades: '♠', hearts: '♥', diamonds: '♦', clubs: '♣' }
 
-export function HandRevealScreen({ lastHandResult, players, turnOrder, isHost, onNextHand, advancing }) {
+export function HandRevealScreen({ lastHandResult, players, turnOrder, isHost, onNextHand, advancing, seatManagement }) {
   if (!lastHandResult) return null
   const { handNumber, trumpSuit, callerId, teamTricks, winningTeam, isKot, pointsAwarded, matchScoresAfter, handsWonAfter, matchWinner } = lastHandResult
 
@@ -67,7 +68,23 @@ export function HandRevealScreen({ lastHandResult, players, turnOrder, isHost, o
         </p>
       )}
 
-      {isHost ? (
+      {seatManagement && (
+        <SeatManagement
+          turnOrder={seatManagement.turnOrder}
+          openSeats={seatManagement.openSeats}
+          myId={seatManagement.myId}
+          isSpectator={seatManagement.isSpectator}
+          nameOf={nameOf}
+          onLeaveSeat={seatManagement.onLeaveSeat}
+          onClaimSeat={seatManagement.onClaimSeat}
+        />
+      )}
+
+      {seatManagement && seatManagement.openSeats.length > 0 ? (
+        <p className="text-center text-textMuted text-sm">
+          Waiting for {seatManagement.openSeats.length === 1 ? 'an empty seat' : `${seatManagement.openSeats.length} empty seats`} to be filled before continuing…
+        </p>
+      ) : isHost ? (
         <button
           onClick={onNextHand}
           disabled={advancing}

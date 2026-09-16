@@ -40,7 +40,9 @@ export default function TeenDoPaanch({ code }) {
     clearActions,
     isHost,
     myId,
-    players
+    players,
+    leaveSeat,
+    claimSeat
   } = useOnlineRoom(code)
 
   const phase = roomState.phase || 'waiting'
@@ -403,6 +405,8 @@ export default function TeenDoPaanch({ code }) {
   }
 
   if (phase === 'hand_reveal') {
+    const openSeats = room?.openSeats ?? []
+    const isSpectator = (room?.spectators ?? []).some(p => p.id === myId)
     return (
       <HandRevealScreen
         lastHandResult={roomState.lastHandResult}
@@ -410,6 +414,29 @@ export default function TeenDoPaanch({ code }) {
         isHost={isHost}
         onNextHand={handleNextHand}
         advancing={advancing}
+        seatManagement={{
+          turnOrder: roomState.turnOrder ?? [],
+          openSeats,
+          myId,
+          isSpectator,
+          onLeaveSeat: leaveSeat,
+          onClaimSeat: (seatPlayerId) => {
+            // matchScores is player-id-keyed and needs remapping (the
+            // running score belongs to the seat). callerId for the NEXT
+            // hand is always freshly recomputed from turnOrder in
+            // handleNextHand (computeTargets + getCallerId), so it needs
+            // no remap here — it'll already be correct once turnOrder is.
+            const matchScores = { ...roomState.matchScores }
+            if (seatPlayerId in matchScores) {
+              matchScores[myId] = matchScores[seatPlayerId]
+              delete matchScores[seatPlayerId]
+            }
+            claimSeat(seatPlayerId, {
+              turnOrder: roomState.turnOrder.map(id => id === seatPlayerId ? myId : id),
+              matchScores
+            })
+          }
+        }}
       />
     )
   }

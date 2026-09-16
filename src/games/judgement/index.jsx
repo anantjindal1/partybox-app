@@ -34,7 +34,9 @@ export default function Judgement({ code }) {
     clearActions,
     isHost,
     myId,
-    players
+    players,
+    leaveSeat,
+    claimSeat
   } = useOnlineRoom(code)
 
   const phase = roomState.phase || 'waiting'
@@ -439,6 +441,8 @@ export default function Judgement({ code }) {
 
   if (phase === 'round_reveal') {
     const totalRounds = roomState.handSizeSequence?.length ?? 1
+    const openSeats = room?.openSeats ?? []
+    const isSpectator = (room?.spectators ?? []).some(p => p.id === myId)
     return (
       <RoundRevealScreen
         lastRoundResult={roomState.lastRoundResult}
@@ -449,6 +453,24 @@ export default function Judgement({ code }) {
         isLastRound={(roomState.roundIndex ?? 0) + 1 >= totalRounds}
         onNextRound={handleNextRound}
         advancing={advancing}
+        seatManagement={{
+          turnOrder: roomState.turnOrder ?? [],
+          openSeats,
+          myId,
+          isSpectator,
+          onLeaveSeat: leaveSeat,
+          onClaimSeat: (seatPlayerId) => {
+            const cumulativeScores = { ...roomState.cumulativeScores }
+            if (seatPlayerId in cumulativeScores) {
+              cumulativeScores[myId] = cumulativeScores[seatPlayerId]
+              delete cumulativeScores[seatPlayerId]
+            }
+            claimSeat(seatPlayerId, {
+              turnOrder: roomState.turnOrder.map(id => id === seatPlayerId ? myId : id),
+              cumulativeScores
+            })
+          }
+        }}
       />
     )
   }

@@ -1,5 +1,10 @@
-export function RoundRevealScreen({ lastRoundResult, players, isHost, isLastRound, onNextRound, advancing }) {
+import { SeatManagement } from '../../components/cards/SeatManagement'
+
+export function RoundRevealScreen({ lastRoundResult, players, isHost, isLastRound, onNextRound, advancing, seatManagement }) {
   const perPlayer = lastRoundResult?.perPlayer ?? {}
+  function nameOf(id) {
+    return players.find(p => p.id === id)?.name ?? 'Player'
+  }
 
   return (
     <div className="flex-1 flex flex-col px-4 sm:px-6 py-6 gap-5 max-w-lg w-full mx-auto">
@@ -31,7 +36,23 @@ export function RoundRevealScreen({ lastRoundResult, players, isHost, isLastRoun
         })}
       </div>
 
-      {isHost ? (
+      {seatManagement && (
+        <SeatManagement
+          turnOrder={seatManagement.turnOrder}
+          openSeats={seatManagement.openSeats}
+          myId={seatManagement.myId}
+          isSpectator={seatManagement.isSpectator}
+          nameOf={nameOf}
+          onLeaveSeat={seatManagement.onLeaveSeat}
+          onClaimSeat={seatManagement.onClaimSeat}
+        />
+      )}
+
+      {seatManagement && seatManagement.openSeats.length > 0 ? (
+        <p className="text-center text-textMuted text-sm">
+          Waiting for {seatManagement.openSeats.length === 1 ? 'an empty seat' : `${seatManagement.openSeats.length} empty seats`} to be filled before continuing…
+        </p>
+      ) : isHost ? (
         <button
           onClick={onNextRound}
           disabled={advancing}

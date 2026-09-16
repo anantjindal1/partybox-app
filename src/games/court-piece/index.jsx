@@ -40,7 +40,9 @@ export default function CourtPiece({ code }) {
     clearActions,
     isHost,
     myId,
-    players
+    players,
+    leaveSeat,
+    claimSeat
   } = useOnlineRoom(code)
 
   const phase = roomState.phase || 'waiting'
@@ -401,6 +403,8 @@ export default function CourtPiece({ code }) {
   }
 
   if (phase === 'hand_reveal') {
+    const openSeats = room?.openSeats ?? []
+    const isSpectator = (room?.spectators ?? []).some(p => p.id === myId)
     return (
       <HandRevealScreen
         lastHandResult={roomState.lastHandResult}
@@ -409,6 +413,25 @@ export default function CourtPiece({ code }) {
         isHost={isHost}
         onNextHand={handleNextHand}
         advancing={advancing}
+        seatManagement={{
+          turnOrder: roomState.turnOrder ?? [],
+          openSeats,
+          myId,
+          isSpectator,
+          onLeaveSeat: leaveSeat,
+          onClaimSeat: (seatPlayerId) => {
+            // matchScores/handsWon are keyed by team, not player id, so
+            // they need no remap — turnOrder positions still decide team
+            // membership. nextCallerId is the one live id-pointer: it's
+            // who calls trump for the NEXT hand, set to the just-finished
+            // hand's trick-13 winner.
+            const statePatch = {
+              turnOrder: roomState.turnOrder.map(id => id === seatPlayerId ? myId : id)
+            }
+            if (roomState.nextCallerId === seatPlayerId) statePatch.nextCallerId = myId
+            claimSeat(seatPlayerId, statePatch)
+          }
+        }}
       />
     )
   }

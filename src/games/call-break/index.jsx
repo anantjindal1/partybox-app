@@ -33,7 +33,9 @@ export default function CallBreak({ code }) {
     clearActions,
     isHost,
     myId,
-    players
+    players,
+    leaveSeat,
+    claimSeat
   } = useOnlineRoom(code)
 
   const phase = roomState.phase || 'waiting'
@@ -367,6 +369,8 @@ export default function CallBreak({ code }) {
   }
 
   if (phase === 'round_reveal') {
+    const openSeats = room?.openSeats ?? []
+    const isSpectator = (room?.spectators ?? []).some(p => p.id === myId)
     return (
       <RoundRevealScreen
         lastRoundResult={roomState.lastRoundResult}
@@ -375,6 +379,27 @@ export default function CallBreak({ code }) {
         isLastRound={(roomState.roundNumber ?? 1) >= TOTAL_ROUNDS}
         onNextRound={handleNextRound}
         advancing={advancing}
+        seatManagement={{
+          turnOrder: roomState.turnOrder ?? [],
+          openSeats,
+          myId,
+          isSpectator,
+          onLeaveSeat: leaveSeat,
+          onClaimSeat: (seatPlayerId) => {
+            // cumulativeScores is the one persistent id-keyed field beyond
+            // turnOrder itself — the running score belongs to the SEAT,
+            // so the new occupant inherits it rather than starting at 0.
+            const cumulativeScores = { ...roomState.cumulativeScores }
+            if (seatPlayerId in cumulativeScores) {
+              cumulativeScores[myId] = cumulativeScores[seatPlayerId]
+              delete cumulativeScores[seatPlayerId]
+            }
+            claimSeat(seatPlayerId, {
+              turnOrder: roomState.turnOrder.map(id => id === seatPlayerId ? myId : id),
+              cumulativeScores
+            })
+          }
+        }}
       />
     )
   }
