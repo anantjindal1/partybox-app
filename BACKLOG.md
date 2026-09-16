@@ -126,18 +126,15 @@ future one.
   every post-Wave-3 card game) for regressions and bugs before moving on to
   any other unscheduled backlog item.
 
-**Unscheduled — kept in backlog, no wave assigned yet:**
-- Bakwaas Adaalat
-- Chugli Detective
-- Codenames
+**Final 3 non-card concepts — ALL DONE (2026-09-16).** Bakwaas Adaalat, Chugli Detective, and Codenames are shipped — the entire numbered list below is now complete.
 
 ## Party / social (reuse existing vote-tally + event engine)
 
 1. ✅ **Sabse Zyada Kaun** — Room votes which player best fits a cheeky superlative; match the majority to score.
 2. ✅ **Bhed (Jasoos)** — Everyone gets a secret word except one hidden outsider; players say related words aloud, then vote to find the Bhed.
-3. **Bakwaas Adaalat** — Two players argue a ridiculous case ~30s each; the room votes the winner.
+3. ✅ **Bakwaas Adaalat** — Two players argue a ridiculous case ~30s each; the room votes the winner.
 4. ✅ **Bakwaas** (formerly "Kahani Judge") — Fill a prompt's blank with a funny short answer; room votes the best (typing).
-5. **Chugli Detective** — Everyone submits an anonymous "I once…" confession; room guesses who wrote each.
+5. ✅ **Chugli Detective** — Everyone submits an anonymous "I once…" confession; room guesses who wrote each.
 6. ✅ **Raja Mantri Chor Sipahi** — Phone secretly deals the four+ roles; Mantri guesses the Chor to protect the points.
 
 ## Card games (need a new card-dealing / trick-tracking layer — shared dependency, see epic below)
@@ -155,7 +152,7 @@ future one.
 ## Other
 
 16. ✅ **Tambola (Housie)** — Indian bingo; phone generates tickets, host calls numbers, players self-claim and the host manually approves each prize (built as host-verified, not auto-verified — keeps the real "shout it out" tension of the original game).
-17. **Codenames** — Team spymaster gives one-word clues linking grid words; teams guess their own, avoid the assassin. (Literate audience.)
+17. ✅ **Codenames** — Team spymaster gives one-word clues linking grid words; teams guess their own, avoid the assassin. (Literate audience.)
 
 ## Shared dependency epic
 
