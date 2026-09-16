@@ -32,6 +32,9 @@
   --color-accent-orchid: #8A2881;
   --color-accent-cobalt: #2D3776;
   --color-accent-amber: #8A4C28;
+  --color-accent-cerulean: #1D6E8C;
+  --color-accent-taupe: #6B5642;
+  --color-accent-sage: #54634A;
   --color-error: #D64545;
   --hero-overlay-1: rgba(251, 243, 231, 0.55);
   --hero-overlay-2: rgba(251, 243, 231, 0.78);
@@ -67,6 +70,9 @@
   --on-orchid: #FBF3E7;
   --on-cobalt: #FBF3E7;
   --on-amber: #FBF3E7;
+  --on-cerulean: #FBF3E7;
+  --on-taupe: #FBF3E7;
+  --on-sage: #FBF3E7;
 
   /* RGB-channel companions of the tokens above, for Tailwind's opacity
      modifier syntax (bg-emerald/20, etc). Tailwind can only alpha-blend a
@@ -105,6 +111,9 @@
   --color-accent-orchid-rgb: 138 40 129;
   --color-accent-cobalt-rgb: 45 55 118;
   --color-accent-amber-rgb: 138 76 40;
+  --color-accent-cerulean-rgb: 29 110 140;
+  --color-accent-taupe-rgb: 107 86 66;
+  --color-accent-sage-rgb: 84 99 74;
   --color-error-rgb: 214 69 69;
   --on-gold-rgb: 43 17 22;
   --on-teal-rgb: 251 243 231;
@@ -125,6 +134,9 @@
   --on-orchid-rgb: 251 243 231;
   --on-cobalt-rgb: 251 243 231;
   --on-amber-rgb: 251 243 231;
+  --on-cerulean-rgb: 251 243 231;
+  --on-taupe-rgb: 251 243 231;
+  --on-sage-rgb: 251 243 231;
 }
 
 /* Dark theme — same hue family, values tuned for a dark ground, not a straight invert. */
@@ -157,6 +169,9 @@
   --color-accent-orchid: #CF6EC5;
   --color-accent-cobalt: #6E7BCF;
   --color-accent-amber: #D39069;
+  --color-accent-cerulean: #4FBEDE;
+  --color-accent-taupe: #C2A688;
+  --color-accent-sage: #9BAF87;
   --color-error: #E05B4C;
   --hero-overlay-1: rgba(28, 15, 19, 0.55);
   --hero-overlay-2: rgba(28, 15, 19, 0.78);
@@ -180,6 +195,9 @@
   --on-orchid: #2B1116;
   --on-cobalt: #10163A;
   --on-amber: #2A1608;
+  --on-cerulean: #0A2530;
+  --on-taupe: #2A2015;
+  --on-sage: #1C2417;
 
   --color-bg-rgb: 28 15 19;
   --color-surface-rgb: 43 26 31;
@@ -209,6 +227,9 @@
   --color-accent-orchid-rgb: 207 110 197;
   --color-accent-cobalt-rgb: 110 123 207;
   --color-accent-amber-rgb: 211 144 105;
+  --color-accent-cerulean-rgb: 79 190 222;
+  --color-accent-taupe-rgb: 194 166 136;
+  --color-accent-sage-rgb: 155 175 135;
   --color-error-rgb: 224 91 76;
   --on-gold-rgb: 28 15 19;
   --on-teal-rgb: 11 42 36;
@@ -229,6 +250,9 @@
   --on-orchid-rgb: 43 17 22;
   --on-cobalt-rgb: 16 22 58;
   --on-amber-rgb: 42 22 8;
+  --on-cerulean-rgb: 10 37 48;
+  --on-taupe-rgb: 42 32 21;
+  --on-sage-rgb: 28 36 23;
 }
 
 /* Base: comfortable reading size, smooth font */

@@ -403,7 +403,7 @@ const VISIBLE_SLUGS = new Set([
   'thinkfast', 'dumb-charades-offline', 'firstbell', 'raja-mantri',
   'sabse-zyada-kaun', 'sabse-zyada-kaun-offline', 'tambola', 'bhed', 'bluff',
   'bakwaas', 'bhabhi', 'call-break', 'judgement', 'court-piece', 'satti',
-  'mendikot', 'teen-do-paanch', 'teri', 'donkey',
+  'mendikot', 'teen-do-paanch', 'teri', 'donkey', 'bakwaas-adaalat',
 ])
 
 export default function Home() {

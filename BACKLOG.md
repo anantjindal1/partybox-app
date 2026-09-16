@@ -160,3 +160,28 @@ future one.
 ## Shared dependency epic
 
 - ✅ **Card-dealing / trick-tracking engine** — DONE (2026-09-09). Shared shuffle/deal/trick-resolution layer required by games 7–15, plus a reusable card-table UI (opponent seats with face-down stacks, own hand fanned face-up, center play zone, score bar). `src/multiplayer/{deck,deal,hand,trick}.js` + `src/components/cards/`. Proven out by Bluff — `resolveTrick()` itself remains unexercised by a real game until the first Wave 3 trick-taking game.
+
+## Packaging & distribution (added 2026-09-16)
+
+- **Spin off all card games into a separate app.** Cut Bhabhi, Bluff, Call
+  Break, Court Piece, Judgement, Mendikot, Satti, Teen Do Paanch, Teri, and
+  Donkey out of PartyBox and package them as their own standalone product
+  (own name/branding, own registry, own Home screen), reusing the shared
+  `src/multiplayer/{deck,deal,hand,trick,partnerships,turnManager}.js`
+  engine and `src/components/cards/` UI system as the new app's
+  foundation rather than rebuilding either. Needs real scoping before
+  starting: a new repo or a monorepo split, whether Firebase
+  project/config is shared or duplicated, what (if anything) stays behind
+  in PartyBox itself, and whether Donkey (no `CardTable`, real-time
+  reaction game rather than trick-taking) belongs in a "card games" app
+  at all.
+- **Package PartyBox for the Play Store.** Capacitor is already chosen and
+  scaffolded (`android/`, `ios/`) — see [[project_architecture]] — but
+  verified only to the `./gradlew assembleDebug` compile-check stage, no
+  emulator/device run, no signed release build, no store listing. Actually
+  shipping needs: a signed release build (keystore setup), a Play Console
+  developer account, store listing assets (icon, screenshots, description,
+  privacy policy — this app touches Firebase/analytics so a privacy
+  policy is a hard requirement, not optional), and a real device/emulator
+  test pass before submission. None of the account/store-console steps
+  can be done from this environment — they need the user directly.

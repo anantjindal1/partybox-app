@@ -22,6 +22,7 @@ import mendikotMeta from './mendikot/metadata.js'
 import teenDoPaanchMeta from './teen-do-paanch/metadata.js'
 import teriMeta from './teri/metadata.js'
 import donkeyMeta from './donkey/metadata.js'
+import bakwaasAdaalatMeta from './bakwaas-adaalat/metadata.js'
 
 // Lazy-loaded game components — each game is a separate JS chunk.
 // This keeps the initial bundle small for low-end devices.
@@ -48,6 +49,7 @@ const Mendikot                  = lazy(() => import('./mendikot/index.jsx'))
 const TeenDoPaanch               = lazy(() => import('./teen-do-paanch/index.jsx'))
 const Teri                       = lazy(() => import('./teri/index.jsx'))
 const Donkey                     = lazy(() => import('./donkey/index.jsx'))
+const BakwaasAdaalat              = lazy(() => import('./bakwaas-adaalat/index.jsx'))
 
 export const games = [
   { ...firstBellMeta,           Component: FirstBell },
@@ -72,7 +74,8 @@ export const games = [
   { ...mendikotMeta,                    Component: Mendikot },
   { ...teenDoPaanchMeta,                 Component: TeenDoPaanch },
   { ...teriMeta,                          Component: Teri },
-  { ...donkeyMeta,                        Component: Donkey }
+  { ...donkeyMeta,                        Component: Donkey },
+  { ...bakwaasAdaalatMeta,                 Component: BakwaasAdaalat }
 ]
 
 export function getGame(slug) {
