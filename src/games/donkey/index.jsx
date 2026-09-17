@@ -22,7 +22,6 @@ import { writeGameStats } from '../../services/stats'
 import { awardBadge } from '../../services/profile'
 import metadata from './metadata'
 
-const PASS_TIMEOUT_MS = 3000
 const REACT_TIMEOUT_MS = 8000
 
 function buildRoundStartFields(activePlayerIds) {
@@ -33,7 +32,6 @@ function buildRoundStartFields(activePlayerIds) {
     hands,
     phase: 'passing',
     passRoundIndex: 0,
-    passDeadline: Date.now() + PASS_TIMEOUT_MS,
     signaledPlayerIds: [],
     lastRoundResult: null
   }
@@ -68,7 +66,6 @@ export default function Donkey({ code }) {
   const xpAwarded = useRef(false)
   const passResolveGuard = useRef(false)
   const reactResolveGuard = useRef(false)
-  const passTimerRef = useRef(null)
   const reactTimerRef = useRef(null)
 
   function persist(overrides) {
@@ -87,7 +84,7 @@ export default function Donkey({ code }) {
     setHasReacted(false)
   }, [phase, roomState.reactDeadline])
 
-  // ── Host: passing — early-resolve once everyone has chosen ───────────────
+  // ── Host: passing — resolve once (and only once) everyone has chosen ────
   useEffect(() => {
     if (!isHost || phase !== 'passing') return
     const submittedIds = new Set(actions.filter(a => a.type === 'PASS_CARD').map(a => a.playerId))
@@ -95,16 +92,6 @@ export default function Donkey({ code }) {
     if (allSubmitted) resolvePassRoundIfNeeded()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actions, isHost, phase])
-
-  // ── Host: passing — hard timeout ──────────────────────────────────────────
-  useEffect(() => {
-    if (!isHost || phase !== 'passing') return
-    if (passTimerRef.current) clearTimeout(passTimerRef.current)
-    const msLeft = (roomState.passDeadline ?? Date.now()) - Date.now()
-    passTimerRef.current = setTimeout(() => resolvePassRoundIfNeeded(), Math.max(msLeft, 0) + 600)
-    return () => clearTimeout(passTimerRef.current)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHost, phase, roomState.passRoundIndex, roomState.passDeadline])
 
   useEffect(() => {
     if (phase === 'passing') passResolveGuard.current = false
@@ -117,7 +104,7 @@ export default function Donkey({ code }) {
     const chosenCards = {}
     for (const id of current.turnOrder) {
       const action = actionsRef.current.find(a => a.playerId === id && a.type === 'PASS_CARD')
-      chosenCards[id] = action ? action.payload.cardId : current.hands[id][Math.floor(Math.random() * current.hands[id].length)]
+      chosenCards[id] = action.payload.cardId
     }
     const newHands = resolvePassRound(current.hands, current.turnOrder, chosenCards)
     const signaled = current.turnOrder.filter(id => hasFourOfAKind(newHands[id]))
@@ -136,8 +123,7 @@ export default function Donkey({ code }) {
       // either way, just deal into another pass-round.
       await persist({
         hands: newHands,
-        passRoundIndex: current.passRoundIndex + 1,
-        passDeadline: Date.now() + PASS_TIMEOUT_MS
+        passRoundIndex: current.passRoundIndex + 1
       })
     }
   }
@@ -326,7 +312,6 @@ export default function Donkey({ code }) {
     return (
       <PassingScreen
         myHand={myHand}
-        deadline={roomState.passDeadline}
         chosenCount={chosenCount}
         totalCount={(roomState.turnOrder ?? []).length}
         hasChosen={hasChosen}
