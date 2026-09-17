@@ -15,7 +15,12 @@ import { BhedGuessScreen } from './BhedGuessScreen'
 import { ResultsScreen } from './ResultsScreen'
 import metadata from './metadata'
 
-const ROLE_REVEAL_TIMEOUT_MS = 8000
+// A stall-safety fallback only — the early-close effect below is what
+// normally advances the room, the instant everyone has actually pressed
+// "Got it". This hard timeout exists solely so one AFK player can't freeze
+// the room forever; it must be generous enough that nobody hits it while
+// genuinely reading their word.
+const ROLE_REVEAL_TIMEOUT_MS = 45000
 
 export default function Bhed({ code }) {
   const navigate = useNavigate()
