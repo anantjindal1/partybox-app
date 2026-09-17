@@ -9,6 +9,7 @@ import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
 import { buildTurnOrderFromPartner } from '../../multiplayer/partnerships'
 import { CardTable } from '../../components/cards/CardTable'
+import { TrickWinnerOverlay } from '../../components/cards/TrickWinnerOverlay'
 import { TableScoreBar } from '../../components/cards/TableScoreBar'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { PartnerPicker } from '../../components/cards/PartnerPicker'
@@ -82,17 +83,26 @@ export default function Mendikot({ code }) {
       const newTricksWon = { ...current.tricksWon, [winnerId]: (current.tricksWon[winnerId] ?? 0) + 1 }
       const newTensCaptured = { ...current.tensCaptured, [winnerTeam]: current.tensCaptured[winnerTeam] + tensWon }
 
-      // All 13 tricks always play out — every hand empties at exactly
-      // the same time, on the 13th trick, never before.
-      if (newHand.length === 0) {
+      // Keep all 4 cards visible and reveal the winner for a beat before
+      // clearing/advancing — otherwise the trick vanishes the instant the
+      // 4th card lands, with no chance to see what happened.
+      await clearActions()
+      await persist({ hands: newHands, currentTrick: newTrick, trickWinnerId: winnerId })
+      await new Promise(resolve => setTimeout(resolve, 1500))
+
+      // A team capturing all four 10s wins outright — no point playing out
+      // the remaining tricks once that's locked in, so check this BEFORE
+      // the hand-empty check, not just as a special case of it.
+      const wonAllTens = newTensCaptured.teamA === 4 || newTensCaptured.teamB === 4
+      if (newHand.length === 0 || wonAllTens) {
         const teamTricks = computeTeamTricks(current.turnOrder, newTricksWon)
         const { winningTeam, isMendikot } = computeMendikotOutcome(teamTricks, newTensCaptured)
-        await clearActions()
         await persist({
           hands: newHands,
           tricksWon: newTricksWon,
           tensCaptured: newTensCaptured,
           currentTrick: [],
+          trickWinnerId: null,
           ledSuit: null,
           phase: 'results',
           winningTeam,
@@ -102,12 +112,12 @@ export default function Mendikot({ code }) {
         return
       }
 
-      await clearActions()
       await persist({
         hands: newHands,
         tricksWon: newTricksWon,
         tensCaptured: newTensCaptured,
         currentTrick: [],
+        trickWinnerId: null,
         ledSuit: null,
         currentIdx: current.turnOrder.indexOf(winnerId)
       })
@@ -145,6 +155,7 @@ export default function Mendikot({ code }) {
         tricksWon: {},
         tensCaptured: { teamA: 0, teamB: 0 },
         currentTrick: [],
+        trickWinnerId: null,
         ledSuit: null
       })
     } finally {
@@ -221,12 +232,17 @@ export default function Mendikot({ code }) {
   if (phase === 'playing') {
     const myHand = sortHand(roomState.hands?.[myId] ?? [])
     const isMyTurn = roomState.turnOrder?.[roomState.currentIdx] === myId
+    // Nothing should be tappable while a completed trick is still being
+    // held on screen for review (currentIdx doesn't advance until the
+    // trick-reveal pause finishes — see applyPlay).
+    const isInteractive = isMyTurn && !roomState.trickWinnerId
     const currentTurnName = players.find(p => p.id === roomState.turnOrder?.[roomState.currentIdx])?.name ?? 'player'
-    const legalPlays = isMyTurn ? getLegalPlays(myHand, roomState.ledSuit) : []
-    const disabledCardIds = isMyTurn ? myHand.filter(id => !legalPlays.includes(id)) : myHand
+    const legalPlays = isInteractive ? getLegalPlays(myHand, roomState.ledSuit) : []
+    const disabledCardIds = isInteractive ? myHand.filter(id => !legalPlays.includes(id)) : myHand
     const highlightedCardIds = myHand.filter(id => TEN_IDS.includes(id))
     const centerCards = (roomState.currentTrick ?? []).map(({ playerId, card }) => ({
       card,
+      playerId,
       playerName: players.find(p => p.id === playerId)?.name
     }))
     const myTeam = getTeamOf(myId, roomState.turnOrder)
@@ -245,6 +261,17 @@ export default function Mendikot({ code }) {
       { label: 'Team B', value: `${teamTricks.teamB} tricks, ${tensCaptured.teamB} tens` }
     ]
 
+    const trickWinnerId = roomState.trickWinnerId
+    const trickWinnerName = trickWinnerId ? (players.find(p => p.id === trickWinnerId)?.name ?? 'Player') : null
+    const centerSlot = trickWinnerId ? (
+      <TrickWinnerOverlay
+        centerCards={centerCards}
+        trickWinnerId={trickWinnerId}
+        trickWinnerName={trickWinnerName}
+        accentColorClass="text-citrine"
+      />
+    ) : null
+
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
         <TableScoreBar entries={scoreEntries} />
@@ -253,6 +280,7 @@ export default function Mendikot({ code }) {
           myHand={myHand}
           myIsActiveTurn={isMyTurn}
           centerCards={centerCards}
+          centerSlot={centerSlot}
           disabledCardIds={disabledCardIds}
           highlightedCardIds={highlightedCardIds}
           onCardTap={handlePlayCard}
