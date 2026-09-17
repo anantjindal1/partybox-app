@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { db } from '../firebase'
 import { doc, setDoc, collection, onSnapshot, serverTimestamp } from 'firebase/firestore'
+import { getDeviceId } from '../services/profile'
 
 const MAX_RECORD_MS = 15000
 const AUDIO_BITS_PER_SECOND = 24000 // keeps a 15s clip's base64 well under Firestore's 1MiB doc cap
@@ -30,7 +31,7 @@ function blobToDataUrl(blob) {
 export function VoiceBroadcastButton({ roomCode, playerName }) {
   const [status, setStatus] = useState('idle') // idle | recording | uploading | cooldown
   const [nowPlaying, setNowPlaying] = useState(null)
-  const myId = localStorage.getItem('partybox_device_id')
+  const myId = getDeviceId()
 
   const mediaRecorderRef = useRef(null)
   const chunksRef = useRef([])

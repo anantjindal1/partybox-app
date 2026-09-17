@@ -6,6 +6,7 @@ import Home from './pages/Home'
 import Room from './pages/Room'
 import Profile from './pages/Profile'
 import PlayOffline from './pages/PlayOffline'
+import TestLab from './pages/TestLab'
 
 // Mounts globally so XP syncs whenever the device comes back online,
 // regardless of which page the user is currently on.
@@ -25,6 +26,7 @@ export default function App() {
             <Route path="/room/:code" element={<Room />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/play/:slug" element={<PlayOffline />} />
+            <Route path="/test-lab" element={<TestLab />} />
           </Routes>
         </BrowserRouter>
       </ThemeProvider>

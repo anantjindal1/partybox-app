@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { db } from '../firebase'
 import { doc, setDoc, collection, onSnapshot, serverTimestamp } from 'firebase/firestore'
 import FloatingReactions from './FloatingReactions'
+import { getDeviceId } from '../services/profile'
 
 const EMOJIS = ['😂', '🔥', '😮', '👏', '😭', '❤️']
 const RATE_LIMIT_MS = 3000
@@ -11,7 +12,7 @@ export function ReactionBar({ roomCode }) {
   const [floatingBurst, setFloatingBurst] = useState([])
   const [cooldown, setCooldown] = useState(false)
   const seenRef = useRef(new Set())
-  const myId = localStorage.getItem('partybox_device_id')
+  const myId = getDeviceId()
 
   useEffect(() => {
     if (!db || !roomCode) return
