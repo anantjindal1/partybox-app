@@ -10,10 +10,10 @@ export default {
   rules: {
     en: [
       'Exactly 4 players in 2 fixed partnerships — you and the player seated opposite you are partners.',
-      "Each hand, you're dealt 5 cards first. The caller looks at just those 5 and calls trump — then everyone gets their remaining 8 cards.",
-      "All 13 tricks are always played. Your tricks and your partner's combine into your team's total.",
-      'Sweep all 13 tricks (a Kot) and your team scores 2 match points; win any other split (7-12) and you score 1.',
-      "First team to 7 match points wins — UNLESS you reach 7 while the other team has won zero hands. Then the match continues until you reach 13, or they win their first hand."
+      "Each round, you're dealt 5 cards first. The caller looks at just those 5 and calls trump — then everyone gets their remaining 8 cards.",
+      "All 13 hands are always played. Your hands and your partner's combine into your team's total.",
+      'Sweep all 13 hands (a Kot) and your team scores 2 match points; win any other split (7-12) and you score 1.',
+      "First team to 7 match points wins — UNLESS you reach 7 while the other team has won zero rounds. Then the match continues until you reach 13, or they win their first round."
     ],
     hi: [
       'ठीक 4 खिलाड़ी, 2 पक्की जोड़ियों में — आपके सामने बैठा खिलाड़ी आपका साथी है।',
@@ -25,11 +25,11 @@ export default {
   },
   tutorial: {
     en: [
-      { title: 'Fixed Partnerships', body: "You always play with the player sitting opposite you — there's no choosing or changing partners mid-match. Every trick either of you wins counts toward your shared team total." },
-      { title: 'Two-Stage Deal', body: 'Each hand starts with just 5 cards dealt to everyone. The caller — whoever won the last hand, or seat 1 for the very first hand — looks at only those 5 cards and names the trump suit. Only then does everyone get their remaining 8 cards, for 13 total.' },
-      { title: 'Always All 13 Tricks', body: 'Unlike some trick games, play never stops early — every hand runs the full 13 tricks. Since 13 is odd, one team always ends up with at least 7 tricks.' },
-      { title: 'Kot or Not, Race to 7', body: 'Win all 13 tricks in a hand (a Kot) and your team scores 2 match points. Any other winning split scores 1. First team to reach 7 match points wins the whole match.' },
-      { title: "Don't Let It End on a Shutout", body: "If your team reaches 7 points while the other team hasn't won a single hand yet, the match doesn't end there — it keeps going until either you sweep to 13, or they finally win one hand and confirm your win." }
+      { title: 'Fixed Partnerships', body: "You always play with the player sitting opposite you — there's no choosing or changing partners mid-match. Every hand either of you wins counts toward your shared team total." },
+      { title: 'Two-Stage Deal', body: 'Each round starts with just 5 cards dealt to everyone. The caller — whoever won the last round, or seat 1 for the very first round — looks at only those 5 cards and names the trump suit. Only then does everyone get their remaining 8 cards, for 13 total.' },
+      { title: 'Always All 13 Hands', body: 'Unlike some trick games, play never stops early — every round runs the full 13 hands. Since 13 is odd, one team always ends up with at least 7 hands.' },
+      { title: 'Kot or Not, Race to 7', body: 'Win all 13 hands in a round (a Kot) and your team scores 2 match points. Any other winning split scores 1. First team to reach 7 match points wins the whole match.' },
+      { title: "Don't Let It End on a Shutout", body: "If your team reaches 7 points while the other team hasn't won a single round yet, the match doesn't end there — it keeps going until either you sweep to 13, or they finally win one round and confirm your win." }
     ],
     hi: [
       { title: 'पक्की जोड़ियां', body: 'आप हमेशा अपने सामने बैठे खिलाड़ी के साथ खेलते हैं — मैच के बीच में साथी बदलना या चुनना संभव नहीं है। आप दोनों में से कोई भी जो चाल जीते, वह आपकी साझा टीम के कुल स्कोर में जुड़ती है।' },

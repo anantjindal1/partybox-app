@@ -11,6 +11,7 @@ import { buildTurnOrderFromPartner, orderSeatsForViewer } from '../../multiplaye
 import { CardTable } from '../../components/cards/CardTable'
 import { PlayingCard } from '../../components/cards/PlayingCard'
 import { TableScoreBar } from '../../components/cards/TableScoreBar'
+import { TrickWinnerOverlay } from '../../components/cards/TrickWinnerOverlay'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { PartnerPicker } from '../../components/cards/PartnerPicker'
 import { BiddingScreen } from './BiddingScreen'
@@ -661,27 +662,12 @@ export default function Teri({ code }) {
     const trickWinnerId = roomState.trickWinnerId
     const trickWinnerName = trickWinnerId ? (players.find(p => p.id === trickWinnerId)?.name ?? 'Player') : null
     const centerSlot = trickWinnerId ? (
-      <div className="flex flex-col items-center gap-1.5 animate-trick-settle">
-        <div className="flex gap-2 flex-wrap justify-center">
-          {centerCards.map(entry => {
-            const { rank, suit } = parseCard(entry.card)
-            const isWinningCard = entry.playerId === trickWinnerId
-            return (
-              <div key={entry.card} className="flex flex-col items-center gap-1">
-                <PlayingCard
-                  face="up"
-                  rank={rank}
-                  suit={suit}
-                  size="sm"
-                  className={isWinningCard ? 'shadow-[0_0_0_3px_var(--color-accent-gold)]' : ''}
-                />
-                {entry.playerName && <span className="text-[10px] text-textMuted">{entry.playerName}</span>}
-              </div>
-            )
-          })}
-        </div>
-        <p className="text-xs font-bold text-cobalt">{trickWinnerName} won the trick!</p>
-      </div>
+      <TrickWinnerOverlay
+        centerCards={centerCards}
+        trickWinnerId={trickWinnerId}
+        trickWinnerName={trickWinnerName}
+        accentColorClass="text-cobalt"
+      />
     ) : null
 
     const otherSeats = orderSeatsForViewer(roomState.turnOrder, myId)

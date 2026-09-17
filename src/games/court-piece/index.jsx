@@ -10,6 +10,7 @@ import { advanceTurn } from '../../multiplayer/turnManager'
 import { buildTurnOrderFromPartner } from '../../multiplayer/partnerships'
 import { CardTable } from '../../components/cards/CardTable'
 import { TableScoreBar } from '../../components/cards/TableScoreBar'
+import { TrickWinnerOverlay } from '../../components/cards/TrickWinnerOverlay'
 import { PartnerPicker } from '../../components/cards/PartnerPicker'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { TrumpCallScreen } from './TrumpCallScreen'
@@ -52,6 +53,7 @@ export default function CourtPiece({ code }) {
   const [starting, setStarting] = useState(false)
   const [advancing, setAdvancing] = useState(false)
   const [callSubmitted, setCallSubmitted] = useState(false)
+  const [showLastHand, setShowLastHand] = useState(false)
 
   const xpAwarded = useRef(false)
   const trumpGuard = useRef(false)
@@ -59,6 +61,45 @@ export default function CourtPiece({ code }) {
 
   function persist(overrides) {
     return setState({ ...roomStateRef.current, ...overrides })
+  }
+
+  // Small "review the last hand" affordance — HandRevealScreen is already a
+  // clean, reusable presentational component; isHost={false} suppresses its
+  // "Next Round" button with no changes needed to it.
+  function renderLastHandButton() {
+    if (!roomState.lastHandResult) return null
+    return (
+      <>
+        <button
+          onClick={() => setShowLastHand(true)}
+          className="self-center text-sm font-bold text-jade border-[1.5px] border-jade bg-jade/10 rounded-xl px-4 py-2"
+        >
+          📜 View Last Hand
+        </button>
+        {showLastHand && (
+          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-4 py-8 overflow-y-auto">
+            <div className="bg-surface rounded-2xl max-w-lg w-full">
+              <div className="flex justify-end p-2">
+                <button
+                  onClick={() => setShowLastHand(false)}
+                  className="text-textMuted hover:text-textPrimary text-sm font-semibold px-3 py-1"
+                >
+                  ✕ Close
+                </button>
+              </div>
+              <HandRevealScreen
+                lastHandResult={roomState.lastHandResult}
+                players={players}
+                turnOrder={roomState.turnOrder ?? []}
+                isHost={false}
+                onNextHand={() => {}}
+                advancing={false}
+              />
+            </div>
+          </div>
+        )}
+      </>
+    )
   }
 
   useEffect(() => {
@@ -125,6 +166,13 @@ export default function CourtPiece({ code }) {
       const winnerId = resolveTrick(newTrick, newLedSuit, current.trumpSuit)
       const newTricksWon = { ...current.tricksWon, [winnerId]: (current.tricksWon[winnerId] ?? 0) + 1 }
 
+      // Keep all 4 cards visible and reveal the winner for a beat before
+      // clearing/advancing — otherwise the trick vanishes the instant the
+      // 4th card lands, with no chance to see what happened.
+      await clearActions()
+      await persist({ hands: newHands, currentTrick: newTrick, trickWinnerId: winnerId })
+      await new Promise(resolve => setTimeout(resolve, 1500))
+
       if (newHand.length === 0) {
         // Hand complete — all 13 tricks played.
         const teamTricks = computeTeamTricks(current.turnOrder, newTricksWon)
@@ -138,11 +186,11 @@ export default function CourtPiece({ code }) {
           [winningTeam]: current.handsWon[winningTeam] + 1
         }
         const matchWinner = checkMatchWinner(matchScores, handsWon)
-        await clearActions()
         await persist({
           hands: newHands,
           tricksWon: newTricksWon,
           currentTrick: [],
+          trickWinnerId: null,
           ledSuit: null,
           matchScores,
           handsWon,
@@ -164,11 +212,11 @@ export default function CourtPiece({ code }) {
         return
       }
 
-      await clearActions()
       await persist({
         hands: newHands,
         tricksWon: newTricksWon,
         currentTrick: [],
+        trickWinnerId: null,
         ledSuit: null,
         currentIdx: current.turnOrder.indexOf(winnerId)
       })
@@ -212,6 +260,7 @@ export default function CourtPiece({ code }) {
         remainingDeck: remaining,
         tricksWon: zeroed,
         currentTrick: [],
+        trickWinnerId: null,
         ledSuit: null,
         currentIdx: null,
         nextCallerId: null,
@@ -256,9 +305,12 @@ export default function CourtPiece({ code }) {
         remainingDeck: remaining,
         tricksWon: zeroed,
         currentTrick: [],
+        trickWinnerId: null,
         ledSuit: null,
-        currentIdx: null,
-        lastHandResult: null
+        currentIdx: null
+        // lastHandResult is deliberately kept — it's what "View Last Hand"
+        // shows during the new hand. It only changes once this new hand
+        // itself completes and overwrites it.
       })
     } finally {
       setAdvancing(false)
@@ -339,21 +391,28 @@ export default function CourtPiece({ code }) {
     const callerName = players.find(p => p.id === roomState.callerId)?.name ?? 'Player'
     const myHand = sortHand(roomState.hands?.[myId] ?? [])
     return (
-      <TrumpCallScreen
-        isCaller={isCaller}
-        callerName={callerName}
-        myHand={myHand}
-        onCall={handleCallTrump}
-      />
+      <>
+        {renderLastHandButton()}
+        <TrumpCallScreen
+          isCaller={isCaller}
+          callerName={callerName}
+          myHand={myHand}
+          onCall={handleCallTrump}
+        />
+      </>
     )
   }
 
   if (phase === 'playing') {
     const myHand = sortHand(roomState.hands?.[myId] ?? [])
     const isMyTurn = roomState.turnOrder?.[roomState.currentIdx] === myId
+    // Nothing should be tappable while a completed trick is still being
+    // held on screen for review (currentIdx doesn't advance until the
+    // trick-reveal pause finishes — see applyPlay).
+    const isInteractive = isMyTurn && !roomState.trickWinnerId
     const currentTurnName = players.find(p => p.id === roomState.turnOrder?.[roomState.currentIdx])?.name ?? 'player'
-    const legalPlays = isMyTurn ? getLegalPlays(myHand, roomState.ledSuit) : []
-    const disabledCardIds = isMyTurn ? myHand.filter(id => !legalPlays.includes(id)) : myHand
+    const legalPlays = isInteractive ? getLegalPlays(myHand, roomState.ledSuit) : []
+    const disabledCardIds = isInteractive ? myHand.filter(id => !legalPlays.includes(id)) : myHand
     const highlightedCardIds = myHand.filter(id => parseCard(id).suit === roomState.trumpSuit)
     const centerCards = (roomState.currentTrick ?? []).map(({ playerId, card }) => ({
       card,
@@ -369,23 +428,41 @@ export default function CourtPiece({ code }) {
         label: getTeamOf(p.id, roomState.turnOrder) === myTeam ? 'Partner' : undefined
       }))
 
-    const handsWon = roomState.handsWon ?? { teamA: 0, teamB: 0 }
+    const roundsWon = roomState.handsWon ?? { teamA: 0, teamB: 0 }
     const matchScores = roomState.matchScores ?? { teamA: 0, teamB: 0 }
     const scoreEntries = [
-      { label: 'Hand', value: roomState.handNumber ?? 1 },
-      { label: 'Team A', value: `${handsWon.teamA} hands (${matchScores.teamA}pts)` },
-      { label: 'Team B', value: `${handsWon.teamB} hands (${matchScores.teamB}pts)` },
+      { label: 'Round', value: roomState.handNumber ?? 1 },
+      { label: 'Team A', value: `${matchScores.teamA}pts (${roundsWon.teamA} rounds)` },
+      { label: 'Team B', value: `${matchScores.teamB}pts (${roundsWon.teamB} rounds)` },
       { label: 'Trump', value: SUIT_LABEL[roomState.trumpSuit] }
     ]
+    const tricksThisRound = computeTeamTricks(roomState.turnOrder ?? [], roomState.tricksWon ?? {})
+
+    const trickWinnerId = roomState.trickWinnerId
+    const trickWinnerName = trickWinnerId ? (players.find(p => p.id === trickWinnerId)?.name ?? 'Player') : null
+    const centerSlot = trickWinnerId ? (
+      <TrickWinnerOverlay
+        centerCards={centerCards}
+        trickWinnerId={trickWinnerId}
+        trickWinnerName={trickWinnerName}
+        accentColorClass="text-jade"
+        unitLabel="hand"
+      />
+    ) : null
 
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
+        {renderLastHandButton()}
         <TableScoreBar entries={scoreEntries} />
+        <p className="text-center text-textMuted text-xs">
+          Hands won this round — Team A: {tricksThisRound.teamA}, Team B: {tricksThisRound.teamB}
+        </p>
         <CardTable
           otherSeats={otherSeats}
           myHand={myHand}
           myIsActiveTurn={isMyTurn}
           centerCards={centerCards}
+          centerSlot={centerSlot}
           disabledCardIds={disabledCardIds}
           highlightedCardIds={highlightedCardIds}
           onCardTap={handlePlayCard}

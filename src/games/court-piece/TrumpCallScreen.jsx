@@ -38,7 +38,7 @@ export function TrumpCallScreen({ isCaller, callerName, myHand, onCall }) {
         </div>
       ) : (
         <p className="text-center text-textMuted text-sm py-8">
-          {callerName} won the last hand — waiting for them to call trump…
+          {callerName} won the last round — waiting for them to call trump…
         </p>
       )}
     </div>
