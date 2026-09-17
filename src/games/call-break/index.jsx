@@ -312,8 +312,10 @@ export default function CallBreak({ code }) {
 
   if (phase === 'bidding') {
     const bidsIn = actions.filter(a => a.type === 'BID').length
+    const myHand = sortHand(roomState.hands?.[myId] ?? [])
     return (
       <BiddingScreen
+        myHand={myHand}
         roundNumber={roomState.roundNumber}
         bidsIn={bidsIn}
         totalPlayers={players.length}
@@ -342,10 +344,15 @@ export default function CallBreak({ code }) {
         isActiveTurn: roomState.turnOrder?.[roomState.currentIdx] === p.id
       }))
 
+    const myBid = roomState.bids?.[myId]
+    const myTricksWon = roomState.tricksWon?.[myId] ?? 0
+    const bidReached = myTricksWon >= myBid
+
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
         <p className="text-center text-textMuted text-xs uppercase tracking-wider">
-          Round {roomState.roundNumber} of {TOTAL_ROUNDS} — your bid: {roomState.bids?.[myId]}
+          Round {roomState.roundNumber} of {TOTAL_ROUNDS} — your bid: {myBid} —{' '}
+          <span className={bidReached ? 'text-emerald font-bold' : ''}>tricks won: {myTricksWon}</span>
         </p>
         <CardTable
           otherSeats={otherSeats}

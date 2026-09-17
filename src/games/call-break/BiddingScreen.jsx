@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { PlayingCard } from '../../components/cards/PlayingCard'
+import { parseCard } from '../../multiplayer/deck'
 
 const BID_OPTIONS = Array.from({ length: 13 }, (_, i) => i + 1)
 
-export function BiddingScreen({ roundNumber, bidsIn, totalPlayers, onSubmit, submitted }) {
+export function BiddingScreen({ myHand = [], roundNumber, bidsIn, totalPlayers, onSubmit, submitted }) {
   const [selected, setSelected] = useState(null)
 
   function handleSubmit() {
@@ -15,6 +17,13 @@ export function BiddingScreen({ roundNumber, bidsIn, totalPlayers, onSubmit, sub
       <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">
         Round {roundNumber} of 5 — Bidding
       </p>
+
+      <div className="flex flex-wrap justify-center gap-1.5">
+        {myHand.map(cardId => {
+          const { rank, suit } = parseCard(cardId)
+          return <PlayingCard key={cardId} face="up" rank={rank} suit={suit} size="sm" />
+        })}
+      </div>
 
       {submitted ? (
         <p className="text-sm text-textMuted py-4">Bid locked in — waiting for the room…</p>
