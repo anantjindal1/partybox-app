@@ -19,7 +19,7 @@ function ClueForm({ onSubmit }) {
           onChange={e => setNumber(Number(e.target.value))}
           className="min-h-[40px] rounded-lg border-[1.5px] border-border bg-surfaceElevated px-2 text-textPrimary"
         >
-          {Array.from({ length: 10 }, (_, i) => i).map(n => (
+          {Array.from({ length: 4 }, (_, i) => i).map(n => (
             <option key={n} value={n}>{n}</option>
           ))}
         </select>
@@ -55,6 +55,7 @@ export function BoardScreen({
   myTeam,
   activeTeam,
   currentClue,
+  clueHistory = [],
   guessesUsed,
   maxGuessesAllowed,
   remaining,
@@ -73,6 +74,22 @@ export function BoardScreen({
         </span>
         <span className="text-cobalt">Blue: {remaining.blue} left</span>
       </div>
+
+      {clueHistory.length > 0 && (
+        <div className="w-full max-h-32 overflow-y-auto rounded-xl border-[1.5px] border-border bg-surfaceElevated">
+          {clueHistory.map((entry, i) => (
+            <div
+              key={i}
+              className={`flex justify-between px-3 py-1.5 text-xs ${i !== 0 ? 'border-t border-border/60' : ''}`}
+            >
+              <span className={`font-semibold uppercase ${entry.team === 'red' ? 'text-maroon' : 'text-cobalt'}`}>
+                {entry.team}
+              </span>
+              <span className="font-semibold text-textPrimary">{entry.word} — {entry.number}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {currentClue ? (
         <div className="rounded-xl border-[1.5px] border-border bg-surfaceElevated p-3 flex items-center justify-between">

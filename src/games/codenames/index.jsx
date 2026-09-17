@@ -83,7 +83,14 @@ export default function Codenames({ code }) {
       await persist({ board, phase: 'results', winner: winnerByWords, loseReason: 'words' })
       return
     }
-    if (tapped.color !== current.activeTeam) {
+    // Guessing the opponent's color is a wrong guess and ends the turn
+    // immediately, same as official rules. Guessing neutral is NOT treated
+    // the same way here — it just burns one of the team's guesses (so a
+    // long guess-number clue can still run out), but doesn't end the turn
+    // on its own. Only a correct guess or a neutral guess count toward the
+    // guess limit; an opponent-color guess is wrong regardless of how many
+    // guesses remain.
+    if (tapped.color !== current.activeTeam && tapped.color !== 'neutral') {
       const nextTeam = current.activeTeam === 'red' ? 'blue' : 'red'
       await persist({ board, activeTeam: nextTeam, currentClue: null, guessesUsed: 0 })
       return
@@ -137,6 +144,7 @@ export default function Codenames({ code }) {
         board,
         activeTeam: startingTeam,
         currentClue: null,
+        clueHistory: [],
         guessesUsed: 0,
         winner: null,
         loseReason: null,
@@ -148,7 +156,12 @@ export default function Codenames({ code }) {
 
   // ── Playing handlers ──────────────────────────────────────────────────────
   function handleSubmitClue(word, number) {
-    persist({ currentClue: { word, number }, guessesUsed: 0 })
+    const current = roomStateRef.current
+    const clueHistory = [
+      ...(current.clueHistory ?? []),
+      { team: current.activeTeam, word, number }
+    ]
+    persist({ currentClue: { word, number }, clueHistory, guessesUsed: 0 })
   }
 
   function handleTapCard(cardId) {
@@ -221,6 +234,7 @@ export default function Codenames({ code }) {
         myTeam={myTeam}
         activeTeam={activeTeam}
         currentClue={currentClue}
+        clueHistory={roomState.clueHistory ?? []}
         guessesUsed={roomState.guessesUsed ?? 0}
         maxGuessesAllowed={currentClue ? maxGuesses(currentClue.number) : 0}
         remaining={remainingCounts(roomState.board ?? [])}
