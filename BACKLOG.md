@@ -182,3 +182,15 @@ future one.
   policy is a hard requirement, not optional), and a real device/emulator
   test pass before submission. None of the account/store-console steps
   can be done from this environment — they need the user directly.
+
+## Playtest feedback follow-ups (added 2026-09-17)
+
+- **Bluff with 2 decks (104 cards).** Every card id today is just
+  rank+suit (e.g. `"10S"`), assumed unique everywhere a hand is
+  rendered, a card is removed from a hand, or a selection is toggled.
+  Supporting a second deck needs per-copy card ids (e.g. `"10S#0"` /
+  `"10S#1"`) with `parseCard` stripping the suffix wherever only
+  rank/suit matter, threaded through `src/multiplayer/deck.js` and
+  every place Bluff keys off a raw card id. Deliberately deferred out
+  of the 2026-09-17 playtest bug-fix batch — real, separate-scoped
+  work, not a quick add.
