@@ -28,7 +28,14 @@ export function CardTable({
   highlightedCardIds = [],
   onCardTap,
   accent = 'maroon',
-  dealing = false
+  dealing = false,
+  // 'play' (default): tapping a card immediately plays it — locks further
+  // taps until the card actually leaves myHand, driving the play-out
+  // animation. 'toggle': tapping just adds/removes the card from
+  // selectedCardIds (e.g. Bluff, which lets a player stage several cards
+  // before submitting) — no lock, no play-out animation, since the card
+  // never actually leaves the hand on tap.
+  tapMode = 'play'
 }) {
   const [playingCardId, setPlayingCardId] = useState(null)
   const accentClasses = CARD_GAME_ACCENT_CLASSES[accent] ?? CARD_GAME_ACCENT_CLASSES.maroon
@@ -65,6 +72,10 @@ export function CardTable({
   }, [myHand, playingCardId])
 
   function handleTap(cardId) {
+    if (tapMode === 'toggle') {
+      onCardTap?.(cardId)
+      return
+    }
     if (playingCardId) return
     setPlayingCardId(cardId)
     onCardTap?.(cardId)

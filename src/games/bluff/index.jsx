@@ -40,6 +40,7 @@ export default function Bluff({ code }) {
   const [revealResolving, setRevealResolving] = useState(false)
   const xpAwarded = useRef(false)
   const processingRef = useRef(false)
+  const revealAutoTimer = useRef(null)
 
   function persist(overrides) {
     return setState({ ...roomStateRef.current, ...overrides })
@@ -72,6 +73,23 @@ export default function Bluff({ code }) {
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actions, isHost, phase, roomState.currentIdx])
+
+  // ── Host: auto-continue past a reveal after everyone's had a beat to
+  // read it — nobody should have to wait on the host tapping a button. ────
+  useEffect(() => {
+    if (!isHost || phase !== 'playing' || !roomState.pendingReveal) return
+    revealAutoTimer.current = setTimeout(() => {
+      revealAutoTimer.current = null
+      handleResolveReveal()
+    }, 2200)
+    return () => {
+      if (revealAutoTimer.current) {
+        clearTimeout(revealAutoTimer.current)
+        revealAutoTimer.current = null
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isHost, phase, roomState.pendingReveal])
 
   async function applyOpenRound(cardIds, claimedRank) {
     const current = roomStateRef.current
@@ -317,6 +335,7 @@ export default function Bluff({ code }) {
   if (phase === 'playing') {
     const myHand = sortHandByRank(roomState.hands?.[myId] ?? [])
     const isMyTurn = roomState.turnOrder?.[roomState.currentIdx] === myId
+    const currentTurnName = players.find(p => p.id === roomState.turnOrder?.[roomState.currentIdx])?.name ?? 'Player'
     const amLatestHandOwner = roomState.latestHandPlayerId === myId
     const otherSeats = players
       .filter(p => p.id !== myId)
@@ -339,8 +358,6 @@ export default function Bluff({ code }) {
           latestHandPlayerId={roomState.latestHandPlayerId}
           players={players}
           pendingReveal={roomState.pendingReveal}
-          isHost={isHost}
-          onResolveReveal={handleResolveReveal}
         />
         <CardTable
           otherSeats={otherSeats}
@@ -349,10 +366,12 @@ export default function Bluff({ code }) {
           selectedCardIds={selectedCardIds}
           onCardTap={toggleCard}
           accent="indigo"
+          tapMode="toggle"
         />
         {!roomState.pendingReveal && (
           <BluffControls
             isMyTurn={isMyTurn}
+            currentTurnName={currentTurnName}
             roundOpen={roomState.claimedRank != null}
             amLatestHandOwner={amLatestHandOwner}
             selectedCardIds={selectedCardIds}

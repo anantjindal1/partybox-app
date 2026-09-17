@@ -6,7 +6,7 @@ function rankLabel(rank) {
   return RANK_LABEL[rank] ?? rank
 }
 
-export function BluffPile({ pileCount, claimedRank, latestHandPlayerId, players, pendingReveal, isHost, onResolveReveal }) {
+export function BluffPile({ pileCount, claimedRank, latestHandPlayerId, players, pendingReveal }) {
   function nameOf(id) {
     return players.find(p => p.id === id)?.name ?? 'Player'
   }
@@ -23,14 +23,6 @@ export function BluffPile({ pileCount, claimedRank, latestHandPlayerId, players,
         <p className={`text-sm font-bold ${pendingReveal.correct ? 'text-indigo' : 'text-error'}`}>
           {pendingReveal.correct ? '✓ True! The claim was honest.' : '✗ Bluff caught!'}
         </p>
-        {isHost && (
-          <button
-            onClick={onResolveReveal}
-            className="min-h-[36px] px-4 rounded-lg bg-indigo text-onIndigo text-sm font-bold"
-          >
-            Continue →
-          </button>
-        )}
       </div>
     )
   }

@@ -3,6 +3,7 @@ import { RANKS } from '../../multiplayer/deck'
 
 export function BluffControls({
   isMyTurn,
+  currentTurnName,
   roundOpen,
   amLatestHandOwner,
   selectedCardIds,
@@ -14,10 +15,10 @@ export function BluffControls({
   const [claimedRank, setClaimedRank] = useState(null)
 
   if (!isMyTurn) {
-    return <p className="text-center text-textMuted text-sm py-2">Waiting for your turn...</p>
+    return <p className="text-center text-textMuted text-sm py-2">Waiting for {currentTurnName} to play…</p>
   }
 
-  const cardCountValid = selectedCardIds.length >= 1 && selectedCardIds.length <= 4
+  const cardCountValid = selectedCardIds.length >= 1
 
   // State 1: no round open — must open with a rank + cards.
   if (!roundOpen) {
