@@ -8,6 +8,7 @@ import { dealCards } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
 import { CardTable } from '../../components/cards/CardTable'
+import { TrickWinnerOverlay } from '../../components/cards/TrickWinnerOverlay'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { BiddingScreen } from './BiddingScreen'
 import { TrumpChoiceScreen } from './TrumpChoiceScreen'
@@ -146,17 +147,24 @@ export default function Judgement({ code }) {
       const winnerId = resolveTrick(newTrick, newLedSuit, current.trumpSuit)
       const newTricksWon = { ...current.tricksWon, [winnerId]: (current.tricksWon[winnerId] ?? 0) + 1 }
 
+      // Keep all cards visible and reveal the winner for a beat before
+      // clearing/advancing — otherwise the trick vanishes the instant the
+      // last card lands, with no chance to see what happened.
+      await clearActions()
+      await persist({ hands: newHands, currentTrick: newTrick, trickWinnerId: winnerId })
+      await new Promise(resolve => setTimeout(resolve, 1500))
+
       if (newHand.length === 0) {
         // Round complete — every hand is always the same length at any
         // point in a round, so the acting player's hand hitting 0 means
         // everyone's does.
         const results = computeRoundResults(current.turnOrder, current.bids, newTricksWon)
         const cumulativeScores = addToCumulative(current.cumulativeScores, results)
-        await clearActions()
         await persist({
           hands: newHands,
           tricksWon: newTricksWon,
           currentTrick: [],
+          trickWinnerId: null,
           ledSuit: null,
           cumulativeScores,
           lastRoundResult: {
@@ -177,11 +185,11 @@ export default function Judgement({ code }) {
         return
       }
 
-      await clearActions()
       await persist({
         hands: newHands,
         tricksWon: newTricksWon,
         currentTrick: [],
+        trickWinnerId: null,
         ledSuit: null,
         currentIdx: current.turnOrder.indexOf(winnerId)
       })
@@ -229,6 +237,7 @@ export default function Judgement({ code }) {
         hands,
         tricksWon: zeroed,
         currentTrick: [],
+        trickWinnerId: null,
         ledSuit: null,
         cumulativeScores: zeroed,
         lastRoundResult: null
@@ -277,6 +286,7 @@ export default function Judgement({ code }) {
         hands,
         tricksWon: zeroed,
         currentTrick: [],
+        trickWinnerId: null,
         ledSuit: null,
         lastRoundResult: null
       })
@@ -363,9 +373,11 @@ export default function Judgement({ code }) {
     const othersBids = Object.fromEntries(othersBidActions.map(a => [a.playerId, a.payload.bid]))
     const forbiddenBid = isLastBidder ? getForbiddenBid(handSizeThisRound, othersBids) : null
     const bidsIn = actions.filter(a => a.type === 'BID').length
+    const myHand = sortHand(roomState.hands?.[myId] ?? [])
 
     return (
       <BiddingScreen
+        myHand={myHand}
         roundNumber={roundNumber}
         totalRounds={totalRounds}
         handSizeThisRound={handSizeThisRound}
@@ -395,12 +407,17 @@ export default function Judgement({ code }) {
   if (phase === 'playing') {
     const myHand = sortHand(roomState.hands?.[myId] ?? [])
     const isMyTurn = roomState.turnOrder?.[roomState.currentIdx] === myId
+    // Nothing should be tappable while a completed trick is still being
+    // held on screen for review (currentIdx doesn't advance until the
+    // trick-reveal pause finishes — see applyPlay).
+    const isInteractive = isMyTurn && !roomState.trickWinnerId
     const currentTurnName = players.find(p => p.id === roomState.turnOrder?.[roomState.currentIdx])?.name ?? 'player'
-    const legalPlays = isMyTurn ? getLegalPlays(myHand, roomState.ledSuit) : []
-    const disabledCardIds = isMyTurn ? myHand.filter(id => !legalPlays.includes(id)) : myHand
+    const legalPlays = isInteractive ? getLegalPlays(myHand, roomState.ledSuit) : []
+    const disabledCardIds = isInteractive ? myHand.filter(id => !legalPlays.includes(id)) : myHand
     const highlightedCardIds = myHand.filter(id => parseCard(id).suit === roomState.trumpSuit)
     const centerCards = (roomState.currentTrick ?? []).map(({ playerId, card }) => ({
       card,
+      playerId,
       playerName: players.find(p => p.id === playerId)?.name
     }))
     const otherSeats = players
@@ -413,6 +430,17 @@ export default function Judgement({ code }) {
     const roundNumber = (roomState.roundIndex ?? 0) + 1
     const totalRounds = roomState.handSizeSequence?.length ?? 1
 
+    const trickWinnerId = roomState.trickWinnerId
+    const trickWinnerName = trickWinnerId ? (players.find(p => p.id === trickWinnerId)?.name ?? 'Player') : null
+    const centerSlot = trickWinnerId ? (
+      <TrickWinnerOverlay
+        centerCards={centerCards}
+        trickWinnerId={trickWinnerId}
+        trickWinnerName={trickWinnerName}
+        accentColorClass="text-peridot"
+      />
+    ) : null
+
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
         <p className="text-center text-textMuted text-xs uppercase tracking-wider">
@@ -423,6 +451,7 @@ export default function Judgement({ code }) {
           myHand={myHand}
           myIsActiveTurn={isMyTurn}
           centerCards={centerCards}
+          centerSlot={centerSlot}
           disabledCardIds={disabledCardIds}
           highlightedCardIds={highlightedCardIds}
           onCardTap={handlePlayCard}
