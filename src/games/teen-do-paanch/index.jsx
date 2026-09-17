@@ -8,6 +8,7 @@ import { dealCards } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
 import { CardTable } from '../../components/cards/CardTable'
+import { TrickWinnerOverlay } from '../../components/cards/TrickWinnerOverlay'
 import { TableScoreBar } from '../../components/cards/TableScoreBar'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { TrumpCallScreen } from './TrumpCallScreen'
@@ -133,6 +134,13 @@ export default function TeenDoPaanch({ code }) {
       const winnerId = resolveTrick(newTrick, newLedSuit, current.trumpRevealed ? current.trumpSuit : null)
       const newTricksWon = { ...current.tricksWon, [winnerId]: (current.tricksWon[winnerId] ?? 0) + 1 }
 
+      // Keep all cards visible and reveal the winner for a beat before
+      // clearing/advancing — otherwise the trick vanishes the instant the
+      // last card lands, with no chance to see what happened.
+      await clearActions()
+      await persist({ hands: newHands, currentTrick: newTrick, trickWinnerId: winnerId })
+      await new Promise(resolve => setTimeout(resolve, 1500))
+
       if (newHand.length === 0) {
         // Hand complete — all 10 tricks played.
         const handScores = computeHandScores(current.targets, newTricksWon)
@@ -140,11 +148,11 @@ export default function TeenDoPaanch({ code }) {
           current.turnOrder.map(id => [id, (current.matchScores[id] ?? 0) + handScores[id]])
         )
         const winnerIds = checkMatchWinners(matchScores)
-        await clearActions()
         await persist({
           hands: newHands,
           tricksWon: newTricksWon,
           currentTrick: [],
+          trickWinnerId: null,
           ledSuit: null,
           matchScores,
           lastHandResult: {
@@ -163,11 +171,11 @@ export default function TeenDoPaanch({ code }) {
         return
       }
 
-      await clearActions()
       await persist({
         hands: newHands,
         tricksWon: newTricksWon,
         currentTrick: [],
+        trickWinnerId: null,
         ledSuit: null,
         currentIdx: current.turnOrder.indexOf(winnerId)
       })
@@ -212,6 +220,7 @@ export default function TeenDoPaanch({ code }) {
         remainingDeck: remaining,
         tricksWon: zeroed,
         currentTrick: [],
+        trickWinnerId: null,
         ledSuit: null,
         currentIdx: null,
         matchScores: zeroed,
@@ -264,6 +273,7 @@ export default function TeenDoPaanch({ code }) {
         remainingDeck: remaining,
         tricksWon: zeroed,
         currentTrick: [],
+        trickWinnerId: null,
         ledSuit: null,
         currentIdx: null,
         lastHandResult: null
@@ -343,16 +353,21 @@ export default function TeenDoPaanch({ code }) {
   if (phase === 'playing') {
     const myHand = sortHand(roomState.hands?.[myId] ?? [])
     const isMyTurn = roomState.turnOrder?.[roomState.currentIdx] === myId
+    // Nothing should be tappable while a completed trick is still being
+    // held on screen for review (currentIdx doesn't advance until the
+    // trick-reveal pause finishes — see applyPlay).
+    const isInteractive = isMyTurn && !roomState.trickWinnerId
     const currentTurnName = players.find(p => p.id === roomState.turnOrder?.[roomState.currentIdx])?.name ?? 'player'
-    const legalPlays = isMyTurn ? getLegalPlays(myHand, roomState.ledSuit) : []
-    const disabledCardIds = isMyTurn ? myHand.filter(id => !legalPlays.includes(id)) : myHand
+    const legalPlays = isInteractive ? getLegalPlays(myHand, roomState.ledSuit) : []
+    const disabledCardIds = isInteractive ? myHand.filter(id => !legalPlays.includes(id)) : myHand
     const iAmCaller = myId === roomState.callerId
     const knowTrump = iAmCaller || roomState.trumpRevealed
     const highlightedCardIds = knowTrump ? myHand.filter(id => parseCard(id).suit === roomState.trumpSuit) : []
-    const canReveal = isMyTurn && roomState.trumpMode === 'hidden' && !roomState.trumpRevealed &&
+    const canReveal = isInteractive && roomState.trumpMode === 'hidden' && !roomState.trumpRevealed &&
       canRequestReveal(myHand, roomState.ledSuit)
     const centerCards = (roomState.currentTrick ?? []).map(({ playerId, card }) => ({
       card,
+      playerId,
       playerName: players.find(p => p.id === playerId)?.name
     }))
     const otherSeats = players
@@ -371,6 +386,17 @@ export default function TeenDoPaanch({ code }) {
       { label: 'Trump', value: knowTrump ? SUIT_LABEL[roomState.trumpSuit] : 'Hidden' }
     ]
 
+    const trickWinnerId = roomState.trickWinnerId
+    const trickWinnerName = trickWinnerId ? (players.find(p => p.id === trickWinnerId)?.name ?? 'Player') : null
+    const centerSlot = trickWinnerId ? (
+      <TrickWinnerOverlay
+        centerCards={centerCards}
+        trickWinnerId={trickWinnerId}
+        trickWinnerName={trickWinnerName}
+        accentColorClass="text-orchid"
+      />
+    ) : null
+
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
         <TableScoreBar entries={scoreEntries} />
@@ -379,6 +405,7 @@ export default function TeenDoPaanch({ code }) {
           myHand={myHand}
           myIsActiveTurn={isMyTurn}
           centerCards={centerCards}
+          centerSlot={centerSlot}
           disabledCardIds={disabledCardIds}
           highlightedCardIds={highlightedCardIds}
           onCardTap={handlePlayCard}
