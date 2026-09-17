@@ -461,8 +461,10 @@ export default function Teri({ code }) {
         hands,
         gameLeadId: null,
         trumpSuit: null,
-        bid: null,
-        lastHandResult: null
+        bid: null
+        // lastHandResult is deliberately kept — it's what "View Last Hand"
+        // shows during the new hand's bidding/playing. It only changes once
+        // THIS new hand itself completes and overwrites it.
       })
     } finally {
       setAdvancing(false)
