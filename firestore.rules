@@ -43,6 +43,20 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // ── DC WORD STATS ───────────────────────────────────────
+    // Dashboard reads word stats; clients write on every word shown/result
+    match /dc_word_stats/{docId} {
+      allow write: if true;
+      allow read: if true;
+    }
+
+    // ── DC SESSION STATS ────────────────────────────────────
+    // Dashboard reads via REST API; clients write (aggregate daily counters)
+    match /dc_session_stats/{docId} {
+      allow write: if true;
+      allow read: if true;
+    }
+
     // ── EVERYTHING ELSE ────────────────────────────────────
     // Deny by default
     match /{document=**} {

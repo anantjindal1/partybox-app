@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎭 Dumb Charades Stats — PartyBox</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #111113;
+      color: #e4e4e7;
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      padding: 24px 16px 64px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 { font-size: 1.6rem; font-weight: 900; }
+    h2 { font-size: 1.1rem; font-weight: 700; color: #a1a1aa; margin-bottom: 12px; }
+    .subtitle { color: #52525b; font-size: 0.85rem; margin-top: 4px; }
+
+    header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .last-updated { color: #52525b; font-size: 0.78rem; }
+
+    button {
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 10px;
+      padding: 8px 16px;
+      transition: opacity 0.15s;
+    }
+    button:hover { opacity: 0.85; }
+    button:active { opacity: 0.7; }
+    button:disabled { opacity: 0.45; cursor: default; }
+
+    .btn-refresh { background: #f59e0b; color: #1c1917; }
+    .btn-export  { background: #27272a; color: #e4e4e7; border: 1px solid #3f3f46; }
+
+    section { margin-bottom: 32px; }
+
+    /* Stat cards */
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 14px 18px;
+      flex: 1 1 130px;
+      text-align: center;
+    }
+    .card .val { font-size: 1.6rem; font-weight: 900; color: #fff; }
+    .card .lbl { font-size: 0.72rem; color: #71717a; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* Bar charts */
+    .bar-list { display: flex; flex-direction: column; gap: 10px; }
+    .bar-row { display: grid; grid-template-columns: 180px 1fr 80px; gap: 10px; align-items: center; }
+    .bar-label { font-size: 0.82rem; color: #a1a1aa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-track { background: #27272a; border-radius: 4px; height: 10px; overflow: hidden; }
+    .bar-fill  { height: 100%; border-radius: 4px; background: #6366f1; transition: width 0.3s; }
+    .bar-fill.cat  { background: #8b5cf6; }
+    .bar-fill.diff-easy   { background: #10b981; }
+    .bar-fill.diff-medium { background: #f59e0b; }
+    .bar-fill.diff-hard   { background: #ef4444; }
+    .bar-meta { font-size: 0.75rem; color: #71717a; text-align: right; }
+
+    /* Filters */
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .filter-btn {
+      background: #27272a;
+      color: #a1a1aa;
+      border: 1px solid #3f3f46;
+      padding: 5px 13px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+    }
+    .filter-btn.active { background: #6366f1; color: #fff; border-color: #6366f1; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #27272a; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    thead th {
+      background: #18181b;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 0.72rem;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      border-bottom: 1px solid #27272a;
+    }
+    tbody tr { border-bottom: 1px solid #1f1f23; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody td { padding: 9px 12px; vertical-align: middle; }
+    tbody tr:hover { background: #18181b; }
+
+    /* Row color coding */
+    tr.row-green { background: rgba(16, 185, 129, 0.07); }
+    tr.row-red   { background: rgba(239, 68, 68, 0.07); }
+    tr.row-amber { background: rgba(245, 158, 11, 0.07); }
+    tr.row-green:hover { background: rgba(16, 185, 129, 0.12); }
+    tr.row-red:hover   { background: rgba(239, 68, 68, 0.12); }
+    tr.row-amber:hover { background: rgba(245, 158, 11, 0.12); }
+
+    .pct-green { color: #10b981; font-weight: 700; }
+    .pct-red   { color: #ef4444; font-weight: 700; }
+    .pct-amber { color: #f59e0b; font-weight: 700; }
+    .pct-norm  { color: #e4e4e7; }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge-movie  { background: #312e81; color: #a5b4fc; }
+    .badge-song   { background: #4c1d95; color: #c4b5fd; }
+    .badge-star   { background: #701a75; color: #f0abfc; }
+    .badge-tv     { background: #1e3a5f; color: #93c5fd; }
+    .badge-cricket{ background: #064e3b; color: #6ee7b7; }
+    .badge-custom { background: #292524; color: #a8a29e; }
+
+    .diff-easy   { color: #10b981; font-size: 0.75rem; }
+    .diff-medium { color: #f59e0b; font-size: 0.75rem; }
+    .diff-hard   { color: #ef4444; font-size: 0.75rem; }
+
+    .num { color: #a1a1aa; }
+
+    /* Problem words section */
+    .problem-header { color: #fbbf24; }
+
+    /* Loading / error states */
+    .state-msg {
+      text-align: center;
+      padding: 40px;
+      color: #52525b;
+      font-size: 0.9rem;
+    }
+    .state-msg.error { color: #ef4444; }
+
+    /* Two-column layout for breakdowns */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 640px) { .two-col { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🎭 Dumb Charades Stats</h1>
+    <p class="subtitle">Word usage · Session analytics · Problem words</p>
+  </div>
+  <div class="header-controls">
+    <span class="last-updated" id="last-updated">—</span>
+    <button class="btn-export" id="btn-export" disabled>Export CSV</button>
+    <button class="btn-refresh" id="btn-refresh">Refresh</button>
+  </div>
+</header>
+
+<!-- 1. OVERVIEW -->
+<section>
+  <h2>Overview</h2>
+  <div class="cards" id="overview-cards">
+    <div class="state-msg" style="flex:1">Loading…</div>
+  </div>
+</section>
+
+<!-- 2. TODAY SNAPSHOT -->
+<section>
+  <h2>Today</h2>
+  <div class="cards" id="today-cards">
+    <div class="state-msg" style="flex:1">Loading…</div>
+  </div>
+</section>
+
+<!-- 3 + 4. BREAKDOWNS -->
+<section>
+  <div class="two-col">
+    <div>
+      <h2>Category Breakdown</h2>
+      <div class="bar-list" id="cat-bars"><div class="state-msg">Loading…</div></div>
+    </div>
+    <div>
+      <h2>Difficulty Breakdown</h2>
+      <div class="bar-list" id="diff-bars"><div class="state-msg">Loading…</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. WORD FREQUENCY TABLE -->
+<section>
+  <h2>Word Frequency</h2>
+  <div class="filter-bar" id="filter-bar">
+    <button class="filter-btn active" data-filter="most-shown">Most Shown</button>
+    <button class="filter-btn" data-filter="most-guessed">Most Guessed</button>
+    <button class="filter-btn" data-filter="most-skipped">Most Skipped</button>
+    <button class="filter-btn" data-filter="hardest">Hardest (low %)</button>
+    <button class="filter-btn" data-filter="all">All</button>
+  </div>
+  <div class="table-wrap" id="word-table-wrap">
+    <div class="state-msg">Loading…</div>
+  </div>
+</section>
+
+<!-- 6. PROBLEM WORDS -->
+<section>
+  <h2 class="problem-header">⚠️ Problem Words</h2>
+  <p class="subtitle" style="margin-bottom:12px">Skip rate &gt; 50% or correct rate &lt; 20% — consider removing from word bank</p>
+  <div class="table-wrap" id="problem-table-wrap">
+    <div class="state-msg">Loading…</div>
+  </div>
+</section>
+
+<!-- 7. TRENDING -->
+<section>
+  <h2>Trending (Recent)</h2>
+  <p class="subtitle" style="margin-bottom:12px">Words seen most recently — helps spot repetition</p>
+  <div class="table-wrap" id="trending-table-wrap">
+    <div class="state-msg">Loading…</div>
+  </div>
+</section>
+
+<script>
+// ── Config ───────────────────────────────────────────────────────────────────
+const PROJECT_ID = 'partybox-cd9ab'
+const API_KEY    = 'AIzaSyBOFUZfmLnag5_kgwMgvTACz9X3Uv7euLs'
+const BASE       = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`
+
+const CATEGORY_LABELS = {
+  bollywood_movies:   '🎬 Bollywood Movies',
+  bollywood_songs:    '🎵 Bollywood Songs',
+  bollywood_stars:    '⭐ Bollywood Stars',
+  indian_tv_shows:    '📺 Indian TV Shows',
+  indian_cricketers:  '🏏 Cricketers',
+  custom:             '✏️ Custom',
+}
+const CATEGORY_BADGE_CLASS = {
+  bollywood_movies:   'badge-movie',
+  bollywood_songs:    'badge-song',
+  bollywood_stars:    'badge-star',
+  indian_tv_shows:    'badge-tv',
+  indian_cricketers:  'badge-cricket',
+  custom:             'badge-custom',
+}
+
+// ── Firestore REST helpers ───────────────────────────────────────────────────
+function fsVal(v) {
+  if (!v) return null
+  if ('integerValue'  in v) return Number(v.integerValue)
+  if ('doubleValue'   in v) return Number(v.doubleValue)
+  if ('stringValue'   in v) return v.stringValue
+  if ('booleanValue'  in v) return v.booleanValue
+  if ('timestampValue'in v) return new Date(v.timestampValue)
+  if ('mapValue'      in v) return fsDoc(v.mapValue.fields ?? {})
+  if ('arrayValue'    in v) return (v.arrayValue.values ?? []).map(fsVal)
+  return null
+}
+
+function fsDoc(fields) {
+  const out = {}
+  for (const [k, v] of Object.entries(fields)) out[k] = fsVal(v)
+  return out
+}
+
+async function fetchCollection(colName) {
+  const docs = []
+  let pageToken = ''
+  do {
+    const url = `${BASE}/${colName}?key=${API_KEY}&pageSize=300${pageToken ? '&pageToken=' + pageToken : ''}`
+    const res  = await fetch(url)
+    if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${colName}`)
+    const json = await res.json()
+    for (const d of json.documents ?? []) {
+      const id = d.name.split('/').pop()
+      docs.push({ id, ...fsDoc(d.fields ?? {}) })
+    }
+    pageToken = json.nextPageToken ?? ''
+  } while (pageToken)
+  return docs
+}
+
+// ── State ────────────────────────────────────────────────────────────────────
+let allWords    = []
+let sessionDocs = []
+let activeFilter = 'most-shown'
+
+// ── Data loading ─────────────────────────────────────────────────────────────
+async function loadData() {
+  setRefreshing(true)
+  try {
+    ;[allWords, sessionDocs] = await Promise.all([
+      fetchCollection('dc_word_stats'),
+      fetchCollection('dc_session_stats'),
+    ])
+    renderAll()
+    document.getElementById('last-updated').textContent =
+      'Updated ' + new Date().toLocaleTimeString()
+    document.getElementById('btn-export').disabled = false
+  } catch (e) {
+    document.getElementById('overview-cards').innerHTML =
+      `<div class="state-msg error">Failed to load: ${e.message}</div>`
+    console.error(e)
+  }
+  setRefreshing(false)
+}
+
+function setRefreshing(on) {
+  document.getElementById('btn-refresh').disabled = on
+  document.getElementById('btn-refresh').textContent = on ? 'Loading…' : 'Refresh'
+}
+
+// ── Aggregations ─────────────────────────────────────────────────────────────
+function aggSession(docs) {
+  const agg = {
+    gamesPlayed: 0, turnsPlayed: 0, wordsShown: 0,
+    wordsCorrect: 0, wordsSkipped: 0, wordsTimeout: 0,
+    totalWordsPerTurn: 0,
+    categoryBreakdown: {}, difficultyBreakdown: {},
+  }
+  for (const d of docs) {
+    agg.gamesPlayed       += d.gamesPlayed       ?? 0
+    agg.turnsPlayed       += d.turnsPlayed        ?? 0
+    agg.wordsShown        += d.wordsShown         ?? 0
+    agg.wordsCorrect      += d.wordsCorrect       ?? 0
+    agg.wordsSkipped      += d.wordsSkipped       ?? 0
+    agg.wordsTimeout      += d.wordsTimeout       ?? 0
+    agg.totalWordsPerTurn += d.totalWordsPerTurn  ?? 0
+    mergeMap(agg.categoryBreakdown,   d.categoryBreakdown   ?? {})
+    mergeMap(agg.difficultyBreakdown, d.difficultyBreakdown ?? {})
+  }
+  return agg
+}
+
+function mergeMap(target, src) {
+  for (const [k, v] of Object.entries(src)) {
+    target[k] = (target[k] ?? 0) + (Number(v) || 0)
+  }
+}
+
+function last30Days() {
+  const cutoff = new Date()
+  cutoff.setDate(cutoff.getDate() - 30)
+  const cutoffStr = cutoff.toISOString().split('T')[0]
+  return sessionDocs.filter(d => (d.id ?? '') >= cutoffStr)
+}
+
+function todayDoc() {
+  const today = new Date().toISOString().split('T')[0]
+  return sessionDocs.find(d => d.id === today) ?? {}
+}
+
+function pct(num, denom) {
+  if (!denom) return 0
+  return Math.round((num / denom) * 100)
+}
+
+function avg(num, denom) {
+  if (!denom) return 0
+  return (num / denom).toFixed(1)
+}
+
+// ── Render ───────────────────────────────────────────────────────────────────
+function renderAll() {
+  const total   = aggSession(sessionDocs)
+  const recent  = aggSession(last30Days())
+  const today   = todayDoc()
+
+  renderOverview(total)
+  renderToday(today)
+  renderCatBars(recent)
+  renderDiffBars(recent)
+  renderWordTable()
+  renderProblemWords()
+  renderTrending()
+}
+
+function card(val, lbl) {
+  return `<div class="card"><div class="val">${val}</div><div class="lbl">${lbl}</div></div>`
+}
+
+function renderOverview(agg) {
+  const shown   = agg.wordsShown
+  const correct = agg.wordsCorrect
+  const skipped = agg.wordsSkipped
+  const timeout = agg.wordsTimeout
+  document.getElementById('overview-cards').innerHTML = [
+    card(agg.gamesPlayed,                 'Games Played'),
+    card(agg.turnsPlayed,                 'Turns Played'),
+    card(shown,                           'Words Shown'),
+    card(pct(correct, shown) + '%',       'Correct %'),
+    card(pct(skipped, shown) + '%',       'Skip %'),
+    card(pct(timeout, shown) + '%',       'Timeout %'),
+    card(avg(agg.totalWordsPerTurn, agg.turnsPlayed), 'Avg Words/Turn'),
+  ].join('')
+}
+
+function renderToday(d) {
+  const shown = d.wordsShown ?? 0
+  document.getElementById('today-cards').innerHTML = [
+    card(d.gamesPlayed  ?? 0, "Today's Games"),
+    card(d.turnsPlayed  ?? 0, "Today's Turns"),
+    card(shown,               "Words Shown"),
+    card(pct(d.wordsCorrect ?? 0, shown) + '%', 'Correct %'),
+    card(d.wordsSkipped ?? 0, 'Skipped'),
+    card(d.wordsTimeout ?? 0, 'Timeouts'),
+  ].join('')
+}
+
+function renderCatBars(agg) {
+  const bd  = agg.categoryBreakdown
+  const max = Math.max(...Object.values(bd), 1)
+  const rows = Object.entries(bd)
+    .sort(([,a],[,b]) => b - a)
+    .map(([cat, count]) => {
+      const label = CATEGORY_LABELS[cat] ?? cat
+      const catWords = allWords.filter(w => w.category === cat)
+      const correct  = catWords.reduce((s,w) => s + (w.timesCorrect ?? 0), 0)
+      const shown    = catWords.reduce((s,w) => s + (w.timesShown ?? 0), 0)
+      const cp = pct(correct, shown)
+      return `
+        <div class="bar-row">
+          <span class="bar-label" title="${label}">${label}</span>
+          <div class="bar-track"><div class="bar-fill cat" style="width:${Math.round(count/max*100)}%"></div></div>
+          <span class="bar-meta">${count} · ${cp}% ✓</span>
+        </div>`
+    }).join('')
+  document.getElementById('cat-bars').innerHTML = rows || '<div class="state-msg">No data yet</div>'
+}
+
+function renderDiffBars(agg) {
+  const bd  = agg.difficultyBreakdown
+  const max = Math.max(...Object.values(bd), 1)
+  const order = ['easy','medium','hard']
+  const rows = order
+    .filter(d => (bd[d] ?? 0) > 0)
+    .map(diff => {
+      const count    = bd[diff] ?? 0
+      const diffWords = allWords.filter(w => w.difficulty === diff)
+      const correct  = diffWords.reduce((s,w) => s + (w.timesCorrect ?? 0), 0)
+      const shown    = diffWords.reduce((s,w) => s + (w.timesShown ?? 0), 0)
+      const cp = pct(correct, shown)
+      const cap = diff[0].toUpperCase() + diff.slice(1)
+      return `
+        <div class="bar-row">
+          <span class="bar-label">${cap}</span>
+          <div class="bar-track"><div class="bar-fill diff-${diff}" style="width:${Math.round(count/max*100)}%"></div></div>
+          <span class="bar-meta">${count} · ${cp}% ✓</span>
+        </div>`
+    }).join('')
+  document.getElementById('diff-bars').innerHTML = rows || '<div class="state-msg">No data yet</div>'
+}
+
+function sortedWords(filter) {
+  const words = [...allWords]
+  switch (filter) {
+    case 'most-shown':
+      return words.sort((a,b) => (b.timesShown ?? 0) - (a.timesShown ?? 0))
+    case 'most-guessed':
+      return words.sort((a,b) => (b.timesCorrect ?? 0) - (a.timesCorrect ?? 0))
+    case 'most-skipped':
+      return words.sort((a,b) => (b.timesSkipped ?? 0) - (a.timesSkipped ?? 0))
+    case 'hardest':
+      return words
+        .filter(w => (w.timesShown ?? 0) >= 3)
+        .sort((a,b) => {
+          const pa = pct(a.timesCorrect ?? 0, a.timesShown ?? 1)
+          const pb = pct(b.timesCorrect ?? 0, b.timesShown ?? 1)
+          return pa - pb
+        })
+    default:
+      return words.sort((a,b) => (a.word ?? '').localeCompare(b.word ?? ''))
+  }
+}
+
+function wordTableRow(w, i) {
+  const shown   = w.timesShown   ?? 0
+  const correct = w.timesCorrect ?? 0
+  const skipped = w.timesSkipped ?? 0
+  const timeout = w.timesTimeout ?? 0
+  const cp      = pct(correct, shown)
+  const sp      = pct(skipped, shown)
+
+  let rowClass = ''
+  if (sp > 50)      rowClass = 'row-amber'
+  else if (cp >= 70) rowClass = 'row-green'
+  else if (cp < 40 && shown >= 3) rowClass = 'row-red'
+
+  const pctClass = cp >= 70 ? 'pct-green' : cp < 40 ? 'pct-red' : 'pct-norm'
+  const catBadge = CATEGORY_BADGE_CLASS[w.category] ?? 'badge-custom'
+  const catLabel = (CATEGORY_LABELS[w.category] ?? w.category ?? '—').replace(/^[^ ]+ /, '')
+  const diffClass = `diff-${w.difficulty ?? 'easy'}`
+
+  return `<tr class="${rowClass}">
+    <td class="num">${i}</td>
+    <td><strong>${esc(w.word ?? '—')}</strong></td>
+    <td><span class="badge ${catBadge}">${esc(catLabel)}</span></td>
+    <td class="${diffClass}">${w.difficulty ?? '—'}</td>
+    <td class="num">${shown}</td>
+    <td class="num">${correct}</td>
+    <td class="num">${skipped}</td>
+    <td class="num">${timeout}</td>
+    <td class="${pctClass}">${shown ? cp + '%' : '—'}</td>
+  </tr>`
+}
+
+function wordTableHTML(words) {
+  if (!words.length) return '<div class="state-msg">No data yet</div>'
+  return `<table>
+    <thead><tr>
+      <th>#</th><th>Word</th><th>Category</th><th>Difficulty</th>
+      <th>Shown</th><th>Correct</th><th>Skipped</th><th>Timeout</th><th>Correct %</th>
+    </tr></thead>
+    <tbody>${words.map((w,i) => wordTableRow(w, i+1)).join('')}</tbody>
+  </table>`
+}
+
+function renderWordTable() {
+  const words = sortedWords(activeFilter)
+  document.getElementById('word-table-wrap').innerHTML = wordTableHTML(words)
+}
+
+function renderProblemWords() {
+  const problems = allWords.filter(w => {
+    const shown = w.timesShown ?? 0
+    if (shown < 3) return false
+    const sp = pct(w.timesSkipped ?? 0, shown)
+    const cp = pct(w.timesCorrect ?? 0, shown)
+    return sp > 50 || cp < 20
+  }).sort((a,b) => (b.timesSkipped ?? 0) - (a.timesSkipped ?? 0))
+
+  document.getElementById('problem-table-wrap').innerHTML =
+    problems.length ? wordTableHTML(problems) : '<div class="state-msg">No problem words — 🎉</div>'
+}
+
+function renderTrending() {
+  const recent = [...allWords]
+    .filter(w => w.lastSeen instanceof Date)
+    .sort((a,b) => b.lastSeen - a.lastSeen)
+    .slice(0, 25)
+
+  document.getElementById('trending-table-wrap').innerHTML =
+    recent.length ? wordTableHTML(recent) : '<div class="state-msg">No data yet</div>'
+}
+
+// ── Filter bar ────────────────────────────────────────────────────────────────
+document.getElementById('filter-bar').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn')
+  if (!btn) return
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  activeFilter = btn.dataset.filter
+  renderWordTable()
+})
+
+// ── Refresh button ────────────────────────────────────────────────────────────
+document.getElementById('btn-refresh').addEventListener('click', loadData)
+
+// ── Export CSV ────────────────────────────────────────────────────────────────
+document.getElementById('btn-export').addEventListener('click', () => {
+  const headers = ['word','category','difficulty','timesShown','timesCorrect','timesSkipped','timesTimeout','correctPct']
+  const rows = allWords.map(w => {
+    const shown = w.timesShown ?? 0
+    return [
+      w.word ?? '', w.category ?? '', w.difficulty ?? '',
+      shown, w.timesCorrect ?? 0, w.timesSkipped ?? 0, w.timesTimeout ?? 0,
+      shown ? pct(w.timesCorrect ?? 0, shown) : '',
+    ].join(',')
+  })
+  const csv  = [headers.join(','), ...rows].join('\n')
+  const blob = new Blob([csv], { type: 'text/csv' })
+  const a    = document.createElement('a')
+  a.href     = URL.createObjectURL(blob)
+  a.download = `dc-word-stats-${new Date().toISOString().split('T')[0]}.csv`
+  a.click()
+})
+
+// ── Utils ─────────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+loadData()
+</script>
+</body>
+</html>

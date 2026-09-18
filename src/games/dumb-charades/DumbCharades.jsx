@@ -15,6 +15,22 @@ import { SettingsScreen } from './SettingsScreen'
 import { HandoffScreen } from './HandoffScreen'
 import { RoundScreen } from './RoundScreen'
 import { TurnResultScreen, GameEndScreen } from './ResultScreen'
+import { WORD_PACKS } from './wordpacks'
+import {
+  recordGameStart,
+  recordWordShown,
+  recordWordResult,
+  recordTurnEnd,
+} from '../../services/dcStats'
+
+// Returns the specific category a word belongs to, or first selected category as fallback
+function findWordCategory(word, selectedCategories) {
+  for (const cat of selectedCategories) {
+    const pack = WORD_PACKS[cat]
+    if (pack?.words?.some(w => w.word === word)) return cat
+  }
+  return selectedCategories[0] ?? 'custom'
+}
 
 // Phases where an in-progress game is worth saving for resume-on-refresh
 const SAVE_PHASES = ['acting', 'turn_result', 'handoff']
@@ -77,6 +93,61 @@ export default function DumbCharades({ slug, gameTitle }) {
       recordWordsSeen([state.currentWord])
     }
   }, [state.currentWord, state.phase])
+
+  // ── DC word-usage tracking ─────────────────────────────────────────────────
+
+  // Ref bundle — avoids stale-closure issues across multiple effects
+  const dcGameStartedRef = useRef(false)
+  const dcPrevWordRef    = useRef('')
+  const dcPrevHistoryLen = useRef(0)
+  const dcPrevPhaseRef   = useRef(null)
+
+  // 1. Game start — fires once per game when word queue is first built (CONFIRM_SETTINGS)
+  //    NEXT_TURN also goes to 'handoff', so we gate on dcGameStartedRef.
+  //    Reset the gate when phase returns to team_setup (PLAY_AGAIN).
+  useEffect(() => {
+    if (state.phase === 'team_setup') {
+      dcGameStartedRef.current = false
+    }
+    if (state.phase === 'handoff') {
+      dcPrevWordRef.current = '' // reset so first word of each turn is always recorded
+      if (state.wordQueue.length > 0 && !dcGameStartedRef.current) {
+        dcGameStartedRef.current = true
+        recordGameStart(state.categories, state.difficulty)
+      }
+    }
+  }, [state.phase]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 2. Word shown — fires when currentWord changes while in acting phase
+  useEffect(() => {
+    if (state.phase === 'acting' && state.currentWord && state.currentWord !== dcPrevWordRef.current) {
+      dcPrevWordRef.current = state.currentWord
+      const cat = findWordCategory(state.currentWord, state.categories)
+      recordWordShown(state.currentWord, cat, state.difficulty)
+    }
+  }, [state.currentWord, state.phase]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 3. Word result — fires when a new entry appears in turnHistory
+  //    Covers correct, skip, and timeout (all go through turnHistory)
+  useEffect(() => {
+    const curr = state.turnHistory.length
+    if (curr > dcPrevHistoryLen.current && curr > 0) {
+      const entry = state.turnHistory[curr - 1]
+      const cat   = findWordCategory(entry.word, state.categories)
+      recordWordResult(entry.word, cat, state.difficulty, entry.result)
+    }
+    dcPrevHistoryLen.current = curr
+  }, [state.turnHistory]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 4. Turn end — fires when acting phase transitions to turn_result or game_end
+  useEffect(() => {
+    const prev = dcPrevPhaseRef.current
+    const curr = state.phase
+    if ((curr === 'turn_result' || curr === 'game_end') && prev === 'acting') {
+      recordTurnEnd(state.turnHistory.length)
+    }
+    dcPrevPhaseRef.current = curr
+  }, [state.phase]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Persist state during active game phases so refresh shows ResumeGate
   useEffect(() => {
