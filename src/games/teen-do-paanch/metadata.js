@@ -10,10 +10,10 @@ export default {
   rules: {
     en: [
       'A reduced 30-card deck — 10 cards dealt to each of the 3 players.',
-      'Every hand, each player is assigned a fixed target: one must win exactly 3 tricks, one exactly 2, one exactly 5. Targets rotate hand to hand.',
+      'Every round, each player is assigned a fixed target: one must win exactly 3 hands, one exactly 2, one exactly 5. Targets rotate round to round.',
       'The player targeting 5 sees their first 5 cards and calls trump — a suit, and whether to declare it or keep it hidden.',
-      "Hidden trump is revealed only when a player who can't follow suit asks for it — then they can play a trump card to try to win the trick.",
-      'Score = tricks won minus your target — can be positive or negative. First to 10 cumulative points wins the match.'
+      "Hidden trump is revealed only when a player who can't follow suit asks for it — then they can play a trump card to try to win the hand.",
+      'Score = hands won minus your target — can be positive or negative. First to 10 cumulative points wins the game.'
     ],
     hi: [
       'घटाया हुआ 30 पत्तों का डेक — 3 खिलाड़ियों में से हर एक को 10 पत्ते मिलते हैं।',
@@ -25,10 +25,10 @@ export default {
   },
   tutorial: {
     en: [
-      { title: 'Everyone Has a Target', body: "Each hand, the three players are assigned fixed targets — 3, 2, and 5 tricks. Nobody chooses their number, and it rotates to a different seat every hand." },
-      { title: 'Two-Stage Deal', body: 'You get 5 cards first. Whoever is targeting 5 this hand looks at their 5 and calls trump — picking a suit and choosing to declare it openly or keep it hidden. Then everyone gets their remaining 5 cards.' },
-      { title: "Hidden Trump? Ask to Reveal", body: "If trump is hidden and you can't follow the led suit, you can ask for it to be revealed. Once revealed, everyone knows it for the rest of the hand, and you can play a trump card to try to win the trick." },
-      { title: 'Score = Tricks Won Minus Your Target', body: 'Beat your target and you score positive; fall short and you go negative. Scores add up hand after hand — first player to reach 10 cumulative points wins the match.' }
+      { title: 'Everyone Has a Target', body: "Each round, the three players are assigned fixed targets — 3, 2, and 5 hands. Nobody chooses their number, and it rotates to a different seat every round." },
+      { title: 'Two-Stage Deal', body: 'You get 5 cards first. Whoever is targeting 5 this round looks at their 5 and calls trump — picking a suit and choosing to declare it openly or keep it hidden. Then everyone gets their remaining 5 cards.' },
+      { title: "Hidden Trump? Ask to Reveal", body: "If trump is hidden and you can't follow the led suit, you can ask for it to be revealed. Once revealed, everyone knows it for the rest of the round, and you can play a trump card to try to win the hand." },
+      { title: 'Score = Hands Won Minus Your Target', body: 'Beat your target and you score positive; fall short and you go negative. Scores add up round after round — first player to reach 10 cumulative points wins the game.' }
     ],
     hi: [
       { title: 'हर किसी का एक लक्ष्य है', body: 'हर हाथ में, तीनों खिलाड़ियों को तय लक्ष्य मिलते हैं — 3, 2, और 5 चालें। कोई अपना नंबर खुद नहीं चुनता, और हर हाथ में यह अलग सीट पर चला जाता है।' },

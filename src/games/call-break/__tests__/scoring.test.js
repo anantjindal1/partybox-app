@@ -1,7 +1,7 @@
 import { computeRoundScore, computeRoundResults, addToCumulative } from '../scoring'
 
 describe('computeRoundScore', () => {
-  test('overtrick: bid 5, won 7 -> 5.2', () => {
+  test('overbid win: bid 5, won 7 -> 5.2', () => {
     expect(computeRoundScore(5, 7)).toBeCloseTo(5.2)
   })
 
@@ -25,7 +25,7 @@ describe('computeRoundScore', () => {
     expect(computeRoundScore(13, 1)).toBe(-13)
   })
 
-  test('zero tricks vs bid 1 -> -1', () => {
+  test('zero hands vs bid 1 -> -1', () => {
     expect(computeRoundScore(1, 0)).toBe(-1)
   })
 })
@@ -34,8 +34,8 @@ describe('computeRoundResults', () => {
   test('computes a result for every player independently', () => {
     const playerIds = ['a', 'b', 'c', 'd']
     const bids = { a: 5, b: 3, c: 13, d: 1 }
-    const tricksWon = { a: 7, b: 3, c: 1, d: 2 }
-    expect(computeRoundResults(playerIds, bids, tricksWon)).toEqual({
+    const handsWon = { a: 7, b: 3, c: 1, d: 2 }
+    expect(computeRoundResults(playerIds, bids, handsWon)).toEqual({
       a: 5.2,
       b: 3,
       c: -13,
@@ -43,11 +43,11 @@ describe('computeRoundResults', () => {
     })
   })
 
-  test('sums to a value consistent with 13 total tricks distributed', () => {
+  test('sums to a value consistent with 13 total hands distributed', () => {
     const playerIds = ['a', 'b', 'c', 'd']
     const bids = { a: 3, b: 3, c: 3, d: 4 }
-    const tricksWon = { a: 3, b: 3, c: 3, d: 4 }
-    const results = computeRoundResults(playerIds, bids, tricksWon)
+    const handsWon = { a: 3, b: 3, c: 3, d: 4 }
+    const results = computeRoundResults(playerIds, bids, handsWon)
     expect(Object.values(results)).toEqual([3, 3, 3, 4])
   })
 })

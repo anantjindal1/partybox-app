@@ -2,14 +2,14 @@
  * Call Break — pure round-scoring utilities. No Firebase, no React.
  */
 
-export function computeRoundScore(bid, tricksWon) {
-  if (tricksWon >= bid) return bid + 0.1 * (tricksWon - bid)
+export function computeRoundScore(bid, handsWon) {
+  if (handsWon >= bid) return bid + 0.1 * (handsWon - bid)
   return -bid
 }
 
-export function computeRoundResults(playerIds, bids, tricksWon) {
+export function computeRoundResults(playerIds, bids, handsWon) {
   return Object.fromEntries(
-    playerIds.map(id => [id, computeRoundScore(bids[id], tricksWon[id] ?? 0)])
+    playerIds.map(id => [id, computeRoundScore(bids[id], handsWon[id] ?? 0)])
   )
 }
 

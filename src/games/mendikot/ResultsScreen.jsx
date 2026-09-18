@@ -1,7 +1,7 @@
 import { getTeamA, getTeamB } from './mendikotLogic'
 import { MendikotIcon } from '../../components/gameIcons'
 
-export function ResultsScreen({ turnOrder, players, winningTeam, isMendikot, teamTricks, tensCaptured, myId, isHost, onRematch, onHome }) {
+export function ResultsScreen({ turnOrder, players, winningTeam, isMendikot, teamHands, tensCaptured, myId, isHost, onRematch, onHome }) {
   function nameOf(id) {
     return players.find(p => p.id === id)?.name ?? 'Player'
   }
@@ -46,7 +46,7 @@ export function ResultsScreen({ turnOrder, players, winningTeam, isMendikot, tea
             </span>
             <div className="flex flex-col items-end">
               <span className="text-sm font-bold text-citrine tabular-nums">{tensCaptured[key]} tens</span>
-              <span className="text-xs text-textMuted tabular-nums">{teamTricks[key]} tricks</span>
+              <span className="text-xs text-textMuted tabular-nums">{teamHands[key]} hands</span>
             </div>
           </div>
         ))}

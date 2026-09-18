@@ -1,162 +1,43 @@
 # PartyBox — Game Backlog
 
-New game mode concepts. Names + one-line descriptions only — no design/spec yet;
-each gets its own detailed build prompt before implementation.
+Open items only. Shipped work (all 20 games, the shared card-dealing
+engine, cross-game UX items) is trimmed from here — see git log and
+project memory's `project_backlog_status.md`/`project_game_implementations.md`
+for that history.
 
-Built on the existing multiplayer engine (event-passing + room state) — not new
-infrastructure, except where flagged.
+## Analytics dashboards — gated access before going live (added 2026-09-18)
 
-All 17 concepts are kept — nothing cut. Priority waves below reflect build order,
-not a keep/cut decision.
+`tools/analytics-dashboard.html` (and `tools/dc-stats.html`, separately)
+are plain static HTML files that read straight from Firestore via the
+REST API with an embedded public API key — anyone with the URL and the
+project's rules can see full usage data. Fine for local-only use (open
+via `npm run dev` and visit `/tools/analytics-dashboard.html`), but NOT
+fine to publish to the live Vercel URL as-is: no auth, no gate, findable
+by anyone who guesses or is given the path. Needs real access control
+before deploying — e.g. a basic password gate, a Vercel deployment
+protection rule, or moving the read behind an authenticated endpoint
+instead of the open REST API — decided and built later, deliberately
+deferred for now. `tools/dc-stats.html` also still has its own standing
+"never bundle into a commit" hold from earlier, unrelated DC-analytics
+work — see project memory's known-issues note before touching it.
 
-## HIGH PRIORITY — card-game UX gaps (raised 2026-09-10)
+## Playtest feedback follow-ups (added 2026-09-17)
 
-Affects every shipped card game (Bluff, Bhabhi, Call Break) and every
-future one.
+- **Bluff with 2 decks (104 cards).** Every card id today is just
+  rank+suit (e.g. `"10S"`), assumed unique everywhere a hand is
+  rendered, a card is removed from a hand, or a selection is toggled.
+  Supporting a second deck needs per-copy card ids (e.g. `"10S#0"` /
+  `"10S#1"`) with `parseCard` stripping the suffix wherever only
+  rank/suit matter, threaded through `src/multiplayer/deck.js` and
+  every place Bluff keys off a raw card id. Deliberately deferred out
+  of the 2026-09-17 playtest bug-fix batch — real, separate-scoped
+  work, not a quick add.
 
-- ✅ **A. Hand sorting** — DONE (2026-09-10). `sortHand()` (suit-grouped)
-  now actually wired up for Bhabhi/Call Break; new `sortHandByRank()`
-  (same-rank grouped, ranks increasing) added and wired for Bluff. Both
-  render-time-only, never persisted.
-- ✅ **B. Highlight important cards** — DONE (2026-09-10). New
-  `CardTable.highlightedCardIds` prop (reuses the existing `turn-glow`
-  keyframe with a gold color). Call Break highlights its spades (trump);
-  future trump games compute their own the same way.
-- ✅ **C. Card-game tutorials** — DONE (2026-09-10). Bilingual (English +
-  Hindi) written rules on every card game's waiting screen plus a "How
-  to Play" 2-3 slide tutorial sheet, auto-dismissing the instant the
-  game actually starts. New shared `GameRulesPanel`/`HowToPlaySheet`
-  components. All 4 items (A/B/C/D) now complete.
-- ✅ **D. Even card distribution** — DONE (2026-09-10). `dealUneven()`
-  (round-robin, uneven) replaced by `dealEven()` (equal cards per player,
-  leftover simply never dealt) in Bluff and Bhabhi. Reverses a deliberate
-  Wave-2 design decision, per explicit request.
-- ✅ **E. Table graphic, mobile hand overflow, partner clarity, play-cue,
-  share bugs** — DONE (2026-09-12). Raised via Teri playtesting but fixed
-  as shared components so every card game inherits them: oval table with
-  seats around it (`seatLayout.js`), hand sizing tuned to fit a phone
-  screen at any hand size (4-17 cards), clearer illegal-card graying,
-  a tap-to-play animation, Teri's partner-label fix, and `Room.jsx`'s
-  WhatsApp/copy-link share bugs (hardcoded number + wrong game name).
-  See `src/components/cards/CardTable.jsx` + `seatLayout.js`.
+## Post-Wave-3 full regression pass (not yet started)
 
-## Cross-game UX — raised via Teri playtesting (2026-09-12)
-
-- ✅ **Partner-selection UI** — DONE (2026-09-12). Host taps one of the
-  other 3 players as their partner before Start, on Court Piece,
-  Mendikot, and Teri's waiting screens; the pick live-syncs
-  (`roomState.pendingPartnerId`) so everyone sees the team preview
-  before the game begins. Skipping it falls back to the original
-  join-order pairing exactly, unchanged. New shared
-  `src/components/cards/PartnerPicker.jsx` +
-  `buildTurnOrderFromPartner()` in `src/multiplayer/partnerships.js`.
-- ✅ **Spectator mode** — DONE (2026-09-12), watch-live-gameplay half
-  only. A player who opens a room link after the game has started now
-  joins a separate `room.spectators` array instead of becoming a broken
-  "ghost player" in `room.players`. Deeper research reversed the
-  original invasiveness estimate: since a spectator's id never matches
-  a real player, every game's existing `players.filter(p => p.id !==
-  myId)` pattern already renders a sensible read-only board for free —
-  no per-game changes needed at all. The one real gap it surfaced —
-  `useOnlineRoom`'s `sendAction` had no check that the sender was an
-  actual player, so a spectator's stray tap on 7+ games' unguarded
-  vote/bid/ack buttons could corrupt an `actions.length >=
-  players.length` auto-advance count — was fixed centrally with a
-  one-line membership guard, not per game. New `joinAsSpectator`/
-  `kickSpectator` in `src/services/room.js`, a "Spectating" badge +
-  host-kickable "Watching" chip row in `Room.jsx`. **Not built**:
-  spectator→player promotion, and "follow one player's private hand"
-  (needs a `viewingId` swap in every game's private-data lookups —
-  real per-game work, its own fast-follow whenever picked up).
-- ✅ **Voice broadcast / push-to-talk** — DONE (2026-09-12/13). Original
-  design uploaded clips to Firebase Storage, but that turned out to need
-  the paid Blaze plan (a late-2024 Google policy change) plus a manual
-  `gsutil` CORS fix — neither acceptable/available. **Reworked to skip
-  Storage entirely**: a 15s clip capped at 24kbps is only ~45KB raw,
-  ~60KB base64 — comfortably fits directly inside the same Firestore
-  pointer doc `ReactionBar` already uses this pattern for, no bucket, no
-  billing, no CORS (that was Storage-specific; Firestore's SDK doesn't
-  have it). Press-and-hold `VoiceBroadcastButton` records via
-  `MediaRecorder` (cross-browser mime-type fallback for Safari), embeds
-  the clip as a `data:` URI in `rooms/{code}/voice/{id}`, and every
-  client queues + plays received clips sequentially (never overlapping).
-  Mounted once in `Room.jsx` — works in every game and for spectators
-  too. Verified live end-to-end against the real Firebase project: a
-  synthetic clip write succeeds against the (now-deployed) `voice` rule,
-  a second client receives it live, and a real `<audio>` element loads
-  the embedded data URI successfully. **Still not verifiable here**:
-  real `getUserMedia` permission prompts, actual recording quality, and
-  true cross-browser (especially iOS Safari) `MediaRecorder` behavior —
-  needs a real device as the final check.
-
-## Priority waves
-
-**Wave 1 — no new infra, build first: ✅ COMPLETE (2026-09-09)**
-- ✅ Raja Mantri Chor Sipahi — online, plum accent
-- ✅ Sabse Zyada Kaun — dual-mode (offline + online), rose accent
-- ✅ Tambola (Housie) — online, sapphire accent
-- ✅ Bhed (Jasoos) — online, emerald accent
-
-**Wave 2 — infra ✅ DONE (2026-09-09):**
-- Shared card-dealing engine + card-table UI built (`src/multiplayer/{deck,deal,hand,trick}.js`, `src/components/cards/`) — see the shared dependency epic below.
-- ✅ Bluff — online, indigo accent (2026-09-09). First real game built on the engine — proved it out, one small generic addition to `CardTable` (`centerSlot` prop) along the way.
-- ✅ Bakwaas (renamed from "Kahani Judge") — online, fuchsia accent (2026-09-09). Fill-a-prompt's-blank + anonymous room voting, extending Sabse Zyada Kaun's prompt/tag/voting pattern with a new free-text answering phase.
-- Wave 2 complete.
-
-**Wave 3 — trick-taking depth, once the engine is proven:**
-- ✅ Call Break — online, turquoise accent (2026-09-10). Exactly 4 players, spades always trump, 5-round bidding game. First real test of `dealCards()` (exact 13-per-player split) and `resolveTrick()`'s trump branch. Cumulative scores can go negative, which required deliberately diverging from Bakwaas's tie-handling/XP pattern rather than copying it verbatim.
-- ✅ Judgement (Kachuful) — online, peridot accent (2026-09-10). 3-9 players, hill-shaped hand sizes (1..max..1), blind bidding then highest-bidder-picks-trump, hook rule, exact-match scoring. Most rule-complex card game built so far.
-- ✅ Court Piece (Rang) — online, jade accent (2026-09-10). Exactly 4 players, fixed 2v2 partnerships (seats 0+2 vs 1+3). Two-stage deal (5 cards to call trump, then the remaining 8), caller = winner of the previous hand's final trick. First team-scored card game (not per-player) — first real use of `TableScoreBar`, first opt-in `PlayerSeat`/`CardTable` "Partner" label. Match target 7 points (kot = 2, normal win = 1), with a shutout-extension exception: if a team hits 7 while the other has won zero hands, play continues until the leader reaches 13 or the trailing team wins their first hand. Hands-won tracked and displayed separately from match points since a kot makes them diverge.
-- ✅ Bhabhi — online, slate accent (2026-09-09). First real trick-taking game — first exercise of `resolveTrick()`, first no-trump caller. Sudden-death win condition (first to empty hand wins immediately) made this simpler than a classic scored trick game. Promoted Bluff's `dealUneven` into the shared engine; added `getLegalPlays()` and `CardTable`'s `disabledCardIds` prop, both reusable by the remaining Wave 3 games.
-- ✅ Satti (Sevens) — online, amethyst accent (2026-09-10). 4-8 players, fifth and final Wave 3 game — no tricks, no trump, no bidding, a sequence-building shedding game instead. Full deck dealt out completely (new `dealAll()`, a deliberate one-off exception to `dealEven`'s discard-the-remainder policy — some players legitimately hold one extra card). All four 7s open independently; each suit then extends up (8...K) and down (6...A). Sudden death win (first to empty hand), with a rare fallback: if every player passes in a row, whoever holds the fewest cards wins (genuine co-winner ties supported).
-
-**Wave 3 — COMPLETE (2026-09-10).** All 5 games shipped: Bhabhi, Call Break, Judgement, Court Piece, Satti.
-
-**Post-Wave-3 card games — building the remaining unscheduled card games one by one (started 2026-09-11):**
-- ✅ Mendikot (Mindi) — online, citrine accent (2026-09-11). Exactly 4 players, fixed 2v2 partnerships. No trump, no bidding, decided in a single hand: capture all four 10s for an outright "Mendikot" win, else whoever captured more 10s wins, a 2-2 split broken by trick count. Promoted Court Piece's team-derivation helpers into a shared `src/multiplayer/partnerships.js` rather than duplicating them.
-- ✅ 3-2-5 (Teen Do Paanch) — online, orchid accent (2026-09-11). Exactly 3 players, no partnerships. Reduced 30-card deck, every hand all three players get a fixed rotating trick target (3, 2, 5 — summing to the 10-trick hand); score = tricksWon - target (surplus/deficit, not exact-match), first to 10 cumulative wins (co-winners possible). Two-stage deal, the "5"-target holder calls trump with a choice of declared (everyone sees it) or hidden (revealed only when a stuck player asks) mode — the app's first hidden/revealable-mid-hand mechanic.
-- ✅ Teri — online, cobalt accent (2026-09-11). Rules specified directly by the user. Exactly 4 players, fixed 2v2 partnerships, a 2-round sequential bidding auction, and a bridge-style dummy hand — GameLead's partner's cards are shown to everyone and GameLead plays for them (partner can suggest, GameLead decides). Hands can end early once a side crosses its trick threshold, with a symmetric "Teri" exception (play continues to a full 13-trick sweep if the trailing side is still at zero). The standout mechanic: a single running score tied to whichever player currently holds the "shuffler" role, mirrored to their own team's result each hand — drop below zero and the role rotates with the score sign-flipped, cross 52 and it passes to your own partner at zero (a "burst"); the match ends once both players on a team have burst.
-- ✅ Donkey (Gadha) — online, amber accent (2026-09-11). 3-8 players, no partnerships. The odd one out among all the card games: a real-time reaction game, not trick-taking — no CardTable, no trump, no bidding. Timed simultaneous pass-rounds (everyone picks a card to pass at once, auto-random-pick on timeout) until someone collects four of a kind, then a "Copy the Signal" reaction race resolved by server timestamp; whoever's last (or never reacts) gains a letter of D-O-N-K-E-Y, eliminated on the full word. Last player standing wins. Live verification caught and fixed a real Firestore-timestamp-propagation race in the reaction-race resolver.
-
-**Card games backlog — ALL DONE (2026-09-11).** Every card game concept originally listed is now shipped.
-
-**Post-Wave-3 — full regression pass (not yet started):**
-- Now that every card game is built, spawn multiple agents in parallel to
-  comprehensively test every game in the app (Wave 1 + Wave 2 + Wave 3 +
-  every post-Wave-3 card game) for regressions and bugs before moving on to
-  any other unscheduled backlog item.
-
-**Final 3 non-card concepts — ALL DONE (2026-09-16).** Bakwaas Adaalat, Chugli Detective, and Codenames are shipped — the entire numbered list below is now complete.
-
-## Party / social (reuse existing vote-tally + event engine)
-
-1. ✅ **Sabse Zyada Kaun** — Room votes which player best fits a cheeky superlative; match the majority to score.
-2. ✅ **Bhed (Jasoos)** — Everyone gets a secret word except one hidden outsider; players say related words aloud, then vote to find the Bhed.
-3. ✅ **Bakwaas Adaalat** — Two players argue a ridiculous case ~30s each; the room votes the winner.
-4. ✅ **Bakwaas** (formerly "Kahani Judge") — Fill a prompt's blank with a funny short answer; room votes the best (typing).
-5. ✅ **Chugli Detective** — Everyone submits an anonymous "I once…" confession; room guesses who wrote each.
-6. ✅ **Raja Mantri Chor Sipahi** — Phone secretly deals the four+ roles; Mantri guesses the Chor to protect the points.
-
-## Card games (need a new card-dealing / trick-tracking layer — shared dependency, see epic below)
-
-7. ✅ **Bluff** — Play cards face-down claiming a rank; anyone can call "Bluff!" and the phone reveals (round-based: one player fixes a rank per round, others pass/add-more/challenge the latest addition only; three ways a round ends, each opening the next round with a different player).
-8. ✅ **Satti (Sevens)** — Build sequences up/down from the 7 in each suit; first to empty their hand wins.
-9. ✅ **Donkey (Gadha)** — Pass cards to collect four of a kind; last to react is the donkey.
-10. ✅ **3-2-5 (Teen Do Paanch)** — Three-player trick game; each must win a target number of tricks (surplus/deficit scoring, not exact-match).
-11. ✅ **Bhabhi (Get Away)** — Sudden-death shedding game; follow suit or dump, first to empty your hand wins immediately.
-12. ✅ **Mendikot (Mindi)** — Four-player partnership trick game; capture the four 10s.
-13. ✅ **Court Piece (Coatpees / Rang)** — Four-player fixed-partnership trick game; caller picks trump, race to seven match points (with a shutout-extension exception).
-14. ✅ **Judgement (Kachuful)** — Bid exactly how many tricks you'll win each round; score only if you hit it.
-15. ✅ **Call Break** — Thirteen-card spades-style trick game with per-round bidding.
-
-## Other
-
-16. ✅ **Tambola (Housie)** — Indian bingo; phone generates tickets, host calls numbers, players self-claim and the host manually approves each prize (built as host-verified, not auto-verified — keeps the real "shout it out" tension of the original game).
-17. ✅ **Codenames** — Team spymaster gives one-word clues linking grid words; teams guess their own, avoid the assassin. (Literate audience.)
-
-## Shared dependency epic
-
-- ✅ **Card-dealing / trick-tracking engine** — DONE (2026-09-09). Shared shuffle/deal/trick-resolution layer required by games 7–15, plus a reusable card-table UI (opponent seats with face-down stacks, own hand fanned face-up, center play zone, score bar). `src/multiplayer/{deck,deal,hand,trick}.js` + `src/components/cards/`. Proven out by Bluff — `resolveTrick()` itself remains unexercised by a real game until the first Wave 3 trick-taking game.
+Now that every card game is built, spawn multiple agents in parallel to
+comprehensively test every game in the app for regressions and bugs.
+Queued since the original card-game backlog completed; never started.
 
 ## Packaging & distribution (added 2026-09-16)
 
@@ -173,8 +54,8 @@ future one.
   reaction game rather than trick-taking) belongs in a "card games" app
   at all.
 - **Package PartyBox for the Play Store.** Capacitor is already chosen and
-  scaffolded (`android/`, `ios/`) — see [[project_architecture]] — but
-  verified only to the `./gradlew assembleDebug` compile-check stage, no
+  scaffolded (`android/`, `ios/`) — see project memory `project_architecture.md` —
+  but verified only to the `./gradlew assembleDebug` compile-check stage, no
   emulator/device run, no signed release build, no store listing. Actually
   shipping needs: a signed release build (keystore setup), a Play Console
   developer account, store listing assets (icon, screenshots, description,
@@ -182,54 +63,3 @@ future one.
   policy is a hard requirement, not optional), and a real device/emulator
   test pass before submission. None of the account/store-console steps
   can be done from this environment — they need the user directly.
-
-## Playtest feedback follow-ups (added 2026-09-17)
-
-- **Bluff with 2 decks (104 cards).** Every card id today is just
-  rank+suit (e.g. `"10S"`), assumed unique everywhere a hand is
-  rendered, a card is removed from a hand, or a selection is toggled.
-  Supporting a second deck needs per-copy card ids (e.g. `"10S#0"` /
-  `"10S#1"`) with `parseCard` stripping the suffix wherever only
-  rank/suit matter, threaded through `src/multiplayer/deck.js` and
-  every place Bluff keys off a raw card id. Deliberately deferred out
-  of the 2026-09-17 playtest bug-fix batch — real, separate-scoped
-  work, not a quick add.
-
-## Terminology rename rollout (added 2026-09-17)
-
-App-wide rename: what was called a **trick** (1 card from each player)
-is now a **hand**; what was called a **hand** (a full 13-card deal until
-redistribution) is now a **round**; what was called a **match** is now a
-**game**. Confirmed scope: full internal rename (state fields, function
-names, file names), not just UI text.
-
-- ✅ **Teri** — DONE (2026-09-17), the reference implementation for the
-  rename pattern. Fully verified (build + tests + live 4-player
-  playthrough). See project memory `project_terminology_rename.md` for
-  the exact before/after identifier table and the deliberate scope
-  boundary (the shared `multiplayer/trick.js` resolver and the
-  pre-existing "cards in hand" concept — `myHand`, `hands[id]` — are
-  NOT renamed; they're different, unrelated things).
-- **Court Piece** — not started. Replicate the Teri pattern: state
-  fields, `HandRevealScreen.jsx`→`RoundRevealScreen.jsx`, logic-file
-  exports, metadata.js copy, live-verify with a full multiplayer
-  playthrough.
-- **Mendikot** — not started, same pattern.
-- **Teen Do Paanch** — not started, same pattern.
-- **Judgement** — not started. Smaller lift than the others: its own
-  "full deal" concept is already correctly called "round" (file
-  `RoundRevealScreen.jsx`, phase `round_reveal`) — only its
-  trick-concept identifiers (`currentTrick`, `tricksWon`, etc.) need
-  renaming to "hand".
-- **Call Break** — not started, same pattern.
-- **Bhabhi** — not started, same pattern; also has its own inline
-  `animate-trick-settle` usage already migrated to `animate-hand-settle`
-  as part of the shared-infra pass, so that piece is done for this game
-  even though nothing else is.
-- Note: Satti is explicitly OUT of scope — it doesn't use trick-taking
-  mechanics (no `resolveTrick` import), so the trick/hand/round mapping
-  doesn't apply to it.
-- **Real deployment risk to remember when this ships**: these are
-  persisted Firestore room-state field names with no migration path —
-  any room live mid-game when a rename deploys will break. Ship each
-  game's rename when nobody's mid-hand in that game.

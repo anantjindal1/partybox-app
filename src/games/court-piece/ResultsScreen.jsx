@@ -10,7 +10,7 @@ function TrophyIcon(props) {
   )
 }
 
-export function ResultsScreen({ turnOrder, players, matchWinner, matchScores, handsWon, myId, isHost, onRematch, onHome }) {
+export function ResultsScreen({ turnOrder, players, gameWinner, gameScores, roundsWon, myId, isHost, onRematch, onHome }) {
   function nameOf(id) {
     return players.find(p => p.id === id)?.name ?? 'Player'
   }
@@ -21,12 +21,12 @@ export function ResultsScreen({ turnOrder, players, matchWinner, matchScores, ha
   const teamAIds = getTeamA(turnOrder)
   const teamBIds = getTeamB(turnOrder)
   const myTeamIds = teamAIds.includes(myId) ? teamAIds : teamBIds
-  const isWinner = (teamAIds.includes(myId) ? 'teamA' : 'teamB') === matchWinner
+  const isWinner = (teamAIds.includes(myId) ? 'teamA' : 'teamB') === gameWinner
 
   const teams = [
     { key: 'teamA', ids: teamAIds },
     { key: 'teamB', ids: teamBIds }
-  ].sort((a, b) => (a.key === matchWinner ? -1 : 1))
+  ].sort((a, b) => (a.key === gameWinner ? -1 : 1))
 
   return (
     <div className="flex-1 flex flex-col py-6 gap-6 max-w-lg w-full mx-auto">
@@ -36,7 +36,7 @@ export function ResultsScreen({ turnOrder, players, matchWinner, matchScores, ha
         </div>
         <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">Winner</p>
         <p className="text-2xl font-bold font-display text-textPrimary">
-          {teamNames(matchWinner === 'teamA' ? teamAIds : teamBIds)}
+          {teamNames(gameWinner === 'teamA' ? teamAIds : teamBIds)}
         </p>
       </div>
 
@@ -52,8 +52,8 @@ export function ResultsScreen({ turnOrder, players, matchWinner, matchScores, ha
               {teamNames(ids)}{ids === myTeamIds ? ' (You)' : ''}
             </span>
             <div className="flex flex-col items-end">
-              <span className="text-sm font-bold text-jade tabular-nums">{handsWon[key]} hands</span>
-              <span className="text-xs text-textMuted tabular-nums">{matchScores[key]} pts</span>
+              <span className="text-sm font-bold text-jade tabular-nums">{roundsWon[key]} rounds</span>
+              <span className="text-xs text-textMuted tabular-nums">{gameScores[key]} pts</span>
             </div>
           </div>
         ))}

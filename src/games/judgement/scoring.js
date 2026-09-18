@@ -5,14 +5,14 @@
  * there is no partial credit for overtricks.
  */
 
-export function computeRoundScore(bid, tricksWon) {
+export function computeRoundScore(bid, handsWon) {
   const stake = Math.max(bid, 1) * 10
-  return tricksWon === bid ? stake : -stake
+  return handsWon === bid ? stake : -stake
 }
 
-export function computeRoundResults(playerIds, bids, tricksWon) {
+export function computeRoundResults(playerIds, bids, handsWon) {
   return Object.fromEntries(
-    playerIds.map(id => [id, computeRoundScore(bids[id], tricksWon[id] ?? 0)])
+    playerIds.map(id => [id, computeRoundScore(bids[id], handsWon[id] ?? 0)])
   )
 }
 

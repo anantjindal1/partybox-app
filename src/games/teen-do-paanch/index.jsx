@@ -13,13 +13,13 @@ import { TableScoreBar } from '../../components/cards/TableScoreBar'
 import { SUIT_TEXT_CLASS } from '../../components/cards/suitIcons'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { TrumpCallScreen } from './TrumpCallScreen'
-import { HandRevealScreen } from './HandRevealScreen'
+import { RoundRevealScreen } from './RoundRevealScreen'
 import { ResultsScreen } from './ResultsScreen'
 import {
   computeTargets,
   getCallerId,
-  computeHandScores,
-  checkMatchWinners,
+  computeRoundScores,
+  checkGameWinners,
   canRequestReveal,
   createReducedDeck
 } from './teenDoPaanchLogic'
@@ -72,7 +72,7 @@ export default function TeenDoPaanch({ code }) {
       setCallSubmitted(false)
       trumpGuard.current = false
     }
-  }, [phase, roomState.handNumber])
+  }, [phase, roomState.roundNumber])
 
   // ── Host: calling_trump -> playing, once the caller has called ──────────
   useEffect(() => {
@@ -96,7 +96,7 @@ export default function TeenDoPaanch({ code }) {
         hands: mergedHands,
         remainingDeck: null,
         currentIdx: callerIdx,
-        currentTrick: [],
+        currentHand: [],
         ledSuit: null
       })
     })()
@@ -126,56 +126,56 @@ export default function TeenDoPaanch({ code }) {
   async function applyPlay(cardId) {
     const current = roomStateRef.current
     const actingPlayerId = current.turnOrder[current.currentIdx]
-    const newHand = removeCardFromHand(current.hands[actingPlayerId], cardId)
-    const newHands = { ...current.hands, [actingPlayerId]: newHand }
-    const newTrick = [...current.currentTrick, { playerId: actingPlayerId, card: cardId }]
+    const remainingCards = removeCardFromHand(current.hands[actingPlayerId], cardId)
+    const newHands = { ...current.hands, [actingPlayerId]: remainingCards }
+    const newHand = [...current.currentHand, { playerId: actingPlayerId, card: cardId }]
     const newLedSuit = current.ledSuit ?? parseCard(cardId).suit
 
-    if (newTrick.length === current.turnOrder.length) {
-      const winnerId = resolveTrick(newTrick, newLedSuit, current.trumpRevealed ? current.trumpSuit : null)
-      const newTricksWon = { ...current.tricksWon, [winnerId]: (current.tricksWon[winnerId] ?? 0) + 1 }
+    if (newHand.length === current.turnOrder.length) {
+      const winnerId = resolveTrick(newHand, newLedSuit, current.trumpRevealed ? current.trumpSuit : null)
+      const newHandsWon = { ...current.handsWon, [winnerId]: (current.handsWon[winnerId] ?? 0) + 1 }
 
       // Keep all cards visible and reveal the winner for a beat before
-      // clearing/advancing — otherwise the trick vanishes the instant the
+      // clearing/advancing — otherwise the hand vanishes the instant the
       // last card lands, with no chance to see what happened.
       await clearActions()
-      await persist({ hands: newHands, currentTrick: newTrick, handWinnerId: winnerId })
+      await persist({ hands: newHands, currentHand: newHand, handWinnerId: winnerId })
       await new Promise(resolve => setTimeout(resolve, 1500))
 
-      if (newHand.length === 0) {
-        // Hand complete — all 10 tricks played.
-        const handScores = computeHandScores(current.targets, newTricksWon)
-        const matchScores = Object.fromEntries(
-          current.turnOrder.map(id => [id, (current.matchScores[id] ?? 0) + handScores[id]])
+      if (remainingCards.length === 0) {
+        // Round complete — all 10 hands played.
+        const roundScores = computeRoundScores(current.targets, newHandsWon)
+        const gameScores = Object.fromEntries(
+          current.turnOrder.map(id => [id, (current.gameScores[id] ?? 0) + roundScores[id]])
         )
-        const winnerIds = checkMatchWinners(matchScores)
+        const winnerIds = checkGameWinners(gameScores)
         await persist({
           hands: newHands,
-          tricksWon: newTricksWon,
-          currentTrick: [],
+          handsWon: newHandsWon,
+          currentHand: [],
           handWinnerId: null,
           ledSuit: null,
-          matchScores,
-          lastHandResult: {
-            handNumber: current.handNumber,
+          gameScores,
+          lastRoundResult: {
+            roundNumber: current.roundNumber,
             targets: current.targets,
-            tricksWon: newTricksWon,
-            handScores,
-            matchScoresAfter: matchScores,
+            handsWon: newHandsWon,
+            roundScores,
+            gameScoresAfter: gameScores,
             trumpSuit: current.trumpSuit,
             trumpMode: current.trumpMode,
             callerId: current.callerId,
             winnerIds
           },
-          phase: 'hand_reveal'
+          phase: 'round_reveal'
         })
         return
       }
 
       await persist({
         hands: newHands,
-        tricksWon: newTricksWon,
-        currentTrick: [],
+        handsWon: newHandsWon,
+        currentHand: [],
         handWinnerId: null,
         ledSuit: null,
         currentIdx: current.turnOrder.indexOf(winnerId)
@@ -186,12 +186,12 @@ export default function TeenDoPaanch({ code }) {
     const turnState = advanceTurn({
       playerIds: current.turnOrder,
       currentIdx: current.currentIdx,
-      round: current.handNumber
+      round: current.roundNumber
     })
     await clearActions()
     await persist({
       hands: newHands,
-      currentTrick: newTrick,
+      currentHand: newHand,
       ledSuit: newLedSuit,
       currentIdx: turnState.currentIdx
     })
@@ -211,7 +211,7 @@ export default function TeenDoPaanch({ code }) {
       await persist({
         phase: 'calling_trump',
         turnOrder: playerIds,
-        handNumber: 0,
+        roundNumber: 0,
         targets,
         callerId,
         trumpSuit: null,
@@ -219,13 +219,13 @@ export default function TeenDoPaanch({ code }) {
         trumpRevealed: false,
         hands,
         remainingDeck: remaining,
-        tricksWon: zeroed,
-        currentTrick: [],
+        handsWon: zeroed,
+        currentHand: [],
         handWinnerId: null,
         ledSuit: null,
         currentIdx: null,
-        matchScores: zeroed,
-        lastHandResult: null
+        gameScores: zeroed,
+        lastRoundResult: null
       })
     } finally {
       setStarting(false)
@@ -246,25 +246,25 @@ export default function TeenDoPaanch({ code }) {
     sendAction({ type: 'REVEAL_TRUMP', payload: {} })
   }
 
-  async function handleNextHand() {
+  async function handleNextRound() {
     if (advancing) return
     setAdvancing(true)
     try {
       const current = roomStateRef.current
-      if (current.lastHandResult?.winnerIds) {
+      if (current.lastRoundResult?.winnerIds) {
         await persist({ phase: 'results' })
         return
       }
-      const nextHandNumber = current.handNumber + 1
+      const nextRoundNumber = current.roundNumber + 1
       const deck = shuffleDeck(createReducedDeck())
       const { hands, remaining } = dealCards(deck, current.turnOrder, 5)
-      const targets = computeTargets(current.turnOrder, nextHandNumber)
+      const targets = computeTargets(current.turnOrder, nextRoundNumber)
       const callerId = getCallerId(targets)
       const zeroed = Object.fromEntries(current.turnOrder.map(id => [id, 0]))
       await clearActions()
       await persist({
         phase: 'calling_trump',
-        handNumber: nextHandNumber,
+        roundNumber: nextRoundNumber,
         targets,
         callerId,
         trumpSuit: null,
@@ -272,12 +272,12 @@ export default function TeenDoPaanch({ code }) {
         trumpRevealed: false,
         hands,
         remainingDeck: remaining,
-        tricksWon: zeroed,
-        currentTrick: [],
+        handsWon: zeroed,
+        currentHand: [],
         handWinnerId: null,
         ledSuit: null,
         currentIdx: null,
-        lastHandResult: null
+        lastRoundResult: null
       })
     } finally {
       setAdvancing(false)
@@ -293,7 +293,7 @@ export default function TeenDoPaanch({ code }) {
   useEffect(() => {
     if (phase !== 'results' || !myId || xpAwarded.current) return
     xpAwarded.current = true
-    const winnerIds = roomState.lastHandResult?.winnerIds ?? []
+    const winnerIds = roomState.lastRoundResult?.winnerIds ?? []
     const isWinner = winnerIds.includes(myId)
     awardXP(isWinner ? 100 : 20, room?.roomType)
     if (room?.roomType === 'ranked') {
@@ -354,9 +354,9 @@ export default function TeenDoPaanch({ code }) {
   if (phase === 'playing') {
     const myHand = sortHand(roomState.hands?.[myId] ?? [])
     const isMyTurn = roomState.turnOrder?.[roomState.currentIdx] === myId
-    // Nothing should be tappable while a completed trick is still being
+    // Nothing should be tappable while a completed hand is still being
     // held on screen for review (currentIdx doesn't advance until the
-    // trick-reveal pause finishes — see applyPlay).
+    // hand-reveal pause finishes — see applyPlay).
     const isInteractive = isMyTurn && !roomState.handWinnerId
     const currentTurnName = players.find(p => p.id === roomState.turnOrder?.[roomState.currentIdx])?.name ?? 'player'
     const legalPlays = isInteractive ? getLegalPlays(myHand, roomState.ledSuit) : []
@@ -366,7 +366,7 @@ export default function TeenDoPaanch({ code }) {
     const highlightedCardIds = knowTrump ? myHand.filter(id => parseCard(id).suit === roomState.trumpSuit) : []
     const canReveal = isInteractive && roomState.trumpMode === 'hidden' && !roomState.trumpRevealed &&
       canRequestReveal(myHand, roomState.ledSuit)
-    const centerCards = (roomState.currentTrick ?? []).map(({ playerId, card }) => ({
+    const centerCards = (roomState.currentHand ?? []).map(({ playerId, card }) => ({
       card,
       playerId,
       playerName: players.find(p => p.id === playerId)?.name
@@ -382,7 +382,7 @@ export default function TeenDoPaanch({ code }) {
     const scoreEntries = [
       ...(roomState.turnOrder ?? []).map(id => ({
         label: players.find(p => p.id === id)?.name ?? 'Player',
-        value: `${roomState.tricksWon?.[id] ?? 0}/${roomState.targets?.[id] ?? '?'}`
+        value: `${roomState.handsWon?.[id] ?? 0}/${roomState.targets?.[id] ?? '?'}`
       })),
       { label: 'Trump', value: knowTrump ? SUIT_LABEL[roomState.trumpSuit] : 'Hidden', valueClassName: knowTrump ? SUIT_TEXT_CLASS[roomState.trumpSuit] : undefined }
     ]
@@ -432,15 +432,15 @@ export default function TeenDoPaanch({ code }) {
     )
   }
 
-  if (phase === 'hand_reveal') {
+  if (phase === 'round_reveal') {
     const openSeats = room?.openSeats ?? []
     const isSpectator = (room?.spectators ?? []).some(p => p.id === myId)
     return (
-      <HandRevealScreen
-        lastHandResult={roomState.lastHandResult}
+      <RoundRevealScreen
+        lastRoundResult={roomState.lastRoundResult}
         players={players}
         isHost={isHost}
-        onNextHand={handleNextHand}
+        onNextRound={handleNextRound}
         advancing={advancing}
         seatManagement={{
           turnOrder: roomState.turnOrder ?? [],
@@ -449,19 +449,19 @@ export default function TeenDoPaanch({ code }) {
           isSpectator,
           onLeaveSeat: leaveSeat,
           onClaimSeat: (seatPlayerId) => {
-            // matchScores is player-id-keyed and needs remapping (the
+            // gameScores is player-id-keyed and needs remapping (the
             // running score belongs to the seat). callerId for the NEXT
-            // hand is always freshly recomputed from turnOrder in
-            // handleNextHand (computeTargets + getCallerId), so it needs
+            // round is always freshly recomputed from turnOrder in
+            // handleNextRound (computeTargets + getCallerId), so it needs
             // no remap here — it'll already be correct once turnOrder is.
-            const matchScores = { ...roomState.matchScores }
-            if (seatPlayerId in matchScores) {
-              matchScores[myId] = matchScores[seatPlayerId]
-              delete matchScores[seatPlayerId]
+            const gameScores = { ...roomState.gameScores }
+            if (seatPlayerId in gameScores) {
+              gameScores[myId] = gameScores[seatPlayerId]
+              delete gameScores[seatPlayerId]
             }
             claimSeat(seatPlayerId, {
               turnOrder: roomState.turnOrder.map(id => id === seatPlayerId ? myId : id),
-              matchScores
+              gameScores
             })
           }
         }}
@@ -473,8 +473,8 @@ export default function TeenDoPaanch({ code }) {
     return (
       <ResultsScreen
         players={players}
-        matchScores={roomState.matchScores ?? {}}
-        winnerIds={roomState.lastHandResult?.winnerIds ?? []}
+        gameScores={roomState.gameScores ?? {}}
+        winnerIds={roomState.lastRoundResult?.winnerIds ?? []}
         myId={myId}
         isHost={isHost}
         onRematch={handleRematch}

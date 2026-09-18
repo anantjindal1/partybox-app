@@ -1,8 +1,8 @@
 import {
   computeTargets,
   getCallerId,
-  computeHandScores,
-  checkMatchWinners,
+  computeRoundScores,
+  checkGameWinners,
   canRequestReveal,
   createReducedDeck
 } from '../teenDoPaanchLogic'
@@ -10,29 +10,29 @@ import {
 const turnOrder = ['p0', 'p1', 'p2']
 
 describe('computeTargets', () => {
-  test('hand 0 uses the first rotation', () => {
+  test('round 0 uses the first rotation', () => {
     expect(computeTargets(turnOrder, 0)).toEqual({ p0: 3, p1: 2, p2: 5 })
   })
 
-  test('hand 1 uses the second rotation', () => {
+  test('round 1 uses the second rotation', () => {
     expect(computeTargets(turnOrder, 1)).toEqual({ p0: 5, p1: 3, p2: 2 })
   })
 
-  test('hand 2 uses the third rotation', () => {
+  test('round 2 uses the third rotation', () => {
     expect(computeTargets(turnOrder, 2)).toEqual({ p0: 2, p1: 5, p2: 3 })
   })
 
-  test('hand 3 wraps back to the first rotation', () => {
+  test('round 3 wraps back to the first rotation', () => {
     expect(computeTargets(turnOrder, 3)).toEqual({ p0: 3, p1: 2, p2: 5 })
   })
 
-  test('hand 5 continues the cycle correctly', () => {
+  test('round 5 continues the cycle correctly', () => {
     expect(computeTargets(turnOrder, 5)).toEqual({ p0: 2, p1: 5, p2: 3 })
   })
 
-  test('every hand assigns exactly one 3, one 2, and one 5', () => {
-    for (let hand = 0; hand < 6; hand++) {
-      const targets = computeTargets(turnOrder, hand)
+  test('every round assigns exactly one 3, one 2, and one 5', () => {
+    for (let round = 0; round < 6; round++) {
+      const targets = computeTargets(turnOrder, round)
       const values = Object.values(targets).sort()
       expect(values).toEqual([2, 3, 5])
     }
@@ -47,45 +47,45 @@ describe('getCallerId', () => {
   })
 })
 
-describe('computeHandScores', () => {
+describe('computeRoundScores', () => {
   test('a positive surplus when a player beats their target', () => {
     const targets = { p0: 3, p1: 2, p2: 5 }
-    const tricksWon = { p0: 3, p1: 5, p2: 5 }
-    expect(computeHandScores(targets, tricksWon)).toEqual({ p0: 0, p1: 3, p2: 0 })
+    const handsWon = { p0: 3, p1: 5, p2: 5 }
+    expect(computeRoundScores(targets, handsWon)).toEqual({ p0: 0, p1: 3, p2: 0 })
   })
 
   test('a negative deficit when a player misses their target', () => {
     const targets = { p0: 3, p1: 2, p2: 5 }
-    const tricksWon = { p0: 1, p1: 2, p2: 3 }
-    expect(computeHandScores(targets, tricksWon)).toEqual({ p0: -2, p1: 0, p2: -2 })
+    const handsWon = { p0: 1, p1: 2, p2: 3 }
+    expect(computeRoundScores(targets, handsWon)).toEqual({ p0: -2, p1: 0, p2: -2 })
   })
 
-  test('missing tricksWon entries default to zero', () => {
+  test('missing handsWon entries default to zero', () => {
     const targets = { p0: 3, p1: 2, p2: 5 }
-    expect(computeHandScores(targets, {})).toEqual({ p0: -3, p1: -2, p2: -5 })
+    expect(computeRoundScores(targets, {})).toEqual({ p0: -3, p1: -2, p2: -5 })
   })
 })
 
-describe('checkMatchWinners', () => {
+describe('checkGameWinners', () => {
   test('nobody at or above the target yet', () => {
-    expect(checkMatchWinners({ p0: 4, p1: 6, p2: -2 })).toBeNull()
+    expect(checkGameWinners({ p0: 4, p1: 6, p2: -2 })).toBeNull()
   })
 
   test('a single player crosses the target', () => {
-    expect(checkMatchWinners({ p0: 11, p1: 4, p2: -2 })).toEqual(['p0'])
+    expect(checkGameWinners({ p0: 11, p1: 4, p2: -2 })).toEqual(['p0'])
   })
 
-  test('two players cross the target in the same hand — genuine co-winners', () => {
-    expect(checkMatchWinners({ p0: 10, p1: 12, p2: 3 })).toEqual(['p0', 'p1'])
+  test('two players cross the target in the same round — genuine co-winners', () => {
+    expect(checkGameWinners({ p0: 10, p1: 12, p2: 3 })).toEqual(['p0', 'p1'])
   })
 
   test('exactly at the target counts as reaching it', () => {
-    expect(checkMatchWinners({ p0: 10, p1: 5, p2: 0 })).toEqual(['p0'])
+    expect(checkGameWinners({ p0: 10, p1: 5, p2: 0 })).toEqual(['p0'])
   })
 })
 
 describe('canRequestReveal', () => {
-  test('false when leading the trick (ledSuit is null)', () => {
+  test('false when leading the hand (ledSuit is null)', () => {
     expect(canRequestReveal(['AS', 'KH'], null)).toBe(false)
   })
 

@@ -46,7 +46,7 @@ export function BiddingScreen({
         </p>
       ) : (
         <div className="w-full flex flex-col gap-4">
-          <p className="text-center text-textPrimary font-semibold">How many tricks will you win?</p>
+          <p className="text-center text-textPrimary font-semibold">How many hands will you win?</p>
           {isLastBidder && forbiddenBid != null && (
             <p className="text-center text-xs text-error">
               You can't bid {forbiddenBid} — it would make everyone's bids add up to the hand size.

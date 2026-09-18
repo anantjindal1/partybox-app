@@ -16,13 +16,13 @@ export function RoundRevealScreen({ lastRoundResult, players, isHost, isLastRoun
         {players.map(p => {
           const r = perPlayer[p.id]
           if (!r) return null
-          const made = r.tricksWon >= r.bid
+          const made = r.handsWon >= r.bid
           return (
             <div key={p.id} className="flex items-center justify-between px-4 py-3 rounded-xl border-[1.5px] border-border bg-surfaceElevated">
               <div className="flex flex-col">
                 <span className="text-sm font-semibold text-textPrimary">{p.name}</span>
                 <span className="text-xs text-textMuted">
-                  Bid {r.bid} · Won {r.tricksWon}
+                  Bid {r.bid} · Won {r.handsWon}
                 </span>
               </div>
               <div className="flex flex-col items-end">

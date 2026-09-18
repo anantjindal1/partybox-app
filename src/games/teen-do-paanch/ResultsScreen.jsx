@@ -8,8 +8,8 @@ function TrophyIcon(props) {
   )
 }
 
-export function ResultsScreen({ players, matchScores, winnerIds, myId, isHost, onRematch, onHome }) {
-  const ranked = [...players].sort((a, b) => (matchScores[b.id] ?? 0) - (matchScores[a.id] ?? 0))
+export function ResultsScreen({ players, gameScores, winnerIds, myId, isHost, onRematch, onHome }) {
+  const ranked = [...players].sort((a, b) => (gameScores[b.id] ?? 0) - (gameScores[a.id] ?? 0))
   const winners = players.filter(p => winnerIds.includes(p.id))
 
   return (
@@ -38,7 +38,7 @@ export function ResultsScreen({ players, matchScores, winnerIds, myId, isHost, o
               {i + 1}. {p.name}{p.id === myId ? ' (You)' : ''}
             </span>
             <span className="text-sm font-bold text-orchid tabular-nums">
-              {matchScores[p.id] ?? 0}
+              {gameScores[p.id] ?? 0}
             </span>
           </div>
         ))}

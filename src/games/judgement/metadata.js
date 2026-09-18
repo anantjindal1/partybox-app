@@ -10,8 +10,8 @@ export default {
   rules: {
     en: [
       'Hands start at 1 card and grow each round up to the max, then shrink back down to 1.',
-      "Bid how many tricks you'll take this round — before anyone knows the trump suit.",
-      'Whoever bids the highest number chooses trump for the round and leads the first trick.',
+      "Bid how many hands you'll take this round — before anyone knows the trump suit.",
+      'Whoever bids the highest number chooses trump for the round and leads the first hand.',
       "Last to bid can't choose the exact number that would make everyone's bids add up to the hand size.",
       'Hit your bid exactly to score 10x your bid (minimum 10) — miss it by over OR under and you lose the same amount instead.'
     ],
@@ -26,9 +26,9 @@ export default {
   tutorial: {
     en: [
       { title: 'Hands Rise, Then Fall', body: 'Round 1 deals just 1 card each. Every round after that deals one more, up to the max your table allows, then hands shrink back down to 1 for the final round.' },
-      { title: 'Bid Blind, Then Trump Is Chosen', body: "Bid how many tricks you'll win this round without knowing the trump suit. Once everyone has bid, whoever bid the highest number picks the trump suit — and leads the first trick." },
+      { title: 'Bid Blind, Then Trump Is Chosen', body: "Bid how many hands you'll win this round without knowing the trump suit. Once everyone has bid, whoever bid the highest number picks the trump suit — and leads the first hand." },
       { title: 'The Hook Rule', body: "If you're the last to bid, you can't pick the one number that would make every bid add up to exactly the hand size. Every other number is still open to you." },
-      { title: 'Hit It Exactly, Or Lose It All', body: 'Score 10x your bid (minimum 10) only if you win EXACTLY that many tricks. Win more or fewer and you lose that same amount instead — overtricks are not a safety net here.' }
+      { title: 'Hit It Exactly, Or Lose It All', body: 'Score 10x your bid (minimum 10) only if you win EXACTLY that many hands. Win more or fewer and you lose that same amount instead — overtricks are not a safety net here.' }
     ],
     hi: [
       { title: 'हाथ पहले बढ़ते हैं, फिर घटते हैं', body: 'पहले राउंड में हर किसी को सिर्फ 1 पत्ता मिलता है। इसके बाद हर राउंड में एक-एक पत्ता बढ़ता है, आपकी टेबल की अधिकतम सीमा तक, फिर आखिरी राउंड तक वापस 1 पत्ते पर आ जाता है।' },

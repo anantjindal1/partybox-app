@@ -91,9 +91,9 @@ export default function CallBreak({ code }) {
       phase: 'playing',
       bids,
       currentIdx: current.leaderIdx,
-      currentTrick: [],
+      currentHand: [],
       ledSuit: null,
-      tricksWon: Object.fromEntries(current.turnOrder.map(id => [id, 0]))
+      handsWon: Object.fromEntries(current.turnOrder.map(id => [id, 0]))
     })
   }
 
@@ -115,26 +115,26 @@ export default function CallBreak({ code }) {
   async function applyPlay(cardId) {
     const current = roomStateRef.current
     const actingPlayerId = current.turnOrder[current.currentIdx]
-    const newHand = removeCardFromHand(current.hands[actingPlayerId], cardId)
-    const newHands = { ...current.hands, [actingPlayerId]: newHand }
-    const newTrick = [...current.currentTrick, { playerId: actingPlayerId, card: cardId }]
+    const remainingCards = removeCardFromHand(current.hands[actingPlayerId], cardId)
+    const newHands = { ...current.hands, [actingPlayerId]: remainingCards }
+    const newHand = [...current.currentHand, { playerId: actingPlayerId, card: cardId }]
     const newLedSuit = current.ledSuit ?? parseCard(cardId).suit
 
-    if (newTrick.length === current.turnOrder.length) {
-      const winnerId = resolveTrick(newTrick, newLedSuit, 'spades')
-      const newTricksWon = { ...current.tricksWon, [winnerId]: (current.tricksWon[winnerId] ?? 0) + 1 }
+    if (newHand.length === current.turnOrder.length) {
+      const winnerId = resolveTrick(newHand, newLedSuit, 'spades')
+      const newHandsWon = { ...current.handsWon, [winnerId]: (current.handsWon[winnerId] ?? 0) + 1 }
 
-      if (newHand.length === 0) {
+      if (remainingCards.length === 0) {
         // Round complete — every hand is always the same length at any
         // point in a round, so the acting player's hand hitting 0 means
         // everyone's does.
-        const results = computeRoundResults(current.turnOrder, current.bids, newTricksWon)
+        const results = computeRoundResults(current.turnOrder, current.bids, newHandsWon)
         const cumulativeScores = addToCumulative(current.cumulativeScores, results)
         await clearActions()
         await persist({
           hands: newHands,
-          tricksWon: newTricksWon,
-          currentTrick: [],
+          handsWon: newHandsWon,
+          currentHand: [],
           ledSuit: null,
           cumulativeScores,
           lastRoundResult: {
@@ -142,7 +142,7 @@ export default function CallBreak({ code }) {
             perPlayer: Object.fromEntries(
               current.turnOrder.map(id => [id, {
                 bid: current.bids[id],
-                tricksWon: newTricksWon[id],
+                handsWon: newHandsWon[id],
                 scoreDelta: results[id],
                 cumulativeAfter: cumulativeScores[id]
               }])
@@ -156,15 +156,15 @@ export default function CallBreak({ code }) {
       await clearActions()
       await persist({
         hands: newHands,
-        tricksWon: newTricksWon,
-        currentTrick: [],
+        handsWon: newHandsWon,
+        currentHand: [],
         ledSuit: null,
         currentIdx: current.turnOrder.indexOf(winnerId)
       })
       return
     }
 
-    // Trick not complete — plain seat-advance. advanceTurn's own `round`
+    // Hand not complete — plain seat-advance. advanceTurn's own `round`
     // field is deliberately discarded, not persisted: Call Break already
     // owns a separate, semantically different `roundNumber`.
     const turnState = advanceTurn({
@@ -175,7 +175,7 @@ export default function CallBreak({ code }) {
     await clearActions()
     await persist({
       hands: newHands,
-      currentTrick: newTrick,
+      currentHand: newHand,
       ledSuit: newLedSuit,
       currentIdx: turnState.currentIdx
     })
@@ -196,9 +196,9 @@ export default function CallBreak({ code }) {
         roundNumber: 1,
         leaderIdx: 0,
         bids: {},
-        tricksWon: zeroed,
+        handsWon: zeroed,
         hands,
-        currentTrick: [],
+        currentHand: [],
         ledSuit: null,
         cumulativeScores: zeroed,
         lastRoundResult: null
@@ -237,9 +237,9 @@ export default function CallBreak({ code }) {
         roundNumber: nextRound,
         leaderIdx: (nextRound - 1) % current.turnOrder.length,
         bids: {},
-        tricksWon: zeroed,
+        handsWon: zeroed,
         hands,
-        currentTrick: [],
+        currentHand: [],
         ledSuit: null,
         lastRoundResult: null
       })
@@ -332,7 +332,7 @@ export default function CallBreak({ code }) {
     const legalPlays = isMyTurn ? getLegalPlays(myHand, roomState.ledSuit) : []
     const disabledCardIds = isMyTurn ? myHand.filter(id => !legalPlays.includes(id)) : myHand
     const highlightedCardIds = myHand.filter(id => parseCard(id).suit === 'spades')
-    const centerCards = (roomState.currentTrick ?? []).map(({ playerId, card }) => ({
+    const centerCards = (roomState.currentHand ?? []).map(({ playerId, card }) => ({
       card,
       playerName: players.find(p => p.id === playerId)?.name
     }))
@@ -345,14 +345,14 @@ export default function CallBreak({ code }) {
       }))
 
     const myBid = roomState.bids?.[myId]
-    const myTricksWon = roomState.tricksWon?.[myId] ?? 0
-    const bidReached = myTricksWon >= myBid
+    const myHandsWon = roomState.handsWon?.[myId] ?? 0
+    const bidReached = myHandsWon >= myBid
 
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
         <p className="text-center text-textMuted text-xs uppercase tracking-wider">
           Round {roomState.roundNumber} of {TOTAL_ROUNDS} — your bid: {myBid} —{' '}
-          <span className={bidReached ? 'text-emerald font-bold' : ''}>tricks won: {myTricksWon}</span>
+          <span className={bidReached ? 'text-emerald font-bold' : ''}>hands won: {myHandsWon}</span>
         </p>
         <CardTable
           otherSeats={otherSeats}

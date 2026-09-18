@@ -2,9 +2,9 @@ import {
   getTeamA,
   getTeamB,
   getTeamOf,
-  computeTeamTricks,
-  computeHandOutcome,
-  checkMatchWinner
+  computeTeamHands,
+  computeRoundOutcome,
+  checkGameWinner
 } from '../courtPieceLogic'
 
 const turnOrder = ['p0', 'p1', 'p2', 'p3']
@@ -23,16 +23,16 @@ describe('getTeamA / getTeamB / getTeamOf', () => {
   })
 })
 
-describe('computeTeamTricks', () => {
+describe('computeTeamHands', () => {
   test('sums each partner pair independently', () => {
-    const tricksWon = { p0: 5, p1: 2, p2: 3, p3: 3 }
-    expect(computeTeamTricks(turnOrder, tricksWon)).toEqual({ teamA: 8, teamB: 5 })
+    const handsWon = { p0: 5, p1: 2, p2: 3, p3: 3 }
+    expect(computeTeamHands(turnOrder, handsWon)).toEqual({ teamA: 8, teamB: 5 })
   })
 })
 
-describe('computeHandOutcome', () => {
+describe('computeRoundOutcome', () => {
   test('normal split (8-5): team A wins, no kot, 1 point', () => {
-    expect(computeHandOutcome({ teamA: 8, teamB: 5 })).toEqual({
+    expect(computeRoundOutcome({ teamA: 8, teamB: 5 })).toEqual({
       winningTeam: 'teamA',
       isKot: false,
       pointsAwarded: 1
@@ -40,7 +40,7 @@ describe('computeHandOutcome', () => {
   })
 
   test('close split (7-6): team A wins, no kot, 1 point', () => {
-    expect(computeHandOutcome({ teamA: 7, teamB: 6 })).toEqual({
+    expect(computeRoundOutcome({ teamA: 7, teamB: 6 })).toEqual({
       winningTeam: 'teamA',
       isKot: false,
       pointsAwarded: 1
@@ -48,7 +48,7 @@ describe('computeHandOutcome', () => {
   })
 
   test('kot for team A (13-0)', () => {
-    expect(computeHandOutcome({ teamA: 13, teamB: 0 })).toEqual({
+    expect(computeRoundOutcome({ teamA: 13, teamB: 0 })).toEqual({
       winningTeam: 'teamA',
       isKot: true,
       pointsAwarded: 2
@@ -56,7 +56,7 @@ describe('computeHandOutcome', () => {
   })
 
   test('kot for team B (0-13)', () => {
-    expect(computeHandOutcome({ teamA: 0, teamB: 13 })).toEqual({
+    expect(computeRoundOutcome({ teamA: 0, teamB: 13 })).toEqual({
       winningTeam: 'teamB',
       isKot: true,
       pointsAwarded: 2
@@ -65,8 +65,8 @@ describe('computeHandOutcome', () => {
 
   test('never returns a fractional or negative pointsAwarded', () => {
     const outcomes = [
-      computeHandOutcome({ teamA: 7, teamB: 6 }),
-      computeHandOutcome({ teamA: 13, teamB: 0 })
+      computeRoundOutcome({ teamA: 7, teamB: 6 }),
+      computeRoundOutcome({ teamA: 13, teamB: 0 })
     ]
     for (const o of outcomes) {
       expect(Number.isInteger(o.pointsAwarded)).toBe(true)
@@ -75,29 +75,29 @@ describe('computeHandOutcome', () => {
   })
 })
 
-describe('checkMatchWinner', () => {
+describe('checkGameWinner', () => {
   test('below target entirely: no winner yet', () => {
-    expect(checkMatchWinner({ teamA: 6, teamB: 5 }, { teamA: 3, teamB: 2 })).toBeNull()
+    expect(checkGameWinner({ teamA: 6, teamB: 5 }, { teamA: 3, teamB: 2 })).toBeNull()
   })
 
-  test('normal win: leader at target, trailer already has hand wins', () => {
-    expect(checkMatchWinner({ teamA: 7, teamB: 3 }, { teamA: 4, teamB: 2 })).toBe('teamA')
+  test('normal win: leader at target, trailer already has round wins', () => {
+    expect(checkGameWinner({ teamA: 7, teamB: 3 }, { teamA: 4, teamB: 2 })).toBe('teamA')
   })
 
-  test('shutout in progress: leader at target, trailer has zero hand wins -> no winner yet', () => {
-    expect(checkMatchWinner({ teamA: 7, teamB: 0 }, { teamA: 4, teamB: 0 })).toBeNull()
+  test('shutout in progress: leader at target, trailer has zero round wins -> no winner yet', () => {
+    expect(checkGameWinner({ teamA: 7, teamB: 0 }, { teamA: 4, teamB: 0 })).toBeNull()
   })
 
   test('shutout resolved by extension: leader reaches 13 with trailer still at zero', () => {
-    expect(checkMatchWinner({ teamA: 13, teamB: 0 }, { teamA: 7, teamB: 0 })).toBe('teamA')
+    expect(checkGameWinner({ teamA: 13, teamB: 0 }, { teamA: 7, teamB: 0 })).toBe('teamA')
   })
 
-  test('shutout resolved by trailer winning their first hand: original leader still wins', () => {
-    expect(checkMatchWinner({ teamA: 8, teamB: 1 }, { teamA: 5, teamB: 1 })).toBe('teamA')
+  test('shutout resolved by trailer winning their first round: original leader still wins', () => {
+    expect(checkGameWinner({ teamA: 8, teamB: 1 }, { teamA: 5, teamB: 1 })).toBe('teamA')
   })
 
   test('symmetric case for team B', () => {
-    expect(checkMatchWinner({ teamA: 0, teamB: 7 }, { teamA: 0, teamB: 4 })).toBeNull()
-    expect(checkMatchWinner({ teamA: 1, teamB: 8 }, { teamA: 1, teamB: 5 })).toBe('teamB')
+    expect(checkGameWinner({ teamA: 0, teamB: 7 }, { teamA: 0, teamB: 4 })).toBeNull()
+    expect(checkGameWinner({ teamA: 1, teamB: 8 }, { teamA: 1, teamB: 5 })).toBe('teamB')
   })
 })

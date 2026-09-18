@@ -2,7 +2,7 @@
  * Bhabhi — pure outcome logic. No Firebase, no React.
  *
  * Real-world rules (not the standard "highest card of the led suit wins
- * the trick" shape most other card games here use): every player must
+ * the hand" shape most other card games here use): every player must
  * follow the led suit if they can. If everyone does, the whole pile is
  * simply discarded and the highest card of the led suit leads next. If
  * a player CAN'T follow suit, play stops immediately and whoever played
@@ -18,7 +18,7 @@ export function findAceOfSpadesHolder(hands, playerIds) {
 
 /**
  * True only when a played card breaks the led suit AND it's not the
- * first pile of the match — Special Rule 1: the very first pile always
+ * first pile of the game — Special Rule 1: the very first pile always
  * runs to full length and always discards, breaks or not, since on the
  * first go-around nobody yet knows who holds what.
  */

@@ -10,7 +10,7 @@ export default {
   rules: {
     en: [
       'Spades are always trump.',
-      "Bid how many tricks you'll win each round (1-13) before anyone plays.",
+      "Bid how many hands you'll win each round (1-13) before anyone plays.",
       'Meet or beat your bid to score; fall short and you lose points equal to your bid.',
       '5 rounds — highest total score wins.'
     ],
@@ -23,7 +23,7 @@ export default {
   },
   tutorial: {
     en: [
-      { title: 'Bid Your Tricks', body: "Before each round, secretly bid how many of the 13 tricks you think you'll win." },
+      { title: 'Bid Your Hands', body: "Before each round, secretly bid how many of the 13 hands you think you'll win." },
       { title: 'Spades Are Always Trump', body: "Follow the led suit if you can. Can't follow? A spade beats everything else, no matter the rank." },
       { title: 'Score by Hitting Your Bid', body: 'Make your bid (or beat it) to score points. Fall short, and you lose points equal to your bid. Best total after 5 rounds wins.' }
     ],

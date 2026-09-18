@@ -42,8 +42,8 @@ describe('computeRoundResults', () => {
   test('computes each player independently from mixed outcomes', () => {
     const playerIds = ['a', 'b', 'c']
     const bids = { a: 2, b: 0, c: 3 }
-    const tricksWon = { a: 2, b: 1, c: 1 }
-    expect(computeRoundResults(playerIds, bids, tricksWon)).toEqual({
+    const handsWon = { a: 2, b: 1, c: 1 }
+    expect(computeRoundResults(playerIds, bids, handsWon)).toEqual({
       a: 20,
       b: -10,
       c: -30

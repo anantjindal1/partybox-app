@@ -15,13 +15,13 @@ import { HandWinnerOverlay } from '../../components/cards/HandWinnerOverlay'
 import { PartnerPicker } from '../../components/cards/PartnerPicker'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { TrumpCallScreen } from './TrumpCallScreen'
-import { HandRevealScreen } from './HandRevealScreen'
+import { RoundRevealScreen } from './RoundRevealScreen'
 import { ResultsScreen } from './ResultsScreen'
 import {
   getTeamOf,
-  computeTeamTricks,
-  computeHandOutcome,
-  checkMatchWinner
+  computeTeamHands,
+  computeRoundOutcome,
+  checkGameWinner
 } from './courtPieceLogic'
 import { awardXP } from '../../services/xp'
 import { writeGameStats } from '../../services/stats'
@@ -54,7 +54,7 @@ export default function CourtPiece({ code }) {
   const [starting, setStarting] = useState(false)
   const [advancing, setAdvancing] = useState(false)
   const [callSubmitted, setCallSubmitted] = useState(false)
-  const [showLastHand, setShowLastHand] = useState(false)
+  const [showLastRound, setShowLastRound] = useState(false)
 
   const xpAwarded = useRef(false)
   const trumpGuard = useRef(false)
@@ -64,36 +64,36 @@ export default function CourtPiece({ code }) {
     return setState({ ...roomStateRef.current, ...overrides })
   }
 
-  // Small "review the last hand" affordance — HandRevealScreen is already a
+  // Small "review the last round" affordance — RoundRevealScreen is already a
   // clean, reusable presentational component; isHost={false} suppresses its
   // "Next Round" button with no changes needed to it.
-  function renderLastHandButton() {
-    if (!roomState.lastHandResult) return null
+  function renderLastRoundButton() {
+    if (!roomState.lastRoundResult) return null
     return (
       <>
         <button
-          onClick={() => setShowLastHand(true)}
+          onClick={() => setShowLastRound(true)}
           className="self-center text-sm font-bold text-jade border-[1.5px] border-jade bg-jade/10 rounded-xl px-4 py-2"
         >
-          📜 View Last Hand
+          📜 View Last Round
         </button>
-        {showLastHand && (
+        {showLastRound && (
           <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-4 py-8 overflow-y-auto">
             <div className="bg-surface rounded-2xl max-w-lg w-full">
               <div className="flex justify-end p-2">
                 <button
-                  onClick={() => setShowLastHand(false)}
+                  onClick={() => setShowLastRound(false)}
                   className="text-textMuted hover:text-textPrimary text-sm font-semibold px-3 py-1"
                 >
                   ✕ Close
                 </button>
               </div>
-              <HandRevealScreen
-                lastHandResult={roomState.lastHandResult}
+              <RoundRevealScreen
+                lastRoundResult={roomState.lastRoundResult}
                 players={players}
                 turnOrder={roomState.turnOrder ?? []}
                 isHost={false}
-                onNextHand={() => {}}
+                onNextRound={() => {}}
                 advancing={false}
               />
             </div>
@@ -112,7 +112,7 @@ export default function CourtPiece({ code }) {
       setCallSubmitted(false)
       trumpGuard.current = false
     }
-  }, [phase, roomState.handNumber])
+  }, [phase, roomState.roundNumber])
 
   // ── Host: calling_trump -> playing, once the caller has called ──────────
   useEffect(() => {
@@ -134,7 +134,7 @@ export default function CourtPiece({ code }) {
         hands: mergedHands,
         remainingDeck: null,
         currentIdx: callerIdx,
-        currentTrick: [],
+        currentHand: [],
         ledSuit: null
       })
     })()
@@ -158,65 +158,65 @@ export default function CourtPiece({ code }) {
   async function applyPlay(cardId) {
     const current = roomStateRef.current
     const actingPlayerId = current.turnOrder[current.currentIdx]
-    const newHand = removeCardFromHand(current.hands[actingPlayerId], cardId)
-    const newHands = { ...current.hands, [actingPlayerId]: newHand }
-    const newTrick = [...current.currentTrick, { playerId: actingPlayerId, card: cardId }]
+    const remainingCards = removeCardFromHand(current.hands[actingPlayerId], cardId)
+    const newHands = { ...current.hands, [actingPlayerId]: remainingCards }
+    const newHand = [...current.currentHand, { playerId: actingPlayerId, card: cardId }]
     const newLedSuit = current.ledSuit ?? parseCard(cardId).suit
 
-    if (newTrick.length === current.turnOrder.length) {
-      const winnerId = resolveTrick(newTrick, newLedSuit, current.trumpSuit)
-      const newTricksWon = { ...current.tricksWon, [winnerId]: (current.tricksWon[winnerId] ?? 0) + 1 }
+    if (newHand.length === current.turnOrder.length) {
+      const winnerId = resolveTrick(newHand, newLedSuit, current.trumpSuit)
+      const newHandsWon = { ...current.handsWon, [winnerId]: (current.handsWon[winnerId] ?? 0) + 1 }
 
       // Keep all 4 cards visible and reveal the winner for a beat before
-      // clearing/advancing — otherwise the trick vanishes the instant the
+      // clearing/advancing — otherwise the hand vanishes the instant the
       // 4th card lands, with no chance to see what happened.
       await clearActions()
-      await persist({ hands: newHands, currentTrick: newTrick, handWinnerId: winnerId })
+      await persist({ hands: newHands, currentHand: newHand, handWinnerId: winnerId })
       await new Promise(resolve => setTimeout(resolve, 1500))
 
-      if (newHand.length === 0) {
-        // Hand complete — all 13 tricks played.
-        const teamTricks = computeTeamTricks(current.turnOrder, newTricksWon)
-        const { winningTeam, isKot, pointsAwarded } = computeHandOutcome(teamTricks)
-        const matchScores = {
-          ...current.matchScores,
-          [winningTeam]: current.matchScores[winningTeam] + pointsAwarded
+      if (remainingCards.length === 0) {
+        // Round complete — all 13 hands played.
+        const teamHands = computeTeamHands(current.turnOrder, newHandsWon)
+        const { winningTeam, isKot, pointsAwarded } = computeRoundOutcome(teamHands)
+        const gameScores = {
+          ...current.gameScores,
+          [winningTeam]: current.gameScores[winningTeam] + pointsAwarded
         }
-        const handsWon = {
-          ...current.handsWon,
-          [winningTeam]: current.handsWon[winningTeam] + 1
+        const roundsWon = {
+          ...current.roundsWon,
+          [winningTeam]: current.roundsWon[winningTeam] + 1
         }
-        const matchWinner = checkMatchWinner(matchScores, handsWon)
+        const gameWinner = checkGameWinner(gameScores, roundsWon)
         await persist({
           hands: newHands,
-          tricksWon: newTricksWon,
-          currentTrick: [],
+          handsWon: newHandsWon,
+          currentHand: [],
           handWinnerId: null,
           ledSuit: null,
-          matchScores,
-          handsWon,
+          gameScores,
+          roundsWon,
           nextCallerId: winnerId,
-          lastHandResult: {
-            handNumber: current.handNumber,
+          lastRoundResult: {
+            roundNumber: current.roundNumber,
             trumpSuit: current.trumpSuit,
             callerId: current.callerId,
-            teamTricks,
+            teamHands,
             winningTeam,
             isKot,
             pointsAwarded,
-            matchScoresAfter: matchScores,
-            handsWonAfter: handsWon,
-            matchWinner
+            gameScoresAfter: gameScores,
+            roundsWonAfter: roundsWon,
+            gameWinner
           },
-          phase: 'hand_reveal'
+          phase: 'round_reveal'
         })
         return
       }
 
       await persist({
         hands: newHands,
-        tricksWon: newTricksWon,
-        currentTrick: [],
+        handsWon: newHandsWon,
+        currentHand: [],
         handWinnerId: null,
         ledSuit: null,
         currentIdx: current.turnOrder.indexOf(winnerId)
@@ -224,18 +224,18 @@ export default function CourtPiece({ code }) {
       return
     }
 
-    // Trick not complete — plain seat-advance. advanceTurn's own `round`
+    // Hand not complete — plain seat-advance. advanceTurn's own `round`
     // field is deliberately discarded, not persisted: Court Piece already
-    // owns a separate, semantically different `handNumber`.
+    // owns a separate, semantically different `roundNumber`.
     const turnState = advanceTurn({
       playerIds: current.turnOrder,
       currentIdx: current.currentIdx,
-      round: current.handNumber
+      round: current.roundNumber
     })
     await clearActions()
     await persist({
       hands: newHands,
-      currentTrick: newTrick,
+      currentHand: newHand,
       ledSuit: newLedSuit,
       currentIdx: turnState.currentIdx
     })
@@ -254,20 +254,20 @@ export default function CourtPiece({ code }) {
         phase: 'calling_trump',
         pendingPartnerId: null,
         turnOrder: playerIds,
-        handNumber: 1,
+        roundNumber: 1,
         callerId: playerIds[0],
         trumpSuit: null,
         hands,
         remainingDeck: remaining,
-        tricksWon: zeroed,
-        currentTrick: [],
+        handsWon: zeroed,
+        currentHand: [],
         handWinnerId: null,
         ledSuit: null,
         currentIdx: null,
         nextCallerId: null,
-        matchScores: { teamA: 0, teamB: 0 },
-        handsWon: { teamA: 0, teamB: 0 },
-        lastHandResult: null
+        gameScores: { teamA: 0, teamB: 0 },
+        roundsWon: { teamA: 0, teamB: 0 },
+        lastRoundResult: null
       })
     } finally {
       setStarting(false)
@@ -284,12 +284,12 @@ export default function CourtPiece({ code }) {
     sendAction({ type: 'PLAY', payload: { cardId } })
   }
 
-  async function handleNextHand() {
+  async function handleNextRound() {
     if (advancing) return
     setAdvancing(true)
     try {
       const current = roomStateRef.current
-      if (current.lastHandResult?.matchWinner) {
+      if (current.lastRoundResult?.gameWinner) {
         await persist({ phase: 'results' })
         return
       }
@@ -299,18 +299,18 @@ export default function CourtPiece({ code }) {
       await clearActions()
       await persist({
         phase: 'calling_trump',
-        handNumber: current.handNumber + 1,
+        roundNumber: current.roundNumber + 1,
         callerId: current.nextCallerId,
         trumpSuit: null,
         hands,
         remainingDeck: remaining,
-        tricksWon: zeroed,
-        currentTrick: [],
+        handsWon: zeroed,
+        currentHand: [],
         handWinnerId: null,
         ledSuit: null,
         currentIdx: null
-        // lastHandResult is deliberately kept — it's what "View Last Hand"
-        // shows during the new hand. It only changes once this new hand
+        // lastRoundResult is deliberately kept — it's what "View Last Round"
+        // shows during the new round. It only changes once this new round
         // itself completes and overwrites it.
       })
     } finally {
@@ -327,8 +327,8 @@ export default function CourtPiece({ code }) {
   useEffect(() => {
     if (phase !== 'results' || !myId || xpAwarded.current) return
     xpAwarded.current = true
-    const matchWinner = roomState.lastHandResult?.matchWinner
-    const isWinner = getTeamOf(myId, roomState.turnOrder) === matchWinner
+    const gameWinner = roomState.lastRoundResult?.gameWinner
+    const isWinner = getTeamOf(myId, roomState.turnOrder) === gameWinner
     awardXP(isWinner ? 100 : 20, room?.roomType)
     if (room?.roomType === 'ranked') {
       writeGameStats('court-piece', { won: isWinner, gamesPlayed: 1 })
@@ -393,7 +393,7 @@ export default function CourtPiece({ code }) {
     const myHand = sortHand(roomState.hands?.[myId] ?? [])
     return (
       <>
-        {renderLastHandButton()}
+        {renderLastRoundButton()}
         <TrumpCallScreen
           isCaller={isCaller}
           callerName={callerName}
@@ -407,15 +407,15 @@ export default function CourtPiece({ code }) {
   if (phase === 'playing') {
     const myHand = sortHand(roomState.hands?.[myId] ?? [])
     const isMyTurn = roomState.turnOrder?.[roomState.currentIdx] === myId
-    // Nothing should be tappable while a completed trick is still being
+    // Nothing should be tappable while a completed hand is still being
     // held on screen for review (currentIdx doesn't advance until the
-    // trick-reveal pause finishes — see applyPlay).
+    // hand-reveal pause finishes — see applyPlay).
     const isInteractive = isMyTurn && !roomState.handWinnerId
     const currentTurnName = players.find(p => p.id === roomState.turnOrder?.[roomState.currentIdx])?.name ?? 'player'
     const legalPlays = isInteractive ? getLegalPlays(myHand, roomState.ledSuit) : []
     const disabledCardIds = isInteractive ? myHand.filter(id => !legalPlays.includes(id)) : myHand
     const highlightedCardIds = myHand.filter(id => parseCard(id).suit === roomState.trumpSuit)
-    const centerCards = (roomState.currentTrick ?? []).map(({ playerId, card }) => ({
+    const centerCards = (roomState.currentHand ?? []).map(({ playerId, card }) => ({
       card,
       playerName: players.find(p => p.id === playerId)?.name
     }))
@@ -429,15 +429,15 @@ export default function CourtPiece({ code }) {
         label: getTeamOf(p.id, roomState.turnOrder) === myTeam ? 'Partner' : undefined
       }))
 
-    const roundsWon = roomState.handsWon ?? { teamA: 0, teamB: 0 }
-    const matchScores = roomState.matchScores ?? { teamA: 0, teamB: 0 }
+    const roundsWon = roomState.roundsWon ?? { teamA: 0, teamB: 0 }
+    const gameScores = roomState.gameScores ?? { teamA: 0, teamB: 0 }
     const scoreEntries = [
-      { label: 'Round', value: roomState.handNumber ?? 1 },
-      { label: 'Team A', value: `${matchScores.teamA}pts (${roundsWon.teamA} rounds)` },
-      { label: 'Team B', value: `${matchScores.teamB}pts (${roundsWon.teamB} rounds)` },
+      { label: 'Round', value: roomState.roundNumber ?? 1 },
+      { label: 'Team A', value: `${gameScores.teamA}pts (${roundsWon.teamA} rounds)` },
+      { label: 'Team B', value: `${gameScores.teamB}pts (${roundsWon.teamB} rounds)` },
       { label: 'Trump', value: SUIT_LABEL[roomState.trumpSuit], valueClassName: SUIT_TEXT_CLASS[roomState.trumpSuit] }
     ]
-    const tricksThisRound = computeTeamTricks(roomState.turnOrder ?? [], roomState.tricksWon ?? {})
+    const handsThisRound = computeTeamHands(roomState.turnOrder ?? [], roomState.handsWon ?? {})
 
     const handWinnerId = roomState.handWinnerId
     const handWinnerName = handWinnerId ? (players.find(p => p.id === handWinnerId)?.name ?? 'Player') : null
@@ -453,10 +453,10 @@ export default function CourtPiece({ code }) {
 
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
-        {renderLastHandButton()}
+        {renderLastRoundButton()}
         <TableScoreBar entries={scoreEntries} />
         <p className="text-center text-textMuted text-xs">
-          Hands won this round — Team A: {tricksThisRound.teamA}, Team B: {tricksThisRound.teamB}
+          Hands won this round — Team A: {handsThisRound.teamA}, Team B: {handsThisRound.teamB}
         </p>
         <CardTable
           otherSeats={otherSeats}
@@ -480,16 +480,16 @@ export default function CourtPiece({ code }) {
     )
   }
 
-  if (phase === 'hand_reveal') {
+  if (phase === 'round_reveal') {
     const openSeats = room?.openSeats ?? []
     const isSpectator = (room?.spectators ?? []).some(p => p.id === myId)
     return (
-      <HandRevealScreen
-        lastHandResult={roomState.lastHandResult}
+      <RoundRevealScreen
+        lastRoundResult={roomState.lastRoundResult}
         players={players}
         turnOrder={roomState.turnOrder ?? []}
         isHost={isHost}
-        onNextHand={handleNextHand}
+        onNextRound={handleNextRound}
         advancing={advancing}
         seatManagement={{
           turnOrder: roomState.turnOrder ?? [],
@@ -498,11 +498,11 @@ export default function CourtPiece({ code }) {
           isSpectator,
           onLeaveSeat: leaveSeat,
           onClaimSeat: (seatPlayerId) => {
-            // matchScores/handsWon are keyed by team, not player id, so
+            // gameScores/roundsWon are keyed by team, not player id, so
             // they need no remap — turnOrder positions still decide team
             // membership. nextCallerId is the one live id-pointer: it's
-            // who calls trump for the NEXT hand, set to the just-finished
-            // hand's trick-13 winner.
+            // who calls trump for the NEXT round, set to the just-finished
+            // round's hand-13 winner.
             const statePatch = {
               turnOrder: roomState.turnOrder.map(id => id === seatPlayerId ? myId : id)
             }
@@ -519,9 +519,9 @@ export default function CourtPiece({ code }) {
       <ResultsScreen
         turnOrder={roomState.turnOrder ?? []}
         players={players}
-        matchWinner={roomState.lastHandResult?.matchWinner}
-        matchScores={roomState.matchScores ?? { teamA: 0, teamB: 0 }}
-        handsWon={roomState.handsWon ?? { teamA: 0, teamB: 0 }}
+        gameWinner={roomState.lastRoundResult?.gameWinner}
+        gameScores={roomState.gameScores ?? { teamA: 0, teamB: 0 }}
+        roundsWon={roomState.roundsWon ?? { teamA: 0, teamB: 0 }}
         myId={myId}
         isHost={isHost}
         onRematch={handleRematch}

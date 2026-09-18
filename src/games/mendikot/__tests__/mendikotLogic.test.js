@@ -1,16 +1,16 @@
-import { countTensInTrick, computeMendikotOutcome } from '../mendikotLogic'
+import { countTensInHand, computeMendikotOutcome } from '../mendikotLogic'
 
-describe('countTensInTrick', () => {
-  test('zero tens in a trick with none', () => {
-    expect(countTensInTrick(['AS', 'KH', '3D', '9C'])).toBe(0)
+describe('countTensInHand', () => {
+  test('zero tens in a hand with none', () => {
+    expect(countTensInHand(['AS', 'KH', '3D', '9C'])).toBe(0)
   })
 
-  test('one ten in a trick', () => {
-    expect(countTensInTrick(['AS', '10H', '3D', '9C'])).toBe(1)
+  test('one ten in a hand', () => {
+    expect(countTensInHand(['AS', '10H', '3D', '9C'])).toBe(1)
   })
 
-  test('two tens in a trick', () => {
-    expect(countTensInTrick(['10S', '10H', '3D', '9C'])).toBe(2)
+  test('two tens in a hand', () => {
+    expect(countTensInHand(['10S', '10H', '3D', '9C'])).toBe(2)
   })
 })
 
@@ -43,14 +43,14 @@ describe('computeMendikotOutcome', () => {
     })
   })
 
-  test('a 2-2 split is broken by trick count, team A ahead on tricks', () => {
+  test('a 2-2 split is broken by hand count, team A ahead on hands', () => {
     expect(computeMendikotOutcome({ teamA: 7, teamB: 6 }, { teamA: 2, teamB: 2 })).toEqual({
       winningTeam: 'teamA',
       isMendikot: false
     })
   })
 
-  test('a 2-2 split is broken by trick count, team B ahead on tricks', () => {
+  test('a 2-2 split is broken by hand count, team B ahead on hands', () => {
     expect(computeMendikotOutcome({ teamA: 6, teamB: 7 }, { teamA: 2, teamB: 2 })).toEqual({
       winningTeam: 'teamB',
       isMendikot: false

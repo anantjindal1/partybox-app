@@ -29,7 +29,7 @@ export function BiddingScreen({ myHand = [], roundNumber, bidsIn, totalPlayers, 
         <p className="text-sm text-textMuted py-4">Bid locked in — waiting for the room…</p>
       ) : (
         <div className="w-full flex flex-col gap-4">
-          <p className="text-center text-textPrimary font-semibold">How many tricks will you win?</p>
+          <p className="text-center text-textPrimary font-semibold">How many hands will you win?</p>
           <div className="grid grid-cols-5 gap-2">
             {BID_OPTIONS.map(n => (
               <button

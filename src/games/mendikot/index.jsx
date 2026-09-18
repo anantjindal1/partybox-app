@@ -14,7 +14,7 @@ import { TableScoreBar } from '../../components/cards/TableScoreBar'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { PartnerPicker } from '../../components/cards/PartnerPicker'
 import { ResultsScreen } from './ResultsScreen'
-import { getTeamOf, computeTeamTricks, countTensInTrick, computeMendikotOutcome } from './mendikotLogic'
+import { getTeamOf, computeTeamHands, countTensInHand, computeMendikotOutcome } from './mendikotLogic'
 import { awardXP } from '../../services/xp'
 import { writeGameStats } from '../../services/stats'
 import { awardBadge } from '../../services/profile'
@@ -71,52 +71,52 @@ export default function Mendikot({ code }) {
   async function applyPlay(cardId) {
     const current = roomStateRef.current
     const actingPlayerId = current.turnOrder[current.currentIdx]
-    const newHand = removeCardFromHand(current.hands[actingPlayerId], cardId)
-    const newTrick = [...current.currentTrick, { playerId: actingPlayerId, card: cardId }]
+    const remainingCards = removeCardFromHand(current.hands[actingPlayerId], cardId)
+    const newHand = [...current.currentHand, { playerId: actingPlayerId, card: cardId }]
     const newLedSuit = current.ledSuit ?? parseCard(cardId).suit
-    const newHands = { ...current.hands, [actingPlayerId]: newHand }
+    const newHands = { ...current.hands, [actingPlayerId]: remainingCards }
 
-    if (newTrick.length === current.turnOrder.length) {
-      const winnerId = resolveTrick(newTrick, newLedSuit, null)
+    if (newHand.length === current.turnOrder.length) {
+      const winnerId = resolveTrick(newHand, newLedSuit, null)
       const winnerTeam = getTeamOf(winnerId, current.turnOrder)
-      const tensWon = countTensInTrick(newTrick.map(p => p.card))
-      const newTricksWon = { ...current.tricksWon, [winnerId]: (current.tricksWon[winnerId] ?? 0) + 1 }
+      const tensWon = countTensInHand(newHand.map(p => p.card))
+      const newHandsWon = { ...current.handsWon, [winnerId]: (current.handsWon[winnerId] ?? 0) + 1 }
       const newTensCaptured = { ...current.tensCaptured, [winnerTeam]: current.tensCaptured[winnerTeam] + tensWon }
 
       // Keep all 4 cards visible and reveal the winner for a beat before
-      // clearing/advancing — otherwise the trick vanishes the instant the
+      // clearing/advancing — otherwise the hand vanishes the instant the
       // 4th card lands, with no chance to see what happened.
       await clearActions()
-      await persist({ hands: newHands, currentTrick: newTrick, handWinnerId: winnerId })
+      await persist({ hands: newHands, currentHand: newHand, handWinnerId: winnerId })
       await new Promise(resolve => setTimeout(resolve, 1500))
 
       // A team capturing all four 10s wins outright — no point playing out
-      // the remaining tricks once that's locked in, so check this BEFORE
-      // the hand-empty check, not just as a special case of it.
+      // the remaining hands once that's locked in, so check this BEFORE
+      // the cards-empty check, not just as a special case of it.
       const wonAllTens = newTensCaptured.teamA === 4 || newTensCaptured.teamB === 4
-      if (newHand.length === 0 || wonAllTens) {
-        const teamTricks = computeTeamTricks(current.turnOrder, newTricksWon)
-        const { winningTeam, isMendikot } = computeMendikotOutcome(teamTricks, newTensCaptured)
+      if (remainingCards.length === 0 || wonAllTens) {
+        const teamHands = computeTeamHands(current.turnOrder, newHandsWon)
+        const { winningTeam, isMendikot } = computeMendikotOutcome(teamHands, newTensCaptured)
         await persist({
           hands: newHands,
-          tricksWon: newTricksWon,
+          handsWon: newHandsWon,
           tensCaptured: newTensCaptured,
-          currentTrick: [],
+          currentHand: [],
           handWinnerId: null,
           ledSuit: null,
           phase: 'results',
           winningTeam,
           isMendikot,
-          teamTricks
+          teamHands
         })
         return
       }
 
       await persist({
         hands: newHands,
-        tricksWon: newTricksWon,
+        handsWon: newHandsWon,
         tensCaptured: newTensCaptured,
-        currentTrick: [],
+        currentHand: [],
         handWinnerId: null,
         ledSuit: null,
         currentIdx: current.turnOrder.indexOf(winnerId)
@@ -132,7 +132,7 @@ export default function Mendikot({ code }) {
     await clearActions()
     await persist({
       hands: newHands,
-      currentTrick: newTrick,
+      currentHand: newHand,
       ledSuit: newLedSuit,
       currentIdx: turnState.currentIdx
     })
@@ -152,9 +152,9 @@ export default function Mendikot({ code }) {
         turnOrder: playerIds,
         currentIdx: 0,
         hands,
-        tricksWon: {},
+        handsWon: {},
         tensCaptured: { teamA: 0, teamB: 0 },
-        currentTrick: [],
+        currentHand: [],
         handWinnerId: null,
         ledSuit: null
       })
@@ -232,15 +232,15 @@ export default function Mendikot({ code }) {
   if (phase === 'playing') {
     const myHand = sortHand(roomState.hands?.[myId] ?? [])
     const isMyTurn = roomState.turnOrder?.[roomState.currentIdx] === myId
-    // Nothing should be tappable while a completed trick is still being
+    // Nothing should be tappable while a completed hand is still being
     // held on screen for review (currentIdx doesn't advance until the
-    // trick-reveal pause finishes — see applyPlay).
+    // hand-reveal pause finishes — see applyPlay).
     const isInteractive = isMyTurn && !roomState.handWinnerId
     const currentTurnName = players.find(p => p.id === roomState.turnOrder?.[roomState.currentIdx])?.name ?? 'player'
     const legalPlays = isInteractive ? getLegalPlays(myHand, roomState.ledSuit) : []
     const disabledCardIds = isInteractive ? myHand.filter(id => !legalPlays.includes(id)) : myHand
     const highlightedCardIds = myHand.filter(id => TEN_IDS.includes(id))
-    const centerCards = (roomState.currentTrick ?? []).map(({ playerId, card }) => ({
+    const centerCards = (roomState.currentHand ?? []).map(({ playerId, card }) => ({
       card,
       playerId,
       playerName: players.find(p => p.id === playerId)?.name
@@ -254,11 +254,11 @@ export default function Mendikot({ code }) {
         isActiveTurn: roomState.turnOrder?.[roomState.currentIdx] === p.id,
         label: getTeamOf(p.id, roomState.turnOrder) === myTeam ? 'Partner' : undefined
       }))
-    const teamTricks = computeTeamTricks(roomState.turnOrder, roomState.tricksWon ?? {})
+    const teamHands = computeTeamHands(roomState.turnOrder, roomState.handsWon ?? {})
     const tensCaptured = roomState.tensCaptured ?? { teamA: 0, teamB: 0 }
     const scoreEntries = [
-      { label: 'Team A', value: `${teamTricks.teamA} tricks, ${tensCaptured.teamA} tens` },
-      { label: 'Team B', value: `${teamTricks.teamB} tricks, ${tensCaptured.teamB} tens` }
+      { label: 'Team A', value: `${teamHands.teamA} hands, ${tensCaptured.teamA} tens` },
+      { label: 'Team B', value: `${teamHands.teamB} hands, ${tensCaptured.teamB} tens` }
     ]
 
     const handWinnerId = roomState.handWinnerId
@@ -304,7 +304,7 @@ export default function Mendikot({ code }) {
         turnOrder={roomState.turnOrder}
         winningTeam={roomState.winningTeam}
         isMendikot={roomState.isMendikot}
-        teamTricks={roomState.teamTricks}
+        teamHands={roomState.teamHands}
         tensCaptured={roomState.tensCaptured}
         myId={myId}
         isHost={isHost}
