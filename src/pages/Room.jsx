@@ -15,6 +15,7 @@ import { useOnlineStatus } from '../hooks/useOnlineStatus'
 import { useOnlineRoom } from '../hooks/useOnlineRoom'
 import { joinRoom, joinAsSpectator } from '../services/room'
 import { getGame } from '../games/registry'
+import { trackEvent } from '../lib/analytics/core'
 
 // Game is active once phase moves past setup (waiting/setup = lobby,
 // anything else = in-game). Module scope since both the auto-join
@@ -32,9 +33,56 @@ export default function Room() {
   const [onboarded, setOnboarded] = useState(() => !!localStorage.getItem('partybox_identity_set'))
   const [copied, setCopied] = useState(false)
   const joinedRef = useRef(false)
+  const gameTrackingRef = useRef({ slug: null, started: false, ended: false })
 
   // useOnlineRoom for host controls (kick, end game) and roomState
   const { isHost, kickPlayer, kickSpectator, endGame, expired, roomState, myId } = useOnlineRoom(code)
+
+  // Generic, zero-config game_start/game_complete/game_abandon/rematch
+  // tracking for every online game — see src/lib/analytics/core.js. A game
+  // that already fires its own richer funnel events (metadata.js
+  // `analyticsSelfInstrumented: true`, e.g. FirstBell/Dumb Charades) is
+  // skipped here to avoid double-counting; every other game gets this for
+  // free just by being routed through Room.jsx, no per-game code needed.
+  useEffect(() => {
+    const slug = room?.gameSlug
+    const phase = roomState?.phase
+    if (!slug) return
+    const game = getGame(slug)
+    if (game?.analyticsSelfInstrumented) return
+
+    if (gameTrackingRef.current.slug !== slug) {
+      gameTrackingRef.current = { slug, started: false, ended: false }
+    }
+    const tracking = gameTrackingRef.current
+
+    if (LOBBY_PHASES.has(phase)) {
+      if (tracking.ended) trackEvent('rematch', slug)
+      tracking.started = false
+      tracking.ended = false
+      return
+    }
+
+    if (!tracking.started) {
+      tracking.started = true
+      trackEvent('game_start', slug)
+    }
+    if (phase === 'results' && !tracking.ended) {
+      tracking.ended = true
+      trackEvent('game_complete', slug)
+    }
+  }, [room?.gameSlug, roomState?.phase])
+
+  // A player who navigates away or closes the tab mid-game never reaches
+  // 'results' — this is the only way to catch that as game_abandon.
+  useEffect(() => {
+    return () => {
+      const tracking = gameTrackingRef.current
+      if (tracking.started && !tracking.ended && tracking.slug) {
+        trackEvent('game_abandon', tracking.slug)
+      }
+    }
+  }, [])
 
   // Auto-close room after results phase starts (duration configurable per-game via resultsDurationMs)
   // Games with noAutoClose: true handle their own navigation (e.g. FirstBell has Rematch/Home buttons)
@@ -172,7 +220,7 @@ export default function Room() {
   return (
     <div className="min-h-screen bg-surface text-textPrimary flex flex-col">
       <ConnectionOverlay connected={connected} />
-      {!onboarded && <PlayerIdentityModal onComplete={handleIdentityComplete} />}
+      {!onboarded && <PlayerIdentityModal onComplete={handleIdentityComplete} profile={profile} />}
 
       <header className="flex items-center justify-between flex-wrap gap-y-2 px-4 sm:px-6 py-4 border-b border-border/60 shadow-soft">
         <button

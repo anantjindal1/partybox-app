@@ -1,13 +1,28 @@
 import { useState, useEffect, useRef } from 'react'
+import { AVATARS } from '../data/avatars'
 
-const AVATARS = ['🦁', '🐯', '🦊', '🐻', '🦅', '🐺', '🦋', '🐸']
+// getProfile() (src/services/profile.js) already stores this literal
+// string as the untouched default for a brand-new device — treated here
+// as "no real name yet" rather than something to actually pre-fill,
+// since showing the same bare "Player" to everyone who hasn't set a name
+// makes same-room devices hard to tell apart.
+const UNSET_DEFAULT_NAME = 'Player'
+
+function randomDefaultName() {
+  return `Player${Math.floor(100 + Math.random() * 900)}`
+}
 
 // Presentation-only — the caller decides whether this should be shown
 // at all (once per device, until `onComplete` fires) and owns actually
 // persisting the result (the profile store, see src/services/profile.js).
-export default function PlayerIdentityModal({ onComplete }) {
-  const [name, setName] = useState('')
-  const [avatar, setAvatar] = useState('🦁')
+// `profile`, if already available, seeds sensible defaults so a player
+// can just tap through instead of being forced to type/pick first.
+export default function PlayerIdentityModal({ onComplete, profile }) {
+  const [name, setName] = useState(() => {
+    if (profile?.name && profile.name !== UNSET_DEFAULT_NAME) return profile.name
+    return randomDefaultName()
+  })
+  const [avatar, setAvatar] = useState(() => profile?.avatar || AVATARS[0])
   const inputRef = useRef(null)
 
   useEffect(() => {

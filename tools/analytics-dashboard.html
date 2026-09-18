@@ -90,9 +90,9 @@
       display: inline-block; border-radius: 999px; padding: 2px 10px;
       font-size: 0.72rem; font-weight: 700;
     }
-    .badge-fb { background: #1e3a5f; color: #93c5fd; }
-    .badge-tf { background: #3b1f00; color: #fcd34d; }
-    .badge-dc { background: #1a1f3b; color: #a5b4fc; }
+    .game-row { cursor: pointer; }
+    .game-detail-row { background: rgba(255,255,255,0.02); }
+    .game-detail-row td { padding: 4px 14px 14px; }
 
     /* Bar chart */
     .bar-chart { display: flex; flex-direction: column; gap: 6px; }
@@ -156,12 +156,14 @@
 <div class="section">
   <h2>Today</h2>
   <div class="today-grid" id="todayGrid">
+    <div class="today-card"><div class="val" id="td-users">—</div><div class="lbl">Active Users</div></div>
     <div class="today-card"><div class="val" id="td-sessions">—</div><div class="lbl">Sessions</div></div>
     <div class="today-card"><div class="val" id="td-started">—</div><div class="lbl">Games Started</div></div>
     <div class="today-card"><div class="val" id="td-completed">—</div><div class="lbl">Completed</div></div>
     <div class="today-card"><div class="val" id="td-abandoned">—</div><div class="lbl">Abandoned</div></div>
     <div class="today-card"><div class="val" id="td-rematches">—</div><div class="lbl">Rematches</div></div>
     <div class="today-card"><div class="val" id="td-questions">—</div><div class="lbl">Q Answered</div></div>
+    <div class="today-card"><div class="val" id="td-avgsession">—</div><div class="lbl">Avg Session</div></div>
   </div>
 </div>
 
@@ -170,11 +172,12 @@
   <h2>Overview — All Time</h2>
   <div class="stat-grid">
     <div class="stat-card"><div class="val blue" id="ov-sessions">—</div><div class="lbl">Total Sessions</div></div>
-    <div class="stat-card"><div class="val" id="ov-devices">—</div><div class="lbl">Total Devices</div></div>
+    <div class="stat-card"><div class="val" id="ov-devices">—</div><div class="lbl">Unique Users</div></div>
     <div class="stat-card"><div class="val highlight" id="ov-started">—</div><div class="lbl">Games Started</div></div>
     <div class="stat-card"><div class="val green" id="ov-completed">—</div><div class="lbl">Completed</div></div>
     <div class="stat-card"><div class="val" id="ov-rate">—</div><div class="lbl">Completion %</div></div>
     <div class="stat-card"><div class="val" id="ov-rematches">—</div><div class="lbl">Rematches</div></div>
+    <div class="stat-card"><div class="val" id="ov-avgsession">—</div><div class="lbl">Avg Session Time</div></div>
   </div>
 </div>
 
@@ -196,7 +199,7 @@
 <div class="two-col">
   <!-- 3. GAME BREAKDOWN -->
   <div class="section">
-    <h2>Game Breakdown</h2>
+    <h2>Game Breakdown <span style="text-transform:none;font-weight:400;color:#52525b;font-size:0.75rem">(tap a row for detail)</span></h2>
     <div class="table-wrap">
       <table>
         <thead>
@@ -250,8 +253,13 @@
 <script>
   // ── Config ────────────────────────────────────────────────────────────────────
   // NOTE: Reads require Firestore security rules to allow public reads on these
-  // collections. If you see 403 errors, check your rules.
+  // collections. If you see 403 errors, check your rules AND that API_KEY below
+  // is a valid key for this Firebase project (the Firestore REST API rejects
+  // unauthenticated requests before your security rules are even evaluated —
+  // this is a public, restricted client key, same as the one already used by
+  // tools/dc-stats.html, safe to expose per Firebase's own docs).
   const PROJECT_ID = 'partybox-cd9ab'
+  const API_KEY = 'AIzaSyBOFUZfmLnag5_kgwMgvTACz9X3Uv7euLs'
   const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`
 
   // ── State ─────────────────────────────────────────────────────────────────────
@@ -260,27 +268,49 @@
   let deviceDocs = []
 
   // ── Fetch helpers ─────────────────────────────────────────────────────────────
+  // Pages through the whole collection — analytics_events in particular
+  // will exceed a single 300-doc page fast, and silently truncating it
+  // would quietly under-count everything downstream (unique users,
+  // funnels, game breakdown) with no visible error.
   async function fetchCollection(path, params = '') {
-    const url = `${BASE}/${path}?pageSize=300${params}`
-    const res = await fetch(url)
-    if (!res.ok) {
-      const body = await res.text()
-      throw new Error(`HTTP ${res.status} on ${path}: ${body.substring(0, 200)}`)
-    }
-    const data = await res.json()
-    return data.documents ?? []
+    const docs = []
+    let pageToken = ''
+    do {
+      const url = `${BASE}/${path}?key=${API_KEY}&pageSize=300${params}${pageToken ? '&pageToken=' + pageToken : ''}`
+      const res = await fetch(url)
+      if (!res.ok) {
+        const body = await res.text()
+        throw new Error(`HTTP ${res.status} on ${path}: ${body.substring(0, 200)}`)
+      }
+      const data = await res.json()
+      docs.push(...(data.documents ?? []))
+      pageToken = data.nextPageToken ?? ''
+    } while (pageToken)
+    return docs
   }
 
   function fv(field) {
-    // Unwrap Firestore REST field value
+    // Unwrap a Firestore REST field value into a plain JS value —
+    // recursively for maps/arrays, so e.g. `props` comes out as a real
+    // {category: 'gk'} object, not the raw {fields: {category: {...}}}
+    // wire shape (which every plain Object.keys()/[] check downstream
+    // silently treats as valid-but-empty instead of erroring).
     if (!field) return null
     if (field.integerValue !== undefined) return parseInt(field.integerValue, 10)
     if (field.doubleValue !== undefined)  return parseFloat(field.doubleValue)
     if (field.stringValue !== undefined)  return field.stringValue
     if (field.timestampValue !== undefined) return new Date(field.timestampValue)
     if (field.booleanValue !== undefined) return field.booleanValue
-    if (field.mapValue !== undefined)     return field.mapValue
+    if (field.nullValue !== undefined)    return null
+    if (field.mapValue !== undefined)     return fvMap(field.mapValue.fields ?? {})
+    if (field.arrayValue !== undefined)   return (field.arrayValue.values ?? []).map(fv)
     return null
+  }
+
+  function fvMap(fields) {
+    const out = {}
+    for (const [k, v] of Object.entries(fields)) out[k] = fv(v)
+    return out
   }
 
   function docToObj(doc) {
@@ -313,6 +343,28 @@
   function pct(num, den) {
     if (!den) return '—'
     return Math.round((num / den) * 100) + '%'
+  }
+
+  // Session time comes straight from the raw event log, not the
+  // pre-aggregated analytics_daily/analytics_devices counters — session_end
+  // can arrive via a beacon (tab close) that only ever writes the one event
+  // doc, skipping those rollups. Summing the log directly is correct either way.
+  function sumSessionTime(docs) {
+    let count = 0, totalMs = 0
+    for (const e of docs) {
+      if (e.event !== 'session_end') continue
+      const ms = e.props?.durationMs
+      if (typeof ms === 'number') { count++; totalMs += ms }
+    }
+    return { count, totalMs }
+  }
+
+  function formatDuration(ms) {
+    if (!ms || ms <= 0) return '—'
+    const totalSec = Math.round(ms / 1000)
+    const min = Math.floor(totalSec / 60)
+    const sec = totalSec % 60
+    return min > 0 ? `${min}m ${sec}s` : `${sec}s`
   }
 
   // ── Main load ─────────────────────────────────────────────────────────────────
@@ -357,12 +409,24 @@
   // ── Today ─────────────────────────────────────────────────────────────────────
   function renderToday() {
     const today = dailyDocs.find(d => d._id === todayStr()) ?? {}
+    const todayKey = todayStr()
+    const activeToday = new Set(
+      eventDocs
+        .filter(e => e.ts instanceof Date && e.ts.toISOString().substring(0, 10) === todayKey)
+        .map(e => e.deviceId)
+    )
+    document.getElementById('td-users').textContent     = activeToday.size
     document.getElementById('td-sessions').textContent   = today.sessions ?? 0
     document.getElementById('td-started').textContent    = today.gamesStarted ?? 0
     document.getElementById('td-completed').textContent  = today.gamesCompleted ?? 0
     document.getElementById('td-abandoned').textContent  = today.gamesAbandoned ?? 0
     document.getElementById('td-rematches').textContent  = today.rematches ?? 0
     document.getElementById('td-questions').textContent  = today.questionsAnswered ?? 0
+    const todaySessionTime = sumSessionTime(
+      eventDocs.filter(e => e.ts instanceof Date && e.ts.toISOString().substring(0, 10) === todayKey)
+    )
+    document.getElementById('td-avgsession').textContent =
+      formatDuration(todaySessionTime.totalMs / Math.max(todaySessionTime.count, 1))
   }
 
   // ── Overview ──────────────────────────────────────────────────────────────────
@@ -380,6 +444,9 @@
     document.getElementById('ov-completed').textContent = completed
     document.getElementById('ov-rate').textContent      = pct(completed, started)
     document.getElementById('ov-rematches').textContent = rematches
+    const allSessionTime = sumSessionTime(eventDocs)
+    document.getElementById('ov-avgsession').textContent =
+      formatDuration(allSessionTime.totalMs / Math.max(allSessionTime.count, 1))
   }
 
   // ── Daily chart ───────────────────────────────────────────────────────────────
@@ -418,44 +485,79 @@
   }
 
   // ── Game Breakdown ────────────────────────────────────────────────────────────
-  const GAME_BADGE = {
-    'firstbell':    '<span class="badge badge-fb">FirstBell</span>',
-    'thinkfast':    '<span class="badge badge-tf">ThinkFast</span>',
-    'dumb-charades':'<span class="badge badge-dc">Dumb Charades</span>',
+  // No hardcoded game list — every game that has ever fired a tracked
+  // event shows up automatically. `game.slug` -> title-cased display name,
+  // since this standalone tool deliberately doesn't import the app's own
+  // registry (keeping it a single, dependency-free file).
+  function titleCase(slug) {
+    return slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
   }
 
-  function renderGameBreakdown() {
+  function gameStatsFromEvents(docs) {
     const stats = {}
-    for (const e of eventDocs) {
+    for (const e of docs) {
       const g = e.game
       if (!g) continue
-      if (!stats[g]) stats[g] = { started: 0, completed: 0, abandoned: 0, rematches: 0 }
+      if (!stats[g]) stats[g] = { started: 0, completed: 0, abandoned: 0, rematches: 0, propKeys: {} }
       if (e.event === 'game_start')    stats[g].started++
       if (e.event === 'game_complete') stats[g].completed++
       if (e.event === 'game_abandon')  stats[g].abandoned++
       if (e.event === 'rematch')       stats[g].rematches++
+      // Generic "game-specific detail" surface: tally any extra prop keys
+      // a game chose to attach (e.g. category, score) without this tool
+      // needing to know what any particular game's props look like.
+      for (const k of Object.keys(e.props ?? {})) {
+        stats[g].propKeys[k] = (stats[g].propKeys[k] ?? 0) + 1
+      }
     }
+    return stats
+  }
 
-    const games = ['firstbell', 'thinkfast', 'dumb-charades']
+  let gameStats = {}
+  let expandedGame = null
+
+  function renderGameBreakdown() {
+    gameStats = gameStatsFromEvents(eventDocs)
+    const games = Object.keys(gameStats).sort((a, b) => gameStats[b].started - gameStats[a].started)
+
     const rows = games.map(g => {
-      const s = stats[g] ?? {}
-      const started   = s.started ?? 0
-      const completed = s.completed ?? 0
-      const abandoned = s.abandoned ?? 0
-      const rematches = s.rematches ?? 0
-      const rate = pct(completed, started)
-      return `<tr>
-        <td>${GAME_BADGE[g] ?? g}</td>
-        <td class="num">${started}</td>
-        <td class="num">${completed}</td>
-        <td class="num">${abandoned}</td>
+      const s = gameStats[g]
+      const rate = pct(s.completed, s.started)
+      return `<tr class="game-row" onclick="toggleGameDetail('${g}')">
+        <td>${titleCase(g)}</td>
+        <td class="num">${s.started}</td>
+        <td class="num">${s.completed}</td>
+        <td class="num">${s.abandoned}</td>
         <td class="num">${rate}</td>
-        <td class="num">${rematches}</td>
-      </tr>`
+        <td class="num">${s.rematches}</td>
+      </tr>${expandedGame === g ? `<tr class="game-detail-row"><td colspan="6">${renderGameDetail(g, s)}</td></tr>` : ''}`
     })
 
     document.getElementById('gameBreakdownBody').innerHTML =
       rows.join('') || '<tr><td colspan="6" class="empty">No data yet</td></tr>'
+  }
+
+  // Deliberately light — a handful of funnel numbers plus which extra
+  // event props this game records, not a full per-game analytics page.
+  function renderGameDetail(slug, s) {
+    const propList = Object.entries(s.propKeys)
+      .sort((a, b) => b[1] - a[1])
+      .map(([k, count]) => `<span class="badge" style="background:#27272a;color:#a1a1aa;margin:2px">${k} ×${count}</span>`)
+      .join('') || '<span class="muted">No extra event data recorded</span>'
+
+    return `
+      <div style="padding:10px 4px;display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:0.75rem;color:#71717a">
+          ${s.started} started → ${s.completed} completed (${pct(s.completed, s.started)}) →
+          ${s.rematches} rematches · ${s.abandoned} abandoned (${pct(s.abandoned, s.started)})
+        </div>
+        <div>${propList}</div>
+      </div>`
+  }
+
+  function toggleGameDetail(slug) {
+    expandedGame = expandedGame === slug ? null : slug
+    renderGameBreakdown()
   }
 
   // ── Funnel ────────────────────────────────────────────────────────────────────

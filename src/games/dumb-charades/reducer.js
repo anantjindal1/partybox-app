@@ -93,9 +93,17 @@ export function gameReducer(state, action) {
     }
 
     case ACTIONS.CONFIRM_SETTINGS: {
-      // Build and shuffle the full word queue for this game
+      // Build and shuffle the full word queue for this game — excluding
+      // whatever this device has already been shown today (across
+      // earlier games this same sitting), so a fresh game or "Play
+      // Again" doesn't immediately repeat a movie the room just saw.
+      // Falls back to the full pool if excluding today's words would
+      // leave nothing to play (every word in the selected categories
+      // has already come up today) — a repeat is better than an empty game.
       const pool = buildWordPool(state.categories, state.difficulty, state.customWords)
-      const wordQueue = shuffleArray(pool)
+      const excludeSet = new Set(action.payload?.excludeWords ?? [])
+      const filteredPool = pool.filter(w => !excludeSet.has(w))
+      const wordQueue = shuffleArray(filteredPool.length > 0 ? filteredPool : pool)
       return {
         ...state,
         wordQueue,

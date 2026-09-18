@@ -14,7 +14,6 @@ import { games } from '../games/registry'
 import { joinRoom } from '../services/room'
 import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
-import { trackEvent as trackAnalyticsEvent } from '../services/analytics_events'
 import AdBanner from '../components/AdBanner'
 import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, PartnershipIcon, SevenIcon, MendikotIcon, TargetIcon, RotationIcon, DonkeyIcon, SoloIcon, PartyIcon, SignalIcon, MegaphoneIcon, DetectiveHatIcon, GridIcon } from '../components/gameIcons'
 
@@ -493,11 +492,6 @@ export default function Home() {
   // Identity modal shown after carousel "Let's Go!"
   const [showIdentityModal, setShowIdentityModal] = useState(false)
 
-  // ── Session tracking ────────────────────────────────────────────────────────
-  useEffect(() => {
-    trackAnalyticsEvent('session_start', null)
-  }, [])
-
   const inProgressGames = getInProgressGames()
 
   // Hero: show only for new users with no in-progress games
@@ -918,13 +912,13 @@ export default function Home() {
             {carouselSlide === 1 && (
               <>
                 <h2 className="text-2xl font-bold font-display mb-6">
-                  3 games, every situation
+                  {VISIBLE_GAMES.length}+ games, every situation
                 </h2>
                 <div className="flex gap-3 mb-6 justify-center">
                   {[
                     { Icon: BoltIcon, name: 'ThinkFast', accent: 'teal' },
                     { Icon: ClapperboardIcon, name: 'Dumb Charades', accent: 'terracotta' },
-                    { Icon: BellIcon, name: 'FirstBell', accent: 'gold' },
+                    { Icon: RotationIcon, name: 'Teri', accent: 'cobalt' },
                   ].map(g => (
                     <div
                       key={g.name}
@@ -941,7 +935,7 @@ export default function Home() {
                 </div>
                 <p className="text-textMuted text-base leading-relaxed max-w-xs">
                   Quiz yourself solo, act out Bollywood movies at a party,
-                  or race friends online.
+                  or play card games and more with friends online.
                 </p>
               </>
             )}
@@ -996,6 +990,7 @@ export default function Home() {
       {/* ── Identity modal (shown after carousel "Let's Go!") ───────────────── */}
       {showIdentityModal && (
         <PlayerIdentityModal
+          profile={profile}
           onComplete={async ({ name, avatar }) => {
             await updateProfile({ name, avatar })
             localStorage.setItem('partybox_identity_set', '1')

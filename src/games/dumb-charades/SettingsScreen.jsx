@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ACTIONS } from './reducer'
+import { getSeenWordsToday } from '../../services/dcSeenWords'
 
 const TIMERS     = [60, 90, 120]
 const WIN_POINTS = [3, 5, 7, 10]
@@ -16,7 +17,7 @@ export function SettingsScreen({ state, dispatch }) {
       .map(s => s.trim())
       .filter(Boolean)
     dispatch({ type: 'SET_CUSTOM_WORDS', payload: customWords })
-    dispatch({ type: ACTIONS.CONFIRM_SETTINGS })
+    dispatch({ type: ACTIONS.CONFIRM_SETTINGS, payload: { excludeWords: getSeenWordsToday() } })
   }
 
   return (

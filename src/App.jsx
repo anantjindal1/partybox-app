@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { LangProvider } from './store/LangContext'
 import { ThemeProvider } from './store/ThemeContext'
 import { useOnlineStatus } from './hooks/useOnlineStatus'
+import { initAnalytics } from './services/analyticsSetup'
 import Home from './pages/Home'
 import Room from './pages/Room'
 import Profile from './pages/Profile'
@@ -14,6 +15,10 @@ function GlobalXPSync() {
   useOnlineStatus()
   return null
 }
+
+// Fires once per app load — wires the analytics module to this app's
+// Firebase/device-identity, then starts the app-level session-time clock.
+initAnalytics()
 
 export default function App() {
   return (

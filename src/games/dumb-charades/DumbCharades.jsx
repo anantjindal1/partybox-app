@@ -8,6 +8,7 @@ import { saveGameState, clearSavedState } from '../../services/gameStatePersiste
 import { resolveTitle } from '../../utils/strings'
 import { gameReducer, getInitialState, ACTIONS } from './reducer'
 import { trackEvent as trackAnalyticsEvent } from '../../services/analytics_events'
+import { recordWordsSeen } from '../../services/dcSeenWords'
 import { SetupScreen } from './SetupScreen'
 import { CategorySelect } from './CategorySelect'
 import { SettingsScreen } from './SettingsScreen'
@@ -63,6 +64,19 @@ export default function DumbCharades({ slug, gameTitle }) {
       }
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Track every word this device is actually shown, regardless of outcome,
+  // so a fresh word pool (a new game, or "Play Again") can exclude words
+  // already seen today — see SettingsScreen.jsx's CONFIRM_SETTINGS dispatch
+  // and services/dcSeenWords.js. Recorded incrementally per word (not just
+  // once at game_end) so a mid-game exit still counts toward the exclusion.
+  const lastRecordedWordRef = useRef('')
+  useEffect(() => {
+    if (state.phase === 'acting' && state.currentWord && state.currentWord !== lastRecordedWordRef.current) {
+      lastRecordedWordRef.current = state.currentWord
+      recordWordsSeen([state.currentWord])
+    }
+  }, [state.currentWord, state.phase])
 
   // Persist state during active game phases so refresh shows ResumeGate
   useEffect(() => {

@@ -10,8 +10,7 @@ import { useOnlineStatus } from '../hooks/useOnlineStatus'
 import { db } from '../firebase'
 import { collection, getDocs } from 'firebase/firestore'
 import { games } from '../games/registry'
-
-const AVATARS = ['🎲', '🎮', '🃏', '🎯', '🎪', '🎭', '🦁', '🐯', '🦊', '🐻', '🐸', '🦄']
+import { AVATARS } from '../data/avatars'
 
 // Online game slugs that track stats in Firestore
 const ONLINE_GAME_SLUGS = games
