@@ -26,6 +26,14 @@ export function BiddingScreen({ myHand, seats = [], bidHistory = [], isMyTurn, i
     }
   }, [bidHistory.length])
 
+  // This component stays mounted for the whole 2-round auction, so a
+  // round-1 Pass would otherwise leave passClicked stuck true and the
+  // button permanently disabled/labeled "Passed" through a legitimate
+  // round-2 turn. Reset it whenever a fresh turn starts.
+  useEffect(() => {
+    if (isMyTurn) setPassClicked(false)
+  }, [isMyTurn])
+
   function handlePass() {
     setPassClicked(true)
     onPass()
@@ -54,12 +62,12 @@ export function BiddingScreen({ myHand, seats = [], bidHistory = [], isMyTurn, i
               <span className="text-xs font-semibold text-textPrimary truncate max-w-[90px]">{seat.name}</span>
               {seat.isPartner && <span className="text-[10px] text-textMuted">Your Partner</span>}
               <span className="text-[10px] font-semibold">
-                {seat.hasPassed
-                  ? <span className="text-textMuted">Passed</span>
-                  : seat.isHighBidder
-                    ? <span className="text-cobalt">{formatBidHi(currentHighBid.number, currentHighBid.suit)}</span>
-                    : seat.isCurrentBidder
-                      ? <span className="text-cobalt">Bidding…</span>
+                {seat.isCurrentBidder
+                  ? <span className="text-cobalt">Bidding…</span>
+                  : seat.hasPassed
+                    ? <span className="text-textMuted">Passed</span>
+                    : seat.isHighBidder
+                      ? <span className="text-cobalt">{formatBidHi(currentHighBid.number, currentHighBid.suit)}</span>
                       : <span className="text-textMuted">Waiting</span>}
               </span>
             </div>

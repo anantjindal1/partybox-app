@@ -114,7 +114,7 @@ export default {
           '40%': { transform: 'translateY(-10px) scale(1.08)', opacity: '1' },
           '100%': { transform: 'translateY(-70px) scale(0.55)', opacity: '0' }
         },
-        'trick-settle': {
+        'hand-settle': {
           '0%': { opacity: '1', transform: 'scale(1)' },
           '70%': { opacity: '1', transform: 'scale(1.05)' },
           '100%': { opacity: '0', transform: 'scale(0.85)' }
@@ -127,7 +127,7 @@ export default {
         'deal-in': 'deal-in 0.35s ease-out both',
         'turn-glow': 'turn-glow 1.6s ease-in-out infinite',
         'play-out': 'play-out 0.32s ease-in forwards',
-        'trick-settle': 'trick-settle 1.5s ease-in forwards'
+        'hand-settle': 'hand-settle 1.5s ease-in forwards'
       }
     }
   },

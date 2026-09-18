@@ -194,3 +194,42 @@ future one.
   every place Bluff keys off a raw card id. Deliberately deferred out
   of the 2026-09-17 playtest bug-fix batch — real, separate-scoped
   work, not a quick add.
+
+## Terminology rename rollout (added 2026-09-17)
+
+App-wide rename: what was called a **trick** (1 card from each player)
+is now a **hand**; what was called a **hand** (a full 13-card deal until
+redistribution) is now a **round**; what was called a **match** is now a
+**game**. Confirmed scope: full internal rename (state fields, function
+names, file names), not just UI text.
+
+- ✅ **Teri** — DONE (2026-09-17), the reference implementation for the
+  rename pattern. Fully verified (build + tests + live 4-player
+  playthrough). See project memory `project_terminology_rename.md` for
+  the exact before/after identifier table and the deliberate scope
+  boundary (the shared `multiplayer/trick.js` resolver and the
+  pre-existing "cards in hand" concept — `myHand`, `hands[id]` — are
+  NOT renamed; they're different, unrelated things).
+- **Court Piece** — not started. Replicate the Teri pattern: state
+  fields, `HandRevealScreen.jsx`→`RoundRevealScreen.jsx`, logic-file
+  exports, metadata.js copy, live-verify with a full multiplayer
+  playthrough.
+- **Mendikot** — not started, same pattern.
+- **Teen Do Paanch** — not started, same pattern.
+- **Judgement** — not started. Smaller lift than the others: its own
+  "full deal" concept is already correctly called "round" (file
+  `RoundRevealScreen.jsx`, phase `round_reveal`) — only its
+  trick-concept identifiers (`currentTrick`, `tricksWon`, etc.) need
+  renaming to "hand".
+- **Call Break** — not started, same pattern.
+- **Bhabhi** — not started, same pattern; also has its own inline
+  `animate-trick-settle` usage already migrated to `animate-hand-settle`
+  as part of the shared-infra pass, so that piece is done for this game
+  even though nothing else is.
+- Note: Satti is explicitly OUT of scope — it doesn't use trick-taking
+  mechanics (no `resolveTrick` import), so the trick/hand/round mapping
+  doesn't apply to it.
+- **Real deployment risk to remember when this ships**: these are
+  persisted Firestore room-state field names with no migration path —
+  any room live mid-game when a rename deploys will break. Ship each
+  game's rename when nobody's mid-hand in that game.

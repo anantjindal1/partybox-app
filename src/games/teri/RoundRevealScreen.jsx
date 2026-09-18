@@ -2,13 +2,13 @@ import { SeatManagement } from '../../components/cards/SeatManagement'
 
 const SUIT_LABEL = { spades: '♠', hearts: '♥', diamonds: '♦', clubs: '♣' }
 
-export function HandRevealScreen({ lastHandResult, players, isHost, onNextHand, advancing, seatManagement }) {
-  if (!lastHandResult) return null
+export function RoundRevealScreen({ lastRoundResult, players, isHost, onNextRound, advancing, seatManagement }) {
+  if (!lastRoundResult) return null
   const {
-    handNumber, bid, trumpSuit, gameLeadTeamIds, defenderTeamIds,
-    gameLeadTricks, defenderTricks, winner, isTeri, handPoints,
-    shufflerBefore, shufflerAfter, burstPlayerId, matchWinnerTeam
-  } = lastHandResult
+    roundNumber, bid, trumpSuit, gameLeadTeamIds, defenderTeamIds,
+    gameLeadHands, defenderHands, winner, isTeri, roundPoints,
+    shufflerBefore, shufflerAfter, burstPlayerId, gameWinnerTeam
+  } = lastRoundResult
 
   function nameOf(id) {
     return players.find(p => p.id === id)?.name ?? 'Player'
@@ -22,27 +22,27 @@ export function HandRevealScreen({ lastHandResult, players, isHost, onNextHand, 
   return (
     <div className="flex-1 flex flex-col px-4 sm:px-6 py-6 gap-5 max-w-lg w-full mx-auto">
       <p className="text-xs text-textMuted uppercase tracking-wider text-center">
-        Hand {handNumber + 1} — Bid {bid} in {SUIT_LABEL[trumpSuit]} — GameLead: {teamNames(gameLeadTeamIds)}
+        Round {roundNumber + 1} — Bid {bid} in {SUIT_LABEL[trumpSuit]} — GameLead: {teamNames(gameLeadTeamIds)}
       </p>
 
       <div className={`rounded-2xl p-5 text-center border-[1.5px] ${gameLeadWon ? 'bg-cobalt/10 border-cobalt' : 'bg-error/10 border-error'}`}>
         <p className={`text-xl font-bold font-display ${gameLeadWon ? 'text-cobalt' : 'text-error'}`}>
-          {gameLeadWon ? teamNames(gameLeadTeamIds) : teamNames(defenderTeamIds)} won this hand
+          {gameLeadWon ? teamNames(gameLeadTeamIds) : teamNames(defenderTeamIds)} won this round
         </p>
-        {isTeri && <p className="text-sm font-bold mt-1 uppercase tracking-wider">Teri — swept all 13 tricks!</p>}
+        {isTeri && <p className="text-sm font-bold mt-1 uppercase tracking-wider">Teri — swept all 13 hands!</p>}
         <p className="text-sm text-textMuted mt-1">
-          {handPoints >= 0 ? '+' : ''}{handPoints} points for {teamNames(gameLeadTeamIds)}
+          {roundPoints >= 0 ? '+' : ''}{roundPoints} points for {teamNames(gameLeadTeamIds)}
         </p>
       </div>
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between px-4 py-3 rounded-xl border-[1.5px] border-border bg-surfaceElevated">
           <span className="text-sm font-semibold text-textPrimary">{teamNames(gameLeadTeamIds)} (GameLead)</span>
-          <span className="text-sm font-bold text-textPrimary tabular-nums">{gameLeadTricks} tricks</span>
+          <span className="text-sm font-bold text-textPrimary tabular-nums">{gameLeadHands} hands</span>
         </div>
         <div className="flex items-center justify-between px-4 py-3 rounded-xl border-[1.5px] border-border bg-surfaceElevated">
           <span className="text-sm font-semibold text-textPrimary">{teamNames(defenderTeamIds)}</span>
-          <span className="text-sm font-bold text-textPrimary tabular-nums">{defenderTricks} tricks</span>
+          <span className="text-sm font-bold text-textPrimary tabular-nums">{defenderHands} hands</span>
         </div>
       </div>
 
@@ -63,11 +63,11 @@ export function HandRevealScreen({ lastHandResult, players, isHost, onNextHand, 
         )}
       </div>
 
-      {/* Seat management — only present for the LIVE hand-reveal (never
-          the read-only "view last hand" overlay reuse of this same
+      {/* Seat management — only present for the LIVE round-reveal (never
+          the read-only "view last round" overlay reuse of this same
           component, which simply omits this prop). A vacated seat stays
           visible here (never silently dropped) so a spectator has
-          something to tap, and the host can't deal the next hand until
+          something to tap, and the host can't deal the next round until
           every seat is filled again. */}
       {seatManagement && (
         <SeatManagement
@@ -87,11 +87,11 @@ export function HandRevealScreen({ lastHandResult, players, isHost, onNextHand, 
         </p>
       ) : isHost ? (
         <button
-          onClick={onNextHand}
+          onClick={onNextRound}
           disabled={advancing}
           className="min-h-[44px] rounded-xl bg-cobalt text-onCobalt font-bold disabled:opacity-40 transition-opacity"
         >
-          {matchWinnerTeam ? 'See Final Results →' : 'Next Hand →'}
+          {gameWinnerTeam ? 'See Final Results →' : 'Next Round →'}
         </button>
       ) : (
         <p className="text-center text-textMuted text-sm">Waiting for the host to continue…</p>

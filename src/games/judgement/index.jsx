@@ -8,7 +8,8 @@ import { dealCards } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
 import { CardTable } from '../../components/cards/CardTable'
-import { TrickWinnerOverlay } from '../../components/cards/TrickWinnerOverlay'
+import { HandWinnerOverlay } from '../../components/cards/HandWinnerOverlay'
+import { SUIT_TEXT_CLASS } from '../../components/cards/suitIcons'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { BiddingScreen } from './BiddingScreen'
 import { TrumpChoiceScreen } from './TrumpChoiceScreen'
@@ -151,7 +152,7 @@ export default function Judgement({ code }) {
       // clearing/advancing — otherwise the trick vanishes the instant the
       // last card lands, with no chance to see what happened.
       await clearActions()
-      await persist({ hands: newHands, currentTrick: newTrick, trickWinnerId: winnerId })
+      await persist({ hands: newHands, currentTrick: newTrick, handWinnerId: winnerId })
       await new Promise(resolve => setTimeout(resolve, 1500))
 
       if (newHand.length === 0) {
@@ -164,7 +165,7 @@ export default function Judgement({ code }) {
           hands: newHands,
           tricksWon: newTricksWon,
           currentTrick: [],
-          trickWinnerId: null,
+          handWinnerId: null,
           ledSuit: null,
           cumulativeScores,
           lastRoundResult: {
@@ -189,7 +190,7 @@ export default function Judgement({ code }) {
         hands: newHands,
         tricksWon: newTricksWon,
         currentTrick: [],
-        trickWinnerId: null,
+        handWinnerId: null,
         ledSuit: null,
         currentIdx: current.turnOrder.indexOf(winnerId)
       })
@@ -237,7 +238,7 @@ export default function Judgement({ code }) {
         hands,
         tricksWon: zeroed,
         currentTrick: [],
-        trickWinnerId: null,
+        handWinnerId: null,
         ledSuit: null,
         cumulativeScores: zeroed,
         lastRoundResult: null
@@ -286,7 +287,7 @@ export default function Judgement({ code }) {
         hands,
         tricksWon: zeroed,
         currentTrick: [],
-        trickWinnerId: null,
+        handWinnerId: null,
         ledSuit: null,
         lastRoundResult: null
       })
@@ -410,7 +411,7 @@ export default function Judgement({ code }) {
     // Nothing should be tappable while a completed trick is still being
     // held on screen for review (currentIdx doesn't advance until the
     // trick-reveal pause finishes — see applyPlay).
-    const isInteractive = isMyTurn && !roomState.trickWinnerId
+    const isInteractive = isMyTurn && !roomState.handWinnerId
     const currentTurnName = players.find(p => p.id === roomState.turnOrder?.[roomState.currentIdx])?.name ?? 'player'
     const legalPlays = isInteractive ? getLegalPlays(myHand, roomState.ledSuit) : []
     const disabledCardIds = isInteractive ? myHand.filter(id => !legalPlays.includes(id)) : myHand
@@ -430,13 +431,13 @@ export default function Judgement({ code }) {
     const roundNumber = (roomState.roundIndex ?? 0) + 1
     const totalRounds = roomState.handSizeSequence?.length ?? 1
 
-    const trickWinnerId = roomState.trickWinnerId
-    const trickWinnerName = trickWinnerId ? (players.find(p => p.id === trickWinnerId)?.name ?? 'Player') : null
-    const centerSlot = trickWinnerId ? (
-      <TrickWinnerOverlay
+    const handWinnerId = roomState.handWinnerId
+    const handWinnerName = handWinnerId ? (players.find(p => p.id === handWinnerId)?.name ?? 'Player') : null
+    const centerSlot = handWinnerId ? (
+      <HandWinnerOverlay
         centerCards={centerCards}
-        trickWinnerId={trickWinnerId}
-        trickWinnerName={trickWinnerName}
+        handWinnerId={handWinnerId}
+        handWinnerName={handWinnerName}
         accentColorClass="text-peridot"
       />
     ) : null
@@ -444,7 +445,7 @@ export default function Judgement({ code }) {
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
         <p className="text-center text-textMuted text-xs uppercase tracking-wider">
-          Round {roundNumber} of {totalRounds} — Trump: {SUIT_LABEL[roomState.trumpSuit]} — your bid: {roomState.bids?.[myId]}
+          Round {roundNumber} of {totalRounds} — Trump: <span className={SUIT_TEXT_CLASS[roomState.trumpSuit]}>{SUIT_LABEL[roomState.trumpSuit]}</span> — your bid: {roomState.bids?.[myId]}
         </p>
         <CardTable
           otherSeats={otherSeats}

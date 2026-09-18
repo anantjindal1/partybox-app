@@ -302,7 +302,7 @@ export default function Bhabhi({ code }) {
       playerName: players.find(p => p.id === playerId)?.name
     }))
     const centerSlot = pileResult ? (
-      <div className="flex flex-col items-center gap-1.5 animate-trick-settle">
+      <div className="flex flex-col items-center gap-1.5 animate-hand-settle">
         <div className="flex gap-1.5 flex-wrap justify-center">
           {centerCards.map(entry => {
             const { rank, suit } = parseCard(entry.card)

@@ -11,7 +11,7 @@ export function TableScoreBar({ entries }) {
       {entries.map((entry, i) => (
         <div key={i} className="flex items-center gap-1.5 whitespace-nowrap">
           <span className="text-textMuted font-medium">{entry.label}</span>
-          <span className="text-textPrimary font-bold tabular-nums">{entry.value}</span>
+          <span className={`font-bold tabular-nums ${entry.valueClassName ?? 'text-textPrimary'}`}>{entry.value}</span>
         </div>
       ))}
     </div>

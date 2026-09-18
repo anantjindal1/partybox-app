@@ -10,7 +10,7 @@ function TrophyIcon(props) {
   )
 }
 
-export function ResultsScreen({ turnOrder, players, matchWinnerTeam, burstPlayerIds, myId, isHost, onRematch, onHome }) {
+export function ResultsScreen({ turnOrder, players, gameWinnerTeam, burstPlayerIds, myId, isHost, onRematch, onHome }) {
   function nameOf(id) {
     return players.find(p => p.id === id)?.name ?? 'Player'
   }
@@ -25,7 +25,7 @@ export function ResultsScreen({ turnOrder, players, matchWinnerTeam, burstPlayer
   const teams = [
     { key: 'teamA', ids: teamAIds },
     { key: 'teamB', ids: teamBIds }
-  ].sort((a, b) => (a.key === matchWinnerTeam ? -1 : 1))
+  ].sort((a, b) => (a.key === gameWinnerTeam ? -1 : 1))
 
   return (
     <div className="flex-1 flex flex-col py-6 gap-6 max-w-lg w-full mx-auto">
@@ -35,7 +35,7 @@ export function ResultsScreen({ turnOrder, players, matchWinnerTeam, burstPlayer
         </div>
         <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">Winner</p>
         <p className="text-2xl font-bold font-display text-textPrimary">
-          {teamNames(matchWinnerTeam === 'teamA' ? teamAIds : teamBIds)}
+          {teamNames(gameWinnerTeam === 'teamA' ? teamAIds : teamBIds)}
         </p>
       </div>
 

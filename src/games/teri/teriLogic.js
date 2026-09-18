@@ -1,7 +1,12 @@
 import { parseCard } from '../../multiplayer/deck'
 import { getTeamA, getTeamB, getTeamOf, computeTeamTricks } from '../../multiplayer/partnerships'
 
-export { getTeamA, getTeamB, getTeamOf, computeTeamTricks }
+// computeTeamTricks lives in the shared multiplayer/partnerships module
+// (also used by Court Piece/Mendikot) and keeps its original name there —
+// aliased to the new per-hand terminology here so Teri's own code and
+// callers read consistently. Rename the shared export itself once every
+// consumer has moved to the new terminology.
+export { getTeamA, getTeamB, getTeamOf, computeTeamTricks as computeTeamHands }
 
 /**
  * Cards are dealt one at a time, round-robin through turnOrder, from a
@@ -34,24 +39,24 @@ export function isValidBid(number, currentHighBid) {
 }
 
 /**
- * The hand ends the instant GameLead's team reaches their bid, or the
+ * The round ends the instant GameLead's team reaches their bid, or the
  * defending team reaches 14-bid (the point past which GameLead
  * mathematically can't reach their bid) — UNLESS the other side is
- * still at zero tricks, in which case play continues until either a
- * full 13-trick sweep ("Teri"), or the trailing side wins its first
- * trick (which ends the hand immediately for the already-qualified
+ * still at zero hands, in which case play continues until either a
+ * full 13-hand sweep ("Teri"), or the trailing side wins its first
+ * hand (which ends the round immediately for the already-qualified
  * side, non-Teri). Applies symmetrically to either team.
  */
-export function checkTeriHandWinner(gameLeadTricks, defenderTricks, bid) {
+export function checkTeriRoundWinner(gameLeadHands, defenderHands, bid) {
   const defenderTarget = 14 - bid
-  if (gameLeadTricks === 13) return { winner: 'gameLead', isTeri: true }
-  if (defenderTricks === 13) return { winner: 'defender', isTeri: true }
-  if (gameLeadTricks >= bid && defenderTricks > 0) return { winner: 'gameLead', isTeri: false }
-  if (defenderTricks >= defenderTarget && gameLeadTricks > 0) return { winner: 'defender', isTeri: false }
+  if (gameLeadHands === 13) return { winner: 'gameLead', isTeri: true }
+  if (defenderHands === 13) return { winner: 'defender', isTeri: true }
+  if (gameLeadHands >= bid && defenderHands > 0) return { winner: 'gameLead', isTeri: false }
+  if (defenderHands >= defenderTarget && gameLeadHands > 0) return { winner: 'defender', isTeri: false }
   return null
 }
 
-export function computeHandPoints(bid, winner, isTeri) {
+export function computeRoundPoints(bid, winner, isTeri) {
   const gameLeadWon = winner === 'gameLead'
   if (bid === 13) return gameLeadWon ? 39 : -39
   if (gameLeadWon) return isTeri ? 26 : bid
@@ -61,19 +66,19 @@ export function computeHandPoints(bid, winner, isTeri) {
 /**
  * The single running score, tracked from whichever player currently
  * holds the shuffler role. `isShufflerOnGameLeadTeam` mirrors the
- * hand's GameLead-perspective points onto the shuffler's own team,
+ * round's GameLead-perspective points onto the shuffler's own team,
  * since the score should reflect whether the SHUFFLER's own side
  * gained or lost, not always GameLead's perspective.
  */
 export function applyShufflerScore({
   currentScore,
-  handPointsForGameLead,
+  roundPointsForGameLead,
   isShufflerOnGameLeadTeam,
   shufflerId,
   shufflerPartnerId,
   nextCounterClockwiseId
 }) {
-  const delta = isShufflerOnGameLeadTeam ? handPointsForGameLead : -handPointsForGameLead
+  const delta = isShufflerOnGameLeadTeam ? roundPointsForGameLead : -roundPointsForGameLead
   const raw = currentScore - delta
   if (raw < 0) {
     return { shufflerId: nextCounterClockwiseId, score: -raw, burstPlayerId: null }
@@ -85,11 +90,11 @@ export function applyShufflerScore({
 }
 
 /**
- * The match ends the moment BOTH members of one team have individually
- * triggered a burst (>52) at some point in match history — the OTHER
+ * The game ends the moment BOTH members of one team have individually
+ * triggered a burst (>52) at some point in the game's history — the OTHER
  * team wins.
  */
-export function checkMatchWinner(burstPlayerIds, turnOrder) {
+export function checkGameWinner(burstPlayerIds, turnOrder) {
   const teamA = getTeamA(turnOrder)
   const teamB = getTeamB(turnOrder)
   if (teamA.every(id => burstPlayerIds.includes(id))) return 'teamB'

@@ -11,24 +11,25 @@ import { buildTurnOrderFromPartner, orderSeatsForViewer } from '../../multiplaye
 import { CardTable } from '../../components/cards/CardTable'
 import { PlayingCard } from '../../components/cards/PlayingCard'
 import { TableScoreBar } from '../../components/cards/TableScoreBar'
-import { TrickWinnerOverlay } from '../../components/cards/TrickWinnerOverlay'
+import { SUIT_TEXT_CLASS } from '../../components/cards/suitIcons'
+import { HandWinnerOverlay } from '../../components/cards/HandWinnerOverlay'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { PartnerPicker } from '../../components/cards/PartnerPicker'
 import { BiddingScreen } from './BiddingScreen'
 import { formatBidHi } from './suitNames'
-import { HandRevealScreen } from './HandRevealScreen'
+import { RoundRevealScreen } from './RoundRevealScreen'
 import { ResultsScreen } from './ResultsScreen'
 import {
   getTeamA,
   getTeamB,
   getTeamOf,
-  computeTeamTricks,
+  computeTeamHands,
   determineInitialShuffler,
   computeBiddingOrder,
-  checkTeriHandWinner,
-  computeHandPoints,
+  checkTeriRoundWinner,
+  computeRoundPoints,
   applyShufflerScore,
-  checkMatchWinner
+  checkGameWinner
 } from './teriLogic'
 import { awardXP } from '../../services/xp'
 import { writeGameStats } from '../../services/stats'
@@ -42,6 +43,19 @@ function getPartnerOf(playerId, turnOrder) {
   const teamB = getTeamB(turnOrder)
   const team = teamA.includes(playerId) ? teamA : teamB
   return team.find(id => id !== playerId)
+}
+
+// Passing only skips a player's CURRENT slot in the 2-round, 8-turn
+// auction — it does not remove them from bidding entirely, since
+// biddingOrder gives every player exactly one more turn in round 2.
+// So "have they passed" must read their MOST RECENT action from the
+// log, not "have they ever passed" — otherwise a round-1 pass would
+// wrongly block or mislabel their legitimate round-2 turn.
+function hasCurrentlyPassed(playerId, bidHistory) {
+  for (let i = bidHistory.length - 1; i >= 0; i--) {
+    if (bidHistory[i].playerId === playerId) return bidHistory[i].type === 'PASS'
+  }
+  return false
 }
 
 export default function Teri({ code }) {
@@ -68,9 +82,10 @@ export default function Teri({ code }) {
   const [starting, setStarting] = useState(false)
   const [advancing, setAdvancing] = useState(false)
   const [showShufflerIntro, setShowShufflerIntro] = useState(false)
+  const [showLastRound, setShowLastRound] = useState(false)
   const [showLastHand, setShowLastHand] = useState(false)
   const [bidAnnouncement, setBidAnnouncement] = useState(null)
-  const shufflerIntroHandRef = useRef(null)
+  const shufflerIntroRoundRef = useRef(null)
   const lastAnnouncedBidRef = useRef(undefined)
 
   const xpAwarded = useRef(false)
@@ -101,40 +116,87 @@ export default function Teri({ code }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomState.currentHighBid])
 
-  // Show a brief explainer once per hand for who's shuffling and why —
+  // Show a brief explainer once per round for who's shuffling and why —
   // otherwise the only trace of the role is a terse "Shuffler" chip
   // stacked among other seat labels during play.
   useEffect(() => {
-    if (roomState.handNumber == null || !roomState.shufflerId) return
-    if (shufflerIntroHandRef.current === roomState.handNumber) return
-    shufflerIntroHandRef.current = roomState.handNumber
+    if (roomState.roundNumber == null || !roomState.shufflerId) return
+    if (shufflerIntroRoundRef.current === roomState.roundNumber) return
+    shufflerIntroRoundRef.current = roomState.roundNumber
     setShowShufflerIntro(true)
     const timer = setTimeout(() => setShowShufflerIntro(false), 10000)
     return () => clearTimeout(timer)
-  }, [roomState.handNumber, roomState.shufflerId])
+  }, [roomState.roundNumber, roomState.shufflerId])
 
   function persist(overrides) {
     return setState({ ...roomStateRef.current, ...overrides })
   }
 
-  // Small "review the last hand" affordance, reused by both the bidding
-  // and playing phases — HandRevealScreen is already a clean, reusable
-  // presentational component; isHost={false} suppresses its "Next Hand"
+  // Small "review the last round" affordance, reused by both the bidding
+  // and playing phases — RoundRevealScreen is already a clean, reusable
+  // presentational component; isHost={false} suppresses its "Next Round"
   // button with no changes needed to it.
+  function renderLastRoundButton() {
+    if (!roomState.lastRoundResult) return null
+    return (
+      <>
+        <button
+          onClick={() => setShowLastRound(true)}
+          className="self-center text-sm font-bold text-cobalt border-[1.5px] border-cobalt bg-cobalt/10 rounded-xl px-4 py-2"
+        >
+          📜 View Last Round
+        </button>
+        {showLastRound && (
+          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-4 py-8 overflow-y-auto">
+            <div className="bg-surface rounded-2xl max-w-lg w-full">
+              <div className="flex justify-end p-2">
+                <button
+                  onClick={() => setShowLastRound(false)}
+                  className="text-textMuted hover:text-textPrimary text-sm font-semibold px-3 py-1"
+                >
+                  ✕ Close
+                </button>
+              </div>
+              <RoundRevealScreen
+                lastRoundResult={roomState.lastRoundResult}
+                players={players}
+                isHost={false}
+                onNextRound={() => {}}
+                advancing={false}
+              />
+            </div>
+          </div>
+        )}
+      </>
+    )
+  }
+
+  // Review the most recently completed hand (1 card from each player)
+  // WITHIN the current round — the live pause-and-reveal (HandWinnerOverlay
+  // in centerSlot below) clears itself after ~1.5s, so this is the only way
+  // to look back at it once that's passed. Reuses the same overlay
+  // component for a visually consistent reveal rather than inventing a
+  // second layout.
   function renderLastHandButton() {
-    if (!roomState.lastHandResult) return null
+    if (!roomState.lastHand) return null
+    const handWinnerName = players.find(p => p.id === roomState.lastHand.winnerId)?.name ?? 'Player'
+    const centerCards = roomState.lastHand.cards.map(({ playerId, card }) => ({
+      card,
+      playerId,
+      playerName: players.find(p => p.id === playerId)?.name
+    }))
     return (
       <>
         <button
           onClick={() => setShowLastHand(true)}
           className="self-center text-sm font-bold text-cobalt border-[1.5px] border-cobalt bg-cobalt/10 rounded-xl px-4 py-2"
         >
-          📜 View Last Hand
+          🃏 View Last Hand
         </button>
         {showLastHand && (
           <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-4 py-8 overflow-y-auto">
-            <div className="bg-surface rounded-2xl max-w-lg w-full">
-              <div className="flex justify-end p-2">
+            <div className="bg-surface rounded-2xl max-w-lg w-full p-4">
+              <div className="flex justify-end">
                 <button
                   onClick={() => setShowLastHand(false)}
                   className="text-textMuted hover:text-textPrimary text-sm font-semibold px-3 py-1"
@@ -142,12 +204,12 @@ export default function Teri({ code }) {
                   ✕ Close
                 </button>
               </div>
-              <HandRevealScreen
-                lastHandResult={roomState.lastHandResult}
-                players={players}
-                isHost={false}
-                onNextHand={() => {}}
-                advancing={false}
+              <HandWinnerOverlay
+                centerCards={centerCards}
+                handWinnerId={roomState.lastHand.winnerId}
+                handWinnerName={handWinnerName}
+                accentColorClass="text-cobalt"
+                settle={false}
               />
             </div>
           </div>
@@ -177,17 +239,6 @@ export default function Teri({ code }) {
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actions, isHost, phase, roomState.bidTurnIndex])
-
-  // ── Client: once passed, auto-submit PASS on later turns ─────────────────
-  useEffect(() => {
-    if (phase !== 'bidding' || !myId) return
-    const current = roomState.biddingOrder?.[roomState.bidTurnIndex]
-    if (current !== myId) return
-    if ((roomState.passedPlayers ?? []).includes(myId)) {
-      sendAction({ type: 'PASS', payload: {} })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, roomState.bidTurnIndex, myId])
 
   async function applyBidAction(playerId, action) {
     const current = roomStateRef.current
@@ -224,8 +275,8 @@ export default function Teri({ code }) {
         gameLeadId,
         trumpSuit: currentHighBid.suit,
         bid: currentHighBid.number,
-        tricksWon: zeroed,
-        currentTrick: [],
+        handsWon: zeroed,
+        currentHand: [],
         ledSuit: null,
         currentIdx: current.turnOrder.indexOf(gameLeadId),
         suggestedCardId: null,
@@ -275,39 +326,39 @@ export default function Teri({ code }) {
   async function applyPlay(cardId) {
     const current = roomStateRef.current
     const actingPlayerId = current.turnOrder[current.currentIdx]
-    const newHand = removeCardFromHand(current.hands[actingPlayerId], cardId)
-    const newHands = { ...current.hands, [actingPlayerId]: newHand }
-    const newTrick = [...current.currentTrick, { playerId: actingPlayerId, card: cardId }]
+    const remainingCards = removeCardFromHand(current.hands[actingPlayerId], cardId)
+    const newHands = { ...current.hands, [actingPlayerId]: remainingCards }
+    const newHand = [...current.currentHand, { playerId: actingPlayerId, card: cardId }]
     const newLedSuit = current.ledSuit ?? parseCard(cardId).suit
 
-    if (newTrick.length === current.turnOrder.length) {
-      const winnerId = resolveTrick(newTrick, newLedSuit, current.trumpSuit)
-      const newTricksWon = { ...current.tricksWon, [winnerId]: (current.tricksWon[winnerId] ?? 0) + 1 }
+    if (newHand.length === current.turnOrder.length) {
+      const winnerId = resolveTrick(newHand, newLedSuit, current.trumpSuit)
+      const newHandsWon = { ...current.handsWon, [winnerId]: (current.handsWon[winnerId] ?? 0) + 1 }
       const gameLeadTeam = getTeamOf(current.gameLeadId, current.turnOrder)
       const defenderTeam = gameLeadTeam === 'teamA' ? 'teamB' : 'teamA'
-      const teamTricks = computeTeamTricks(current.turnOrder, newTricksWon)
-      const gameLeadTricks = teamTricks[gameLeadTeam]
-      const defenderTricks = teamTricks[defenderTeam]
+      const teamHands = computeTeamHands(current.turnOrder, newHandsWon)
+      const gameLeadHands = teamHands[gameLeadTeam]
+      const defenderHands = teamHands[defenderTeam]
 
-      // Hand can end EARLY, mid-trick-loop, once a threshold is crossed —
-      // not just when a hand becomes empty. checkTeriHandWinner is always
-      // non-null by trick 13 at the latest (bid + (14-bid) = 14 > 13), so
-      // the hand-empty check below is a defensive fallback only.
-      const outcome = checkTeriHandWinner(gameLeadTricks, defenderTricks, current.bid)
+      // Round can end EARLY, mid-hand-loop, once a threshold is crossed —
+      // not just when a player's cards run out. checkTeriRoundWinner is
+      // always non-null by hand 13 at the latest (bid + (14-bid) = 14 > 13),
+      // so the empty-cards check below is a defensive fallback only.
+      const outcome = checkTeriRoundWinner(gameLeadHands, defenderHands, current.bid)
 
       // Keep all 4 cards visible and reveal the winner for a beat before
-      // clearing/advancing — otherwise the trick vanishes the instant the
+      // clearing/advancing — otherwise the hand vanishes the instant the
       // 4th card lands, with no chance to see what happened.
       await clearActions()
-      await persist({ hands: newHands, currentTrick: newTrick, trickWinnerId: winnerId })
+      await persist({ hands: newHands, currentHand: newHand, handWinnerId: winnerId })
       await new Promise(resolve => setTimeout(resolve, 1500))
 
-      if (outcome || newHand.length === 0) {
+      if (outcome || remainingCards.length === 0) {
         const resolved = outcome ?? {
-          winner: gameLeadTricks > defenderTricks ? 'gameLead' : 'defender',
-          isTeri: gameLeadTricks === 13 || defenderTricks === 13
+          winner: gameLeadHands > defenderHands ? 'gameLead' : 'defender',
+          isTeri: gameLeadHands === 13 || defenderHands === 13
         }
-        const handPoints = computeHandPoints(current.bid, resolved.winner, resolved.isTeri)
+        const roundPoints = computeRoundPoints(current.bid, resolved.winner, resolved.isTeri)
 
         const shufflerId = current.shufflerId
         const isShufflerOnGameLeadTeam = getTeamOf(shufflerId, current.turnOrder) === gameLeadTeam
@@ -317,7 +368,7 @@ export default function Teri({ code }) {
 
         const shufflerResult = applyShufflerScore({
           currentScore: current.shufflerScore,
-          handPointsForGameLead: handPoints,
+          roundPointsForGameLead: roundPoints,
           isShufflerOnGameLeadTeam,
           shufflerId,
           shufflerPartnerId,
@@ -327,48 +378,50 @@ export default function Teri({ code }) {
         const newBurstPlayerIds = shufflerResult.burstPlayerId
           ? [...(current.burstPlayerIds ?? []), shufflerResult.burstPlayerId]
           : (current.burstPlayerIds ?? [])
-        const matchWinnerTeam = checkMatchWinner(newBurstPlayerIds, current.turnOrder)
+        const gameWinnerTeam = checkGameWinner(newBurstPlayerIds, current.turnOrder)
 
         const gameLeadTeamIds = gameLeadTeam === 'teamA' ? getTeamA(current.turnOrder) : getTeamB(current.turnOrder)
         const defenderTeamIds = defenderTeam === 'teamA' ? getTeamA(current.turnOrder) : getTeamB(current.turnOrder)
 
         await persist({
-          tricksWon: newTricksWon,
-          currentTrick: [],
-          trickWinnerId: null,
+          handsWon: newHandsWon,
+          currentHand: [],
+          handWinnerId: null,
           ledSuit: null,
           shufflerId: shufflerResult.shufflerId,
           shufflerScore: shufflerResult.score,
           burstPlayerIds: newBurstPlayerIds,
-          matchWinnerTeam,
-          lastHandResult: {
-            handNumber: current.handNumber,
+          gameWinnerTeam,
+          lastHand: { cards: newHand, winnerId },
+          lastRoundResult: {
+            roundNumber: current.roundNumber,
             bid: current.bid,
             trumpSuit: current.trumpSuit,
             gameLeadTeamIds,
             defenderTeamIds,
-            gameLeadTricks,
-            defenderTricks,
+            gameLeadHands,
+            defenderHands,
             winner: resolved.winner,
             isTeri: resolved.isTeri,
-            handPoints,
+            roundPoints,
             shufflerBefore: { id: shufflerId, score: current.shufflerScore },
             shufflerAfter: { id: shufflerResult.shufflerId, score: shufflerResult.score },
             burstPlayerId: shufflerResult.burstPlayerId,
-            matchWinnerTeam
+            gameWinnerTeam
           },
-          phase: 'hand_reveal'
+          phase: 'round_reveal'
         })
         return
       }
 
       await persist({
-        tricksWon: newTricksWon,
-        currentTrick: [],
-        trickWinnerId: null,
+        handsWon: newHandsWon,
+        currentHand: [],
+        handWinnerId: null,
         ledSuit: null,
         currentIdx: current.turnOrder.indexOf(winnerId),
-        suggestedCardId: null
+        suggestedCardId: null,
+        lastHand: { cards: newHand, winnerId }
       })
       return
     }
@@ -376,12 +429,12 @@ export default function Teri({ code }) {
     const turnState = advanceTurn({
       playerIds: current.turnOrder,
       currentIdx: current.currentIdx,
-      round: current.handNumber
+      round: current.roundNumber
     })
     await clearActions()
     await persist({
       hands: newHands,
-      currentTrick: newTrick,
+      currentHand: newHand,
       ledSuit: newLedSuit,
       currentIdx: turnState.currentIdx,
       suggestedCardId: null
@@ -404,7 +457,7 @@ export default function Teri({ code }) {
         shufflerId,
         shufflerScore: 0,
         burstPlayerIds: [],
-        handNumber: 0,
+        roundNumber: 0,
         biddingOrder,
         bidTurnIndex: 0,
         passedPlayers: [],
@@ -414,8 +467,9 @@ export default function Teri({ code }) {
         gameLeadId: null,
         trumpSuit: null,
         bid: null,
-        lastHandResult: null,
-        matchWinnerTeam: null
+        lastRoundResult: null,
+        lastHand: null,
+        gameWinnerTeam: null
       })
     } finally {
       setStarting(false)
@@ -438,22 +492,22 @@ export default function Teri({ code }) {
     sendAction({ type: 'SUGGEST_CARD', payload: { cardId } })
   }
 
-  async function handleNextHand() {
+  async function handleNextRound() {
     if (advancing) return
     setAdvancing(true)
     try {
       const current = roomStateRef.current
-      if (current.matchWinnerTeam) {
+      if (current.gameWinnerTeam) {
         await persist({ phase: 'results' })
         return
       }
-      const nextHandNumber = current.handNumber + 1
+      const nextRoundNumber = current.roundNumber + 1
       const { hands } = dealCards(shuffleDeck(createDeck()), current.turnOrder, 13)
       const biddingOrder = computeBiddingOrder(current.turnOrder, current.shufflerId)
       await clearActions()
       await persist({
         phase: 'bidding',
-        handNumber: nextHandNumber,
+        roundNumber: nextRoundNumber,
         biddingOrder,
         bidTurnIndex: 0,
         passedPlayers: [],
@@ -462,10 +516,13 @@ export default function Teri({ code }) {
         hands,
         gameLeadId: null,
         trumpSuit: null,
-        bid: null
-        // lastHandResult is deliberately kept — it's what "View Last Hand"
-        // shows during the new hand's bidding/playing. It only changes once
-        // THIS new hand itself completes and overwrites it.
+        bid: null,
+        // lastHand is scoped to the current round's auction — a hand from
+        // the PREVIOUS round has no meaning once cards are redealt.
+        lastHand: null
+        // lastRoundResult is deliberately kept — it's what "View Last Round"
+        // shows during the new round's bidding/playing. It only changes once
+        // THIS new round itself completes and overwrites it.
       })
     } finally {
       setAdvancing(false)
@@ -481,7 +538,7 @@ export default function Teri({ code }) {
   useEffect(() => {
     if (phase !== 'results' || !myId || xpAwarded.current) return
     xpAwarded.current = true
-    const isWinner = getTeamOf(myId, roomState.turnOrder) === roomState.matchWinnerTeam
+    const isWinner = getTeamOf(myId, roomState.turnOrder) === roomState.gameWinnerTeam
     awardXP(isWinner ? 100 : 20, room?.roomType)
     if (room?.roomType === 'ranked') {
       writeGameStats('teri', { won: isWinner, gamesPlayed: 1 })
@@ -537,16 +594,13 @@ export default function Teri({ code }) {
   if (phase === 'bidding') {
     const myHand = sortHand(roomState.hands?.[myId] ?? [])
     const currentBidder = roomState.biddingOrder?.[roomState.bidTurnIndex]
-    // Once a player has passed, their slot still comes back around on
-    // the second pass through biddingOrder — the client-side effect
-    // above auto-submits a PASS for them, but that's a real round-trip,
-    // not instant. Without this check, isMyTurn briefly goes true for
-    // an already-passed player on their own re-appearing slot, showing
-    // the full interactive "bid higher, or pass" form for a moment
-    // before it gets yanked away — reads exactly like "it auto-passed
-    // on me," and worse, a fast tap could race the auto-pass action.
-    const iAlreadyPassed = (roomState.passedPlayers ?? []).includes(myId)
-    const isMyTurn = currentBidder === myId && !iAlreadyPassed
+    const rawBidHistory = roomState.bidHistory ?? []
+    // Passing only skips THAT turn — biddingOrder gives every player a
+    // second, genuine turn in round 2, so a round-1 pass must never
+    // block or auto-skip their round-2 slot. `isMyTurn` is therefore
+    // just "is it my slot", full stop.
+    const iAlreadyPassed = hasCurrentlyPassed(myId, rawBidHistory)
+    const isMyTurn = currentBidder === myId
     const isFirstTurn = roomState.bidTurnIndex === 0
     const currentBidderName = players.find(p => p.id === currentBidder)?.name ?? 'Player'
     const seats = orderSeatsForViewer(roomState.turnOrder, myId)
@@ -557,17 +611,17 @@ export default function Teri({ code }) {
         name: p.name,
         isPartner: getTeamOf(myId, roomState.turnOrder) === getTeamOf(p.id, roomState.turnOrder),
         isCurrentBidder: currentBidder === p.id,
-        hasPassed: (roomState.passedPlayers ?? []).includes(p.id),
+        hasPassed: hasCurrentlyPassed(p.id, rawBidHistory),
         isHighBidder: roomState.currentHighBid?.playerId === p.id
       }))
     const shufflerName = players.find(p => p.id === roomState.shufflerId)?.name ?? 'Someone'
-    const bidHistory = (roomState.bidHistory ?? []).map(entry => ({
+    const bidHistory = rawBidHistory.map(entry => ({
       ...entry,
       playerName: players.find(p => p.id === entry.playerId)?.name ?? 'Player'
     }))
     return (
       <>
-        {renderLastHandButton()}
+        {renderLastRoundButton()}
         {bidAnnouncement && (
           <p className="mx-4 sm:mx-6 mt-3 py-2.5 px-4 rounded-xl bg-cobalt/10 border border-cobalt/30 text-cobalt text-sm font-bold text-center animate-fade-in">
             📣 {bidAnnouncement}
@@ -578,7 +632,7 @@ export default function Teri({ code }) {
             onClick={() => setShowShufflerIntro(false)}
             className="mx-4 sm:mx-6 mt-3 py-2.5 px-4 rounded-xl bg-cobalt/10 border border-cobalt/30 text-cobalt text-sm font-medium text-center"
           >
-            🔀 {shufflerName} is the Shuffler this hand — their running score
+            🔀 {shufflerName} is the Shuffler this round — their running score
             (currently {roomState.shufflerScore}) decides when the role passes
             to someone else. Tap to dismiss.
           </button>
@@ -619,10 +673,10 @@ export default function Teri({ code }) {
     const activeHand = sortHand(roomState.hands?.[myId] ?? [], { trumpSuit: roomState.trumpSuit })
     const onCardTap = (isGameLead && isPartnerTurn) ? undefined : (isPartnerOfGameLead && isPartnerTurn) ? handleSuggestCard : handlePlayCard
 
-    // currentIdx doesn't advance until the trick-reveal pause finishes
+    // currentIdx doesn't advance until the hand-reveal pause finishes
     // (see applyPlay), so nothing should be tappable while a completed
-    // trick is still being held on screen for review.
-    const isInteractive = !roomState.trickWinnerId &&
+    // hand is still being held on screen for review.
+    const isInteractive = !roomState.handWinnerId &&
       (isMyTurnNormally || (isPartnerOfGameLead && isPartnerTurn))
     const legalPlays = isInteractive ? getLegalPlays(activeHand, roomState.ledSuit) : []
     // Whenever it genuinely isn't my turn to act (which includes GameLead
@@ -645,27 +699,27 @@ export default function Teri({ code }) {
     // when GameLead needs to act on her behalf — computed separately
     // from the seat-display data below since it needs suit-following
     // legality against the dummy's actual cards, not GameLead's own.
-    const isPlayingForDummy = isGameLead && isPartnerTurn && !roomState.trickWinnerId
+    const isPlayingForDummy = isGameLead && isPartnerTurn && !roomState.handWinnerId
     const dummyHand = sortHand(roomState.hands?.[partnerOfGameLead] ?? [], { trumpSuit: roomState.trumpSuit })
     const dummyLegalPlays = isPlayingForDummy ? getLegalPlays(dummyHand, roomState.ledSuit) : []
 
-    const centerCards = (roomState.currentTrick ?? []).map(({ playerId, card }) => ({
+    const centerCards = (roomState.currentHand ?? []).map(({ playerId, card }) => ({
       card,
       playerId,
       playerName: players.find(p => p.id === playerId)?.name
     }))
 
-    // Once a trick completes, hold all 4 cards on screen with the winner
-    // called out (and highlighted) before the next trick's empty center
-    // takes over — trick-settle fades/shrinks the whole reveal over the
+    // Once a hand completes, hold all 4 cards on screen with the winner
+    // called out (and highlighted) before the next hand's empty center
+    // takes over — hand-settle fades/shrinks the whole reveal over the
     // same window applyPlay pauses for, so it dissolves right on cue.
-    const trickWinnerId = roomState.trickWinnerId
-    const trickWinnerName = trickWinnerId ? (players.find(p => p.id === trickWinnerId)?.name ?? 'Player') : null
-    const centerSlot = trickWinnerId ? (
-      <TrickWinnerOverlay
+    const handWinnerId = roomState.handWinnerId
+    const handWinnerName = handWinnerId ? (players.find(p => p.id === handWinnerId)?.name ?? 'Player') : null
+    const centerSlot = handWinnerId ? (
+      <HandWinnerOverlay
         centerCards={centerCards}
-        trickWinnerId={trickWinnerId}
-        trickWinnerName={trickWinnerName}
+        handWinnerId={handWinnerId}
+        handWinnerName={handWinnerName}
         accentColorClass="text-cobalt"
       />
     ) : null
@@ -708,13 +762,13 @@ export default function Teri({ code }) {
         }
       })
 
-    const teamTricks = computeTeamTricks(roomState.turnOrder, roomState.tricksWon ?? {})
+    const teamHands = computeTeamHands(roomState.turnOrder, roomState.handsWon ?? {})
     const gameLeadTeam = getTeamOf(gameLeadId, roomState.turnOrder)
     const defenderTeam = gameLeadTeam === 'teamA' ? 'teamB' : 'teamA'
     const scoreEntries = [
-      { label: 'GameLead', value: `${teamTricks[gameLeadTeam]}/${roomState.bid}` },
-      { label: 'Defenders', value: `${teamTricks[defenderTeam]}` },
-      { label: 'Trump', value: SUIT_LABEL[roomState.trumpSuit] }
+      { label: 'GameLead', value: `${teamHands[gameLeadTeam]}/${roomState.bid}` },
+      { label: 'Defenders', value: `${teamHands[defenderTeam]}` },
+      { label: 'Trump', value: SUIT_LABEL[roomState.trumpSuit], valueClassName: SUIT_TEXT_CLASS[roomState.trumpSuit] }
     ]
 
     const partnerName = players.find(p => p.id === partnerOfGameLead)?.name ?? 'partner'
@@ -731,7 +785,10 @@ export default function Teri({ code }) {
 
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
-        {renderLastHandButton()}
+        <div className="flex flex-wrap justify-center gap-2">
+          {renderLastRoundButton()}
+          {renderLastHandButton()}
+        </div>
         <TableScoreBar entries={scoreEntries} />
         <CardTable
           otherSeats={otherSeats}
@@ -750,15 +807,15 @@ export default function Teri({ code }) {
     )
   }
 
-  if (phase === 'hand_reveal') {
+  if (phase === 'round_reveal') {
     const openSeats = room?.openSeats ?? []
     const isSpectator = (room?.spectators ?? []).some(p => p.id === myId)
     return (
-      <HandRevealScreen
-        lastHandResult={roomState.lastHandResult}
+      <RoundRevealScreen
+        lastRoundResult={roomState.lastRoundResult}
         players={players}
         isHost={isHost}
-        onNextHand={handleNextHand}
+        onNextRound={handleNextRound}
         advancing={advancing}
         seatManagement={{
           turnOrder: roomState.turnOrder ?? [],
@@ -768,9 +825,9 @@ export default function Teri({ code }) {
           onLeaveSeat: leaveSeat,
           onClaimSeat: (seatPlayerId) => {
             // The departed player's id can still be sitting in a couple
-            // of cross-hand fields that live outside turnOrder — only
+            // of cross-round fields that live outside turnOrder — only
             // shufflerId, here, since everything else Teri persists by
-            // player id (hands, tricksWon, passedPlayers, etc.) gets
+            // player id (hands, handsWon, passedPlayers, etc.) gets
             // fully recomputed by the next deal anyway.
             const statePatch = {
               turnOrder: roomState.turnOrder.map(id => id === seatPlayerId ? myId : id)
@@ -788,7 +845,7 @@ export default function Teri({ code }) {
       <ResultsScreen
         turnOrder={roomState.turnOrder ?? []}
         players={players}
-        matchWinnerTeam={roomState.matchWinnerTeam}
+        gameWinnerTeam={roomState.gameWinnerTeam}
         burstPlayerIds={roomState.burstPlayerIds ?? []}
         myId={myId}
         isHost={isHost}

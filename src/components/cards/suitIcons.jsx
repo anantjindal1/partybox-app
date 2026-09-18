@@ -53,3 +53,13 @@ export const SUIT_COLOR = {
   hearts: 'cardRed',
   diamonds: 'cardRed'
 }
+
+// Full literal class names (not built via `text-${SUIT_COLOR[suit]}`) so
+// Tailwind's content scanner — which matches raw text, not runtime output —
+// can actually find and keep them at build time.
+export const SUIT_TEXT_CLASS = {
+  spades: 'text-cardBlack',
+  clubs: 'text-cardBlack',
+  hearts: 'text-cardRed',
+  diamonds: 'text-cardRed'
+}
