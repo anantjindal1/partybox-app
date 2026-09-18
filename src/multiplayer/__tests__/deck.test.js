@@ -41,6 +41,33 @@ describe('createDeck', () => {
     expect(parseCard('KD')).toEqual({ rank: 'K', suit: 'diamonds' })
     expect(parseCard('2C')).toEqual({ rank: '2', suit: 'clubs' })
   })
+
+  test('deckCount: 2 produces 104 unique ids, two per rank/suit', () => {
+    const deck = createDeck({ deckCount: 2 })
+    expect(deck.length).toBe(104)
+    expect(new Set(deck).size).toBe(104)
+    expect(deck).toContain('10S#0')
+    expect(deck).toContain('10S#1')
+  })
+
+  test('deckCount: 1 (default) leaves ids unsuffixed', () => {
+    const deck = createDeck()
+    expect(deck.every(id => !id.includes('#'))).toBe(true)
+  })
+
+  test('parseCard strips the multi-deck copy suffix', () => {
+    expect(parseCard('10S#0')).toEqual({ rank: '10', suit: 'spades' })
+    expect(parseCard('10S#1')).toEqual({ rank: '10', suit: 'spades' })
+    expect(parseCard('AH#1')).toEqual({ rank: 'A', suit: 'hearts' })
+  })
+
+  test('deckCount: 2 with jokers produces 108 unique ids', () => {
+    const deck = createDeck({ deckCount: 2, includeJokers: true })
+    expect(deck.length).toBe(108)
+    expect(new Set(deck).size).toBe(108)
+    expect(deck).toContain('JOKER1#0')
+    expect(deck).toContain('JOKER1#1')
+  })
 })
 
 describe('rankIndex', () => {

@@ -36,6 +36,7 @@ export default function Bluff({ code }) {
   roomStateRef.current = roomState
 
   const [starting, setStarting] = useState(false)
+  const [deckCount, setDeckCount] = useState(1)
   const [selectedCardIds, setSelectedCardIds] = useState([])
   const [revealResolving, setRevealResolving] = useState(false)
   const xpAwarded = useRef(false)
@@ -236,7 +237,7 @@ export default function Bluff({ code }) {
   async function handleStartGame() {
     setStarting(true)
     try {
-      const deck = shuffleDeck(createDeck())
+      const deck = shuffleDeck(createDeck({ deckCount }))
       const playerIds = players.map(p => p.id)
       const { hands } = dealEven(deck, playerIds)
       await clearActions()
@@ -245,6 +246,7 @@ export default function Bluff({ code }) {
         turnOrder: playerIds,
         currentIdx: 0,
         round: 1,
+        deckCount,
         hands,
         pile: [],
         claimedRank: null,
@@ -318,13 +320,33 @@ export default function Bluff({ code }) {
           phase={phase}
         />
         {isHost ? (
-          <button
-            onClick={handleStartGame}
-            disabled={players.length < metadata.minPlayers || starting}
-            className="min-h-[48px] rounded-xl bg-indigo text-onIndigo font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            {starting ? 'Dealing...' : 'Start Game →'}
-          </button>
+          <>
+            <div>
+              <p className="text-xs text-textMuted uppercase tracking-wider mb-1.5 text-center">Deck</p>
+              <div className="grid grid-cols-2 gap-3">
+                {[1, 2].map(count => (
+                  <button
+                    key={count}
+                    onClick={() => setDeckCount(count)}
+                    className={`min-h-[44px] rounded-xl border-[1.5px] font-bold transition-colors ${
+                      deckCount === count
+                        ? 'bg-indigo/20 border-indigo text-indigo'
+                        : 'bg-surfaceElevated border-border text-textMuted'
+                    }`}
+                  >
+                    {count} Deck{count > 1 ? 's' : ''} ({count * 52} cards)
+                  </button>
+                ))}
+              </div>
+            </div>
+            <button
+              onClick={handleStartGame}
+              disabled={players.length < metadata.minPlayers || starting}
+              className="min-h-[48px] rounded-xl bg-indigo text-onIndigo font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {starting ? 'Dealing...' : 'Start Game →'}
+            </button>
+          </>
         ) : (
           <p className="text-center text-textMuted text-sm">Waiting for host to start...</p>
         )}

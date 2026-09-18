@@ -15,12 +15,15 @@ export function cardId(rank, suit) {
   return `${rank}${SUIT_LETTER[suit]}`
 }
 
-// Suit is always the last character; rank is everything before it. Never
-// index by position (id[0]/id[1]) — that breaks on the two-character '10'
-// rank, e.g. '10H'[0] === '1', not '10'.
+// Suit is always the last character of the base id; rank is everything
+// before it. Never index by position (id[0]/id[1]) — that breaks on the
+// two-character '10' rank, e.g. '10H'[0] === '1', not '10'.
+// Multi-deck ids carry a '#N' copy suffix (e.g. '10S#1') so two physical
+// copies of the same card have distinct ids — strip it before parsing.
 export function parseCard(id) {
-  const suitLetter = id.slice(-1)
-  const rank = id.slice(0, -1)
+  const base = id.includes('#') ? id.slice(0, id.indexOf('#')) : id
+  const suitLetter = base.slice(-1)
+  const rank = base.slice(0, -1)
   return { rank, suit: LETTER_SUIT[suitLetter] }
 }
 
@@ -28,15 +31,18 @@ export function rankIndex(rank) {
   return RANKS.indexOf(rank)
 }
 
-export function createDeck({ includeJokers = false } = {}) {
+export function createDeck({ includeJokers = false, deckCount = 1 } = {}) {
   const deck = []
-  for (const suit of SUITS) {
-    for (const rank of RANKS) {
-      deck.push(cardId(rank, suit))
+  for (let copy = 0; copy < deckCount; copy++) {
+    const suffix = deckCount > 1 ? `#${copy}` : ''
+    for (const suit of SUITS) {
+      for (const rank of RANKS) {
+        deck.push(cardId(rank, suit) + suffix)
+      }
     }
-  }
-  if (includeJokers) {
-    deck.push('JOKER1', 'JOKER2')
+    if (includeJokers) {
+      deck.push(`JOKER1${suffix}`, `JOKER2${suffix}`)
+    }
   }
   return deck
 }
