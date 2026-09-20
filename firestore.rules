@@ -20,8 +20,8 @@ service cloud.firestore {
       }
 
       match /voice/{playerId} {
-        allow read: if true;
-        allow write: if request.resource.data.url.size() <= 700000;
+        allow read, delete: if true;
+        allow create, update: if request.resource.data.url.size() <= 700000;
       }
     }
 

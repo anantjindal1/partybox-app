@@ -259,6 +259,22 @@ test('deleteRoom calls deleteDoc on room document', async () => {
   expect(ref.path).toBe('rooms/ABCD')
 })
 
+test('deleteRoom also deletes the room\'s actions, reactions and voice docs', async () => {
+  deleteDoc.mockResolvedValue(undefined)
+  const child = name => ({ docs: [{ ref: { path: `rooms/ABCD/${name}/x` } }] })
+  getDocs.mockImplementation(async ref => child(ref.path.split('/')[2]))
+
+  await deleteRoom('ABCD')
+
+  const deleted = deleteDoc.mock.calls.map(([ref]) => ref.path).sort()
+  expect(deleted).toEqual([
+    'rooms/ABCD',
+    'rooms/ABCD/actions/x',
+    'rooms/ABCD/reactions/x',
+    'rooms/ABCD/voice/x'
+  ])
+})
+
 // ─── kickPlayer ───────────────────────────────────────────────────────────────
 
 test('kickPlayer removes player via arrayRemove', async () => {

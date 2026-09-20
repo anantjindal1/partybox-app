@@ -116,7 +116,21 @@ export async function updateRoomState(code, state) {
   await updateDoc(ref, { state })
 }
 
+const ROOM_SUBCOLLECTIONS = ['actions', 'reactions', 'voice']
+
+// Deleting a doc never deletes its sub-collections in Firestore — without
+// this, ending a game would orphan its voice clips and actions forever.
 export async function deleteRoom(code) {
+  const children = await Promise.all(
+    ROOM_SUBCOLLECTIONS.map(async name => {
+      try {
+        return await getDocs(collection(db, 'rooms', code, name))
+      } catch {
+        return null
+      }
+    })
+  )
+  await Promise.all(children.flatMap(snap => (snap ? snap.docs.map(d => deleteDoc(d.ref)) : [])))
   await deleteDoc(doc(db, 'rooms', code))
 }
 

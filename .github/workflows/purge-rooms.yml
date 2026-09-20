@@ -1,0 +1,28 @@
+name: Purge old rooms
+
+# Rooms hold player names, game state and short voice clips. The privacy
+# policy promises they are removed within 1-2 days, and nothing else
+# deletes them — see scripts/purgeOldRooms.js.
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Only count, do not delete'
+        type: boolean
+        default: false
+
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/purgeOldRooms.js
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
