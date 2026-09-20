@@ -8,6 +8,7 @@ import { removeCardFromHand, addCardsToHand, sortHand } from '../../multiplayer/
 import { dealCards } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
+import { otherPlayersInSeatOrder } from '../../multiplayer/partnerships'
 import { CardTable } from '../../components/cards/CardTable'
 import { HandWinnerOverlay } from '../../components/cards/HandWinnerOverlay'
 import { LastHandButton } from '../../components/cards/LastHandButton'
@@ -376,8 +377,7 @@ export default function TeenDoPaanch({ code }) {
       playerId,
       playerName: players.find(p => p.id === playerId)?.name
     }))
-    const otherSeats = players
-      .filter(p => p.id !== myId)
+    const otherSeats = otherPlayersInSeatOrder(players, roomState.turnOrder, myId)
       .map(p => ({
         player: p,
         cardCount: roomState.hands?.[p.id]?.length ?? 0,

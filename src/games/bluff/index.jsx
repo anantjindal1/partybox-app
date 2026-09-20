@@ -7,6 +7,7 @@ import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
 import { removeCardFromHand, addCardsToHand, sortHandByRank } from '../../multiplayer/hand'
 import { advanceTurn } from '../../multiplayer/turnManager'
 import { dealEven } from '../../multiplayer/deal'
+import { otherPlayersInSeatOrder } from '../../multiplayer/partnerships'
 import { CardTable } from '../../components/cards/CardTable'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { BluffPile } from './BluffPile'
@@ -361,8 +362,7 @@ export default function Bluff({ code }) {
     const isMyTurn = roomState.turnOrder?.[roomState.currentIdx] === myId
     const currentTurnName = players.find(p => p.id === roomState.turnOrder?.[roomState.currentIdx])?.name ?? 'Player'
     const amLatestHandOwner = roomState.latestHandPlayerId === myId
-    const otherSeats = players
-      .filter(p => p.id !== myId)
+    const otherSeats = otherPlayersInSeatOrder(players, roomState.turnOrder, myId)
       .map(p => ({
         player: p,
         cardCount: roomState.hands?.[p.id]?.length ?? 0,

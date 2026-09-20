@@ -10,6 +10,19 @@ service cloud.firestore {
       match /actions/{actionId} {
         allow read, write: if true;
       }
+
+      // Emoji reactions (ReactionBar) and voice clips (VoiceBroadcastButton).
+      // Both were missing here and so were denied by the catch-all below —
+      // the writes failed silently. Voice clips are base64 audio; the size
+      // cap matches the client's own MAX_BASE64_BYTES safety net.
+      match /reactions/{playerId} {
+        allow read, write: if true;
+      }
+
+      match /voice/{playerId} {
+        allow read: if true;
+        allow write: if request.resource.data.url.size() <= 700000;
+      }
     }
 
     // ── PROFILES ───────────────────────────────────────────

@@ -1,4 +1,4 @@
-import { getTeamA, getTeamB, getTeamOf, computeTeamTricks, buildTurnOrderFromPartner, orderSeatsForViewer } from '../partnerships'
+import { getTeamA, getTeamB, getTeamOf, computeTeamTricks, buildTurnOrderFromPartner, orderSeatsForViewer, otherPlayersInSeatOrder } from '../partnerships'
 
 const turnOrder = ['p0', 'p1', 'p2', 'p3']
 
@@ -85,5 +85,26 @@ describe('orderSeatsForViewer', () => {
 
   test('falls back to a plain filter when the viewer is not in turnOrder', () => {
     expect(orderSeatsForViewer(order, 'ghost')).toEqual(order)
+  })
+})
+
+describe('otherPlayersInSeatOrder', () => {
+  const players = ['a', 'b', 'c', 'd'].map(id => ({ id, name: id }))
+
+  it('puts the next player to act first (screen-left) and the partner in the middle (front), for every viewer and any picked partner', () => {
+    for (const partner of ['b', 'c', 'd']) {
+      const turnOrder = buildTurnOrderFromPartner(['a', 'b', 'c', 'd'], 'a', partner)
+      for (const me of turnOrder) {
+        const seats = otherPlayersInSeatOrder(players, turnOrder, me).map(p => p.id)
+        const next = turnOrder[(turnOrder.indexOf(me) + 1) % 4]
+        const myPartner = turnOrder[(turnOrder.indexOf(me) + 2) % 4]
+        expect(seats[0]).toBe(next)
+        expect(seats[1]).toBe(myPartner)
+      }
+    }
+  })
+
+  it('falls back to join order before a turn order exists', () => {
+    expect(otherPlayersInSeatOrder(players, undefined, 'b').map(p => p.id)).toEqual(['a', 'c', 'd'])
   })
 })

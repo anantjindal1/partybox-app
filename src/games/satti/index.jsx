@@ -7,6 +7,7 @@ import { createDeck, shuffleDeck } from '../../multiplayer/deck'
 import { removeCardFromHand, sortHand } from '../../multiplayer/hand'
 import { dealAll } from '../../multiplayer/deal'
 import { createEmptyBoard, getLegalPlays, applyPlayToBoard, computeStalemateWinners } from './sattiLogic'
+import { otherPlayersInSeatOrder } from '../../multiplayer/partnerships'
 import { CardTable } from '../../components/cards/CardTable'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { SattiBoard } from './SattiBoard'
@@ -208,8 +209,7 @@ export default function Satti({ code }) {
     const legalPlays = isMyTurn ? getLegalPlays(myHand, board) : []
     const disabledCardIds = isMyTurn ? myHand.filter(id => !legalPlays.includes(id)) : myHand
     const mustPass = isMyTurn && legalPlays.length === 0
-    const otherSeats = players
-      .filter(p => p.id !== myId)
+    const otherSeats = otherPlayersInSeatOrder(players, roomState.turnOrder, myId)
       .map(p => ({
         player: p,
         cardCount: roomState.hands?.[p.id]?.length ?? 0,

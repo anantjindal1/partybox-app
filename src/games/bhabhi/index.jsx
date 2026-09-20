@@ -7,6 +7,7 @@ import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
 import { removeCardFromHand, addCardsToHand, sortHand } from '../../multiplayer/hand'
 import { dealAll } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
+import { otherPlayersInSeatOrder } from '../../multiplayer/partnerships'
 import { CardTable } from '../../components/cards/CardTable'
 import { PlayingCard } from '../../components/cards/PlayingCard'
 import { LastHandButton } from '../../components/cards/LastHandButton'
@@ -280,8 +281,7 @@ export default function Bhabhi({ code }) {
       </div>
     ) : null
 
-    const otherSeats = players
-      .filter(p => p.id !== myId)
+    const otherSeats = otherPlayersInSeatOrder(players, roomState.seatingOrder, myId)
       .map(p => ({
         player: p,
         cardCount: roomState.hands?.[p.id]?.length ?? 0,
