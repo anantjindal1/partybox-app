@@ -33,7 +33,7 @@ export default function TestLab() {
     setError(null)
     try {
       const ids = Array.from({ length: playerCount }, (_, i) => `test${i + 1}`)
-      const code = await createRoom(ids[0], 'Player 1', selectedSlug, AVATAR_POOL[0])
+      const code = await createRoom(ids[0], 'Player 1', selectedSlug, AVATAR_POOL[0], 'casual', false)
       for (let i = 1; i < ids.length; i++) {
         await joinRoom(code, ids[i], `Player ${i + 1}`, AVATAR_POOL[i % AVATAR_POOL.length])
       }

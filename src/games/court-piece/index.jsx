@@ -1,17 +1,19 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
+import { useTurnVibration } from '../../hooks/useTurnVibration'
 import { useLang } from '../../store/LangContext'
 import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
 import { removeCardFromHand, addCardsToHand, sortHand } from '../../multiplayer/hand'
 import { dealCards } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
-import { buildTurnOrderFromPartner } from '../../multiplayer/partnerships'
+import { buildTurnOrderFromPartner, otherPlayersInSeatOrder } from '../../multiplayer/partnerships'
 import { CardTable } from '../../components/cards/CardTable'
 import { TableScoreBar } from '../../components/cards/TableScoreBar'
 import { SUIT_TEXT_CLASS } from '../../components/cards/suitIcons'
 import { HandWinnerOverlay } from '../../components/cards/HandWinnerOverlay'
+import { LastHandButton } from '../../components/cards/LastHandButton'
 import { PartnerPicker } from '../../components/cards/PartnerPicker'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { TrumpCallScreen } from './TrumpCallScreen'
@@ -48,6 +50,7 @@ export default function CourtPiece({ code }) {
   } = useOnlineRoom(code)
 
   const phase = roomState.phase || 'waiting'
+  useTurnVibration(phase === 'playing' && roomState.turnOrder?.[roomState.currentIdx] === myId)
   const roomStateRef = useRef(roomState)
   roomStateRef.current = roomState
 
@@ -171,7 +174,7 @@ export default function CourtPiece({ code }) {
       // clearing/advancing — otherwise the hand vanishes the instant the
       // 4th card lands, with no chance to see what happened.
       await clearActions()
-      await persist({ hands: newHands, currentHand: newHand, handWinnerId: winnerId })
+      await persist({ hands: newHands, currentHand: newHand, handWinnerId: winnerId, lastHand: { cards: newHand, winnerId } })
       await new Promise(resolve => setTimeout(resolve, 1500))
 
       if (remainingCards.length === 0) {
@@ -262,6 +265,7 @@ export default function CourtPiece({ code }) {
         handsWon: zeroed,
         currentHand: [],
         handWinnerId: null,
+        lastHand: null,
         ledSuit: null,
         currentIdx: null,
         nextCallerId: null,
@@ -307,6 +311,7 @@ export default function CourtPiece({ code }) {
         handsWon: zeroed,
         currentHand: [],
         handWinnerId: null,
+        lastHand: null,
         ledSuit: null,
         currentIdx: null
         // lastRoundResult is deliberately kept — it's what "View Last Round"
@@ -420,8 +425,7 @@ export default function CourtPiece({ code }) {
       playerName: players.find(p => p.id === playerId)?.name
     }))
     const myTeam = getTeamOf(myId, roomState.turnOrder ?? [myId])
-    const otherSeats = players
-      .filter(p => p.id !== myId)
+    const otherSeats = otherPlayersInSeatOrder(players, roomState.turnOrder, myId)
       .map(p => ({
         player: p,
         cardCount: roomState.hands?.[p.id]?.length ?? 0,
@@ -453,7 +457,10 @@ export default function CourtPiece({ code }) {
 
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
-        {renderLastRoundButton()}
+        <div className="flex flex-wrap justify-center gap-2">
+          {renderLastRoundButton()}
+          <LastHandButton lastHand={roomState.lastHand} players={players} accent="jade" />
+        </div>
         <TableScoreBar entries={scoreEntries} />
         <p className="text-center text-textMuted text-xs">
           Hands won this round — Team A: {handsThisRound.teamA}, Team B: {handsThisRound.teamB}

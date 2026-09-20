@@ -60,3 +60,15 @@ export function orderSeatsForViewer(turnOrder, myId) {
   if (i === -1) return turnOrder.filter(id => id !== myId)
   return [...turnOrder.slice(i + 1), ...turnOrder.slice(0, i)]
 }
+
+/**
+ * Player objects for every seat except myId, in viewer-relative
+ * turn-order sequence (see orderSeatsForViewer). Falls back to plain
+ * join order before a turnOrder exists.
+ */
+export function otherPlayersInSeatOrder(players, turnOrder, myId) {
+  if (!turnOrder) return players.filter(p => p.id !== myId)
+  return orderSeatsForViewer(turnOrder, myId)
+    .map(id => players.find(p => p.id === id))
+    .filter(Boolean)
+}

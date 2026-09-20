@@ -30,3 +30,20 @@ export function computeMendikotOutcome(teamHands, tensCaptured) {
   }
   return { winningTeam: teamHands.teamA > teamHands.teamB ? 'teamA' : 'teamB', isMendikot: false }
 }
+
+const TOTAL_HANDS = 13
+
+/**
+ * True once playing on can't change who wins: a team took all four 10s,
+ * or all four 10s are captured with a 3-1 split, or they split 2-2 and
+ * one team already holds a majority of the 13 hands. A team sitting on
+ * three 10s with the fourth still out is NOT decided — the 4-0 Mendikot
+ * is still possible.
+ */
+export function isOutcomeDecided(teamHands, tensCaptured) {
+  if (tensCaptured.teamA === 4 || tensCaptured.teamB === 4) return true
+  if (tensCaptured.teamA + tensCaptured.teamB < 4) return false
+  if (tensCaptured.teamA !== tensCaptured.teamB) return true
+  const majority = Math.floor(TOTAL_HANDS / 2) + 1
+  return teamHands.teamA >= majority || teamHands.teamB >= majority
+}

@@ -13,8 +13,10 @@ import { parseCard } from '../../multiplayer/deck'
  * transient use — pass `settle={false}` when reusing this for a static
  * "review this hand again" view (its `forwards` fill mode otherwise
  * leaves a freshly-mounted copy sitting at opacity 0 once it finishes).
+ * `message` replaces the default "X won the hand!" line, for games whose
+ * hand outcome isn't a plain win (e.g. Bhabhi's discard / pick-up).
  */
-export function HandWinnerOverlay({ centerCards, handWinnerId, handWinnerName, accentColorClass = 'text-cobalt', unitLabel = 'hand', settle = true }) {
+export function HandWinnerOverlay({ centerCards, handWinnerId, handWinnerName, accentColorClass = 'text-cobalt', unitLabel = 'hand', settle = true, message }) {
   if (!handWinnerId) return null
   return (
     <div className={`flex flex-col items-center gap-1.5 ${settle ? 'animate-hand-settle' : ''}`}>
@@ -36,7 +38,7 @@ export function HandWinnerOverlay({ centerCards, handWinnerId, handWinnerName, a
           )
         })}
       </div>
-      <p className={`text-xs font-bold ${accentColorClass}`}>{handWinnerName} won the {unitLabel}!</p>
+      <p className={`text-xs font-bold ${accentColorClass}`}>{message ?? `${handWinnerName} won the ${unitLabel}!`}</p>
     </div>
   )
 }

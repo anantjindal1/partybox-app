@@ -362,11 +362,11 @@ const VISIBLE_GAMES = [
   {
     slug: 'mendikot',
     icon: MendikotIcon,
-    title: 'Mendikot (Mindi)',
+    title: 'Dassi Pakad (Mendikot)',
     modeBadge: 'Online',
     modeIcon: SignalIcon,
     accent: 'citrine',
-    description: 'Fixed partnerships, no trump — capture all four 10s for a Mendikot',
+    description: 'Fixed partnerships, no trump — capture all four 10s (dassi) for a Mendikot',
     playersPill: 'Exactly 4 players',
     timePill: '~20-30 mins',
     cta: 'Create Room →',
@@ -814,6 +814,7 @@ export default function Home() {
 
           {/* ── Join Room ───────────────────────────────────────────────────── */}
           <div className="flex flex-col items-center">
+            <div className="flex items-center gap-5">
             <button
               onClick={() => setJoinOpen(!joinOpen)}
               className="text-textMuted hover:text-textPrimary text-sm font-medium flex items-center gap-2 transition-colors min-h-[44px]"
@@ -822,6 +823,14 @@ export default function Home() {
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4" /><path d="M10 17l5-5-5-5" /><path d="M15 12H3" /></svg>
               {t('joinRoom')}
             </button>
+            <button
+              onClick={() => navigate('/tables')}
+              className="text-textMuted hover:text-textPrimary text-sm font-medium flex items-center gap-2 transition-colors min-h-[44px]"
+            >
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18" /></svg>
+              Open Tables
+            </button>
+            </div>
 
             {joinOpen && (
               <Card className="mt-4 w-full max-w-xs flex flex-col items-center gap-3 p-4 !bg-surfaceElevated/80 backdrop-blur-sm">

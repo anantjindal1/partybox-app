@@ -13,14 +13,9 @@ import { useRoom } from '../hooks/useRoom'
 import { useProfile } from '../hooks/useProfile'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
 import { useOnlineRoom } from '../hooks/useOnlineRoom'
-import { joinRoom, joinAsSpectator } from '../services/room'
+import { joinRoom, joinAsSpectator, LOBBY_PHASES } from '../services/room'
 import { getGame } from '../games/registry'
 import { trackEvent } from '../lib/analytics/core'
-
-// Game is active once phase moves past setup (waiting/setup = lobby,
-// anything else = in-game). Module scope since both the auto-join
-// effect and gameInProgress need the exact same set.
-const LOBBY_PHASES = new Set([undefined, null, 'waiting', 'setup'])
 
 export default function Room() {
   const { code } = useParams()

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
+import { useTurnVibration } from '../../hooks/useTurnVibration'
 import { useLang } from '../../store/LangContext'
 import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
 import { removeCardFromHand, addCardsToHand, sortHand } from '../../multiplayer/hand'
@@ -8,9 +9,10 @@ import { dealAll } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { CardTable } from '../../components/cards/CardTable'
 import { PlayingCard } from '../../components/cards/PlayingCard'
+import { LastHandButton } from '../../components/cards/LastHandButton'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { ResultsScreen } from './ResultsScreen'
-import { findAceOfSpadesHolder, breaksSuit, rotateActiveFrom, nextActiveAfterSeat } from './bhabhiLogic'
+import { findAceOfSpadesHolder, breaksSuit, rotateActiveFrom } from './bhabhiLogic'
 import { awardXP } from '../../services/xp'
 import { writeGameStats } from '../../services/stats'
 import { awardBadge } from '../../services/profile'
@@ -35,6 +37,7 @@ export default function Bhabhi({ code }) {
   } = useOnlineRoom(code)
 
   const phase = roomState.phase || 'waiting'
+  useTurnVibration(phase === 'playing' && !roomState.pileResult && roomState.pileParticipants?.[roomState.pileIdx ?? 0] === myId)
   const roomStateRef = useRef(roomState)
   roomStateRef.current = roomState
 
@@ -75,14 +78,18 @@ export default function Bhabhi({ code }) {
     const newPile = [...current.pile, { playerId: actingPlayerId, card: cardId }]
     const newLedSuit = current.ledSuit ?? parseCard(cardId).suit
 
-    // Getting rid of your last card wins — immediately, regardless of
-    // whether the pile itself has finished resolving. Your card stays in
-    // the pile for suit-resolution purposes either way.
-    let newWinners = current.winners
-    let newTurnOrder = current.turnOrder
+    // First player to get rid of every card wins, and the game ends on
+    // the spot — whatever the pile was about to resolve to no longer matters.
     if (newHand.length === 0) {
-      newWinners = [...current.winners, actingPlayerId]
-      newTurnOrder = current.turnOrder.filter(id => id !== actingPlayerId)
+      await clearActions()
+      await persist({
+        hands: newHands,
+        pile: [],
+        pileResult: null,
+        phase: 'results',
+        winners: [actingPlayerId]
+      })
+      return
     }
 
     const brokeSuit = breaksSuit(cardId, current.ledSuit, current.isFirstRound)
@@ -93,8 +100,6 @@ export default function Bhabhi({ code }) {
       await clearActions()
       await persist({
         hands: newHands,
-        winners: newWinners,
-        turnOrder: newTurnOrder,
         pile: newPile,
         ledSuit: newLedSuit,
         pileIdx: current.pileIdx + 1
@@ -108,69 +113,33 @@ export default function Bhabhi({ code }) {
     // ran to full length or was cut short by a broken suit.
     const highCardId = resolveTrick(newPile, newLedSuit, null)
 
-    // Whoever actually leads next (and, for a pickup, receives the pile):
-    // normally the highest-card player, UNLESS they also just emptied
-    // their hand on this very pile (Special Rule 4) — leadership then
-    // skips to the next still-active player after their seat. The same
-    // fallback covers the pickup case too: if the "should pick up" player
-    // has already won and left, the next active player after them
-    // inherits both the pile and the lead. Computed BEFORE the reveal
-    // persist so the banner can name the real next leader, not just the
-    // raw highest-card player (who may have already won and left).
-    const leaderId = newTurnOrder.length <= 1
-      ? null
-      : newTurnOrder.includes(highCardId)
-        ? highCardId
-        : nextActiveAfterSeat(current.seatingOrder, newTurnOrder, highCardId)
-
     // Hold the pile + outcome on screen for a beat before applying it —
     // same pause-then-clear pattern used by every other trick game here.
     await clearActions()
+    const highCardName = players.find(p => p.id === highCardId)?.name ?? 'Player'
     await persist({
       hands: newHands,
-      winners: newWinners,
-      turnOrder: newTurnOrder,
       pile: newPile,
       ledSuit: newLedSuit,
-      pileResult: { outcome, highCardId, leaderId, cardCount: newPile.length }
+      pileResult: { outcome, highCardId, cardCount: newPile.length },
+      lastHand: {
+        cards: newPile,
+        winnerId: highCardId,
+        message: outcome === 'discard'
+          ? `Discarded — ${highCardName} led next`
+          : `${highCardName} picked up ${newPile.length} cards`
+      }
     })
     await new Promise(resolve => setTimeout(resolve, REVEAL_PAUSE_MS))
 
-    if (newTurnOrder.length === 1) {
-      await persist({
-        phase: 'results',
-        loserId: newTurnOrder[0],
-        pile: [],
-        pileResult: null
-      })
-      return
-    }
-
-    // Rare edge case the real rules don't cover: the last two (or more)
-    // active players can empty their hands on the very same pile (each
-    // was already down to their final card). Nobody's left holding
-    // cards, so there's no Bhabhi this game — everyone remaining shares
-    // the win, rather than forcing an artificial tie-break we were
-    // explicitly asked not to build (the shoot-out, Special Rule 4B).
-    if (newTurnOrder.length === 0) {
-      await persist({
-        phase: 'results',
-        loserId: null,
-        pile: [],
-        pileResult: null
-      })
-      return
-    }
-
     const finalHands = outcome === 'pickup'
-      ? { ...newHands, [leaderId]: addCardsToHand(newHands[leaderId], newPile.map(p => p.card)) }
+      ? { ...newHands, [highCardId]: addCardsToHand(newHands[highCardId], newPile.map(p => p.card)) }
       : newHands
 
-    const nextParticipants = rotateActiveFrom(current.seatingOrder, newTurnOrder, leaderId)
+    const nextParticipants = rotateActiveFrom(current.seatingOrder, current.seatingOrder, highCardId)
 
     await persist({
       hands: finalHands,
-      turnOrder: newTurnOrder,
       pile: [],
       pileParticipants: nextParticipants,
       pileIdx: 0,
@@ -193,7 +162,6 @@ export default function Bhabhi({ code }) {
       await persist({
         phase: 'playing',
         seatingOrder: playerIds,
-        turnOrder: playerIds,
         hands,
         pile: [],
         pileParticipants,
@@ -201,7 +169,7 @@ export default function Bhabhi({ code }) {
         ledSuit: null,
         isFirstRound: true,
         winners: [],
-        loserId: null,
+        lastHand: null,
         pileResult: null
       })
     } finally {
@@ -222,7 +190,7 @@ export default function Bhabhi({ code }) {
   useEffect(() => {
     if (phase !== 'results' || !myId || xpAwarded.current) return
     xpAwarded.current = true
-    const isWinner = myId !== roomState.loserId
+    const isWinner = (roomState.winners ?? []).includes(myId)
     awardXP(isWinner ? 100 : 20, room?.roomType)
     if (room?.roomType === 'ranked') {
       writeGameStats('bhabhi', { won: isWinner, gamesPlayed: 1 })
@@ -266,16 +234,6 @@ export default function Bhabhi({ code }) {
   }
 
   if (phase === 'playing') {
-    const winners = roomState.winners ?? []
-    if (winners.includes(myId)) {
-      return (
-        <div className="flex-1 flex flex-col items-center justify-center py-12 gap-2">
-          <p className="text-lg font-bold text-textPrimary">You got away! 🎉</p>
-          <p className="text-sm text-textMuted">Watching the rest of the game…</p>
-        </div>
-      )
-    }
-
     const myHand = sortHand(roomState.hands?.[myId] ?? [])
     const pileParticipants = roomState.pileParticipants ?? []
     const currentTurnHolder = pileParticipants[roomState.pileIdx ?? 0]
@@ -289,13 +247,6 @@ export default function Bhabhi({ code }) {
     const disabledCardIds = isInteractive ? myHand.filter(id => !legalPlays.includes(id)) : myHand
     const currentTurnName = players.find(p => p.id === currentTurnHolder)?.name ?? 'player'
     const highCardName = pileResult ? (players.find(p => p.id === pileResult.highCardId)?.name ?? 'Player') : null
-    const leaderName = pileResult?.leaderId ? (players.find(p => p.id === pileResult.leaderId)?.name ?? 'Player') : null
-    // Special Rule 4 (and the equivalent pickup edge case): the highest
-    // card's player can have already emptied their hand and left on that
-    // very play, so the pile's actual next leader can differ from whoever
-    // played the winning card — the banner names both when that happens.
-    const highCardAlreadyLeft = pileResult && pileResult.leaderId !== pileResult.highCardId
-
     const centerCards = (roomState.pile ?? []).map(({ playerId, card }) => ({
       card,
       playerId,
@@ -322,15 +273,9 @@ export default function Bhabhi({ code }) {
           })}
         </div>
         <p className="text-xs font-bold text-slate text-center">
-          {pileResult.outcome === 'discard' ? (
-            highCardAlreadyLeft
-              ? `${highCardName} won and got away! ${leaderName ?? 'The next player'} leads next.`
-              : `Discarded — ${leaderName ?? highCardName} leads next!`
-          ) : highCardAlreadyLeft ? (
-            `${highCardName} already got away — ${leaderName} picks up ${pileResult.cardCount} cards instead!`
-          ) : (
-            `${highCardName} couldn't follow suit — picks up ${pileResult.cardCount} cards!`
-          )}
+          {pileResult.outcome === 'discard'
+            ? `Discarded — ${highCardName} leads next!`
+            : `${highCardName} couldn't follow suit — picks up ${pileResult.cardCount} cards!`}
         </p>
       </div>
     ) : null
@@ -340,12 +285,12 @@ export default function Bhabhi({ code }) {
       .map(p => ({
         player: p,
         cardCount: roomState.hands?.[p.id]?.length ?? 0,
-        isActiveTurn: currentTurnHolder === p.id,
-        label: winners.includes(p.id) ? 'Won! 🎉' : undefined
+        isActiveTurn: currentTurnHolder === p.id
       }))
 
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
+        <LastHandButton lastHand={roomState.lastHand} players={players} accent="slate" />
         <CardTable
           otherSeats={otherSeats}
           myHand={myHand}
@@ -374,7 +319,6 @@ export default function Bhabhi({ code }) {
       <ResultsScreen
         players={players}
         winners={roomState.winners ?? []}
-        loserId={roomState.loserId}
         myId={myId}
         isHost={isHost}
         onRematch={handleRematch}

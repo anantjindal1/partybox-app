@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { PlayingCard } from '../../components/cards/PlayingCard'
-import { parseCard } from '../../multiplayer/deck'
+import { HandRow } from './HandRow'
 
 export function BiddingScreen({
   myHand = [],
@@ -12,6 +11,7 @@ export function BiddingScreen({
   forbiddenBid,
   bidsIn,
   totalPlayers,
+  waitingForNames = [],
   onSubmit,
   submitted
 }) {
@@ -24,6 +24,7 @@ export function BiddingScreen({
   }
 
   const locked = isLastBidder && !allOthersHaveBid
+  const waitingList = waitingForNames.join(', ') || 'the room'
 
   return (
     <div className="flex-1 flex flex-col items-center px-4 sm:px-6 py-6 gap-5 max-w-lg w-full mx-auto">
@@ -31,18 +32,13 @@ export function BiddingScreen({
         Round {roundNumber} of {totalRounds} — Bidding ({handSizeThisRound}-card hand)
       </p>
 
-      <div className="flex flex-wrap justify-center gap-1.5">
-        {myHand.map(cardId => {
-          const { rank, suit } = parseCard(cardId)
-          return <PlayingCard key={cardId} face="up" rank={rank} suit={suit} size="sm" />
-        })}
-      </div>
+      <HandRow cards={myHand} />
 
       {submitted ? (
-        <p className="text-sm text-textMuted py-4">Bid locked in — waiting for the room…</p>
+        <p className="text-sm text-textMuted py-4 text-center">Bid locked in — waiting for {waitingList}…</p>
       ) : locked ? (
         <p className="text-sm text-textMuted py-4 text-center">
-          You bid last this round — waiting for everyone else to bid first…
+          You bid last this round — waiting for {waitingList} to bid first…
         </p>
       ) : (
         <div className="w-full flex flex-col gap-4">

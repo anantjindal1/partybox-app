@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
+import { useTurnVibration } from '../../hooks/useTurnVibration'
 import { useLang } from '../../store/LangContext'
 import { shuffleDeck, parseCard } from '../../multiplayer/deck'
 import { removeCardFromHand, addCardsToHand, sortHand } from '../../multiplayer/hand'
@@ -9,6 +10,7 @@ import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
 import { CardTable } from '../../components/cards/CardTable'
 import { HandWinnerOverlay } from '../../components/cards/HandWinnerOverlay'
+import { LastHandButton } from '../../components/cards/LastHandButton'
 import { TableScoreBar } from '../../components/cards/TableScoreBar'
 import { SUIT_TEXT_CLASS } from '../../components/cards/suitIcons'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
@@ -48,6 +50,7 @@ export default function TeenDoPaanch({ code }) {
   } = useOnlineRoom(code)
 
   const phase = roomState.phase || 'waiting'
+  useTurnVibration(phase === 'playing' && roomState.turnOrder?.[roomState.currentIdx] === myId)
   const roomStateRef = useRef(roomState)
   roomStateRef.current = roomState
 
@@ -139,7 +142,7 @@ export default function TeenDoPaanch({ code }) {
       // clearing/advancing — otherwise the hand vanishes the instant the
       // last card lands, with no chance to see what happened.
       await clearActions()
-      await persist({ hands: newHands, currentHand: newHand, handWinnerId: winnerId })
+      await persist({ hands: newHands, currentHand: newHand, handWinnerId: winnerId, lastHand: { cards: newHand, winnerId } })
       await new Promise(resolve => setTimeout(resolve, 1500))
 
       if (remainingCards.length === 0) {
@@ -222,6 +225,7 @@ export default function TeenDoPaanch({ code }) {
         handsWon: zeroed,
         currentHand: [],
         handWinnerId: null,
+        lastHand: null,
         ledSuit: null,
         currentIdx: null,
         gameScores: zeroed,
@@ -275,6 +279,7 @@ export default function TeenDoPaanch({ code }) {
         handsWon: zeroed,
         currentHand: [],
         handWinnerId: null,
+        lastHand: null,
         ledSuit: null,
         currentIdx: null,
         lastRoundResult: null
@@ -400,6 +405,7 @@ export default function TeenDoPaanch({ code }) {
 
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
+        <LastHandButton lastHand={roomState.lastHand} players={players} accent="orchid" />
         <TableScoreBar entries={scoreEntries} />
         <CardTable
           otherSeats={otherSeats}

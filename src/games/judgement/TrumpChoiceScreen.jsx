@@ -1,3 +1,4 @@
+import { HandRow } from './HandRow'
 import { SpadeIcon, HeartIcon, DiamondIcon, ClubIcon } from '../../components/cards/suitIcons'
 
 const SUITS = [
@@ -7,12 +8,18 @@ const SUITS = [
   { suit: 'clubs', Icon: ClubIcon, colorClass: 'text-cardBlack' }
 ]
 
-export function TrumpChoiceScreen({ isChooser, chooserName, onChoose }) {
+export function TrumpChoiceScreen({ isChooser, chooserName, chooserBid, myHand = [], onChoose }) {
   return (
     <div className="flex-1 flex flex-col items-center px-4 sm:px-6 py-6 gap-5 max-w-lg w-full mx-auto">
       <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">
         {isChooser ? 'You Won the Bid — Choose Trump' : 'Choosing Trump…'}
       </p>
+
+      <p className="text-sm text-textPrimary font-semibold text-center">
+        {isChooser ? 'You' : chooserName} bid the highest — {chooserBid}
+      </p>
+
+      <HandRow cards={myHand} />
 
       {isChooser ? (
         <div className="grid grid-cols-2 gap-3 w-full">
@@ -29,7 +36,7 @@ export function TrumpChoiceScreen({ isChooser, chooserName, onChoose }) {
         </div>
       ) : (
         <p className="text-center text-textMuted text-sm py-8">
-          {chooserName} bid the highest — waiting for them to choose trump…
+          Waiting for {chooserName} to choose trump…
         </p>
       )}
     </div>

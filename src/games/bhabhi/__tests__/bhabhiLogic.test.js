@@ -1,4 +1,4 @@
-import { findAceOfSpadesHolder, breaksSuit, rotateActiveFrom, nextActiveAfterSeat } from '../bhabhiLogic'
+import { findAceOfSpadesHolder, breaksSuit, rotateActiveFrom } from '../bhabhiLogic'
 
 describe('findAceOfSpadesHolder', () => {
   it('finds whoever holds the Ace of Spades', () => {
@@ -46,25 +46,5 @@ describe('rotateActiveFrom', () => {
     const seatingOrder = ['p1', 'p2', 'p3', 'p4']
     const activeIds = ['p1', 'p3', 'p4']
     expect(rotateActiveFrom(seatingOrder, activeIds, 'p2')).toEqual(['p1', 'p3', 'p4'])
-  })
-})
-
-describe('nextActiveAfterSeat', () => {
-  it('finds the next active player after a departed seat', () => {
-    const seatingOrder = ['p1', 'p2', 'p3', 'p4']
-    const activeIds = ['p1', 'p3', 'p4'] // p2 just departed
-    expect(nextActiveAfterSeat(seatingOrder, activeIds, 'p2')).toBe('p3')
-  })
-
-  it('wraps around the seating order', () => {
-    const seatingOrder = ['p1', 'p2', 'p3', 'p4']
-    const activeIds = ['p1', 'p2'] // p3, p4 departed
-    expect(nextActiveAfterSeat(seatingOrder, activeIds, 'p4')).toBe('p1')
-  })
-
-  it('skips multiple consecutive departed seats', () => {
-    const seatingOrder = ['p1', 'p2', 'p3', 'p4']
-    const activeIds = ['p1', 'p4'] // p2, p3 departed
-    expect(nextActiveAfterSeat(seatingOrder, activeIds, 'p1')).toBe('p4')
   })
 })

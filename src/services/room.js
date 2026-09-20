@@ -14,7 +14,11 @@ import {
   serverTimestamp
 } from 'firebase/firestore'
 
-const ROOM_TTL_MS = 2 * 60 * 60 * 1000 // 2 hours
+export const ROOM_TTL_MS = 2 * 60 * 60 * 1000 // 2 hours
+
+// Game is in the lobby (joinable as a player) while phase is one of these;
+// anything else means it's underway.
+export const LOBBY_PHASES = new Set([undefined, null, 'waiting', 'setup'])
 
 function generateCode() {
   return Math.random().toString(36).substring(2, 6).toUpperCase()
@@ -25,13 +29,16 @@ export function isRoomExpired(room) {
   return Date.now() - room.createdAt.toMillis() > ROOM_TTL_MS
 }
 
-export async function createRoom(hostId, hostName, gameSlug, hostAvatar, roomType = 'casual') {
+// `isPublic` lists the table on the Open Tables page; false keeps it
+// reachable only by code/link.
+export async function createRoom(hostId, hostName, gameSlug, hostAvatar, roomType = 'casual', isPublic = true) {
   const code = generateCode()
   await setDoc(doc(db, 'rooms', code), {
     code,
     hostId,
     gameSlug,
     roomType,
+    isPublic,
     players: [{ id: hostId, name: hostName, avatar: hostAvatar ?? '🎲' }],
     status: 'waiting',
     state: {},

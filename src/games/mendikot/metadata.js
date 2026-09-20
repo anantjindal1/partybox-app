@@ -2,7 +2,7 @@ export default {
   slug: 'mendikot',
   hidePlayerListInGame: true,
   lobbySeatCircle: true,
-  title: { en: 'Mendikot (Mindi)', hi: 'मेंडीकोट (मिंडी)' },
+  title: { en: 'Dassi Pakad (Mendikot)', hi: 'दस्सी पकड़ (मेंडीकोट)' },
   minPlayers: 4,
   maxPlayers: 4,
   noAutoClose: true,
@@ -11,14 +11,14 @@ export default {
     en: [
       'Fixed partnerships — players sitting opposite each other are partners.',
       'No trump. Follow the led suit if you can — highest card of that suit wins the hand.',
-      'All 13 hands are always played.',
+      'The game ends early once the result is locked in — all four 10s taken with a 3-1 split, or a 2-2 split with one team holding 7 hands.',
       'The four 10s are everything — capture all four for a Mendikot and win outright.',
       "Otherwise, whoever captured more 10s wins. A 2-2 split is broken by who won more hands."
     ],
     hi: [
       'पक्की जोड़ियां — आमने-सामने बैठे खिलाड़ी साथी होते हैं।',
       'कोई ट्रंप नहीं। चली गई सूट को फॉलो करें अगर हो तो — उस सूट का सबसे बड़ा पत्ता चाल जीतता है।',
-      'सभी 13 चालें हमेशा खेली जाती हैं।',
+      'नतीजा पक्का होते ही खेल जल्दी खत्म हो जाता है — चारों 10 का बँटवारा 3-1 हो जाए, या 2-2 पर किसी टीम की 7 चालें हो जाएँ।',
       'चारों 10 सबसे अहम हैं — सभी चारों जीतकर मेंडीकोट बनाएं और सीधे जीतें।',
       'नहीं तो, जिसने ज़्यादा 10 जीते वो टीम जीतती है। 2-2 बराबरी होने पर ज़्यादा चालें जीतने वाली टीम जीतती है।'
     ]

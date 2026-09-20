@@ -7,8 +7,8 @@
  * simply discarded and the highest card of the led suit leads next. If
  * a player CAN'T follow suit, play stops immediately and whoever played
  * the highest card of the led suit must pick up the entire pile — adding
- * it to their own hand — and leads next. The last player still holding
- * cards loses (the "Bhabhi"); everyone else wins.
+ * it to their own hand — and leads next. The first player to empty
+ * their hand wins and the game ends.
  */
 import { parseCard } from '../../multiplayer/deck'
 
@@ -37,22 +37,4 @@ export function rotateActiveFrom(seatingOrder, activeIds, startId) {
   const idx = order.indexOf(startId)
   if (idx === -1) return order
   return [...order.slice(idx), ...order.slice(0, idx)]
-}
-
-/**
- * The next still-active player after a given seat, walking the FIXED
- * seating order (not the shrinking active list) — works even when
- * `departedId` has just this instant been removed from `activeIds`.
- * Needed for Special Rule 4: a pile's highest-card winner can also be
- * the player who just emptied their hand on that very card, in which
- * case leadership skips to the next active player after them.
- */
-export function nextActiveAfterSeat(seatingOrder, activeIds, departedId) {
-  const idx = seatingOrder.indexOf(departedId)
-  if (idx === -1) return activeIds[0] ?? null
-  for (let step = 1; step <= seatingOrder.length; step++) {
-    const candidate = seatingOrder[(idx + step) % seatingOrder.length]
-    if (activeIds.includes(candidate)) return candidate
-  }
-  return null
 }

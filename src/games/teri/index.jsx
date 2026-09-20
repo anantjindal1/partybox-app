@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
+import { useTurnVibration } from '../../hooks/useTurnVibration'
 import { useLang } from '../../store/LangContext'
 import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
 import { removeCardFromHand, sortHand } from '../../multiplayer/hand'
@@ -13,6 +14,7 @@ import { PlayingCard } from '../../components/cards/PlayingCard'
 import { TableScoreBar } from '../../components/cards/TableScoreBar'
 import { SUIT_TEXT_CLASS } from '../../components/cards/suitIcons'
 import { HandWinnerOverlay } from '../../components/cards/HandWinnerOverlay'
+import { LastHandButton } from '../../components/cards/LastHandButton'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { PartnerPicker } from '../../components/cards/PartnerPicker'
 import { BiddingScreen } from './BiddingScreen'
@@ -29,7 +31,9 @@ import {
   checkTeriRoundWinner,
   computeRoundPoints,
   applyShufflerScore,
-  checkGameWinner
+  checkGameWinner,
+  realisticReshuffle,
+  dealInPackets
 } from './teriLogic'
 import { awardXP } from '../../services/xp'
 import { writeGameStats } from '../../services/stats'
@@ -58,6 +62,12 @@ function hasCurrentlyPassed(playerId, bidHistory) {
   return false
 }
 
+// A round can end before every hand is played — the cards still held then
+// are gathered after the played hands, so the deck is always complete.
+function cardsInRoundOrder(state) {
+  return [...(state.playedOrder ?? []), ...state.turnOrder.flatMap(id => state.hands?.[id] ?? [])]
+}
+
 export default function Teri({ code }) {
   const navigate = useNavigate()
   const { lang } = useLang()
@@ -76,6 +86,14 @@ export default function Teri({ code }) {
   } = useOnlineRoom(code)
 
   const phase = roomState.phase || 'waiting'
+  // GameLead also plays the dummy partner's cards, so that turn counts as theirs.
+  const playTurnHolder = roomState.turnOrder?.[roomState.currentIdx]
+  const isGameLeadPlayingDummy = phase === 'playing' && myId === roomState.gameLeadId &&
+    playTurnHolder === getPartnerOf(roomState.gameLeadId, roomState.turnOrder)
+  useTurnVibration(
+    (phase === 'bidding' && roomState.biddingOrder?.[roomState.bidTurnIndex] === myId) ||
+    (phase === 'playing' && (playTurnHolder === myId || isGameLeadPlayingDummy))
+  )
   const roomStateRef = useRef(roomState)
   roomStateRef.current = roomState
 
@@ -83,7 +101,6 @@ export default function Teri({ code }) {
   const [advancing, setAdvancing] = useState(false)
   const [showShufflerIntro, setShowShufflerIntro] = useState(false)
   const [showLastRound, setShowLastRound] = useState(false)
-  const [showLastHand, setShowLastHand] = useState(false)
   const [bidAnnouncement, setBidAnnouncement] = useState(null)
   const shufflerIntroRoundRef = useRef(null)
   const lastAnnouncedBidRef = useRef(undefined)
@@ -163,53 +180,6 @@ export default function Teri({ code }) {
                 isHost={false}
                 onNextRound={() => {}}
                 advancing={false}
-              />
-            </div>
-          </div>
-        )}
-      </>
-    )
-  }
-
-  // Review the most recently completed hand (1 card from each player)
-  // WITHIN the current round — the live pause-and-reveal (HandWinnerOverlay
-  // in centerSlot below) clears itself after ~1.5s, so this is the only way
-  // to look back at it once that's passed. Reuses the same overlay
-  // component for a visually consistent reveal rather than inventing a
-  // second layout.
-  function renderLastHandButton() {
-    if (!roomState.lastHand) return null
-    const handWinnerName = players.find(p => p.id === roomState.lastHand.winnerId)?.name ?? 'Player'
-    const centerCards = roomState.lastHand.cards.map(({ playerId, card }) => ({
-      card,
-      playerId,
-      playerName: players.find(p => p.id === playerId)?.name
-    }))
-    return (
-      <>
-        <button
-          onClick={() => setShowLastHand(true)}
-          className="self-center text-sm font-bold text-cobalt border-[1.5px] border-cobalt bg-cobalt/10 rounded-xl px-4 py-2"
-        >
-          🃏 View Last Hand
-        </button>
-        {showLastHand && (
-          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-4 py-8 overflow-y-auto">
-            <div className="bg-surface rounded-2xl max-w-lg w-full p-4">
-              <div className="flex justify-end">
-                <button
-                  onClick={() => setShowLastHand(false)}
-                  className="text-textMuted hover:text-textPrimary text-sm font-semibold px-3 py-1"
-                >
-                  ✕ Close
-                </button>
-              </div>
-              <HandWinnerOverlay
-                centerCards={centerCards}
-                handWinnerId={roomState.lastHand.winnerId}
-                handWinnerName={handWinnerName}
-                accentColorClass="text-cobalt"
-                settle={false}
               />
             </div>
           </div>
@@ -350,7 +320,12 @@ export default function Teri({ code }) {
       // clearing/advancing — otherwise the hand vanishes the instant the
       // 4th card lands, with no chance to see what happened.
       await clearActions()
-      await persist({ hands: newHands, currentHand: newHand, handWinnerId: winnerId })
+      await persist({
+        hands: newHands,
+        currentHand: newHand,
+        handWinnerId: winnerId,
+        playedOrder: [...(current.playedOrder ?? []), ...newHand.map(entry => entry.card)]
+      })
       await new Promise(resolve => setTimeout(resolve, 1500))
 
       if (outcome || remainingCards.length === 0) {
@@ -464,6 +439,7 @@ export default function Teri({ code }) {
         currentHighBid: null,
         bidHistory: [],
         hands,
+        playedOrder: [],
         gameLeadId: null,
         trumpSuit: null,
         bid: null,
@@ -502,7 +478,9 @@ export default function Teri({ code }) {
         return
       }
       const nextRoundNumber = current.roundNumber + 1
-      const { hands } = dealCards(shuffleDeck(createDeck()), current.turnOrder, 13)
+      const { hands } = current.realisticShuffle === false
+        ? dealCards(shuffleDeck(createDeck()), current.turnOrder, 13)
+        : dealInPackets(realisticReshuffle(cardsInRoundOrder(current)), current.turnOrder)
       const biddingOrder = computeBiddingOrder(current.turnOrder, current.shufflerId)
       await clearActions()
       await persist({
@@ -514,6 +492,7 @@ export default function Teri({ code }) {
         currentHighBid: null,
         bidHistory: [],
         hands,
+        playedOrder: [],
         gameLeadId: null,
         trumpSuit: null,
         bid: null,
@@ -576,6 +555,21 @@ export default function Teri({ code }) {
             accent="cobalt"
           />
         )}
+        <label className="flex items-start gap-3 rounded-xl border-[1.5px] border-border bg-surfaceElevated px-4 py-3">
+          <input
+            type="checkbox"
+            className="mt-1 accent-cobalt"
+            checked={roomState.realisticShuffle !== false}
+            disabled={!isHost}
+            onChange={e => persist({ realisticShuffle: e.target.checked })}
+          />
+          <span className="text-sm text-textPrimary">
+            <span className="font-semibold">Realistic shuffle</span>
+            <span className="block text-xs text-textMuted">
+              Each round's cards are only lightly shuffled, so suits stay grouped like at a real table — longer suits and bigger bids as the game goes on.
+            </span>
+          </span>
+        </label>
         {isHost ? (
           <button
             onClick={handleStartGame}
@@ -787,7 +781,7 @@ export default function Teri({ code }) {
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
         <div className="flex flex-wrap justify-center gap-2">
           {renderLastRoundButton()}
-          {renderLastHandButton()}
+          <LastHandButton lastHand={roomState.lastHand} players={players} accent="cobalt" />
         </div>
         <TableScoreBar entries={scoreEntries} />
         <CardTable

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
+import { useTurnVibration } from '../../hooks/useTurnVibration'
 import { useLang } from '../../store/LangContext'
 import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
 import { removeCardFromHand, addCardsToHand, sortHandByRank } from '../../multiplayer/hand'
@@ -32,6 +33,7 @@ export default function Bluff({ code }) {
   } = useOnlineRoom(code)
 
   const phase = roomState.phase || 'waiting'
+  useTurnVibration(phase === 'playing' && roomState.turnOrder?.[roomState.currentIdx] === myId)
   const roomStateRef = useRef(roomState)
   roomStateRef.current = roomState
 

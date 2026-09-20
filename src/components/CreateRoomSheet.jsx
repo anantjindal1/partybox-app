@@ -22,6 +22,7 @@ export function CreateRoomSheet({ game, onClose }) {
   const { profile } = useProfile()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [isPublic, setIsPublic] = useState(true)
 
   if (!game) return null
 
@@ -35,7 +36,8 @@ export function CreateRoomSheet({ game, onClose }) {
         profile.name,
         game.slug,
         profile.avatar,
-        roomType
+        roomType,
+        isPublic
       )
       navigate(`/room/${code}`)
     } catch {
@@ -104,6 +106,16 @@ export function CreateRoomSheet({ game, onClose }) {
             </div>
           </Card>
         </div>
+
+        <label className="flex items-center gap-3 mt-5 text-sm text-textMuted">
+          <input
+            type="checkbox"
+            checked={isPublic}
+            onChange={e => setIsPublic(e.target.checked)}
+            className="w-4 h-4"
+          />
+          List on Open Tables so anyone can join
+        </label>
 
         {loading && (
           <p className="text-textMuted text-sm text-center mt-4 animate-pulse">Creating room...</p>

@@ -6,7 +6,10 @@ import {
   checkTeriRoundWinner,
   computeRoundPoints,
   applyShufflerScore,
-  checkGameWinner
+  checkGameWinner,
+  overhandShuffle,
+  realisticReshuffle,
+  dealInPackets
 } from '../teriLogic'
 
 const turnOrder = ['p0', 'p1', 'p2', 'p3']
@@ -179,5 +182,46 @@ describe('checkGameWinner', () => {
 
   test('both members of team B (p1, p3) burst -> team A wins', () => {
     expect(checkGameWinner(['p1', 'p3'], turnOrder)).toBe('teamA')
+  })
+})
+
+describe('realisticReshuffle', () => {
+  const deck = createDeck()
+
+  test('is a permutation of the played cards', () => {
+    expect([...realisticReshuffle(deck)].sort()).toEqual([...deck].sort())
+  })
+
+  test('keeps adjacent cards together far more often than a fair shuffle', () => {
+    // 5 of every 6 adjacent pairs in a fresh deck share a suit; a fair
+    // shuffle keeps ~12/51 of them, a single overhand pass keeps most.
+    const sameSuitNeighbours = order =>
+      order.slice(1).filter((c, i) => c.slice(-1) === order[i].slice(-1)).length
+    const samples = Array.from({ length: 50 }, () => sameSuitNeighbours(realisticReshuffle(deck)))
+    const average = samples.reduce((a, b) => a + b, 0) / samples.length
+    expect(average).toBeGreaterThan(30)
+  })
+
+  test('falls back to a full deck when the played order is incomplete', () => {
+    expect(realisticReshuffle(deck.slice(0, 20))).toHaveLength(52)
+    expect(realisticReshuffle(undefined)).toHaveLength(52)
+  })
+})
+
+describe('overhandShuffle', () => {
+  test('never loses or duplicates a card', () => {
+    const deck = createDeck()
+    expect([...overhandShuffle(deck)].sort()).toEqual([...deck].sort())
+  })
+})
+
+describe('dealInPackets', () => {
+  test('deals 13 distinct cards to each player in 4-4-5 packets', () => {
+    const deck = createDeck()
+    const { hands } = dealInPackets(deck, turnOrder)
+    expect(Object.values(hands).every(h => h.length === 13)).toBe(true)
+    expect(hands.p0.slice(0, 4)).toEqual(deck.slice(0, 4))
+    expect(hands.p1.slice(0, 4)).toEqual(deck.slice(4, 8))
+    expect(new Set(Object.values(hands).flat()).size).toBe(52)
   })
 })

@@ -6,6 +6,7 @@ import { CARD_GAME_ACCENT_CLASSES } from '../cardGameAccent'
 import { getSeatPosition, getHandStep } from './seatLayout'
 
 const HAND_CARD_WIDTH = 46 // matches PlayingCard's 'md' size
+const EXPOSED_SIDE_LIFT_PX = 48
 
 /**
  * Shared card-table layout: an oval "table" surface with other players'
@@ -101,11 +102,15 @@ export function CardTable({
           // (Teri's dummy) needs to grow away from the center play area,
           // not into it, and which direction "away" is depends on this.
           const exposedHandSide = isFrontSeat ? 'front' : i < middleIndex ? 'left' : 'right'
+          // A side seat's exposed hand grows downward in two rows, which
+          // otherwise runs past the table's bottom edge onto the viewer's
+          // own hand — lift the whole seat to make room.
+          const sideTop = seat.exposedCards ? `calc(${pos.top} - ${EXPOSED_SIDE_LIFT_PX}px)` : pos.top
           return (
             <div
               key={seat.player.id}
               className={`absolute -translate-x-1/2 ${isFrontSeat ? 'bottom-full mb-2' : '-translate-y-1/2'}`}
-              style={isFrontSeat ? { left: pos.left } : { left: pos.left, top: pos.top }}
+              style={isFrontSeat ? { left: pos.left } : { left: pos.left, top: sideTop }}
             >
               <PlayerSeat
                 player={seat.player}

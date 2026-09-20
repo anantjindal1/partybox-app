@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
+import { useTurnVibration } from '../../hooks/useTurnVibration'
 import { useLang } from '../../store/LangContext'
 import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
 import { removeCardFromHand, sortHand } from '../../multiplayer/hand'
@@ -9,6 +10,9 @@ import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
 import { CardTable } from '../../components/cards/CardTable'
 import { HandWinnerOverlay } from '../../components/cards/HandWinnerOverlay'
+import { LastHandButton } from '../../components/cards/LastHandButton'
+import { TableScoreBar } from '../../components/cards/TableScoreBar'
+import { BidsBoard } from './BidsBoard'
 import { SUIT_TEXT_CLASS } from '../../components/cards/suitIcons'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { BiddingScreen } from './BiddingScreen'
@@ -42,6 +46,7 @@ export default function Judgement({ code }) {
   } = useOnlineRoom(code)
 
   const phase = roomState.phase || 'waiting'
+  useTurnVibration(phase === 'playing' && roomState.turnOrder?.[roomState.currentIdx] === myId)
   const roomStateRef = useRef(roomState)
   roomStateRef.current = roomState
 
@@ -152,7 +157,7 @@ export default function Judgement({ code }) {
       // clearing/advancing — otherwise the hand vanishes the instant the
       // last card lands, with no chance to see what happened.
       await clearActions()
-      await persist({ hands: newHands, currentHand: newHand, handWinnerId: winnerId })
+      await persist({ hands: newHands, currentHand: newHand, handWinnerId: winnerId, lastHand: { cards: newHand, winnerId } })
       await new Promise(resolve => setTimeout(resolve, 1500))
 
       if (remainingCards.length === 0) {
@@ -239,6 +244,7 @@ export default function Judgement({ code }) {
         handsWon: zeroed,
         currentHand: [],
         handWinnerId: null,
+        lastHand: null,
         ledSuit: null,
         cumulativeScores: zeroed,
         lastRoundResult: null
@@ -288,6 +294,7 @@ export default function Judgement({ code }) {
         handsWon: zeroed,
         currentHand: [],
         handWinnerId: null,
+        lastHand: null,
         ledSuit: null,
         lastRoundResult: null
       })
@@ -374,6 +381,9 @@ export default function Judgement({ code }) {
     const othersBids = Object.fromEntries(othersBidActions.map(a => [a.playerId, a.payload.bid]))
     const forbiddenBid = isLastBidder ? getForbiddenBid(handSizeThisRound, othersBids) : null
     const bidsIn = actions.filter(a => a.type === 'BID').length
+    const waitingForNames = players
+      .filter(p => p.id !== myId && !actions.some(a => a.type === 'BID' && a.playerId === p.id))
+      .map(p => p.name)
     const myHand = sortHand(roomState.hands?.[myId] ?? [])
 
     return (
@@ -387,6 +397,7 @@ export default function Judgement({ code }) {
         forbiddenBid={forbiddenBid}
         bidsIn={bidsIn}
         totalPlayers={players.length}
+        waitingForNames={waitingForNames}
         onSubmit={handleBid}
         submitted={bidSubmitted}
       />
@@ -400,6 +411,8 @@ export default function Judgement({ code }) {
       <TrumpChoiceScreen
         isChooser={isChooser}
         chooserName={chooserName}
+        chooserBid={roomState.bids?.[roomState.trumpChooserId]}
+        myHand={sortHand(roomState.hands?.[myId] ?? [])}
         onChoose={handleChooseTrump}
       />
     )
@@ -430,6 +443,11 @@ export default function Judgement({ code }) {
       }))
     const roundNumber = (roomState.roundIndex ?? 0) + 1
     const totalRounds = roomState.handSizeSequence?.length ?? 1
+    const scoreEntries = [
+      { label: 'Round', value: `${roundNumber}/${totalRounds}` },
+      { label: 'Trump', value: SUIT_LABEL[roomState.trumpSuit], valueClassName: SUIT_TEXT_CLASS[roomState.trumpSuit] },
+      { label: 'You', value: `bid ${roomState.bids?.[myId]} · won ${roomState.handsWon?.[myId] ?? 0}` }
+    ]
 
     const handWinnerId = roomState.handWinnerId
     const handWinnerName = handWinnerId ? (players.find(p => p.id === handWinnerId)?.name ?? 'Player') : null
@@ -444,9 +462,17 @@ export default function Judgement({ code }) {
 
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
-        <p className="text-center text-textMuted text-xs uppercase tracking-wider">
-          Round {roundNumber} of {totalRounds} — Trump: <span className={SUIT_TEXT_CLASS[roomState.trumpSuit]}>{SUIT_LABEL[roomState.trumpSuit]}</span> — your bid: {roomState.bids?.[myId]}
-        </p>
+        <div className="flex flex-wrap justify-center gap-2">
+          <BidsBoard
+            players={players}
+            turnOrder={roomState.turnOrder ?? []}
+            bids={roomState.bids}
+            handsWon={roomState.handsWon}
+            myId={myId}
+          />
+          <LastHandButton lastHand={roomState.lastHand} players={players} accent="peridot" />
+        </div>
+        <TableScoreBar entries={scoreEntries} />
         <CardTable
           otherSeats={otherSeats}
           myHand={myHand}

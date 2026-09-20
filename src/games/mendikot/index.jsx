@@ -1,20 +1,22 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
+import { useTurnVibration } from '../../hooks/useTurnVibration'
 import { useLang } from '../../store/LangContext'
 import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
 import { removeCardFromHand, sortHand } from '../../multiplayer/hand'
 import { dealCards } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
-import { buildTurnOrderFromPartner } from '../../multiplayer/partnerships'
+import { buildTurnOrderFromPartner, otherPlayersInSeatOrder } from '../../multiplayer/partnerships'
 import { CardTable } from '../../components/cards/CardTable'
 import { HandWinnerOverlay } from '../../components/cards/HandWinnerOverlay'
+import { LastHandButton } from '../../components/cards/LastHandButton'
 import { TableScoreBar } from '../../components/cards/TableScoreBar'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { PartnerPicker } from '../../components/cards/PartnerPicker'
 import { ResultsScreen } from './ResultsScreen'
-import { getTeamOf, computeTeamHands, countTensInHand, computeMendikotOutcome } from './mendikotLogic'
+import { getTeamOf, computeTeamHands, countTensInHand, computeMendikotOutcome, isOutcomeDecided } from './mendikotLogic'
 import { awardXP } from '../../services/xp'
 import { writeGameStats } from '../../services/stats'
 import { awardBadge } from '../../services/profile'
@@ -39,6 +41,7 @@ export default function Mendikot({ code }) {
   } = useOnlineRoom(code)
 
   const phase = roomState.phase || 'waiting'
+  useTurnVibration(phase === 'playing' && roomState.turnOrder?.[roomState.currentIdx] === myId)
   const roomStateRef = useRef(roomState)
   roomStateRef.current = roomState
 
@@ -87,15 +90,13 @@ export default function Mendikot({ code }) {
       // clearing/advancing — otherwise the hand vanishes the instant the
       // 4th card lands, with no chance to see what happened.
       await clearActions()
-      await persist({ hands: newHands, currentHand: newHand, handWinnerId: winnerId })
+      await persist({ hands: newHands, currentHand: newHand, handWinnerId: winnerId, lastHand: { cards: newHand, winnerId } })
       await new Promise(resolve => setTimeout(resolve, 1500))
 
-      // A team capturing all four 10s wins outright — no point playing out
-      // the remaining hands once that's locked in, so check this BEFORE
-      // the cards-empty check, not just as a special case of it.
-      const wonAllTens = newTensCaptured.teamA === 4 || newTensCaptured.teamB === 4
-      if (remainingCards.length === 0 || wonAllTens) {
-        const teamHands = computeTeamHands(current.turnOrder, newHandsWon)
+      // Stop as soon as the result is locked in (see isOutcomeDecided) —
+      // checked BEFORE the cards-empty test, not just as a special case of it.
+      const teamHands = computeTeamHands(current.turnOrder, newHandsWon)
+      if (remainingCards.length === 0 || isOutcomeDecided(teamHands, newTensCaptured)) {
         const { winningTeam, isMendikot } = computeMendikotOutcome(teamHands, newTensCaptured)
         await persist({
           hands: newHands,
@@ -156,6 +157,7 @@ export default function Mendikot({ code }) {
         tensCaptured: { teamA: 0, teamB: 0 },
         currentHand: [],
         handWinnerId: null,
+        lastHand: null,
         ledSuit: null
       })
     } finally {
@@ -246,8 +248,7 @@ export default function Mendikot({ code }) {
       playerName: players.find(p => p.id === playerId)?.name
     }))
     const myTeam = getTeamOf(myId, roomState.turnOrder)
-    const otherSeats = players
-      .filter(p => p.id !== myId)
+    const otherSeats = otherPlayersInSeatOrder(players, roomState.turnOrder, myId)
       .map(p => ({
         player: p,
         cardCount: roomState.hands?.[p.id]?.length ?? 0,
@@ -274,6 +275,7 @@ export default function Mendikot({ code }) {
 
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
+        <LastHandButton lastHand={roomState.lastHand} players={players} accent="citrine" />
         <TableScoreBar entries={scoreEntries} />
         <CardTable
           otherSeats={otherSeats}

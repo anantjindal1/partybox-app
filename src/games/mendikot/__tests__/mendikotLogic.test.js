@@ -1,4 +1,4 @@
-import { countTensInHand, computeMendikotOutcome } from '../mendikotLogic'
+import { countTensInHand, computeMendikotOutcome, isOutcomeDecided } from '../mendikotLogic'
 
 describe('countTensInHand', () => {
   test('zero tens in a hand with none', () => {
@@ -55,5 +55,31 @@ describe('computeMendikotOutcome', () => {
       winningTeam: 'teamB',
       isMendikot: false
     })
+  })
+})
+
+describe('isOutcomeDecided', () => {
+  it('is decided once a team has all four 10s', () => {
+    expect(isOutcomeDecided({ teamA: 3, teamB: 0 }, { teamA: 4, teamB: 0 })).toBe(true)
+  })
+
+  it('is decided at a 3-1 split, before all 13 hands are played', () => {
+    expect(isOutcomeDecided({ teamA: 4, teamB: 3 }, { teamA: 3, teamB: 1 })).toBe(true)
+  })
+
+  it('is NOT decided at 3-0 — the fourth 10 could still make it a Mendikot', () => {
+    expect(isOutcomeDecided({ teamA: 6, teamB: 2 }, { teamA: 3, teamB: 0 })).toBe(false)
+  })
+
+  it('is not decided while 10s are still out', () => {
+    expect(isOutcomeDecided({ teamA: 1, teamB: 1 }, { teamA: 1, teamB: 1 })).toBe(false)
+  })
+
+  it('is not decided at 2-2 until a team holds 7 hands', () => {
+    expect(isOutcomeDecided({ teamA: 6, teamB: 3 }, { teamA: 2, teamB: 2 })).toBe(false)
+  })
+
+  it('is decided at 2-2 once a team holds 7 hands', () => {
+    expect(isOutcomeDecided({ teamA: 7, teamB: 3 }, { teamA: 2, teamB: 2 })).toBe(true)
   })
 })
