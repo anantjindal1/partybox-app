@@ -11,6 +11,8 @@ import { db } from '../firebase'
 import { collection, getDocs } from 'firebase/firestore'
 import { games } from '../games/registry'
 import { AVATARS } from '../data/avatars'
+import { deleteMyData } from '../services/deleteMyData'
+import { setConsent } from '../lib/consent'
 
 // Online game slugs that track stats in Firestore
 const ONLINE_GAME_SLUGS = games
@@ -26,6 +28,21 @@ export default function Profile() {
   const [saved, setSaved] = useState(false)
   const [gameStats, setGameStats] = useState(null)
   const [statsLoading, setStatsLoading] = useState(false)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState(false)
+
+  async function handleDeleteMyData() {
+    setDeleting(true)
+    setDeleteError(false)
+    try {
+      await deleteMyData()
+      window.location.assign('/')
+    } catch {
+      setDeleteError(true)
+      setDeleting(false)
+    }
+  }
 
   // Fetch per-game Firestore stats when online
   useEffect(() => {
@@ -209,6 +226,46 @@ export default function Profile() {
             )}
           </div>
         )}
+
+        {/* Privacy */}
+        <Card className="p-5 space-y-3">
+          <p className="text-textMuted text-sm uppercase tracking-wider">Privacy</p>
+          <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
+            <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="underline text-textPrimary">Privacy Policy</a>
+            <button onClick={() => setConsent(null)} className="underline text-textPrimary">Change analytics &amp; ads choice</button>
+          </div>
+          {!confirmingDelete ? (
+            <button
+              onClick={() => setConfirmingDelete(true)}
+              className="text-sm font-semibold text-error border-[1.5px] border-error/40 rounded-xl px-4 py-2"
+            >
+              Delete my data
+            </button>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-sm text-textPrimary">
+                This erases your profile, XP, stats and usage records from our servers and from this device. It can't be undone.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleDeleteMyData}
+                  disabled={deleting}
+                  className="text-sm font-bold bg-error text-white rounded-xl px-4 py-2 disabled:opacity-50"
+                >
+                  {deleting ? 'Deleting…' : 'Yes, delete everything'}
+                </button>
+                <button
+                  onClick={() => setConfirmingDelete(false)}
+                  disabled={deleting}
+                  className="text-sm font-semibold text-textMuted px-4 py-2"
+                >
+                  Cancel
+                </button>
+              </div>
+              {deleteError && <p className="text-sm text-error">Couldn't delete right now. Check your connection and try again.</p>}
+            </div>
+          )}
+        </Card>
       </div>
     </div>
   )

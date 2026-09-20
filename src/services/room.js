@@ -16,6 +16,14 @@ import {
 
 export const ROOM_TTL_MS = 2 * 60 * 60 * 1000 // 2 hours
 
+// Firestore TTL policies (enabled per collection group in the Firebase
+// console) delete any doc once its `expireAt` passes — the only cleanup
+// there is, since nothing else ever removes a finished room.
+const RETENTION_MS = 24 * 60 * 60 * 1000
+export function expireAfterRetention() {
+  return new Date(Date.now() + RETENTION_MS)
+}
+
 // Game is in the lobby (joinable as a player) while phase is one of these;
 // anything else means it's underway.
 export const LOBBY_PHASES = new Set([undefined, null, 'waiting', 'setup'])
@@ -42,7 +50,8 @@ export async function createRoom(hostId, hostName, gameSlug, hostAvatar, roomTyp
     players: [{ id: hostId, name: hostName, avatar: hostAvatar ?? '🎲' }],
     status: 'waiting',
     state: {},
-    createdAt: serverTimestamp()
+    createdAt: serverTimestamp(),
+    expireAt: expireAfterRetention()
   })
   return code
 }
@@ -84,7 +93,8 @@ export async function writeAction(code, playerId, action) {
     playerId,
     type: action.type,
     payload: action.payload,
-    createdAt: serverTimestamp()
+    createdAt: serverTimestamp(),
+    expireAt: expireAfterRetention()
   })
 }
 

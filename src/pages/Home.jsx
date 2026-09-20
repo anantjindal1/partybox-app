@@ -15,6 +15,7 @@ import { joinRoom } from '../services/room'
 import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import AdBanner from '../components/AdBanner'
+import { setConsent } from '../lib/consent'
 import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, PartnershipIcon, SevenIcon, MendikotIcon, TargetIcon, RotationIcon, DonkeyIcon, SoloIcon, PartyIcon, SignalIcon, MegaphoneIcon, DetectiveHatIcon, GridIcon } from '../components/gameIcons'
 
 const COMING_SOON_SLOTS = 0
@@ -440,7 +441,7 @@ const VISIBLE_GAMES = [
   {
     slug: 'codenames',
     icon: GridIcon,
-    title: 'Codenames',
+    title: 'Kodename',
     modeBadge: 'Online',
     modeIcon: SignalIcon,
     accent: 'sage',
@@ -868,6 +869,12 @@ export default function Home() {
                 </div>
               </Card>
             )}
+          </div>
+
+          {/* ── Privacy link ─────────────────────────────────────────────────── */}
+          <div className="flex justify-center gap-5 text-xs text-textMuted">
+            <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="hover:text-textPrimary underline">Privacy Policy</a>
+            <button onClick={() => setConsent(null)} className="hover:text-textPrimary underline">Analytics &amp; ads choice</button>
           </div>
 
           {/* ── Feedback link ────────────────────────────────────────────────── */}

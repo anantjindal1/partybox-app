@@ -1,0 +1,2 @@
+# Add the line AdSense gives you under Sites > ads.txt, e.g.:
+# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0

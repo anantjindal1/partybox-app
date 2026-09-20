@@ -13,21 +13,26 @@ const firebaseConfig = {
 }
 
 // Only initialize Firebase when config is provided — app runs offline-only without it
+let app = null
 let db = null
 let analytics = null
 if (firebaseConfig.apiKey && firebaseConfig.projectId) {
   try {
-    const app = initializeApp(firebaseConfig)
+    app = initializeApp(firebaseConfig)
     db = getFirestore(app)
-    if (firebaseConfig.measurementId) {
-      try {
-        analytics = getAnalytics(app)
-      } catch (e) {
-        console.warn('Firebase Analytics init failed', e)
-      }
-    }
   } catch (e) {
     console.warn('Firebase init failed — running in offline-only mode', e)
+  }
+}
+
+// Google Analytics only starts once the user has accepted it (see
+// lib/consent.js) — `analytics` stays null, and trackEvent a no-op, until then.
+export function enableFirebaseAnalytics() {
+  if (analytics || !app || !firebaseConfig.measurementId) return
+  try {
+    analytics = getAnalytics(app)
+  } catch (e) {
+    console.warn('Firebase Analytics init failed', e)
   }
 }
 

@@ -4,7 +4,8 @@
  * app's Firebase instance and device-identity system — everything else
  * (Room.jsx, individual games) imports from src/lib/analytics directly.
  */
-import { db } from '../firebase'
+import { db, enableFirebaseAnalytics } from '../firebase'
+import { getConsent, subscribeConsent } from '../lib/consent'
 import { configureAnalytics, startSession } from '../lib/analytics/core'
 import { getDeviceId } from './profile'
 
@@ -25,4 +26,8 @@ export function initAnalytics() {
     },
   })
   startSession()
+
+  const enableIfConsented = () => { if (getConsent() === 'granted') enableFirebaseAnalytics() }
+  enableIfConsented()
+  subscribeConsent(enableIfConsented)
 }

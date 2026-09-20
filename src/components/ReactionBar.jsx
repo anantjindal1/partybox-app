@@ -3,6 +3,7 @@ import { db } from '../firebase'
 import { doc, setDoc, collection, onSnapshot, serverTimestamp } from 'firebase/firestore'
 import FloatingReactions from './FloatingReactions'
 import { getDeviceId } from '../services/profile'
+import { expireAfterRetention } from '../services/room'
 
 const EMOJIS = ['😂', '🔥', '😮', '👏', '😭', '❤️']
 const RATE_LIMIT_MS = 3000
@@ -44,6 +45,7 @@ export function ReactionBar({ roomCode }) {
         emoji,
         playerId: myId,
         createdAt: serverTimestamp(),
+        expireAt: expireAfterRetention(),
       })
     } catch {
       // fire-and-forget

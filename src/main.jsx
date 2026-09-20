@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
 import App from './App'
+import '@fontsource/rozha-one'
 import './index.css'
 
 // Auto-activate a new build the instant one's available, rather than

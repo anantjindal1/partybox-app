@@ -1,6 +1,6 @@
 export default {
   slug: 'codenames',
-  title: { en: 'Codenames', hi: 'कोडनेम्स' },
+  title: { en: 'Kodename', hi: 'कोडनेम' },
   minPlayers: 4,
   maxPlayers: 12,
   noAutoClose: true,

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { db } from '../firebase'
 import { doc, setDoc, collection, onSnapshot, serverTimestamp } from 'firebase/firestore'
+import { expireAfterRetention } from '../services/room'
 import { getDeviceId } from '../services/profile'
 
 const MAX_RECORD_MS = 15000
@@ -117,7 +118,8 @@ export function VoiceBroadcastButton({ roomCode, playerName }) {
           playerId: myId,
           playerName: playerName ?? 'Someone',
           url: dataUrl,
-          createdAt: serverTimestamp()
+          createdAt: serverTimestamp(),
+          expireAt: expireAfterRetention()
         })
       }
     } catch {
