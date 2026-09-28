@@ -14,6 +14,7 @@ import { getStats, recordGame } from './stats'
 import { recordQuestionsShown } from '../../services/questionStats'
 import { trackEvent as trackAnalyticsEvent } from '../../services/analytics_events'
 import AdBanner from '../../components/AdBanner'
+import { publicUrl } from '../../lib/publicUrl'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -726,7 +727,7 @@ function GameEndScreen({ score, category, questionHistory, recordResult, onPlayA
   }, [grade.rank])
 
   // Share
-  const appUrl    = typeof window !== 'undefined' ? window.location.origin : 'https://partybox-app.vercel.app'
+  const appUrl    = publicUrl('/')
   const shareText = `I scored ${score} in ${d.label} on ThinkFast!\nRank: ${grade.label} ${grade.emoji}\nCan you beat me? 🎯\n${appUrl}`
   const waUrl     = `https://wa.me/?text=${encodeURIComponent(shareText)}`
 

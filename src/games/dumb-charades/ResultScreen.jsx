@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { ACTIONS } from './reducer'
 import AdBanner from '../../components/AdBanner'
+import { publicUrl } from '../../lib/publicUrl'
 
 // ── TurnResultScreen ──────────────────────────────────────────────────────────
 
@@ -128,7 +129,7 @@ export function GameEndScreen({ state, dispatch }) {
 
   // WhatsApp share
   const winnerNames = winners.map(w => w.name).join(' & ')
-  const appUrl = typeof window !== 'undefined' ? window.location.origin : 'https://partybox-app.vercel.app'
+  const appUrl = publicUrl('/')
   const shareText = `${winnerNames} just crushed Dumb Charades! 🎬\nGuessed ${totalCorrect} words in ${totalRounds} rounds.\nThink you can beat us? → ${appUrl}`
   const waUrl = `https://wa.me/+919001290623?text=${encodeURIComponent(shareText)}`
 

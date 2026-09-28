@@ -16,6 +16,7 @@ import { useOnlineRoom } from '../hooks/useOnlineRoom'
 import { joinRoom, joinAsSpectator, LOBBY_PHASES } from '../services/room'
 import { getGame } from '../games/registry'
 import { trackEvent } from '../lib/analytics/core'
+import { publicUrl } from '../lib/publicUrl'
 
 export default function Room() {
   const { code } = useParams()
@@ -197,7 +198,7 @@ export default function Room() {
     const rawTitle = game?.title
     const gameName = (typeof rawTitle === 'string' ? rawTitle : rawTitle?.[lang] ?? rawTitle?.en) ?? 'PartyBox'
     const playerName = profile?.name ?? 'Someone'
-    return `${playerName} is inviting you to play ${gameName}! Come play:\n${window.location.href}\nRoom code: ${code}`
+    return `${playerName} is inviting you to play ${gameName}! Come play:\n${publicUrl()}\nRoom code: ${code}`
   }
 
   function handleCopyLink() {

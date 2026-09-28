@@ -12,6 +12,7 @@ import { trackEvent as trackAnalyticsEvent } from '../../services/analytics_even
 import CircularTimer from '../../components/CircularTimer'
 import FloatingReactions from '../../components/FloatingReactions'
 import AdBanner from '../../components/AdBanner'
+import { publicUrl } from '../../lib/publicUrl'
 
 const TOTAL_ROUNDS = 7
 const QUESTION_TIMEOUT_MS = 15_000
@@ -772,7 +773,7 @@ function RematchScreen({ nextCategory }) {
 
 function RoomCodeBar({ code }) {
   const [copied, setCopied] = useState(false)
-  const url = window.location.href
+  const url = publicUrl()
 
   async function handleCopy() {
     try {
@@ -818,7 +819,7 @@ function RoomCodeBar({ code }) {
 function ShareSection({ code }) {
   const [copied, setCopied] = useState(false)
 
-  const url = window.location.href
+  const url = publicUrl()
   const waText = encodeURIComponent(`🎮 Join my FirstBell quiz!\nTap to join: ${url}`)
   const waUrl = `https://wa.me/?text=${waText}`
 
