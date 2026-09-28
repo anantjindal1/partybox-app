@@ -31,12 +31,6 @@ Left open:
   consent-gated) but nothing renders until `VITE_ADSENSE_CLIENT` /
   `VITE_ADSENSE_SLOT` are set and an AdSense account + `public/ads.txt`
   line are in place. Account signup/verification needs the user directly.
-- **WhatsApp contact number mismatch.** The privacy policy and the
-  in-app feedback link (`Home.jsx`) both use `+91 90012 90623`; the user
-  separately gave `+91 99718 66240` as a contact number, which was added
-  to the policy as a second line rather than replacing the existing one.
-  Confirm which number is canonical and update both places to match if
-  they should be the same.
 
 ## Analytics dashboards — gated access before going live (added 2026-09-18)
 
