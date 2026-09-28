@@ -10,6 +10,7 @@ import PlayOffline from './pages/PlayOffline'
 import TestLab from './pages/TestLab'
 import Tables from './pages/Tables'
 import { ConsentBanner } from './components/ConsentBanner'
+import NativeBridge from './components/NativeBridge'
 
 // Mounts globally so XP syncs whenever the device comes back online,
 // regardless of which page the user is currently on.
@@ -28,6 +29,7 @@ export default function App() {
       <ThemeProvider>
         <BrowserRouter>
           <GlobalXPSync />
+          <NativeBridge />
           <ConsentBanner />
           <Routes>
             <Route path="/" element={<Home />} />

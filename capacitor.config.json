@@ -1,5 +1,12 @@
 {
   "appId": "com.partybox.app",
   "appName": "PartyBox",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false,
+      "backgroundColor": "#FBF3E7",
+      "showSpinner": false
+    }
+  }
 }

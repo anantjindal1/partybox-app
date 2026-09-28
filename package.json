@@ -14,10 +14,15 @@
     "test:playbook:slow": "CYPRESS_STEP_THROUGH=1 CYPRESS_SLOW_MO=800 cypress open"
   },
   "dependencies": {
+    "@capacitor-community/keep-awake": "^8.0.1",
     "@capacitor/android": "^8.5.1",
+    "@capacitor/app": "^8.1.1",
     "@capacitor/cli": "^8.5.1",
     "@capacitor/core": "^8.5.1",
+    "@capacitor/haptics": "^8.0.2",
     "@capacitor/ios": "^8.5.1",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.3",
     "@fontsource/rozha-one": "^5.3.0",
     "canvas-confetti": "^1.9.4",
     "firebase": "^10.14.1",
