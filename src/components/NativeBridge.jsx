@@ -7,6 +7,7 @@ import { StatusBar, Style } from '@capacitor/status-bar'
 import { KeepAwake } from '@capacitor-community/keep-awake'
 import { useTheme } from '../store/ThemeContext'
 import { PUBLIC_ORIGIN } from '../lib/publicUrl'
+import { maybeShowInterstitial } from '../lib/nativeAds'
 
 const isNative = Capacitor.isNativePlatform()
 const IN_GAME = /^\/(room|play)\//
@@ -48,10 +49,15 @@ export default function NativeBridge() {
     StatusBar.setBackgroundColor({ color: theme === 'dark' ? '#1C0F13' : '#FBF3E7' })
   }, [theme])
 
+  const wasInGame = useRef(false)
   useEffect(() => {
     if (!isNative) return
-    if (IN_GAME.test(location.pathname)) KeepAwake.keepAwake()
+    const inGame = IN_GAME.test(location.pathname)
+    if (inGame) KeepAwake.keepAwake()
     else KeepAwake.allowSleep()
+    // Interstitials only on the way out of a game, never mid-hand.
+    if (wasInGame.current && !inGame) maybeShowInterstitial()
+    wasInGame.current = inGame
   }, [location.pathname])
 
   return null
