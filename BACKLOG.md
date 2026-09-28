@@ -54,15 +54,14 @@ deferred for now. `tools/dc-stats.html` also still has its own standing
 "never bundle into a commit" hold from earlier, unrelated DC-analytics
 work — see project memory's known-issues note before touching it.
 
-## Post-Wave-3 full regression pass (not yet started)
-
-Now that every card game is built, spawn multiple agents in parallel to
-comprehensively test every game in the app for regressions and bugs.
-Queued since the original card-game backlog completed; never started.
-
 ## Packaging & distribution (added 2026-09-16)
 
-- **Spin off all card games into a separate app.** Cut Bhabhi, Bluff, Call
+Android launch plan (Capacitor + AdMob + RevenueCat, phased) approved
+2026-09-28 — see `~/.claude/plans/look-at-partybox-i-crystalline-pike.md`.
+Hidden-hands exposure ships as-is, labelled "friendly play" on Open Tables.
+
+- **Spin off all card games into a separate app.** DEFERRED (2026-09-28):
+  contradicts the one-app Android launch; revisit after launch data. Cut Bhabhi, Bluff, Call
   Break, Court Piece, Judgement, Mendikot, Satti, Teen Do Paanch, Teri, and
   Donkey out of PartyBox and package them as their own standalone product
   (own name/branding, own registry, own Home screen), reusing the shared

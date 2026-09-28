@@ -56,6 +56,7 @@ export default function Tables() {
         <div>
           <h1 className="text-3xl font-bold text-textPrimary">Open Tables</h1>
           <p className="text-textMuted text-sm mt-1">Tables with a seat free right now. Tap one to sit down.</p>
+          <p className="text-textMuted text-xs mt-1">Friendly play — games aren't cheat-proof, so play for fun, not stakes.</p>
         </div>
 
         {failed && <p className="text-error text-sm">Couldn't load tables. Check your connection.</p>}

@@ -16,154 +16,9 @@ import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import AdBanner from '../components/AdBanner'
 import { setConsent } from '../lib/consent'
-import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, PartnershipIcon, SevenIcon, MendikotIcon, TargetIcon, RotationIcon, DonkeyIcon, SoloIcon, PartyIcon, SignalIcon, MegaphoneIcon, DetectiveHatIcon, GridIcon } from '../components/gameIcons'
-
-const COMING_SOON_SLOTS = 0
-
-// TODO: restore tabs when game count > 5
-// const TABS = [
-//   { key: 'solo',   label: 'Solo',   emoji: '👤' },
-//   { key: 'party',  label: 'Party',  emoji: '🎉' },
-//   { key: 'online', label: 'Online', emoji: '📡' },
-// ]
-//
-// const TAB_SLUGS = {
-//   solo:   ['thinkfast'],
-//   party:  ['dumb-charades-offline'],
-//   online: ['firstbell'],
-// }
-
-// Each flagship game owns one accent color as its identity — used consistently
-// for its card border, mode label, and CTA. Literal class strings (not
-// template-interpolated) so Tailwind's content scanner picks them up.
-const ACCENT_STYLES = {
-  teal: {
-    border: 'border-teal',
-    iconRing: 'border-teal text-teal',
-    tab: 'text-teal border-teal',
-    cta: 'bg-teal text-onTeal'
-  },
-  terracotta: {
-    border: 'border-terracotta',
-    iconRing: 'border-terracotta text-terracotta',
-    tab: 'text-terracotta border-terracotta',
-    cta: 'bg-terracotta text-onTerracotta'
-  },
-  gold: {
-    border: 'border-gold',
-    iconRing: 'border-gold text-gold',
-    tab: 'text-gold border-gold',
-    cta: 'bg-gold text-onGold'
-  },
-  plum: {
-    border: 'border-plum',
-    iconRing: 'border-plum text-plum',
-    tab: 'text-plum border-plum',
-    cta: 'bg-plum text-onPlum'
-  },
-  rose: {
-    border: 'border-rose',
-    iconRing: 'border-rose text-rose',
-    tab: 'text-rose border-rose',
-    cta: 'bg-rose text-onRose'
-  },
-  sapphire: {
-    border: 'border-sapphire',
-    iconRing: 'border-sapphire text-sapphire',
-    tab: 'text-sapphire border-sapphire',
-    cta: 'bg-sapphire text-onSapphire'
-  },
-  emerald: {
-    border: 'border-emerald',
-    iconRing: 'border-emerald text-emerald',
-    tab: 'text-emerald border-emerald',
-    cta: 'bg-emerald text-onEmerald'
-  },
-  indigo: {
-    border: 'border-indigo',
-    iconRing: 'border-indigo text-indigo',
-    tab: 'text-indigo border-indigo',
-    cta: 'bg-indigo text-onIndigo'
-  },
-  fuchsia: {
-    border: 'border-fuchsia',
-    iconRing: 'border-fuchsia text-fuchsia',
-    tab: 'text-fuchsia border-fuchsia',
-    cta: 'bg-fuchsia text-onFuchsia'
-  },
-  slate: {
-    border: 'border-slate',
-    iconRing: 'border-slate text-slate',
-    tab: 'text-slate border-slate',
-    cta: 'bg-slate text-onSlate'
-  },
-  turquoise: {
-    border: 'border-turquoise',
-    iconRing: 'border-turquoise text-turquoise',
-    tab: 'text-turquoise border-turquoise',
-    cta: 'bg-turquoise text-onTurquoise'
-  },
-  peridot: {
-    border: 'border-peridot',
-    iconRing: 'border-peridot text-peridot',
-    tab: 'text-peridot border-peridot',
-    cta: 'bg-peridot text-onPeridot'
-  },
-  jade: {
-    border: 'border-jade',
-    iconRing: 'border-jade text-jade',
-    tab: 'text-jade border-jade',
-    cta: 'bg-jade text-onJade'
-  },
-  amethyst: {
-    border: 'border-amethyst',
-    iconRing: 'border-amethyst text-amethyst',
-    tab: 'text-amethyst border-amethyst',
-    cta: 'bg-amethyst text-onAmethyst'
-  },
-  citrine: {
-    border: 'border-citrine',
-    iconRing: 'border-citrine text-citrine',
-    tab: 'text-citrine border-citrine',
-    cta: 'bg-citrine text-onCitrine'
-  },
-  orchid: {
-    border: 'border-orchid',
-    iconRing: 'border-orchid text-orchid',
-    tab: 'text-orchid border-orchid',
-    cta: 'bg-orchid text-onOrchid'
-  },
-  cobalt: {
-    border: 'border-cobalt',
-    iconRing: 'border-cobalt text-cobalt',
-    tab: 'text-cobalt border-cobalt',
-    cta: 'bg-cobalt text-onCobalt'
-  },
-  amber: {
-    border: 'border-amber',
-    iconRing: 'border-amber text-amber',
-    tab: 'text-amber border-amber',
-    cta: 'bg-amber text-onAmber'
-  },
-  taupe: {
-    border: 'border-taupe',
-    iconRing: 'border-taupe text-taupe',
-    tab: 'text-taupe border-taupe',
-    cta: 'bg-taupe text-onTaupe'
-  },
-  cerulean: {
-    border: 'border-cerulean',
-    iconRing: 'border-cerulean text-cerulean',
-    tab: 'text-cerulean border-cerulean',
-    cta: 'bg-cerulean text-onCerulean'
-  },
-  sage: {
-    border: 'border-sage',
-    iconRing: 'border-sage text-sage',
-    tab: 'text-sage border-sage',
-    cta: 'bg-sage text-onSage'
-  }
-}
+import { BoltIcon, ClapperboardIcon, RotationIcon } from '../components/gameIcons'
+import { ACCENT_STYLES, VISIBLE_GAMES, VISIBLE_SLUGS, CATEGORIES, categoryOf, playerRange, cardKey } from './home/gameCatalog'
+import GameTile from './home/GameTile'
 
 function LogoMark({ size = 26 }) {
   return (
@@ -175,294 +30,33 @@ function LogoMark({ size = 26 }) {
   )
 }
 
-// Static card definitions for the vertical game stack
-const VISIBLE_GAMES = [
-  {
-    slug: 'thinkfast',
-    icon: BoltIcon,
-    title: 'ThinkFast',
-    modeBadge: 'Solo',
-    modeIcon: SoloIcon,
-    accent: 'teal',
-    description: '10 questions, answer as fast as you can',
-    playersPill: '1 player',
-    timePill: '~3 mins',
-    cta: 'Play →',
-    isOnline: false,
-  },
-  {
-    slug: 'dumb-charades-offline',
-    icon: ClapperboardIcon,
-    title: 'Dumb Charades',
-    modeBadge: 'Party',
-    modeIcon: PartyIcon,
-    accent: 'terracotta',
-    description: 'Act out Bollywood movies, songs & more',
-    playersPill: '2+ players',
-    timePill: 'Pass the phone',
-    cta: 'Play →',
-    isOnline: false,
-  },
-  {
-    slug: 'firstbell',
-    icon: BellIcon,
-    title: 'FirstBell',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'gold',
-    description: 'Live quiz battle with friends online',
-    playersPill: '2-6 players',
-    timePill: '~5 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
-  {
-    slug: 'raja-mantri',
-    icon: CrownIcon,
-    title: 'Raja Mantri Chor Sipahi',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'plum',
-    description: 'Guess who the secret Chor is before it’s too late',
-    playersPill: '4-8 players',
-    timePill: '~10 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
-  {
-    dualMode: true,
-    offlineSlug: 'sabse-zyada-kaun-offline',
-    onlineSlug: 'sabse-zyada-kaun',
-    icon: RaisedHandIcon,
-    title: 'Sabse Zyada Kaun',
-    modeBadge: 'Party',
-    modeIcon: PartyIcon,
-    accent: 'rose',
-    description: 'Who fits the prompt best? The room decides',
-    playersPill: '3-12 players',
-    timePill: '~10 mins',
-    cta: 'Play →',
-  },
-  {
-    slug: 'tambola',
-    icon: TicketIcon,
-    title: 'Tambola',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'sapphire',
-    description: 'Classic Housie — host calls numbers, shout your claims',
-    playersPill: '2-20 players',
-    timePill: '~20 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
-  {
-    slug: 'bhed',
-    icon: MagnifyingGlassIcon,
-    title: 'Bhed (Jasoos)',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'emerald',
-    description: 'Everyone shares a secret word except one outsider — find the Bhed',
-    playersPill: '4-8 players',
-    timePill: '~15 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
-  {
-    slug: 'bluff',
-    icon: MaskIcon,
-    title: 'Bluff',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'indigo',
-    description: 'Play cards face-down, claim a rank — anyone can call it out',
-    playersPill: '3-6 players',
-    timePill: '~15 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
-  {
-    slug: 'bakwaas',
-    icon: SpeechBubbleIcon,
-    title: 'Bakwaas',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'fuchsia',
-    description: 'Fill the blank with your funniest line — the room judges',
-    playersPill: '3-12 players',
-    timePill: '~15 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
-  {
-    slug: 'bhabhi',
-    icon: DoorExitIcon,
-    title: 'Bhabhi (Get Away)',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'slate',
-    description: 'Follow suit or dump — first to empty your hand wins',
-    playersPill: '3-6 players',
-    timePill: '~15 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
-  {
-    slug: 'call-break',
-    icon: CallBreakIcon,
-    title: 'Call Break',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'turquoise',
-    description: 'Bid your tricks, spades are always trump — 5 rounds to the top',
-    playersPill: 'Exactly 4 players',
-    timePill: '~30 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
-  {
-    slug: 'judgement',
-    icon: GavelIcon,
-    title: 'Judgement (Kachuful)',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'peridot',
-    description: 'Bid blind, the highest bidder picks trump — hit it exactly or lose it all',
-    playersPill: '3-9 players',
-    timePill: '~20-45 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
-  {
-    slug: 'court-piece',
-    icon: PartnershipIcon,
-    title: 'Court Piece (Rang)',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'jade',
-    description: 'Fixed 2v2 partnerships — sweep a Kot or race to 7 match points',
-    playersPill: 'Exactly 4 players',
-    timePill: '~30-45 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
-  {
-    slug: 'satti',
-    icon: SevenIcon,
-    title: 'Satti (Sevens)',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'amethyst',
-    description: 'Open each suit with its 7, build up and down, first to empty your hand wins',
-    playersPill: '4-8 players',
-    timePill: '~20-40 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
-  {
-    slug: 'mendikot',
-    icon: MendikotIcon,
-    title: 'Dassi Pakad (Mendikot)',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'citrine',
-    description: 'Fixed partnerships, no trump — capture all four 10s (dassi) for a Mendikot',
-    playersPill: 'Exactly 4 players',
-    timePill: '~20-30 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
-  {
-    slug: 'teen-do-paanch',
-    icon: TargetIcon,
-    title: '3-2-5 (Teen Do Paanch)',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'orchid',
-    description: 'Fixed rotating targets of 3, 2, and 5 tricks — declared or hidden trump',
-    playersPill: 'Exactly 3 players',
-    timePill: '~30-45 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
-  {
-    slug: 'teri',
-    icon: RotationIcon,
-    title: 'Teri',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'cobalt',
-    description: 'Fixed partnerships, a dummy hand, and a rotating single score to 52',
-    playersPill: 'Exactly 4 players',
-    timePill: '~40-60 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
-  {
-    slug: 'donkey',
-    icon: DonkeyIcon,
-    title: 'Donkey (Gadha)',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'amber',
-    description: 'Pass cards to collect four of a kind — react fastest or spell D-O-N-K-E-Y',
-    playersPill: '3-8 players',
-    timePill: '~10-20 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
-  {
-    slug: 'bakwaas-adaalat',
-    icon: MegaphoneIcon,
-    title: 'Bakwaas Adaalat',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'taupe',
-    description: 'Two lawyers argue a silly case out loud on a timer — the room votes on the winner',
-    playersPill: '3-12 players',
-    timePill: '~15 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
-  {
-    slug: 'chugli-detective',
-    icon: DetectiveHatIcon,
-    title: 'Chugli Detective',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'cerulean',
-    description: 'Everyone writes an anonymous confession — guess who wrote it, or fool the room',
-    playersPill: '3-12 players',
-    timePill: '~15 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
-  {
-    slug: 'codenames',
-    icon: GridIcon,
-    title: 'Kodename',
-    modeBadge: 'Online',
-    modeIcon: SignalIcon,
-    accent: 'sage',
-    description: 'Two teams, one spymaster each — give a one-word clue to guess your words first',
-    playersPill: '4-12 players',
-    timePill: '~20-30 mins',
-    cta: 'Create Room →',
-    isOnline: true,
-  },
+const PLAYER_FILTERS = [
+  { key: 'any', label: 'Any' },
+  { key: '2', label: '2', n: 2 },
+  { key: '3', label: '3', n: 3 },
+  { key: '4', label: '4', n: 4 },
+  { key: '6', label: '6+', n: 6 },
 ]
 
-// Every other registered game — surfaced below as a plain, temporary review
-// list (not full card treatment) so hidden/unfinished games can be played
-// and triaged for deletion. Not meant to look "finished."
-const VISIBLE_SLUGS = new Set([
-  'thinkfast', 'dumb-charades-offline', 'firstbell', 'raja-mantri',
-  'sabse-zyada-kaun', 'sabse-zyada-kaun-offline', 'tambola', 'bhed', 'bluff',
-  'bakwaas', 'bhabhi', 'call-break', 'judgement', 'court-piece', 'satti',
-  'mendikot', 'teen-do-paanch', 'teri', 'donkey', 'bakwaas-adaalat',
-  'chugli-detective', 'codenames',
-])
+function fitsPlayers(card, key) {
+  const f = PLAYER_FILTERS.find(p => p.key === key)
+  if (!f?.n) return true
+  const [min, max] = playerRange(card)
+  return min <= f.n && max >= f.n
+}
+
+function FilterChip({ active, small, onClick, children }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`shrink-0 rounded-full border font-semibold transition-colors ${small ? 'px-3 py-1 text-xs min-h-[32px]' : 'px-4 py-1.5 text-sm min-h-[36px]'} ${
+        active ? 'bg-maroon text-onMaroon border-maroon' : 'bg-surfaceElevated text-textSecondary border-border hover:bg-surfaceMuted'
+      }`}
+    >
+      {children}
+    </button>
+  )
+}
 
 export default function Home() {
   const navigate = useNavigate()
@@ -478,11 +72,6 @@ export default function Home() {
   const [selectedGame, setSelectedGame] = useState(null)
   const [selectedDualGame, setSelectedDualGame] = useState(null)
 
-  // TODO: restore tabs when game count > 5
-  // const [activeTab, setActiveTab] = useState(
-  //   () => localStorage.getItem('partybox_home_tab') || 'solo'
-  // )
-
   // Carousel state
   const [showCarousel, setShowCarousel] = useState(
     () => !localStorage.getItem('partybox_onboarded')
@@ -493,6 +82,13 @@ export default function Home() {
   // Identity modal shown after carousel "Let's Go!"
   const [showIdentityModal, setShowIdentityModal] = useState(false)
 
+  const [category, setCategory] = useState(() => localStorage.getItem('partybox_home_category') || 'all')
+  const [players, setPlayers] = useState('any')
+
+  useEffect(() => {
+    localStorage.setItem('partybox_home_category', category)
+  }, [category])
+
   const inProgressGames = getInProgressGames()
 
   // Hero: show only for new users with no in-progress games
@@ -500,18 +96,18 @@ export default function Home() {
     !localStorage.getItem('partybox_returning_user') &&
     inProgressGames.length === 0
 
-  // TODO: restore tabs when game count > 5
-  // const tabGames = games.filter(g =>
-  //   (TAB_SLUGS[activeTab] || []).includes(g.slug)
-  // )
-
   // ── Handlers ────────────────────────────────────────────────────────────────
 
-  // TODO: restore tabs when game count > 5
-  // function selectTab(tab) {
-  //   setActiveTab(tab)
-  //   localStorage.setItem('partybox_home_tab', tab)
-  // }
+  function handleCardClick(card, disabled) {
+    if (card.dualMode) {
+      setSelectedDualGame(card)
+      return
+    }
+    const game = games.find(g => g.slug === card.slug)
+    if (disabled || !game) return
+    if (card.isOnline) setSelectedGame(game)
+    else handlePlayGame(game)
+  }
 
   function handleReviewGameClick(game) {
     if (!game.singleDevice) {
@@ -584,7 +180,7 @@ export default function Home() {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen text-textPrimary flex flex-col relative overflow-x-hidden">
+    <div className="min-h-screen text-textPrimary flex flex-col relative overflow-x-clip">
 
       {/* ── Background ───────────────────────────────────────────────────────── */}
       <div className="absolute inset-0 z-0" aria-hidden>
@@ -706,119 +302,12 @@ export default function Home() {
             </div>
           )}
 
-          {/* ── Vertical game cards stack ────────────────────────────────────── */}
-          <div className="flex flex-col gap-3 max-w-lg">
-            {VISIBLE_GAMES.map(card => {
-              const game = games.find(g => g.slug === card.slug)
-              const disabled = card.isOnline && (!online || !profile)
-              const accent = ACCENT_STYLES[card.accent]
-              const Icon = card.icon
-              const ModeIcon = card.modeIcon
-
-              function handleClick() {
-                if (card.dualMode) {
-                  setSelectedDualGame(card)
-                  return
-                }
-                if (disabled || !game) return
-                if (card.isOnline) {
-                  setSelectedGame(game)
-                } else {
-                  handlePlayGame(game)
-                }
-              }
-
-              return (
-                <button
-                  key={card.slug ?? card.offlineSlug}
-                  onClick={handleClick}
-                  disabled={disabled}
-                  className={`w-full text-left bg-surfaceElevated border-[1.5px] rounded-2xl px-4 py-4 transition-colors ${accent.border} ${
-                    disabled
-                      ? 'opacity-50 cursor-not-allowed'
-                      : 'hover:bg-surfaceMuted active:scale-[0.99]'
-                  }`}
-                >
-                  {/* Row 1: icon + title + mode label */}
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-9 h-9 rounded-full border-[1.5px] flex items-center justify-center ${accent.iconRing}`}>
-                        <Icon />
-                      </div>
-                      <span className="text-base font-bold text-textPrimary">{card.title}</span>
-                    </div>
-                    <span className={`flex items-center gap-1 text-xs font-semibold border-b-[1.5px] pb-0.5 ${accent.tab}`}>
-                      <ModeIcon />
-                      {card.modeBadge}
-                    </span>
-                  </div>
-
-                  {/* Row 2: description */}
-                  <p className="text-textMuted text-sm mb-3 leading-snug">
-                    {card.description}
-                  </p>
-
-                  {/* Row 3: pills + CTA */}
-                  <div className="flex items-center gap-2">
-                    <span className="border border-border rounded-full px-2 py-0.5 text-xs text-textMuted">
-                      {card.playersPill}
-                    </span>
-                    <span className="border border-border rounded-full px-2 py-0.5 text-xs text-textMuted">
-                      {card.timePill}
-                    </span>
-                    <span
-                      className={`ml-auto text-xs font-semibold px-3 py-1.5 rounded-xl min-h-[36px] flex items-center ${accent.cta}`}
-                    >
-                      {card.cta}
-                    </span>
-                  </div>
-
-                  {/* Offline notice for online game */}
-                  {card.isOnline && !online && (
-                    <p className="mt-2 text-xs text-textMuted">{t('needsInternet')}</p>
-                  )}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* ── For review — hidden/unfinished games, temporary until triaged ── */}
-          {games.filter(g => !VISIBLE_SLUGS.has(g.slug) && !g.hidden).length > 0 && (
-            <div className="mt-8 max-w-lg">
-              <p className="text-textMuted text-xs font-semibold mb-3 uppercase tracking-wider">
-                For review (not finalized — play &amp; decide)
-              </p>
-              <div className="flex flex-col gap-2">
-                {games.filter(g => !VISIBLE_SLUGS.has(g.slug) && !g.hidden).map(game => {
-                  const title = typeof game.title === 'object' ? (game.title[lang] || game.title.en) : game.title
-                  return (
-                    <button
-                      key={game.slug}
-                      onClick={() => handleReviewGameClick(game)}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-border bg-surface hover:bg-surfaceMuted transition-colors text-left"
-                    >
-                      <span className="text-xl leading-none">{game.icon ?? '🎮'}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-textPrimary truncate">{title}</p>
-                        <p className="text-xs text-textMuted">{game.slug} · {game.singleDevice ? 'offline' : 'online'}</p>
-                      </div>
-                      <span className="text-xs font-semibold text-textMuted">Open →</span>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* ── Ad banner ───────────────────────────────────────────────────── */}
-          <AdBanner slot="home-bottom" className="mt-8 mb-3" />
-
           {/* ── Join Room ───────────────────────────────────────────────────── */}
-          <div className="flex flex-col items-center">
-            <div className="flex items-center gap-5">
+          <div className="flex flex-col items-center sm:items-start mb-6">
+            <div className="flex items-center gap-3 w-full max-w-lg">
             <button
               onClick={() => setJoinOpen(!joinOpen)}
-              className="text-textMuted hover:text-textPrimary text-sm font-medium flex items-center gap-2 transition-colors min-h-[44px]"
+              className="flex-1 justify-center rounded-xl border border-border bg-surfaceElevated/80 backdrop-blur-sm text-textPrimary hover:bg-surfaceMuted text-sm font-semibold flex items-center gap-2 transition-colors min-h-[44px] px-4"
               aria-label={t('joinRoom')}
             >
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4" /><path d="M10 17l5-5-5-5" /><path d="M15 12H3" /></svg>
@@ -826,7 +315,7 @@ export default function Home() {
             </button>
             <button
               onClick={() => navigate('/tables')}
-              className="text-textMuted hover:text-textPrimary text-sm font-medium flex items-center gap-2 transition-colors min-h-[44px]"
+              className="flex-1 justify-center rounded-xl border border-border bg-surfaceElevated/80 backdrop-blur-sm text-textPrimary hover:bg-surfaceMuted text-sm font-semibold flex items-center gap-2 transition-colors min-h-[44px] px-4"
             >
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18" /></svg>
               Open Tables
@@ -870,6 +359,87 @@ export default function Home() {
               </Card>
             )}
           </div>
+
+          {/* ── Filters ─────────────────────────────────────────────────────── */}
+          <div className="sticky top-0 z-20 -mx-4 sm:-mx-6 px-4 sm:px-6 py-2 mb-4 bg-bg/85 backdrop-blur-sm flex flex-col gap-2">
+            <div className="flex gap-2 overflow-x-auto no-scrollbar">
+              {[{ key: 'all', label: 'All' }, ...CATEGORIES].map(c => (
+                <FilterChip key={c.key} active={category === c.key} onClick={() => setCategory(c.key)}>
+                  {c.key === 'all' ? 'All' : c.label}
+                </FilterChip>
+              ))}
+            </div>
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+              <span className="text-xs text-textMuted shrink-0">Players</span>
+              {PLAYER_FILTERS.map(f => (
+                <FilterChip key={f.key} small active={players === f.key} onClick={() => setPlayers(f.key)}>
+                  {f.label}
+                </FilterChip>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Game sections ───────────────────────────────────────────────── */}
+          {CATEGORIES.filter(c => category === 'all' || category === c.key).map(c => {
+            const cards = VISIBLE_GAMES.filter(card => categoryOf(card) === c.key && fitsPlayers(card, players))
+            if (cards.length === 0) return null
+            return (
+              <section key={c.key} className="mb-7">
+                <div className="mb-3">
+                  <h2 className="text-lg font-bold font-display leading-tight">{c.label}</h2>
+                  <p className="text-xs text-textMuted">{c.blurb}</p>
+                </div>
+                <div className="flex gap-3 overflow-x-auto no-scrollbar snap-x scroll-px-4 -mx-4 px-4 pb-1 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 lg:grid-cols-4 sm:overflow-visible">
+                  {cards.map(card => {
+                    const disabled = card.isOnline && (!online || !profile)
+                    return (
+                      <GameTile
+                        key={cardKey(card)}
+                        card={card}
+                        disabled={disabled}
+                        offlineNotice={card.isOnline && !online ? t('needsInternet') : null}
+                        onClick={() => handleCardClick(card, disabled)}
+                      />
+                    )
+                  })}
+                </div>
+              </section>
+            )
+          })}
+          {VISIBLE_GAMES.every(card => !fitsPlayers(card, players)) && (
+            <p className="text-sm text-textMuted mb-6">No games for that group size.</p>
+          )}
+
+          {/* ── For review — hidden/unfinished games, dev builds only ── */}
+          {import.meta.env.DEV && games.filter(g => !VISIBLE_SLUGS.has(g.slug) && !g.hidden).length > 0 && (
+            <div className="mt-8 max-w-lg">
+              <p className="text-textMuted text-xs font-semibold mb-3 uppercase tracking-wider">
+                For review (not finalized — play &amp; decide)
+              </p>
+              <div className="flex flex-col gap-2">
+                {games.filter(g => !VISIBLE_SLUGS.has(g.slug) && !g.hidden).map(game => {
+                  const title = typeof game.title === 'object' ? (game.title[lang] || game.title.en) : game.title
+                  return (
+                    <button
+                      key={game.slug}
+                      onClick={() => handleReviewGameClick(game)}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-dashed border-border bg-surface hover:bg-surfaceMuted transition-colors text-left"
+                    >
+                      <span className="text-xl leading-none">{game.icon ?? '🎮'}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-textPrimary truncate">{title}</p>
+                        <p className="text-xs text-textMuted">{game.slug} · {game.singleDevice ? 'offline' : 'online'}</p>
+                      </div>
+                      <span className="text-xs font-semibold text-textMuted">Open →</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ── Ad banner ───────────────────────────────────────────────────── */}
+          <AdBanner slot="home-bottom" className="mt-8 mb-3" />
 
           {/* ── Privacy link ─────────────────────────────────────────────────── */}
           <div className="flex justify-center gap-5 text-xs text-textMuted">
