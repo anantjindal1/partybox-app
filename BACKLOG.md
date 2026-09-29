@@ -53,42 +53,39 @@ work — see project memory's known-issues note before touching it.
 Capacitor app, `com.anantjindal.partybox` (com.partybox.app was taken on Play), links on `partybox-app.vercel.app`.
 Full plan: `~/.claude/plans/look-at-partybox-i-crystalline-pike.md`.
 
-**Done and verified on a real device (Samsung tablet SM-X216B, 2026-09-28):**
-Home revamp (categories + filters), public-origin invite links, native shell
-(back button, deep-link handler, status bar, keep-awake, splash, icon),
-release signing config, AdMob banner + interstitial on test IDs, declined
-consent = non-personalised ads (banner copy + privacy policy updated).
+**Done (as of 2026-09-29):** Home revamp; public-origin invite links; native
+shell (back, deep links, status bar, keep-awake, splash, icon, haptics on card
+play / turn start); headers fit at phone width with large fonts; release
+signing; Play Console app `com.anantjindal.partybox` (com.partybox.app was
+taken) with listing, screenshots and forms; closed-test releases up to v3
+(1.0.2); AdMob live IDs (app `~1808564745`, banner + interstitial) with the
+dev tablet registered as a test device; `app-ads.txt` and
+`.well-known/assetlinks.json` live and verified by Google's Digital Asset
+Links API. Promo video cut at `store/video/partybox-promo.mp4` (gitignored;
+goes on YouTube).
 
-**Critical path — the 14-day closed test starts only when a build is on the
-closed track with 12 testers opted in:**
+**Waiting on the 14-day closed test:** 12 testers must opt in via the Play
+testing link, then 14 continuous days, then apply for production.
 
-1. **First signed AAB → closed testing.** Waiting on Play Console identity
-   verification. User creates the upload keystore (`keytool`) and
-   `android/keystore.properties` (gitignored); then `./gradlew bundleRelease`
-   (`JAVA_HOME=/opt/homebrew/opt/openjdk@21`), upload, send opt-in link.
-   Bump `versionCode` in `android/app/build.gradle` on every upload.
-2. **Real AdMob IDs.** Waiting on AdMob approval: app ID replaces the test ID
-   in `AndroidManifest.xml`; banner/interstitial unit IDs go in
-   `VITE_ADMOB_BANNER_ID` / `VITE_ADMOB_INTERSTITIAL_ID` (unset = test ads).
-   Also publish a GDPR message in AdMob and set max ad rating to T.
-3. **`public/.well-known/assetlinks.json`.** Needs the Play App Signing
-   SHA-256 (Play Console → App integrity) after the first upload. Until
-   then invite links open in the browser, not the app.
-4. **Remove Ads IAP (RevenueCat).** Needs the payments profile and an
+**Still open, in order:**
+
+1. **Remove Ads IAP (RevenueCat).** Needs the payments profile and an
    uploaded build before Play allows creating the product. Restore button
    in Profile; entitlement read from RevenueCat, never Firestore.
-5. **Crashlytics.** Needs `google-services.json` (register the Android app
+2. **Crashlytics.** Needs `google-services.json` (register the Android app
    in the Firebase console) in `android/app/`.
-6. **Anonymous Auth + App Check.** User enables Anonymous auth in Firebase
+3. **Anonymous Auth + App Check.** User enables Anonymous auth in Firebase
    and deploys rules requiring `request.auth != null`; App Check (Play
    Integrity / reCAPTCHA) in monitor mode first. Check the purge job and
    analytics dashboard still work afterwards.
-7. **Play Console forms.** Store listing (EN + HI, 6–8 screenshots), Data
-   Safety (mic, device ID, analytics, ads, purchases), IARC rating, target
-   audience 18+. Then apply for production access, staged rollout at 20%.
+4. **Owed Firebase/GitHub steps:** deploy current `firestore.rules`
+   (reactions + voice are 403 in prod); GH secrets `FIREBASE_PROJECT_ID` /
+   `FIREBASE_API_KEY` for the purge job.
+5. **Production:** add Purchase history to Data Safety when IAP ships; Hindi
+   listing; apply for production access after the closed test; staged
+   rollout at 20%.
 
-**Deferred:** R8/minify (can't verify plugin breakage cheaply), haptics
-(installed, not wired), web "Get the app" nudge (needs a public Play link),
+**Deferred:** R8/minify (can't verify plugin breakage cheaply), web "Get the app" nudge (needs a public Play link),
 content packs + Host Pro subscription (post-launch, gated on Remove Ads
 conversion and weekly active hosts).
 
