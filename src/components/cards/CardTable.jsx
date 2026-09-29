@@ -4,6 +4,7 @@ import { PlayerSeat } from './PlayerSeat'
 import { parseCard } from '../../multiplayer/deck'
 import { CARD_GAME_ACCENT_CLASSES } from '../cardGameAccent'
 import { getSeatPosition, getHandStep } from './seatLayout'
+import { tapHaptic, turnHaptic } from '../../lib/haptics'
 
 const HAND_CARD_WIDTH = 46 // matches PlayingCard's 'md' size
 const EXPOSED_SIDE_LIFT_PX = 48
@@ -72,7 +73,12 @@ export function CardTable({
     }
   }, [myHand, playingCardId])
 
+  useEffect(() => {
+    if (myIsActiveTurn) turnHaptic()
+  }, [myIsActiveTurn])
+
   function handleTap(cardId) {
+    tapHaptic()
     if (tapMode === 'toggle') {
       onCardTap?.(cardId)
       return
