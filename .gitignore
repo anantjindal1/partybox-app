@@ -6,3 +6,6 @@ dist
 
 questions/
 !questions/**/.gitkeep
+
+# Store videos are large; upload to YouTube instead of committing
+store/video/

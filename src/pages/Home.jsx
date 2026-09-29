@@ -230,22 +230,22 @@ export default function Home() {
         )}
 
         {/* ── Header ─────────────────────────────────────────────────────────── */}
-        <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border shadow-soft bg-surface/80 backdrop-blur-sm">
-          <div className="flex items-center gap-3">
+        <header className="flex items-center justify-between gap-2 px-4 sm:px-6 py-4 border-b border-border shadow-soft bg-surface/80 backdrop-blur-sm">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <LogoMark />
             <h1 className="text-xl font-bold font-display tracking-tight">PartyBox</h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {profile && (
               <button
                 onClick={() => navigate('/profile')}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-surfaceElevated text-textSecondary hover:bg-surfaceMuted hover:text-textPrimary transition-colors text-sm font-medium border border-border min-h-[44px]"
+                className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 rounded-xl bg-surfaceElevated text-textSecondary hover:bg-surfaceMuted hover:text-textPrimary transition-colors text-sm font-medium border border-border min-h-[44px]"
                 aria-label={t('profile')}
               >
                 <span className="text-lg">{profile.avatar}</span>
                 <span className="hidden sm:inline max-w-[100px] truncate">{profile.name}</span>
                 <span className="text-gold font-semibold">{profile.xp}</span>
-                <span className="text-textMuted text-xs">{t('xp')}</span>
+                <span className="hidden sm:inline text-textMuted text-xs">{t('xp')}</span>
               </button>
             )}
             <ThemeToggle />

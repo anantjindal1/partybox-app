@@ -218,20 +218,20 @@ export default function Room() {
       <ConnectionOverlay connected={connected} />
       {!onboarded && <PlayerIdentityModal onComplete={handleIdentityComplete} profile={profile} />}
 
-      <header className="flex items-center justify-between flex-wrap gap-y-2 px-4 sm:px-6 py-4 border-b border-border/60 shadow-soft">
+      <header className="flex items-center justify-between gap-2 px-4 sm:px-6 py-4 border-b border-border/60 shadow-soft">
         <button
           onClick={() => navigate('/')}
-          className="text-textMuted hover:text-textSecondary text-lg flex items-center gap-2 font-medium min-w-0 truncate"
+          className="text-textMuted hover:text-textSecondary text-base sm:text-lg flex items-center gap-1.5 font-medium min-w-0 truncate"
         >
           ← {t('back')}
         </button>
-        <div className="flex items-center gap-3 flex-wrap gap-y-2">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {room.roomType === 'ranked' ? (
             <span className="whitespace-nowrap text-xs font-semibold text-accent border border-accent/40 rounded-lg px-2 py-1">
               🏆 {t('rankedRoom')}
             </span>
           ) : (
-            <span className="whitespace-nowrap text-xs font-semibold text-textMuted border border-border rounded-lg px-2 py-1">
+            <span className="hidden sm:inline whitespace-nowrap text-xs font-semibold text-textMuted border border-border rounded-lg px-2 py-1">
               🎲 {t('casualRoom')}
             </span>
           )}
