@@ -92,10 +92,6 @@ closed track with 12 testers opted in:**
 content packs + Host Pro subscription (post-launch, gated on Remove Ads
 conversion and weekly active hosts).
 
-**Known test noise:** `categories dictionary › letter distribution` is flaky
-(random sampling, ~1 in 4 runs); `tests/dumbCharades.reducer.test.js` imports
-a deleted `scoring` module and fails to load.
-
 ## Packaging & distribution (added 2026-09-16)
 
 - **Spin off all card games into a separate app.** DEFERRED (2026-09-28):
