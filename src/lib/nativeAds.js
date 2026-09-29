@@ -1,11 +1,14 @@
 import { getConsent } from './consent'
 import { AdMob, AdmobConsentStatus, BannerAdPluginEvents, BannerAdPosition, BannerAdSize } from '@capacitor-community/admob'
 
-// Google's published test units. Real IDs come from env once the AdMob
-// account is approved; until then every request is a test request.
-const BANNER_ID = import.meta.env.VITE_ADMOB_BANNER_ID || 'ca-app-pub-3940256099942544/6300978111'
-const INTERSTITIAL_ID = import.meta.env.VITE_ADMOB_INTERSTITIAL_ID || 'ca-app-pub-3940256099942544/1033173712'
-const isTesting = !import.meta.env.VITE_ADMOB_BANNER_ID
+const BANNER_ID = 'ca-app-pub-3358980300827715/8976694040'
+const INTERSTITIAL_ID = 'ca-app-pub-3358980300827715/1601515337'
+// Our own devices get test ads from the real units, so development never
+// counts as invalid traffic. Hashed IDs come from the "Use
+// RequestConfiguration...setTestDeviceIds" line in logcat.
+const TEST_DEVICES = [
+  '92925F21FE994A78DDB066E682E88132', // Samsung tablet SM-X216B
+]
 
 const INTERSTITIAL_GAP_MS = 3 * 60 * 1000
 
@@ -19,7 +22,7 @@ let interstitialLoaded = false
 export function initNativeAds() {
   if (ready) return ready
   ready = (async () => {
-    await AdMob.initialize({ initializeForTesting: isTesting })
+    await AdMob.initialize({ initializeForTesting: true, testingDevices: TEST_DEVICES })
     // UMP fails until a privacy message is published in AdMob (and always
     // with the test app ID); ads must still work outside the EEA/UK.
     try {
@@ -39,7 +42,7 @@ export function initNativeAds() {
 }
 
 function loadInterstitial() {
-  AdMob.prepareInterstitial({ adId: INTERSTITIAL_ID, isTesting, npa: getConsent() !== 'granted' })
+  AdMob.prepareInterstitial({ adId: INTERSTITIAL_ID, npa: getConsent() !== 'granted' })
     .then(() => { interstitialLoaded = true })
     .catch(() => {})
 }
@@ -48,7 +51,6 @@ export async function showNativeBanner() {
   await initNativeAds()
   AdMob.showBanner({
     adId: BANNER_ID,
-    isTesting,
     npa: getConsent() !== 'granted',
     adSize: BannerAdSize.ADAPTIVE_BANNER,
     position: BannerAdPosition.BOTTOM_CENTER,
