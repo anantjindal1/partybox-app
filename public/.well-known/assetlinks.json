@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.anantjindal.partybox",
+      "sha256_cert_fingerprints": [
+        "DC:0E:90:06:96:AD:D8:0A:C5:3F:8F:4C:25:DC:F3:63:22:24:78:B2:96:22:FA:C5:D6:85:F4:B2:CE:D0:2E:CC",
+        "02:31:DB:81:24:C1:26:96:A0:3F:3A:63:11:35:13:42:6D:D1:8E:7F:3B:51:B1:9F:09:ED:B8:04:73:E3:3C:68"
+      ]
+    }
+  }
+]
