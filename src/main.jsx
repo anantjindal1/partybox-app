@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
 import { Capacitor } from '@capacitor/core'
+import { initCrashReporting } from './lib/crashReporting'
 import App from './App'
 import '@fontsource/rozha-one'
 import './index.css'
@@ -20,6 +21,8 @@ if (!Capacitor.isNativePlatform()) {
     onOfflineReady() {}
   })
 }
+
+initCrashReporting()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

@@ -2,6 +2,7 @@ import { Suspense, Component } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getGame } from '../games/registry'
 import { useGameTheme } from '../store/GameThemeContext'
+import { reportError } from '../lib/crashReporting'
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -10,6 +11,9 @@ class ErrorBoundary extends Component {
   }
   static getDerivedStateFromError() {
     return { hasError: true }
+  }
+  componentDidCatch(error) {
+    reportError(error, 'PlayOffline')
   }
   render() {
     if (this.state.hasError) {

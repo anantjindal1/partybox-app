@@ -104,3 +104,6 @@ app/src/main/res/xml/config.xml
 keystore.properties
 *.jks
 *.keystore
+
+# Firebase Android config; repo is public, keep it local
+app/google-services.json
