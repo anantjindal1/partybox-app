@@ -50,7 +50,7 @@ work — see project memory's known-issues note before touching it.
 
 ## Android launch (plan approved 2026-09-28)
 
-Capacitor app, `com.partybox.app`, links on `partybox-app.vercel.app`.
+Capacitor app, `com.anantjindal.partybox` (com.partybox.app was taken on Play), links on `partybox-app.vercel.app`.
 Full plan: `~/.claude/plans/look-at-partybox-i-crystalline-pike.md`.
 
 **Done and verified on a real device (Samsung tablet SM-X216B, 2026-09-28):**

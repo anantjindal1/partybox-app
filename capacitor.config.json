@@ -1,5 +1,5 @@
 {
-  "appId": "com.partybox.app",
+  "appId": "com.anantjindal.partybox",
   "appName": "PartyBox",
   "webDir": "dist",
   "plugins": {
