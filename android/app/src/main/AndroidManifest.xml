@@ -27,10 +27,9 @@
             </intent-filter>
         </activity>
 
-        <!-- Google's test app ID; replace with the real AdMob app ID before release. -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-3358980300827715~1808564745" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
