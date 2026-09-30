@@ -15,6 +15,7 @@ import { joinRoom } from '../services/room'
 import { getInProgressGames } from '../services/gameStatePersistence'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import AdBanner from '../components/AdBanner'
+import GetAppBanner from '../components/GetAppBanner'
 import { setConsent } from '../lib/consent'
 import { BoltIcon, ClapperboardIcon, RotationIcon } from '../components/gameIcons'
 import { ACCENT_STYLES, VISIBLE_GAMES, VISIBLE_SLUGS, CATEGORIES, categoryOf, playerRange, cardKey } from './home/gameCatalog'
@@ -262,6 +263,7 @@ export default function Home() {
         )}
 
         <main className="flex-1 px-4 sm:px-6 py-6">
+          <GetAppBanner />
 
           {/* ── Hero (new users only, no in-progress games) ─────────────────── */}
           {showHero && (
