@@ -48,6 +48,38 @@ deferred for now. `tools/dc-stats.html` also still has its own standing
 "never bundle into a commit" hold from earlier, unrelated DC-analytics
 work — see project memory's known-issues note before touching it.
 
+## NEXT SESSION — start here (added 2026-09-30)
+
+User asked to be reminded of these when they come back. Waiting on:
+BillDesk KYC approval (Play payments profile), 12 testers opting in to
+the closed test, Play review of v4.
+
+**User's to-dos:**
+1. Upload v5 (`~/Desktop/partybox-v5.aab`, first build with BILLING).
+2. After BillDesk approves: add bank account (Payments → How you get paid).
+3. Create one-time product `remove_ads` (₹99) in Play Console, then
+   RevenueCat: import product → entitlement `no_ads` → default offering
+   (Lifetime package), marked Current.
+4. License testing: add own Gmail, make a test purchase on a phone.
+5. Delete the RevenueCat service-account JSON from ~/Downloads.
+6. Tablet: uninstall the debug build, install from the Play testing link;
+   check invite links open the app and that Crashlytics shows the app.
+7. Add YouTube video `https://www.youtube.com/watch?v=O9nyqjPLn0w` to the
+   store listing.
+8. Apply for AdSense (web banners are already coded).
+9. Buy a custom domain (helps BillDesk "www." field, AdSense, invite trust).
+10. Send the list of game UI improvements.
+
+**Claude's to-dos (need the user's go-ahead):**
+1. Web "Get the app" nudge — build now, switched off until production.
+2. Anonymous Auth + rules requiring `request.auth != null` (user publishes
+   rules); App Check later.
+3. Dumb Charades reducer tests (it has none).
+4. Custom-domain setup once bought (Vercel + assetlinks + App Links in the
+   manifest + PUBLIC_ORIGIN).
+5. Legal name on terms/refund pages if BillDesk asks for it (left off on
+   purpose — pages are public).
+
 ## Android launch (plan approved 2026-09-28)
 
 Capacitor app, `com.anantjindal.partybox` (com.partybox.app was taken on Play), links on `partybox-app.vercel.app`.
