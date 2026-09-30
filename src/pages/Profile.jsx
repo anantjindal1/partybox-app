@@ -235,6 +235,8 @@ export default function Profile() {
           <p className="text-textMuted text-sm uppercase tracking-wider">Privacy</p>
           <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
             <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="underline text-textPrimary">Privacy Policy</a>
+            <a href="/terms.html" target="_blank" rel="noopener noreferrer" className="underline text-textPrimary">Terms</a>
+            <a href="/refund.html" target="_blank" rel="noopener noreferrer" className="underline text-textPrimary">Refunds</a>
             <button onClick={() => setConsent(null)} className="underline text-textPrimary">Change analytics &amp; ads choice</button>
           </div>
           {!confirmingDelete ? (

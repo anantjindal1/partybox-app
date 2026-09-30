@@ -442,8 +442,10 @@ export default function Home() {
           <AdBanner slot="home-bottom" className="mt-8 mb-3" />
 
           {/* ── Privacy link ─────────────────────────────────────────────────── */}
-          <div className="flex justify-center gap-5 text-xs text-textMuted">
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-textMuted">
             <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="hover:text-textPrimary underline">Privacy Policy</a>
+            <a href="/terms.html" target="_blank" rel="noopener noreferrer" className="hover:text-textPrimary underline">Terms</a>
+            <a href="/refund.html" target="_blank" rel="noopener noreferrer" className="hover:text-textPrimary underline">Refunds</a>
             <button onClick={() => setConsent(null)} className="hover:text-textPrimary underline">Analytics &amp; ads choice</button>
           </div>
 

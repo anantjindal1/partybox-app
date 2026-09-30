@@ -48,7 +48,10 @@ export default function RemoveAdsCard() {
         <p className="text-sm text-textPrimary">Ads are removed on this Google account. Thanks for supporting PartyBox!</p>
       ) : (
         <>
-          <p className="text-sm text-textPrimary">One-time purchase. No banners, no ads between games, every game still free.</p>
+          <p className="text-sm text-textPrimary">
+            One-time purchase. No banners, no ads between games, every game still free.{' '}
+            <a href="/refund.html" target="_blank" rel="noopener noreferrer" className="underline text-textMuted">Refund policy</a>
+          </p>
           <button
             onClick={handleBuy}
             disabled={!pkg || busy}
