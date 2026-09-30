@@ -1,4 +1,5 @@
 import { getConsent } from './consent'
+import { getAdsRemoved } from './purchases'
 import { AdMob, AdmobConsentStatus, BannerAdPluginEvents, BannerAdPosition, BannerAdSize } from '@capacitor-community/admob'
 
 const BANNER_ID = 'ca-app-pub-3358980300827715/8976694040'
@@ -64,7 +65,7 @@ export function hideNativeBanner() {
 }
 
 export function maybeShowInterstitial() {
-  if (!ready || !interstitialLoaded || getConsent() === null) return
+  if (!ready || !interstitialLoaded || getConsent() === null || getAdsRemoved()) return
   if (Date.now() - lastInterstitial < INTERSTITIAL_GAP_MS) return
   lastInterstitial = Date.now()
   interstitialLoaded = false

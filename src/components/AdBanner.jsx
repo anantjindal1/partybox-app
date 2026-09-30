@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Capacitor } from '@capacitor/core'
 import { useConsent } from '../hooks/useConsent'
+import { useAdsRemoved } from '../hooks/useAdsRemoved'
 import { showNativeBanner, hideNativeBanner } from '../lib/nativeAds'
 
 const isDev = import.meta.env.DEV
@@ -39,9 +40,10 @@ export default function AdBanner(props) {
 // is open.
 function NativeAdBanner() {
   const consent = useConsent()
+  const adsRemoved = useAdsRemoved()
 
   useEffect(() => {
-    if (consent === null) return
+    if (consent === null || adsRemoved) return
     let cancelled = false
     showNativeBanner().then(() => {
       if (cancelled) hideNativeBanner()
@@ -50,7 +52,7 @@ function NativeAdBanner() {
       cancelled = true
       hideNativeBanner()
     }
-  }, [consent])
+  }, [consent, adsRemoved])
 
   return null
 }

@@ -13,6 +13,7 @@ import { games } from '../games/registry'
 import { AVATARS } from '../data/avatars'
 import { deleteMyData } from '../services/deleteMyData'
 import { setConsent } from '../lib/consent'
+import RemoveAdsCard from '../components/RemoveAdsCard'
 
 // Online game slugs that track stats in Firestore
 const ONLINE_GAME_SLUGS = games
@@ -226,6 +227,8 @@ export default function Profile() {
             )}
           </div>
         )}
+
+        <RemoveAdsCard />
 
         {/* Privacy */}
         <Card className="p-5 space-y-3">

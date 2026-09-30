@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
 import { Capacitor } from '@capacitor/core'
 import { initCrashReporting } from './lib/crashReporting'
+import { initPurchases } from './lib/purchases'
 import App from './App'
 import '@fontsource/rozha-one'
 import './index.css'
@@ -23,6 +24,7 @@ if (!Capacitor.isNativePlatform()) {
 }
 
 initCrashReporting()
+initPurchases()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
