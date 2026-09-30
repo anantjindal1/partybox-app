@@ -71,14 +71,17 @@ the closed test, Play review of v4.
 10. Send the list of game UI improvements.
 
 **Claude's to-dos (need the user's go-ahead):**
-1. Web "Get the app" nudge — build now, switched off until production.
-2. Anonymous Auth + rules requiring `request.auth != null` (user publishes
-   rules); App Check later.
-3. Dumb Charades reducer tests (it has none).
-4. Custom-domain setup once bought (Vercel + assetlinks + App Links in the
+1. Custom-domain setup once bought (Vercel + assetlinks + App Links in the
    manifest + PUBLIC_ORIGIN).
-5. Legal name on terms/refund pages if BillDesk asks for it (left off on
+2. Legal name on terms/refund pages if BillDesk asks for it (left off on
    purpose — pages are public).
+3. Flip `PLAY_STORE_LIVE` in `src/components/GetAppBanner.jsx` once the app
+   is in production (banner built 2026-09-30, off).
+4. Rules requiring `request.auth != null`: the app now signs in anonymously
+   (Anonymous auth is already enabled, verified 2026-09-30). Before
+   publishing such rules: ship v6 so installed apps carry the sign-in, and
+   move the purge job + analytics dashboard off the bare API key (they'd
+   403). App Check after that.
 
 ## Android launch (plan approved 2026-09-28)
 
