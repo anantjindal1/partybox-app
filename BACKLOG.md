@@ -69,11 +69,13 @@ testing link, then 14 continuous days, then apply for production.
 
 **Still open, in order:**
 
-1. **Remove Ads IAP (RevenueCat).** Needs the payments profile and an
-   uploaded build before Play allows creating the product. Restore button
-   in Profile; entitlement read from RevenueCat, never Firestore.
-2. **Crashlytics.** Needs `google-services.json` (register the Android app
-   in the Firebase console) in `android/app/`.
+1. **Remove Ads IAP.** Code DONE (509b2db, `src/lib/purchases.js`,
+   RevenueCat entitlement `no_ads`, Profile card). Waiting on: payments
+   profile; product `remove_ads` in Play Console (needs v5 uploaded, it
+   carries BILLING); RevenueCat product/entitlement/offering setup; a
+   license-tester purchase on a real device.
+2. **Crashlytics.** DONE in v4 (JS errors forwarded too); first report not
+   yet seen in the Firebase console.
 3. **Anonymous Auth + App Check.** User enables Anonymous auth in Firebase
    and deploys rules requiring `request.auth != null`; App Check (Play
    Integrity / reCAPTCHA) in monitor mode first. Check the purge job and
@@ -84,6 +86,15 @@ testing link, then 14 continuous days, then apply for production.
 5. **Production:** add Purchase history to Data Safety when IAP ships; Hindi
    listing; apply for production access after the closed test; staged
    rollout at 20%.
+
+**Web monetisation (user asked 2026-09-30):** AdSense banner on web is
+already coded (`AdBanner`, env `VITE_ADSENSE_CLIENT/SLOT`) — blocked on the
+user's AdSense application and approval. Web interstitials aren't practical
+(AdSense vignettes need full page loads; this is an SPA). App-download nudge
+on web: build it switched off, enable at production launch (the Play page
+404s for non-testers until then).
+
+**Game UI improvements:** user has a list — waiting for specifics.
 
 **Deferred:** R8/minify (can't verify plugin breakage cheaply), web "Get the app" nudge (needs a public Play link),
 content packs + Host Pro subscription (post-launch, gated on Remove Ads
