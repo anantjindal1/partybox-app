@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { getGame } from '../games/registry'
 import { useGameTheme } from '../store/GameThemeContext'
 import { reportError } from '../lib/crashReporting'
+import FeedbackLink from '../components/FeedbackLink'
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -74,6 +75,9 @@ export default function PlayOffline() {
     <ErrorBoundary onRetry={() => navigate('/')}>
       <Suspense fallback={<GameLoadingSpinner />}>
         <GameComponent slug={slug} gameTitle={game.title} />
+        <div className="flex justify-center pb-6">
+          <FeedbackLink game={game.title?.en ?? slug} />
+        </div>
       </Suspense>
     </ErrorBoundary>
   )

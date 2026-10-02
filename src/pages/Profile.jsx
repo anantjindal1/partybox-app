@@ -14,6 +14,7 @@ import { AVATARS } from '../data/avatars'
 import { deleteMyData } from '../services/deleteMyData'
 import { setConsent } from '../lib/consent'
 import RemoveAdsCard from '../components/RemoveAdsCard'
+import FeedbackLink from '../components/FeedbackLink'
 
 // Online game slugs that track stats in Firestore
 const ONLINE_GAME_SLUGS = games
@@ -239,6 +240,7 @@ export default function Profile() {
             <a href="/refund.html" target="_blank" rel="noopener noreferrer" className="underline text-textPrimary">Refunds</a>
             <button onClick={() => setConsent(null)} className="underline text-textPrimary">Change analytics &amp; ads choice</button>
           </div>
+          <FeedbackLink className="!text-sm !text-textPrimary !min-h-0" />
           {!confirmingDelete ? (
             <button
               onClick={() => setConfirmingDelete(true)}

@@ -17,6 +17,7 @@ import { joinRoom, joinAsSpectator, LOBBY_PHASES } from '../services/room'
 import { getGame } from '../games/registry'
 import { trackEvent } from '../lib/analytics/core'
 import { publicUrl } from '../lib/publicUrl'
+import FeedbackLink from '../components/FeedbackLink'
 
 export default function Room() {
   const { code } = useParams()
@@ -401,6 +402,10 @@ export default function Room() {
             <p className="text-textMuted">Game not found: {room.gameSlug}</p>
           </Card>
         )}
+      </div>
+
+      <div className="flex justify-center pb-6">
+        <FeedbackLink game={game?.title?.en ?? room.gameSlug} roomCode={code} />
       </div>
     </div>
   )
