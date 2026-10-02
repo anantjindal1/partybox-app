@@ -55,7 +55,7 @@ BillDesk KYC approval (Play payments profile), 12 testers opting in to
 the closed test, Play review of v4.
 
 **User's to-dos:**
-1. Upload v5 (`~/Desktop/partybox-v5.aab`, first build with BILLING).
+1. Upload v6 (`~/Desktop/partybox-v6.aab`, feedback links); v5 is uploaded. Testers: 12/23 opted in on 2026-10-02 — production ~2026-10-16; send the drafted welcome message and run game nights.
 2. After BillDesk approves: add bank account (Payments → How you get paid).
 3. Create one-time product `remove_ads` (₹99) in Play Console, then
    RevenueCat: import product → entitlement `no_ads` → default offering
