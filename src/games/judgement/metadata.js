@@ -1,5 +1,6 @@
 export default {
   slug: 'judgement',
+  supportsBots: true,
   hidePlayerListInGame: true,
   lobbySeatCircle: true,
   title: { en: 'Judgement (Kachuful)', hi: 'जजमेंट (कचुफुल)' },

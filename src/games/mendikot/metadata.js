@@ -1,5 +1,6 @@
 export default {
   slug: 'mendikot',
+  supportsBots: true,
   hidePlayerListInGame: true,
   lobbySeatCircle: true,
   title: { en: 'Dassi Pakad (Mendikot)', hi: 'दस्सी पकड़ (मेंडीकोट)' },

@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
+import { useBotTurns } from '../../hooks/useBotTurns'
+import { getBotTurns } from './bot'
 import { useTurnVibration } from '../../hooks/useTurnVibration'
 import { useLang } from '../../store/LangContext'
 import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
@@ -86,6 +88,7 @@ export default function Teri({ code }) {
   } = useOnlineRoom(code)
 
   const phase = roomState.phase || 'waiting'
+  useBotTurns({ code, isHost, room, roomState, actions, getBotTurns })
   // GameLead also plays the dummy partner's cards, so that turn counts as theirs.
   const playTurnHolder = roomState.turnOrder?.[roomState.currentIdx]
   const isGameLeadPlayingDummy = phase === 'playing' && myId === roomState.gameLeadId &&

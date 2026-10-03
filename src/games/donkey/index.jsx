@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
+import { useBotTurns } from '../../hooks/useBotTurns'
+import { getBotTurns } from './bot'
 import { useLang } from '../../store/LangContext'
 import { shuffleDeck } from '../../multiplayer/deck'
 import { dealCards } from '../../multiplayer/deal'
@@ -53,6 +55,7 @@ export default function Donkey({ code }) {
   } = useOnlineRoom(code)
 
   const phase = roomState.phase || 'waiting'
+  useBotTurns({ code, isHost, room, roomState, actions, getBotTurns })
   const roomStateRef = useRef(roomState)
   roomStateRef.current = roomState
   const actionsRef = useRef(actions)

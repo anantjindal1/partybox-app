@@ -1,5 +1,6 @@
 export default {
   slug: 'teen-do-paanch',
+  supportsBots: true,
   hidePlayerListInGame: true,
   lobbySeatCircle: true,
   title: { en: '3-2-5 (Teen Do Paanch)', hi: 'तीन दो पांच' },

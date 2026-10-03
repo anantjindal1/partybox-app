@@ -1,5 +1,6 @@
 export default {
   slug: 'satti',
+  supportsBots: true,
   hidePlayerListInGame: true,
   lobbySeatCircle: true,
   title: { en: 'Satti (Sevens)', hi: 'सत्ती (सेवन्स)' },

@@ -1,5 +1,6 @@
 export default {
   slug: 'teri',
+  supportsBots: true,
   hidePlayerListInGame: true,
   lobbySeatCircle: true,
   title: { en: 'Teri', hi: 'तेरी' },

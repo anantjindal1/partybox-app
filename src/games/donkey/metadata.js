@@ -1,5 +1,6 @@
 export default {
   slug: 'donkey',
+  supportsBots: true,
   title: { en: 'Donkey (Gadha)', hi: 'गधा' },
   minPlayers: 3,
   maxPlayers: 8,

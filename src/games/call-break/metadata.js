@@ -1,5 +1,6 @@
 export default {
   slug: 'call-break',
+  supportsBots: true,
   hidePlayerListInGame: true,
   lobbySeatCircle: true,
   title: { en: 'Call Break', hi: 'कॉल ब्रेक' },

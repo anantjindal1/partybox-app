@@ -1,5 +1,6 @@
 export default {
   slug: 'bluff',
+  supportsBots: true,
   hidePlayerListInGame: true,
   lobbySeatCircle: true,
   title: { en: 'Bluff', hi: 'ब्लफ' },
