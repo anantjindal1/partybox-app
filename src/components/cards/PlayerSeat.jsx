@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { PlayingCard } from './PlayingCard'
 import { parseCard } from '../../multiplayer/deck'
+import { AiTag } from '../BotControls'
 import { getHandStep } from './seatLayout'
 
 const EXPOSED_CARD_WIDTH = 32
@@ -124,11 +125,14 @@ export function PlayerSeat({
       >
         <span className="text-xl leading-none">{player?.avatar ?? '🎮'}</span>
       </div>
-      <span
-        className={`text-xs truncate max-w-[64px] ${isActiveTurn ? 'font-extrabold' : 'font-semibold text-textPrimary'}`}
-        style={isActiveTurn ? { color: `rgb(var(--color-accent-${accent}-rgb))` } : undefined}
-      >
-        {player?.name ?? 'Player'}
+      <span className="flex items-center">
+        <span
+          className={`text-xs truncate max-w-[64px] ${isActiveTurn ? 'font-extrabold' : 'font-semibold text-textPrimary'}`}
+          style={isActiveTurn ? { color: `rgb(var(--color-accent-${accent}-rgb))` } : undefined}
+        >
+          {player?.name ?? 'Player'}
+        </span>
+        {player?.isBot && <AiTag />}
       </span>
       {label && <span className="text-[10px] text-textMuted -mt-1">{label}</span>}
       {exposedCards ? (

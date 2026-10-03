@@ -18,6 +18,7 @@ import { getGame } from '../games/registry'
 import { trackEvent } from '../lib/analytics/core'
 import { publicUrl } from '../lib/publicUrl'
 import FeedbackLink from '../components/FeedbackLink'
+import { BotControls, AiTag } from '../components/BotControls'
 
 export default function Room() {
   const { code } = useParams()
@@ -287,7 +288,10 @@ export default function Room() {
                         <span className="absolute -top-1 -right-1 text-xs">👑</span>
                       )}
                     </div>
-                    <span className="text-textSecondary text-xs font-medium max-w-[56px] truncate">{p.name}</span>
+                    <span className="flex items-center text-textSecondary text-xs font-medium">
+                      <span className="max-w-[56px] truncate">{p.name}</span>
+                      {p.isBot && <AiTag />}
+                    </span>
                     {isHost && !gameInProgress && p.id !== room.hostId && (
                       <button
                         onClick={() => handleKick(p.id)}
@@ -305,6 +309,10 @@ export default function Room() {
               Waiting for players... ({room.players.length}/{game?.maxPlayers ?? 6})
             </p>
           </div>
+
+          {isHost && game?.supportsBots && room.roomType !== 'ranked' && (
+            <BotControls code={code} room={room} maxPlayers={game.maxPlayers} />
+          )}
 
           {/* Share buttons — below player list */}
           <div className="flex gap-3">
@@ -360,7 +368,7 @@ export default function Room() {
                     : 'bg-surfaceElevated text-textPrimary border border-border/60'
                 }`}
               >
-                {p.id === room.hostId ? '👑 ' : ''}{p.name}
+                {p.id === room.hostId ? '👑 ' : ''}{p.name}{p.isBot && <AiTag />}
               </span>
             ))}
           </div>

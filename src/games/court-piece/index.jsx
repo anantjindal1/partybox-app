@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
 import { useTurnVibration } from '../../hooks/useTurnVibration'
+import { useBotTurns } from '../../hooks/useBotTurns'
+import { getBotTurns } from './bot'
 import { useLang } from '../../store/LangContext'
 import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
 import { removeCardFromHand, addCardsToHand, sortHand } from '../../multiplayer/hand'
@@ -50,6 +52,7 @@ export default function CourtPiece({ code }) {
   } = useOnlineRoom(code)
 
   const phase = roomState.phase || 'waiting'
+  useBotTurns({ code, isHost, room, roomState, actions, getBotTurns })
   useTurnVibration(phase === 'playing' && roomState.turnOrder?.[roomState.currentIdx] === myId)
   const roomStateRef = useRef(roomState)
   roomStateRef.current = roomState

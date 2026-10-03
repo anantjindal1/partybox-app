@@ -1,4 +1,5 @@
 import { getLobbySeatPosition } from './seatLayout'
+import { AiTag } from '../BotControls'
 
 /**
  * Pre-game lobby player list, arranged as seats around an oval table
@@ -30,7 +31,10 @@ export function LobbyTable({ players, hostId, isHost, onKick }) {
                 <span className="absolute -top-1 -right-1 text-xs">👑</span>
               )}
             </div>
-            <span className="text-textSecondary text-xs font-medium max-w-[64px] truncate">{p.name}</span>
+            <span className="flex items-center text-textSecondary text-xs font-medium">
+              <span className="max-w-[64px] truncate">{p.name}</span>
+              {p.isBot && <AiTag />}
+            </span>
             {isHost && p.id !== hostId && (
               <button
                 onClick={() => onKick(p.id)}

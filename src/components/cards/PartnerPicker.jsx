@@ -1,4 +1,5 @@
 import { CARD_GAME_ACCENT_CLASSES } from '../cardGameAccent'
+import { AiTag } from '../BotControls'
 
 /**
  * Host-only "pick your partner" UI for a fixed 2v2 partnership game.
@@ -35,7 +36,7 @@ export function PartnerPicker({ players, hostId, myId, pendingPartnerId, onSelec
                   }`}
                 >
                   <span>{p.avatar ?? '🎮'}</span>
-                  <span>{p.name}</span>
+                  <span>{p.name}{p.isBot && <AiTag />}</span>
                 </button>
               )
             })}

@@ -67,6 +67,14 @@ export async function joinRoom(code, playerId, playerName, playerAvatar) {
   })
 }
 
+export async function addBot(code, bot) {
+  await updateDoc(doc(db, 'rooms', code), { players: arrayUnion(bot) })
+}
+
+export async function setBotDifficulty(code, difficulty) {
+  await updateDoc(doc(db, 'rooms', code), { botDifficulty: difficulty })
+}
+
 export function subscribeToRoom(code, callback) {
   const ref = doc(db, 'rooms', code)
   return onSnapshot(ref, (snap) => {
@@ -176,7 +184,7 @@ export async function leaveSeat(code, playerId) {
   // only control (kick, end game, deal the next hand) permanently stuck
   // to someone who's now just a spectator — hand it to whoever's left.
   if (room.hostId === playerId) {
-    const nextHost = room.players.find(p => p.id !== playerId)
+    const nextHost = room.players.find(p => p.id !== playerId && !p.isBot)
     if (nextHost) updates.hostId = nextHost.id
   }
   await updateDoc(ref, updates)
