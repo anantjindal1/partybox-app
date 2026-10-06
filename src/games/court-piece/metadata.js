@@ -5,6 +5,7 @@ export default {
   supportsBots: true,
   title: { en: 'Court Piece (Rang)', hi: 'कोर्ट पीस (रंग)' },
   minPlayers: 4,
+  royalTable: true,
   maxPlayers: 4,
   noAutoClose: true,
   onlineBadge: { id: 'kotMaster' },

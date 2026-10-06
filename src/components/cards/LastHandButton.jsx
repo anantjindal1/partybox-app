@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { HandWinnerOverlay } from './HandWinnerOverlay'
 import { CARD_GAME_ACCENT_CLASSES } from '../cardGameAccent'
+import { useCardVariant } from './cardVariant'
 
 /**
  * "View Last Hand" button + modal — the live winner overlay clears itself
@@ -9,7 +10,8 @@ import { CARD_GAME_ACCENT_CLASSES } from '../cardGameAccent'
  * `lastHand` is `{ cards: [{ playerId, card }], winnerId, message? }`, as
  * each game persists it when a hand completes.
  */
-export function LastHandButton({ lastHand, players, accent = 'maroon', variant }) {
+export function LastHandButton({ lastHand, players, accent = 'maroon', variant: variantProp }) {
+  const variant = useCardVariant(variantProp)
   const [open, setOpen] = useState(false)
   if (!lastHand) return null
   const accentClasses = CARD_GAME_ACCENT_CLASSES[accent] ?? CARD_GAME_ACCENT_CLASSES.maroon

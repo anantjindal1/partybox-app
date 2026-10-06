@@ -4,11 +4,16 @@ import { PlayerSeat } from './PlayerSeat'
 import { parseCard } from '../../multiplayer/deck'
 import { CARD_GAME_ACCENT_CLASSES } from '../cardGameAccent'
 import { getSeatPosition, getHandStep } from './seatLayout'
+import { useCardVariant } from './cardVariant'
 import { tapHaptic, turnHaptic } from '../../lib/haptics'
 
 const HAND_CARD_WIDTH = 46 // matches PlayingCard's 'md' size
-const ROYAL_HAND_CARD_WIDTH = 62 // 'lg' cards, spaced tighter so 13 still fit a 375px phone
-const ROYAL_HAND_TARGET_WIDTH = 316
+// Royal hands use 'lg' cards up to 13 (spaced to fit a 375px phone); a
+// bigger hand (Bhabhi/Satti deal up to 17, two-deck Bluff far more) drops
+// to 'md' so each card keeps a readable sliver.
+const ROYAL_LG_MAX_CARDS = 13
+const ROYAL_LG_TARGET_WIDTH = 316
+const ROYAL_MD_TARGET_WIDTH = 330
 const SIDE_EXPOSED_CARD_WIDTH = 32 // 'sm'
 
 /**
@@ -42,13 +47,17 @@ export function CardTable({
   tapMode = 'play',
   // 'royal': the dark felt table with gold-rimmed rings and glowing cards
   // (see .royal-* in index.css). Omitted, every game renders as before.
-  variant
+  variant: variantProp
 }) {
+  const variant = useCardVariant(variantProp)
   const [playingCardId, setPlayingCardId] = useState(null)
   const royal = variant === 'royal'
   const accentClasses = CARD_GAME_ACCENT_CLASSES[accent] ?? CARD_GAME_ACCENT_CLASSES.maroon
-  const handCardWidth = royal ? ROYAL_HAND_CARD_WIDTH : HAND_CARD_WIDTH
-  const step = royal ? getHandStep(myHand.length, handCardWidth, ROYAL_HAND_TARGET_WIDTH) : getHandStep(myHand.length, handCardWidth)
+  const royalLarge = royal && myHand.length <= ROYAL_LG_MAX_CARDS
+  const handCardWidth = royalLarge ? 62 : HAND_CARD_WIDTH
+  const step = !royal
+    ? getHandStep(myHand.length, handCardWidth)
+    : getHandStep(myHand.length, handCardWidth, royalLarge ? ROYAL_LG_TARGET_WIDTH : ROYAL_MD_TARGET_WIDTH)
   const midIndex = (myHand.length - 1) / 2
 
   // The seat directly opposite the viewer (when one exists — only an
@@ -227,7 +236,7 @@ export function CardTable({
                   face="up"
                   rank={rank}
                   suit={suit}
-                  size={royal ? 'lg' : 'md'}
+                  size={royalLarge ? 'lg' : 'md'}
                   highlighted={isHighlighted && !isPlaying}
                   variant={variant}
                   glow={royal && myIsActiveTurn && !isDisabled}

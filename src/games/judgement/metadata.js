@@ -5,6 +5,7 @@ export default {
   lobbySeatCircle: true,
   title: { en: 'Judgement (Kachuful)', hi: 'जजमेंट (कचुफुल)' },
   minPlayers: 3,
+  royalTable: true,
   maxPlayers: 9,
   noAutoClose: true,
   onlineBadge: { id: 'exactCall' },

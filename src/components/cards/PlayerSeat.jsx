@@ -3,6 +3,7 @@ import { PlayingCard } from './PlayingCard'
 import { parseCard } from '../../multiplayer/deck'
 import { AiTag } from '../BotControls'
 import { getHandStep } from './seatLayout'
+import { useCardVariant } from './cardVariant'
 
 // The exposed-hand fan is the ONLY one ever tapped (GameLead always sees
 // the dummy at the front seat, and only GameLead gets onExposedCardTap), so
@@ -42,8 +43,9 @@ export function PlayerSeat({
   disabledExposedCardIds = [],
   highlightedExposedCardIds = [],
   selectedExposedCardIds = [],
-  variant
+  variant: variantProp
 }) {
+  const variant = useCardVariant(variantProp)
   const royal = variant === 'royal'
   const glowStyle = isActiveTurn ? { '--turn-glow-color': `rgb(var(--color-accent-${accent}-rgb))` } : {}
   const interactive = !!onExposedCardTap

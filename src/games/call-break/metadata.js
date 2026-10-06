@@ -5,6 +5,7 @@ export default {
   lobbySeatCircle: true,
   title: { en: 'Call Break', hi: 'कॉल ब्रेक' },
   minPlayers: 4,
+  royalTable: true,
   maxPlayers: 4,
   noAutoClose: true,
   onlineBadge: { id: 'trumpMaster' },

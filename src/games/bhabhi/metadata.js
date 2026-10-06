@@ -5,6 +5,7 @@ export default {
   lobbySeatCircle: true,
   title: { en: 'Bhabhi', hi: 'भाभी' },
   minPlayers: 3,
+  royalTable: true,
   maxPlayers: 6,
   noAutoClose: true,
   onlineBadge: { id: 'greatEscape' },

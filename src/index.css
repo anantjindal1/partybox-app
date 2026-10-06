@@ -362,3 +362,7 @@ body {
   display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px;
   background: #fbf5e6; box-shadow: 0 0 0 1px #d4a24c, 0 0 10px rgba(255, 200, 110, 0.5);
 }
+/* Every playing card in a royal room colours its own suits (.royal-black),
+   so text-cardBlack only remains on suit icons drawn on dark UI — bid
+   buttons, trump pickers, Satti's board — where near-black disappears. */
+.royal-room .text-cardBlack { color: #efe6d2; }

@@ -21,6 +21,8 @@ import { publicUrl } from '../lib/publicUrl'
 import FeedbackLink from '../components/FeedbackLink'
 import { BotControls, AiTag } from '../components/BotControls'
 import { useFelt, feltVars } from '../lib/feltColor'
+import { CardVariantContext } from '../components/cards/cardVariant'
+import { FeltPicker } from '../components/cards/FeltPicker'
 
 export default function Room() {
   const { code } = useParams()
@@ -365,6 +367,11 @@ export default function Room() {
 
       {gameInProgress && (
         <div className="px-4 sm:px-6 pt-4 pb-4 space-y-2">
+          {royal && (
+            <div className="flex justify-center">
+              <FeltPicker />
+            </div>
+          )}
           {isSpectator && (
             <p className="text-center text-textMuted text-sm">
               👁️ Spectating — you can watch but not play this round.
@@ -421,7 +428,9 @@ export default function Room() {
       {/* Game area */}
       <div className="game-area flex-1 px-4 sm:px-6 pb-8">
         {game && GameComponent ? (
-          <GameComponent code={code} />
+          <CardVariantContext.Provider value={royal ? 'royal' : undefined}>
+            <GameComponent code={code} />
+          </CardVariantContext.Provider>
         ) : (
           <Card className="p-6 text-center">
             <p className="text-textMuted">Game not found: {room.gameSlug}</p>

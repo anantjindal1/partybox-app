@@ -14,7 +14,6 @@ import { buildTurnOrderFromPartner, orderSeatsForViewer } from '../../multiplaye
 import { CardTable } from '../../components/cards/CardTable'
 import { PlayingCard } from '../../components/cards/PlayingCard'
 import { TableScoreBar } from '../../components/cards/TableScoreBar'
-import { FeltPicker } from '../../components/cards/FeltPicker'
 import { SUIT_ICONS, SUIT_COLOR } from '../../components/cards/suitIcons'
 import { SUIT_TEXT_CLASS } from '../../components/cards/suitIcons'
 import { HandWinnerOverlay } from '../../components/cards/HandWinnerOverlay'
@@ -801,10 +800,9 @@ export default function Teri({ code }) {
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
         <div className="flex flex-wrap justify-center items-center gap-2">
           {renderLastRoundButton()}
-          <LastHandButton lastHand={roomState.lastHand} players={players} accent="cobalt" variant="royal" />
-          <FeltPicker />
+          <LastHandButton lastHand={roomState.lastHand} players={players} accent="cobalt" />
         </div>
-        <TableScoreBar entries={scoreEntries} variant="royal" />
+        <TableScoreBar entries={scoreEntries} />
         <CardTable
           otherSeats={otherSeats}
           myHand={activeHand}
@@ -816,7 +814,6 @@ export default function Teri({ code }) {
           selectedCardIds={selectedCardIds}
           onCardTap={onCardTap}
           accent="cobalt"
-          variant="royal"
         />
         <p className="royal-font text-center text-xs font-bold uppercase tracking-[0.14em] text-[#e8ddc2] py-2 px-2">
           <span className="inline-block align-middle w-1.5 h-1.5 mr-2 rounded-full bg-[#e9c77e] shadow-[0_0_8px_#e9c77e]" />

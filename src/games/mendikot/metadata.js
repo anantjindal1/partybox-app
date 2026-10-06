@@ -5,6 +5,7 @@ export default {
   lobbySeatCircle: true,
   title: { en: 'Dassi Pakad (Mendikot)', hi: 'दस्सी पकड़ (मेंडीकोट)' },
   minPlayers: 4,
+  royalTable: true,
   maxPlayers: 4,
   noAutoClose: true,
   onlineBadge: { id: 'mendikotSweep' },

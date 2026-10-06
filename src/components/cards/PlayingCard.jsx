@@ -1,4 +1,5 @@
 import { SUIT_ICONS, SUIT_COLOR } from './suitIcons'
+import { useCardVariant } from './cardVariant'
 
 const SIZES = {
   sm: { w: 32, h: 45, rank: 'text-[10px]', suit: 14, glyph: 16 },
@@ -11,7 +12,8 @@ const SIZES = {
  * footprint (not a Tailwind scale step) since cards need a precise,
  * consistent aspect ratio across hand/table/opponent-stack contexts.
  */
-export function PlayingCard({ face = 'up', rank, suit, size = 'md', highlighted = false, className = '', style, variant, glow = false }) {
+export function PlayingCard({ face = 'up', rank, suit, size = 'md', highlighted = false, className = '', style, variant: variantProp, glow = false }) {
+  const variant = useCardVariant(variantProp)
   const dims = SIZES[size]
   const boxStyle = { width: dims.w, height: dims.h, ...style }
 

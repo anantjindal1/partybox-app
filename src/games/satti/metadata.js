@@ -5,6 +5,7 @@ export default {
   lobbySeatCircle: true,
   title: { en: 'Satti (Sevens)', hi: 'सत्ती (सेवन्स)' },
   minPlayers: 4,
+  royalTable: true,
   maxPlayers: 8,
   noAutoClose: true,
   onlineBadge: { id: 'sevenMaster' },

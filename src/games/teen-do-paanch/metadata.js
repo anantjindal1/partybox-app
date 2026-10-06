@@ -5,6 +5,7 @@ export default {
   lobbySeatCircle: true,
   title: { en: '3-2-5 (Teen Do Paanch)', hi: 'तीन दो पांच' },
   minPlayers: 3,
+  royalTable: true,
   maxPlayers: 3,
   noAutoClose: true,
   onlineBadge: { id: 'teenDoPaanchAce' },

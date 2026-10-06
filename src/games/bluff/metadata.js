@@ -5,6 +5,7 @@ export default {
   lobbySeatCircle: true,
   title: { en: 'Bluff', hi: 'ब्लफ' },
   minPlayers: 3,
+  royalTable: true,
   maxPlayers: 6,
   noAutoClose: true,
   onlineBadge: { id: 'masterBluffer', emoji: '🎭' },
