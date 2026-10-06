@@ -7,7 +7,7 @@ jest.mock('firebase/firestore', () => ({
 }))
 jest.mock('../src/firebase', () => ({ db: {} }))
 
-import { describeOpenTable } from '../src/services/openTables'
+import { describeTable } from '../src/services/openTables'
 
 const game = { maxPlayers: 4 }
 const fresh = { toMillis: () => Date.now() - 60_000 }
@@ -21,39 +21,43 @@ const room = (overrides = {}) => ({
   ...overrides
 })
 
-describe('describeOpenTable', () => {
+describe('describeTable', () => {
   test('lists a lobby with free seats, naming the host and counting seats', () => {
-    expect(describeOpenTable(room(), game)).toMatchObject({
+    expect(describeTable(room(), game)).toMatchObject({
       code: 'ABCD', hostName: 'Host', playerCount: 2, openSeats: 2, inLobby: true
     })
   })
 
-  test('skips a full lobby', () => {
+  test('lists a full lobby with no open seats', () => {
     const players = ['a', 'b', 'c', 'd'].map(id => ({ id, name: id }))
-    expect(describeOpenTable(room({ players, hostId: 'a' }), game)).toBeNull()
+    expect(describeTable(room({ players, hostId: 'a' }), game)).toMatchObject({ openSeats: 0, playerIds: ['a', 'b', 'c', 'd'] })
   })
 
-  test('skips a table the host hid', () => {
-    expect(describeOpenTable(room({ isPublic: false }), game)).toBeNull()
+  test('flags a table the host hid', () => {
+    expect(describeTable(room({ isPublic: false }), game)).toMatchObject({ isPublic: false })
+  })
+
+  test('skips a finished game', () => {
+    expect(describeTable(room({ state: { phase: 'results' } }), game)).toBeNull()
   })
 
   test('skips an expired table', () => {
     const old = { toMillis: () => Date.now() - 3 * 60 * 60 * 1000 }
-    expect(describeOpenTable(room({ createdAt: old }), game)).toBeNull()
+    expect(describeTable(room({ createdAt: old }), game)).toBeNull()
   })
 
-  test('skips an underway game with no vacated seat', () => {
-    expect(describeOpenTable(room({ state: { phase: 'playing' } }), game)).toBeNull()
+  test('lists an underway game with no vacated seat as watch-only', () => {
+    expect(describeTable(room({ state: { phase: 'playing' } }), game)).toMatchObject({ openSeats: 0, inLobby: false })
   })
 
   test('lists an underway game that has a vacated seat', () => {
-    expect(describeOpenTable(room({ state: { phase: 'playing' }, openSeats: ['p3'] }), game)).toMatchObject({
+    expect(describeTable(room({ state: { phase: 'playing' }, openSeats: ['p3'] }), game)).toMatchObject({
       openSeats: 1, inLobby: false
     })
   })
 
   test('skips unknown games and empty rooms', () => {
-    expect(describeOpenTable(room(), undefined)).toBeNull()
-    expect(describeOpenTable(room({ players: [] }), game)).toBeNull()
+    expect(describeTable(room(), undefined)).toBeNull()
+    expect(describeTable(room({ players: [] }), game)).toBeNull()
   })
 })

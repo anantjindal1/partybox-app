@@ -14,6 +14,7 @@ import { useProfile } from '../hooks/useProfile'
 import { useOnlineStatus } from '../hooks/useOnlineStatus'
 import { useOnlineRoom } from '../hooks/useOnlineRoom'
 import { joinRoom, joinAsSpectator, LOBBY_PHASES } from '../services/room'
+import { rememberActiveRoom, forgetActiveRoom, isRejoinable } from '../services/activeRoom'
 import { getGame } from '../games/registry'
 import { trackEvent } from '../lib/analytics/core'
 import { publicUrl } from '../lib/publicUrl'
@@ -81,6 +82,13 @@ export default function Room() {
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (notFound || expired) return forgetActiveRoom(code)
+    if (!room || !myId) return
+    if (isRejoinable(room, myId)) rememberActiveRoom(code)
+    else forgetActiveRoom(code)
+  }, [room, myId, notFound, expired, code])
 
   // Auto-close room after results phase starts (duration configurable per-game via resultsDurationMs)
   // Games with noAutoClose: true handle their own navigation (e.g. FirstBell has Rematch/Home buttons)

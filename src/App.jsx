@@ -11,6 +11,7 @@ import TestLab from './pages/TestLab'
 import Tables from './pages/Tables'
 import { ConsentBanner } from './components/ConsentBanner'
 import NativeBridge from './components/NativeBridge'
+import ActiveRoomResume from './components/ActiveRoomResume'
 
 // Mounts globally so XP syncs whenever the device comes back online,
 // regardless of which page the user is currently on.
@@ -30,6 +31,7 @@ export default function App() {
         <BrowserRouter>
           <GlobalXPSync />
           <NativeBridge />
+          <ActiveRoomResume />
           <ConsentBanner />
           <Routes>
             <Route path="/" element={<Home />} />

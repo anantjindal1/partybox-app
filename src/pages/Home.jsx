@@ -13,6 +13,7 @@ import { useOnlineStatus } from '../hooks/useOnlineStatus'
 import { games } from '../games/registry'
 import { joinRoom } from '../services/room'
 import { getInProgressGames } from '../services/gameStatePersistence'
+import { findActiveRoom } from '../services/activeRoom'
 import PlayerIdentityModal from '../components/PlayerIdentityModal'
 import AdBanner from '../components/AdBanner'
 import GetAppBanner from '../components/GetAppBanner'
@@ -92,6 +93,14 @@ export default function Home() {
   }, [category])
 
   const inProgressGames = getInProgressGames()
+
+  const [activeRoom, setActiveRoom] = useState(null)
+  useEffect(() => {
+    let cancelled = false
+    findActiveRoom().then(room => { if (!cancelled) setActiveRoom(room) })
+    return () => { cancelled = true }
+  }, [])
+  const activeRoomGame = activeRoom && games.find(g => g.slug === activeRoom.gameSlug)
 
   // Hero: show only for new users with no in-progress games
   const showHero =
@@ -276,6 +285,22 @@ export default function Home() {
                 Play solo, pass the phone, or challenge friends online
               </p>
             </div>
+          )}
+
+          {activeRoomGame && (
+            <Card
+              onClick={() => navigate(`/room/${activeRoom.code}`)}
+              className="mb-6 w-full max-w-lg flex items-center gap-3 px-4 py-3 border-gold/60 !bg-surfaceElevated/80 backdrop-blur-sm"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="text-gold shrink-0"><path d="M8 5v14l11-7z" /></svg>
+              <span className="flex-1 min-w-0 text-left">
+                <span className="block text-textPrimary font-semibold truncate">
+                  Your {activeRoomGame.title?.[lang] ?? activeRoomGame.title?.en ?? activeRoomGame.slug} table is still on
+                </span>
+                <span className="block text-textMuted text-xs">Room {activeRoom.code}</span>
+              </span>
+              <span className="text-gold font-bold text-sm">Rejoin</span>
+            </Card>
           )}
 
           {/* ── In-progress games strip ─────────────────────────────────────── */}

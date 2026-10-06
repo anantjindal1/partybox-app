@@ -55,8 +55,8 @@ BillDesk KYC approval (Play payments profile), 12 testers opting in to
 the closed test, Play review of v4.
 
 **User's to-dos:**
-1. Upload v7 (`~/Desktop/partybox-v7.aab`, 1.0.6 — AI players + v6's feedback links; supersedes the v6 file); v5 is uploaded. Testers: 12/23 opted in on 2026-10-02 — production ~2026-10-16; send the drafted welcome message and run game nights.
-2. After BillDesk approves: add bank account (Payments → How you get paid).
+1. v7 uploaded (2026-10-05). Testers: 12/23 opted in on 2026-10-02 — production ~2026-10-16. Next upload is v8 (rejoin fix, Open Tables "All tables", Teri royal table).
+2. PARKED until after production launch: BillDesk appears to want the app live before approving (they asked why the app isn't visible; user replied 2026-10-05, automated reminders continue). After approval: add bank account (Payments → How you get paid).
 3. Create one-time product `remove_ads` (₹99) in Play Console, then
    RevenueCat: import product → entitlement `no_ads` → default offering
    (Lifetime package), marked Current.
@@ -67,7 +67,7 @@ the closed test, Play review of v4.
 7. Add YouTube video `https://www.youtube.com/watch?v=O9nyqjPLn0w` to the
    store listing.
 8. Apply for AdSense (web banners are already coded).
-9. Buy a custom domain (helps BillDesk "www." field, AdSense, invite trust).
+9. PARKED until after launch: buy a custom domain (helps BillDesk "www." field, AdSense, invite trust).
 10. Send the list of game UI improvements.
 
 **Claude's to-dos (need the user's go-ahead):**

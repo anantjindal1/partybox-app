@@ -5,27 +5,29 @@ import { ROOM_TTL_MS, LOBBY_PHASES, isRoomExpired } from './room'
 const MAX_TABLES = 50
 
 /**
- * A room as a row on the Open Tables page, or null if nobody new could
- * enter it: hidden by its host, expired, full, or underway with no
- * vacated seat. In the lobby every unfilled seat is open; once underway,
- * only seats a player gave up mid-series (`openSeats`) are.
+ * A room as a row on the Open Tables page, or null if there's nothing to
+ * show: expired, empty, finished, or an unknown game. In the lobby every
+ * unfilled seat is open; once underway, only seats a player gave up
+ * mid-series (`openSeats`) are. A full table is still a row (openSeats 0)
+ * — it can be watched, and its own players need it to find their way back.
  */
-export function describeOpenTable(room, game) {
-  if (!room || !game || room.isPublic === false || isRoomExpired(room)) return null
+export function describeTable(room, game) {
+  if (!room || !game || isRoomExpired(room)) return null
   const players = room.players ?? []
-  if (players.length === 0) return null
+  if (players.length === 0 || room.state?.phase === 'results') return null
   const inLobby = LOBBY_PHASES.has(room.state?.phase)
-  const openSeats = inLobby ? game.maxPlayers - players.length : (room.openSeats?.length ?? 0)
-  if (openSeats <= 0) return null
+  const openSeats = Math.max(0, inLobby ? game.maxPlayers - players.length : (room.openSeats?.length ?? 0))
   const host = players.find(p => p.id === room.hostId) ?? players[0]
   return {
     code: room.code,
     slug: room.gameSlug,
     hostName: host.name,
     hostAvatar: host.avatar,
+    playerIds: players.map(p => p.id),
     playerCount: players.length,
     openSeats,
     inLobby,
+    isPublic: room.isPublic !== false,
     createdAtMs: room.createdAt?.toMillis?.() ?? null
   }
 }
