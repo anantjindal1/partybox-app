@@ -31,9 +31,20 @@ That's it. `core.js` itself imports nothing from the rest of the app.
    configureAnalytics({
      db,                                  // your Firestore instance
      getDeviceId: () => myDeviceIdFn(),   // sync or async, your choice
+     // optional:
+     getPlatform: () => 'android_app',    // default: user-agent OS
+     getCommonProps: async () => ({ uid, appVersion, isInternal }),
+     getConsent: () => true,              // true | false | null (unanswered)
    })
    startSession()                         // starts the session-time clock
+   if (deviceIdIsBrandNew) trackEvent('first_open', null)
    ```
+
+   `getCommonProps` fields are stamped on every event and the device doc.
+   With `getConsent`, events queue in memory while it returns `null`;
+   call `onConsentChange()` whenever the answer changes to flush them
+   (granted) or drop them (denied). Each decision also bumps an
+   identifier-free `consentGranted`/`consentDenied` daily counter.
 
 4. Anywhere in the app, call `trackEvent(event, thing, props)`:
 
@@ -80,11 +91,15 @@ published. A write can still succeed against stale rules while reads
 
 Three flat collections, no subcollections:
 
-- **`analytics_events`** — one doc per event: `{ event, deviceId, game, ts, props }`.
-  This is the raw log everything else can be recomputed from.
-- **`analytics_devices`** — one doc per device, upserted every session:
-  `{ deviceId, firstSeen, lastSeen, sessionCount, platform, totalTimeMs }`.
-  Row count = unique users. `totalTimeMs` accumulates screen time.
+- **`analytics_events`** — one doc per event: `{ event, deviceId, game, ts,
+  clientTs, sessionId, platform, os, ...commonProps, props }`. `ts` is
+  write time; `clientTs` is when it happened (differs for events queued
+  before consent). This is the raw log everything else can be recomputed from.
+- **`analytics_devices`** — one doc per device, upserted on every event:
+  `{ deviceId, firstSeen, lastSeen, sessionCount, platform, os,
+  ...commonProps, totalTimeMs }`. Row count = unique users. `firstSeen` is
+  set only by `first_open` (docs written before 2026-10-06 hold the last
+  session start instead — use the earliest event per device for those).
 - **`analytics_daily`** — one doc per calendar day (`YYYY-MM-DD`):
   counters incremented per event type (`sessions`, `gamesStarted`,
   `gamesCompleted`, `gamesAbandoned`, `rematches`, `totalTimeMs`, ...).
@@ -96,7 +111,10 @@ Deliberately the simplest thing that works: one timestamp recorded at
 `startSession()`, one duration computed when the tab is hidden or closed
 (`visibilitychange` / `pagehide`) and logged as `session_end` with
 `durationMs`. No heartbeat, no polling, no ongoing cost while the app
-sits idle in a background tab.
+sits idle in a background tab. Returning within 30 minutes continues the
+same `sessionId` (another `session_end` logs the extra time); after that,
+a new `session_start` fires. Sum `durationMs` per `sessionId` for session
+length.
 
 **On tab close specifically**, a normal async Firestore write often loses
 the race against the browser tearing the page down — confirmed live

@@ -1,6 +1,7 @@
 import { db } from '../firebase'
 import { collection, doc, getDocs, query, where, writeBatch } from 'firebase/firestore'
 import { getDeviceId } from './profile'
+import { resetGoogleAnalytics } from './analytics'
 
 const BATCH_LIMIT = 400
 
@@ -32,6 +33,7 @@ export async function deleteMyData() {
       doc(db, 'analytics_devices', deviceId)
     ])
   }
+  resetGoogleAnalytics()
   localStorage.clear()
   sessionStorage.clear()
   await new Promise(resolve => {

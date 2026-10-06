@@ -4,7 +4,7 @@ import { useOnlineRoom } from '../../hooks/useOnlineRoom'
 import { useDevMode } from '../../hooks/useDevMode'
 import { awardXP } from '../../services/xp'
 import { writeGameStats } from '../../services/stats'
-import { trackEvent } from '../../services/analytics'
+import { trackEvent } from '../../lib/analytics/core'
 import { useDCStrings } from './strings'
 import { Timer } from './Timer'
 import { buildWordQueue } from './wordpacks'
@@ -67,8 +67,7 @@ export default function DumbCharadesOnline({ code }) {
     if (room?.roomType === 'ranked') {
       writeGameStats('dumb-charades', { won: isWinner, gamesPlayed: 1 })
     }
-    trackEvent('match_completed', {
-      game: 'dumb-charades',
+    trackEvent('match_completed', 'dumb-charades', {
       roomType: room?.roomType,
       myScore,
       isWinner,
@@ -303,7 +302,7 @@ function OnlineSetupScreen({ isHost, roomState, setState, players, myId, t, lang
       lastTurnResult: null,
       usedWords: [],
     })
-    trackEvent('room_created', { game: 'dumb-charades', roomType: 'casual' })
+    trackEvent('room_created', 'dumb-charades', { roomType: 'casual' })
   }
 
   if (!isHost) {

@@ -4,7 +4,6 @@ import { useLang } from '../../store/LangContext'
 import { useOnlineRoom } from '../../hooks/useOnlineRoom'
 import { awardXP } from '../../services/xp'
 import { writeGameStats } from '../../services/stats'
-import { trackEvent } from '../../services/analytics'
 import { fetchGameQuestions } from '../../services/questions'
 import { resolveTieBreak } from './scoring'
 import { recordQuestionsShown } from '../../services/questionStats'
@@ -148,8 +147,7 @@ export default function RapidFireBattle({ code }) {
     if (room?.roomType === 'ranked') {
       writeGameStats('firstbell', { won: isWinner, gamesPlayed: 1 })
     }
-    trackEvent('match_completed', {
-      game: 'firstbell',
+    trackAnalyticsEvent('match_completed', 'firstbell', {
       roomType: room?.roomType,
       myScore,
       isWinner,
@@ -448,7 +446,7 @@ export default function RapidFireBattle({ code }) {
     const questionStart = roomState.questionStartedAt ?? Date.now()
     const elapsedMs = Date.now() - questionStart
     await sendAction({ type: 'ANSWER', payload: { optionIdx, answeredAt: Date.now(), elapsedMs: Math.min(Math.max(elapsedMs, 0), 15000) } })
-    trackEvent('question_answered', { game: 'firstbell', optionIdx })
+    trackAnalyticsEvent('question_answered', 'firstbell', { optionIdx })
     trackAnalyticsEvent('question_answered', 'firstbell')
   }
 
@@ -469,7 +467,7 @@ export default function RapidFireBattle({ code }) {
       fastestTimes: {},
       bestStreaks: {},
     })
-    trackEvent('room_created', { game: 'firstbell', category })
+    trackAnalyticsEvent('room_created', 'firstbell', { category })
   }
 
   // ─── handleRematch ─────────────────────────────────────────────────────────

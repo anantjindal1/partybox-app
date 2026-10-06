@@ -19,6 +19,19 @@ function getTestOverrideId() {
   return sessionStorage.getItem(TEST_DEVICE_ID_KEY)
 }
 
+let createdThisLoad = false
+
+export function isTestIdentity() {
+  return Boolean(getTestOverrideId())
+}
+
+// True once this load has minted a brand-new device id — i.e. the first
+// open on this device (or the first after "Delete my data").
+export function wasDeviceIdCreatedThisLoad() {
+  getDeviceId()
+  return createdThisLoad
+}
+
 export function getDeviceId() {
   const testId = getTestOverrideId()
   if (testId) return testId
@@ -26,6 +39,7 @@ export function getDeviceId() {
   if (!id) {
     id = crypto.randomUUID()
     localStorage.setItem(DEVICE_ID_KEY, id)
+    createdThisLoad = true
   }
   return id
 }

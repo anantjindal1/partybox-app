@@ -17,13 +17,15 @@ const firebaseConfig = {
 let app = null
 let db = null
 let analytics = null
+let auth = null
 if (firebaseConfig.apiKey && firebaseConfig.projectId) {
   try {
     app = initializeApp(firebaseConfig)
     db = getFirestore(app)
     // Groundwork for rules requiring request.auth: fails harmlessly until
     // Anonymous sign-in is enabled in the Firebase console.
-    signInAnonymously(getAuth(app)).catch(e => console.warn('Anonymous sign-in unavailable', e.code))
+    auth = getAuth(app)
+    signInAnonymously(auth).catch(e => console.warn('Anonymous sign-in unavailable', e.code))
   } catch (e) {
     console.warn('Firebase init failed — running in offline-only mode', e)
   }
@@ -40,4 +42,4 @@ export function enableFirebaseAnalytics() {
   }
 }
 
-export { db, analytics }
+export { db, analytics, auth }

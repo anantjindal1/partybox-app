@@ -27,6 +27,9 @@
             </intent-filter>
         </activity>
 
+        <!-- Off until the user accepts the consent banner (see services/analytics.js). -->
+        <meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
+
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3358980300827715~1808564745" />
