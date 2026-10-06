@@ -18,6 +18,7 @@ const EXPOSED_TARGET_WIDTH = 150
 // defenders, never tapped, no accuracy concern to fix there.
 const EXPOSED_FRONT_CARD_WIDTH = 46
 const EXPOSED_FRONT_TARGET_WIDTH = 340
+const ROYAL_FRONT_CARD_WIDTH = 62
 
 /**
  * One opponent's seat: avatar, name, a shallow face-down card stack (always
@@ -53,8 +54,10 @@ export function PlayerSeat({
   onExposedCardTap,
   disabledExposedCardIds = [],
   highlightedExposedCardIds = [],
-  selectedExposedCardIds = []
+  selectedExposedCardIds = [],
+  variant
 }) {
+  const royal = variant === 'royal'
   const glowStyle = isActiveTurn ? { '--turn-glow-color': `rgb(var(--color-accent-${accent}-rgb))` } : {}
   const interactive = !!onExposedCardTap
 
@@ -87,13 +90,14 @@ export function PlayerSeat({
           const isSelected = selectedExposedCardIds.includes(cardId)
           const isPlaying = playingCardId === cardId
           const Wrapper = interactive ? 'button' : 'div'
+          const disabledClass = !isDisabled ? '' : royal ? 'royal-dim pointer-events-none' : 'grayscale opacity-40 pointer-events-none'
           return (
             <Wrapper
               key={cardId}
               type={interactive ? 'button' : undefined}
               disabled={interactive ? (isDisabled || (!!playingCardId && !isPlaying)) : undefined}
               onClick={interactive ? () => handleExposedTap(cardId) : undefined}
-              className={`${isPlaying ? 'animate-play-out' : 'transition-transform duration-150'} ${isDisabled ? 'grayscale opacity-40 pointer-events-none' : ''}`}
+              className={`${isPlaying ? 'animate-play-out' : 'transition-transform duration-150'} ${disabledClass}`}
               style={{
                 marginLeft: i === 0 ? 0 : step - cardWidth,
                 transform: isPlaying ? undefined : isSelected ? 'translateY(-8px)' : undefined,
@@ -106,6 +110,8 @@ export function PlayerSeat({
                 suit={suit}
                 size={size}
                 highlighted={isHighlighted}
+                variant={variant}
+                glow={royal && interactive && !isDisabled}
               />
             </Wrapper>
           )
@@ -120,21 +126,27 @@ export function PlayerSeat({
       style={style}
     >
       <div
-        className={`relative flex items-center justify-center w-11 h-11 rounded-full bg-surfaceElevated border-[1.5px] border-border ${isActiveTurn ? 'animate-turn-glow' : ''}`}
-        style={glowStyle}
+        className={royal
+          ? `royal-avatar relative flex items-center justify-center w-11 h-11 rounded-full ${isActiveTurn ? 'royal-avatar-active' : ''}`
+          : `relative flex items-center justify-center w-11 h-11 rounded-full bg-surfaceElevated border-[1.5px] border-border ${isActiveTurn ? 'animate-turn-glow' : ''}`}
+        style={royal ? undefined : glowStyle}
       >
         <span className="text-xl leading-none">{player?.avatar ?? '🎮'}</span>
       </div>
       <span className="flex items-center">
         <span
-          className={`text-xs truncate max-w-[64px] ${isActiveTurn ? 'font-extrabold' : 'font-semibold text-textPrimary'}`}
-          style={isActiveTurn ? { color: `rgb(var(--color-accent-${accent}-rgb))` } : undefined}
+          className={royal
+            ? `royal-name text-[11px] truncate max-w-[80px] ${isActiveTurn ? '!text-[#f6d690]' : ''}`
+            : `text-xs truncate max-w-[64px] ${isActiveTurn ? 'font-extrabold' : 'font-semibold text-textPrimary'}`}
+          style={isActiveTurn && !royal ? { color: `rgb(var(--color-accent-${accent}-rgb))` } : undefined}
         >
           {player?.name ?? 'Player'}
         </span>
         {player?.isBot && <AiTag />}
       </span>
-      {label && <span className="text-[10px] text-textMuted -mt-1">{label}</span>}
+      {label && (royal
+        ? <span className="royal-pill text-[8.5px] px-2 py-0.5 whitespace-nowrap">{label}</span>
+        : <span className="text-[10px] text-textMuted -mt-1">{label}</span>)}
       {exposedCards ? (
         // Absolutely positioned (not in normal flow) so a large exposed
         // hand doesn't inflate this seat's own height — CardTable centers
@@ -143,7 +155,9 @@ export function PlayerSeat({
         // everything above it, like a game's score bar) far off target.
         exposedHandSide === 'front' ? (
           <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2">
-            {renderFanRow(exposedCards, EXPOSED_FRONT_TARGET_WIDTH, EXPOSED_FRONT_CARD_WIDTH, 'md')}
+            {royal
+              ? renderFanRow(exposedCards, EXPOSED_FRONT_TARGET_WIDTH, ROYAL_FRONT_CARD_WIDTH, 'lg')
+              : renderFanRow(exposedCards, EXPOSED_FRONT_TARGET_WIDTH, EXPOSED_FRONT_CARD_WIDTH, 'md')}
           </div>
         ) : (
           // Anchored from the edge nearer this seat's own position (not
@@ -166,12 +180,13 @@ export function PlayerSeat({
               key={i}
               face="down"
               size="sm"
+              variant={variant}
               className="absolute top-0"
               style={{ left: i * 8 }}
             />
           ))}
           {cardCount > 0 && (
-            <span className="absolute -bottom-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-maroon text-onMaroon text-[10px] font-bold flex items-center justify-center">
+            <span className={`absolute -bottom-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center ${royal ? 'royal-gold-pill !rounded-full !tracking-normal !px-1' : 'bg-maroon text-onMaroon'}`}>
               {cardCount}
             </span>
           )}

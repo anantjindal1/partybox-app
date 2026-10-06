@@ -3,6 +3,7 @@ export default {
   supportsBots: true,
   hidePlayerListInGame: true,
   lobbySeatCircle: true,
+  royalTable: true,
   title: { en: 'Teri', hi: 'तेरी' },
   minPlayers: 4,
   maxPlayers: 4,

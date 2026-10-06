@@ -1,3 +1,5 @@
+import '@fontsource/cinzel/600.css'
+import '@fontsource/cinzel/700.css'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'

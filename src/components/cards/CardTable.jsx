@@ -7,6 +7,8 @@ import { getSeatPosition, getHandStep } from './seatLayout'
 import { tapHaptic, turnHaptic } from '../../lib/haptics'
 
 const HAND_CARD_WIDTH = 46 // matches PlayingCard's 'md' size
+const ROYAL_HAND_CARD_WIDTH = 62 // 'lg' cards, spaced tighter so 13 still fit a 375px phone
+const ROYAL_HAND_TARGET_WIDTH = 316
 const EXPOSED_SIDE_LIFT_PX = 48
 
 /**
@@ -37,11 +39,16 @@ export function CardTable({
   // selectedCardIds (e.g. Bluff, which lets a player stage several cards
   // before submitting) — no lock, no play-out animation, since the card
   // never actually leaves the hand on tap.
-  tapMode = 'play'
+  tapMode = 'play',
+  // 'royal': the dark felt table with gold-rimmed rings and glowing cards
+  // (see .royal-* in index.css). Omitted, every game renders as before.
+  variant
 }) {
   const [playingCardId, setPlayingCardId] = useState(null)
+  const royal = variant === 'royal'
   const accentClasses = CARD_GAME_ACCENT_CLASSES[accent] ?? CARD_GAME_ACCENT_CLASSES.maroon
-  const step = getHandStep(myHand.length, HAND_CARD_WIDTH)
+  const handCardWidth = royal ? ROYAL_HAND_CARD_WIDTH : HAND_CARD_WIDTH
+  const step = royal ? getHandStep(myHand.length, handCardWidth, ROYAL_HAND_TARGET_WIDTH) : getHandStep(myHand.length, handCardWidth)
   const midIndex = (myHand.length - 1) / 2
 
   // The seat directly opposite the viewer (when one exists — only an
@@ -60,7 +67,7 @@ export function CardTable({
   // widened accordingly so the taller fan doesn't push the seat's own
   // avatar/name above the table's top clearance again (a real bug hit
   // once already, see PlayerSeat.jsx's absolute-positioning comment).
-  const tableTopMargin = frontSeatHasExposedHand ? 'mt-56' : hasFrontSeat ? 'mt-32' : 'mt-10'
+  const tableTopMargin = frontSeatHasExposedHand ? (royal ? 'mt-[200px]' : 'mt-56') : hasFrontSeat ? 'mt-32' : 'mt-10'
 
   // Once the real state update actually removes the played card from
   // myHand, clear the local "mid-animation" flag — tying the play-out
@@ -98,9 +105,12 @@ export function CardTable({
           specifically when the front seat has an exposed hand growing
           upward into that same space (see tableTopMargin above). */}
       <div
-        className={`relative w-full ${tableTopMargin} rounded-[50%] border-[3px] shadow-inner ${accentClasses.border} ${accentClasses.soft}`}
-        style={{ aspectRatio: '2.1 / 1', minHeight: 140 }}
+        className={royal
+          ? `royal-table w-full ${tableTopMargin}`
+          : `relative w-full ${tableTopMargin} rounded-[50%] border-[3px] shadow-inner ${accentClasses.border} ${accentClasses.soft}`}
+        style={{ aspectRatio: royal ? '1.8 / 1' : '2.1 / 1', minHeight: 140 }}
       >
+        {royal && <RoyalTableSurface />}
         {otherSeats.map((seat, i) => {
           const pos = getSeatPosition(i, otherSeats.length)
           const isFrontSeat = hasFrontSeat && i === middleIndex
@@ -130,6 +140,7 @@ export function CardTable({
                 disabledExposedCardIds={seat.disabledExposedCardIds}
                 highlightedExposedCardIds={seat.highlightedExposedCardIds}
                 selectedExposedCardIds={seat.selectedExposedCardIds}
+                variant={variant}
               />
             </div>
           )
@@ -152,8 +163,10 @@ export function CardTable({
             const { rank, suit } = parseCard(entry.card)
             return (
               <div key={entry.card} className="flex flex-col items-center gap-1 animate-fade-in" style={{ animationDelay: `${i * 60}ms` }}>
-                <PlayingCard face="up" rank={rank} suit={suit} size="sm" />
-                {entry.playerName && <span className="text-[10px] text-textMuted">{entry.playerName}</span>}
+                <PlayingCard face="up" rank={rank} suit={suit} size={royal ? 'md' : 'sm'} variant={variant} glow={royal} />
+                {entry.playerName && (
+                  <span className={royal ? 'royal-name text-[9px]' : 'text-[10px] text-textMuted'}>{entry.playerName}</span>
+                )}
               </div>
             )
           })}
@@ -166,15 +179,19 @@ export function CardTable({
           too subtle a cue for "it's your turn" on a small phone screen —
           an explicit label plus the game's own accent color reads clearly
           without needing to spot a faint tint. */}
-      {myIsActiveTurn && (
+      {myIsActiveTurn && (royal ? (
+        <p className="text-center -mb-1">
+          <span className="royal-gold-pill inline-block text-xs px-4 py-1.5">Your Turn</span>
+        </p>
+      ) : (
         <p className={`text-center text-xs font-extrabold uppercase tracking-wide -mb-2 ${accentClasses.text}`}>
           Your Turn
         </p>
-      )}
-      <div className="overflow-x-auto">
+      ))}
+      <div className={royal ? '' : 'overflow-x-auto'}>
         <div
-          className={`flex justify-center items-end w-fit mx-auto px-2 pb-1 pt-3 rounded-2xl border-2 ${
-            myIsActiveTurn ? `${accentClasses.soft} ${accentClasses.border}` : 'border-transparent'
+          className={`flex justify-center items-end w-fit mx-auto ${royal ? 'px-1' : 'px-2'} pb-1 pt-3 rounded-2xl border-2 ${
+            myIsActiveTurn && !royal ? `${accentClasses.soft} ${accentClasses.border}` : 'border-transparent'
           }`}
         >
           {myHand.map((cardId, i) => {
@@ -185,17 +202,20 @@ export function CardTable({
             const isDisabled = disabledCardIds.includes(cardId)
             const isHighlighted = highlightedCardIds.includes(cardId)
             const isPlaying = playingCardId === cardId
+            // Royal: a hand that simply isn't on turn stays bright (just
+            // unglowing); only illegal cards on my own turn dim down.
+            const disabledClass = !isDisabled ? '' : !royal
+              ? 'grayscale opacity-35 pointer-events-none'
+              : myIsActiveTurn ? 'royal-dim pointer-events-none' : 'pointer-events-none'
             return (
               <button
                 key={cardId}
                 type="button"
                 disabled={isDisabled || (!!playingCardId && !isPlaying)}
                 onClick={() => handleTap(cardId)}
-                className={`${dealing ? 'animate-deal-in' : ''} ${isPlaying ? 'animate-play-out' : 'transition-transform duration-150'} ${
-                  isDisabled ? 'grayscale opacity-35 pointer-events-none' : ''
-                }`}
+                className={`${dealing ? 'animate-deal-in' : ''} ${isPlaying ? 'animate-play-out' : 'transition-transform duration-150'} ${disabledClass}`}
                 style={{
-                  marginLeft: i === 0 ? 0 : step - HAND_CARD_WIDTH,
+                  marginLeft: i === 0 ? 0 : step - handCardWidth,
                   transform: isPlaying ? undefined : `rotate(${rotate}deg) translateY(${isSelected ? -14 : 0}px)`,
                   zIndex: isSelected || isPlaying ? 50 : i,
                   animationDelay: dealing ? `${i * 50}ms` : undefined,
@@ -206,9 +226,11 @@ export function CardTable({
                   face="up"
                   rank={rank}
                   suit={suit}
-                  size="md"
+                  size={royal ? 'lg' : 'md'}
                   highlighted={isHighlighted && !isPlaying}
-                  className={isPlaying ? `border-2 ${accentClasses.border}` : ''}
+                  variant={variant}
+                  glow={royal && myIsActiveTurn && !isDisabled}
+                  className={isPlaying && !royal ? `border-2 ${accentClasses.border}` : ''}
                 />
               </button>
             )
@@ -216,5 +238,25 @@ export function CardTable({
         </div>
       </div>
     </div>
+  )
+}
+
+// Copper rim, gold line, dark ring, gold hairline, lit felt, inner rings —
+// purely decorative layers behind the seats and play area.
+function RoyalTableSurface() {
+  return (
+    <>
+      <div className="royal-ring royal-rim inset-0" />
+      <div className="royal-ring inset-[10px] bg-gradient-to-b from-[#f7dca0] to-[#b98a3e]" />
+      <div className="royal-ring inset-[12px] bg-[#082224]" />
+      <div className="royal-ring inset-[17px] border border-[#f0cf8e]/55" />
+      <div className="royal-ring royal-felt inset-[18px]">
+        <div className="royal-beam left-[18%]" />
+        <div className="royal-beam left-[46%] !w-[34px]" />
+        <div className="royal-beam left-[70%]" />
+      </div>
+      <div className="royal-ring inset-[30px] border border-white/10" />
+      <div className="royal-ring inset-[44px] border border-dashed border-[#f0cf8e]/10" />
+    </>
   )
 }

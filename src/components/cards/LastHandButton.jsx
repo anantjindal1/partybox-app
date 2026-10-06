@@ -9,7 +9,7 @@ import { CARD_GAME_ACCENT_CLASSES } from '../cardGameAccent'
  * `lastHand` is `{ cards: [{ playerId, card }], winnerId, message? }`, as
  * each game persists it when a hand completes.
  */
-export function LastHandButton({ lastHand, players, accent = 'maroon' }) {
+export function LastHandButton({ lastHand, players, accent = 'maroon', variant }) {
   const [open, setOpen] = useState(false)
   if (!lastHand) return null
   const accentClasses = CARD_GAME_ACCENT_CLASSES[accent] ?? CARD_GAME_ACCENT_CLASSES.maroon
@@ -24,7 +24,9 @@ export function LastHandButton({ lastHand, players, accent = 'maroon' }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className={`self-center text-sm font-bold border-[1.5px] rounded-xl px-4 py-2 ${accentClasses.text} ${accentClasses.border} ${accentClasses.soft}`}
+        className={variant === 'royal'
+          ? 'royal-pill self-center px-4 min-h-[36px] text-[10px]'
+          : `self-center text-sm font-bold border-[1.5px] rounded-xl px-4 py-2 ${accentClasses.text} ${accentClasses.border} ${accentClasses.soft}`}
       >
         View Last Hand
       </button>

@@ -11,9 +11,11 @@ const SIZES = {
  * footprint (not a Tailwind scale step) since cards need a precise,
  * consistent aspect ratio across hand/table/opponent-stack contexts.
  */
-export function PlayingCard({ face = 'up', rank, suit, size = 'md', highlighted = false, className = '', style }) {
+export function PlayingCard({ face = 'up', rank, suit, size = 'md', highlighted = false, className = '', style, variant, glow = false }) {
   const dims = SIZES[size]
   const boxStyle = { width: dims.w, height: dims.h, ...style }
+
+  if (variant === 'royal') return <RoyalCard face={face} rank={rank} suit={suit} dims={dims} highlighted={highlighted} glow={glow} className={className} style={boxStyle} />
 
   if (face === 'down') {
     return (
@@ -41,6 +43,29 @@ export function PlayingCard({ face = 'up', rank, suit, size = 'md', highlighted 
       style={boxStyle}
     >
       <div className={`flex flex-col items-start leading-none ${dims.rank} font-bold ${colorClass}`}>
+        <span>{rank}</span>
+        <SuitGlyph width={dims.suit} height={dims.suit} />
+      </div>
+      <div className={`flex-1 flex items-center justify-center ${colorClass}`}>
+        <SuitGlyph width={dims.glyph} height={dims.glyph} />
+      </div>
+    </div>
+  )
+}
+
+// The royal table's card: ivory face with a light sheen, gold trump border,
+// and an optional glow for cards that are live to play.
+function RoyalCard({ face, rank, suit, dims, highlighted, glow, className, style }) {
+  if (face === 'down') return <div className={`royal-back ${className}`} style={style} />
+
+  const SuitGlyph = SUIT_ICONS[suit]
+  const colorClass = SUIT_COLOR[suit] === 'cardRed' ? 'royal-red' : 'royal-black'
+  return (
+    <div
+      className={`royal-card relative overflow-hidden rounded-md flex flex-col justify-between p-1 ${highlighted ? 'royal-trump' : ''} ${glow ? 'royal-glow' : ''} ${className}`}
+      style={style}
+    >
+      <div className={`royal-font flex flex-col items-start leading-none ${dims.rank} font-bold ${colorClass}`}>
         <span>{rank}</span>
         <SuitGlyph width={dims.suit} height={dims.suit} />
       </div>

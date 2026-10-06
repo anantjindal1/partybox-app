@@ -14,6 +14,8 @@ import { buildTurnOrderFromPartner, orderSeatsForViewer } from '../../multiplaye
 import { CardTable } from '../../components/cards/CardTable'
 import { PlayingCard } from '../../components/cards/PlayingCard'
 import { TableScoreBar } from '../../components/cards/TableScoreBar'
+import { FeltPicker } from '../../components/cards/FeltPicker'
+import { SUIT_ICONS, SUIT_COLOR } from '../../components/cards/suitIcons'
 import { SUIT_TEXT_CLASS } from '../../components/cards/suitIcons'
 import { HandWinnerOverlay } from '../../components/cards/HandWinnerOverlay'
 import { LastHandButton } from '../../components/cards/LastHandButton'
@@ -43,6 +45,16 @@ import { awardBadge } from '../../services/profile'
 import metadata from './metadata'
 
 const SUIT_LABEL = { spades: '♠', hearts: '♥', diamonds: '♦', clubs: '♣' }
+
+function renderTrumpChip(suit) {
+  const Glyph = SUIT_ICONS[suit]
+  if (!Glyph) return null
+  return (
+    <span className={`royal-chip ${SUIT_COLOR[suit] === 'cardRed' ? 'royal-red' : 'royal-black'}`}>
+      <Glyph width={15} height={15} />
+    </span>
+  )
+}
 
 function getPartnerOf(playerId, turnOrder) {
   const teamA = getTeamA(turnOrder)
@@ -162,9 +174,9 @@ export default function Teri({ code }) {
       <>
         <button
           onClick={() => setShowLastRound(true)}
-          className="self-center text-sm font-bold text-cobalt border-[1.5px] border-cobalt bg-cobalt/10 rounded-xl px-4 py-2"
+          className="royal-pill self-center px-4 min-h-[36px] text-[10px]"
         >
-          📜 View Last Round
+          View Last Round
         </button>
         {showLastRound && (
           <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-4 py-8 overflow-y-auto">
@@ -765,7 +777,12 @@ export default function Teri({ code }) {
     const scoreEntries = [
       { label: 'GameLead', value: `${teamHands[gameLeadTeam]}/${roomState.bid}` },
       { label: 'Defenders', value: `${teamHands[defenderTeam]}` },
-      { label: 'Trump', value: SUIT_LABEL[roomState.trumpSuit], valueClassName: SUIT_TEXT_CLASS[roomState.trumpSuit] }
+      {
+        label: 'Trump',
+        value: SUIT_LABEL[roomState.trumpSuit],
+        valueClassName: SUIT_TEXT_CLASS[roomState.trumpSuit],
+        royalValue: renderTrumpChip(roomState.trumpSuit)
+      }
     ]
 
     const partnerName = players.find(p => p.id === partnerOfGameLead)?.name ?? 'partner'
@@ -782,11 +799,12 @@ export default function Teri({ code }) {
 
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
-        <div className="flex flex-wrap justify-center gap-2">
+        <div className="flex flex-wrap justify-center items-center gap-2">
           {renderLastRoundButton()}
-          <LastHandButton lastHand={roomState.lastHand} players={players} accent="cobalt" />
+          <LastHandButton lastHand={roomState.lastHand} players={players} accent="cobalt" variant="royal" />
+          <FeltPicker />
         </div>
-        <TableScoreBar entries={scoreEntries} />
+        <TableScoreBar entries={scoreEntries} variant="royal" />
         <CardTable
           otherSeats={otherSeats}
           myHand={activeHand}
@@ -798,8 +816,12 @@ export default function Teri({ code }) {
           selectedCardIds={selectedCardIds}
           onCardTap={onCardTap}
           accent="cobalt"
+          variant="royal"
         />
-        <p className="text-center text-textMuted text-sm py-2">{statusText}</p>
+        <p className="royal-font text-center text-xs font-bold uppercase tracking-[0.14em] text-[#e8ddc2] py-2 px-2">
+          <span className="inline-block align-middle w-1.5 h-1.5 mr-2 rounded-full bg-[#e9c77e] shadow-[0_0_8px_#e9c77e]" />
+          {statusText}
+        </p>
       </div>
     )
   }

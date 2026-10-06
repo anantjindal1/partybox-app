@@ -20,6 +20,7 @@ import { trackEvent } from '../lib/analytics/core'
 import { publicUrl } from '../lib/publicUrl'
 import FeedbackLink from '../components/FeedbackLink'
 import { BotControls, AiTag } from '../components/BotControls'
+import { useFelt, feltVars } from '../lib/feltColor'
 
 export default function Room() {
   const { code } = useParams()
@@ -28,6 +29,7 @@ export default function Room() {
   const { room, notFound } = useRoom(code)
   const { profile, update: updateProfile } = useProfile()
   const connected = useOnlineStatus()
+  const felt = useFelt()
   const [countdown, setCountdown] = useState(null)
   const [onboarded, setOnboarded] = useState(() => !!localStorage.getItem('partybox_identity_set'))
   const [copied, setCopied] = useState(false)
@@ -190,6 +192,9 @@ export default function Room() {
   const gameInProgress = !LOBBY_PHASES.has(roomState?.phase)
   const spectators = room.spectators ?? []
   const isSpectator = !!myId && spectators.some(p => p.id === myId)
+  // A royal-table game paints the whole room dark while it's underway;
+  // the dark theme tokens keep the header and other chrome readable on it.
+  const royal = !!game?.royalTable && gameInProgress
 
   async function handleEndGame() {
     await endGame()
@@ -224,7 +229,11 @@ export default function Room() {
   }
 
   return (
-    <div className="min-h-screen bg-surface text-textPrimary flex flex-col">
+    <div
+      className={`min-h-screen text-textPrimary flex flex-col ${royal ? 'royal-room' : 'bg-surface'}`}
+      data-theme={royal ? 'dark' : undefined}
+      style={royal ? feltVars(felt) : undefined}
+    >
       <ConnectionOverlay connected={connected} />
       {!onboarded && <PlayerIdentityModal onComplete={handleIdentityComplete} profile={profile} />}
 
