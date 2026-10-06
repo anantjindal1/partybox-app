@@ -9,7 +9,7 @@ import { tapHaptic, turnHaptic } from '../../lib/haptics'
 const HAND_CARD_WIDTH = 46 // matches PlayingCard's 'md' size
 const ROYAL_HAND_CARD_WIDTH = 62 // 'lg' cards, spaced tighter so 13 still fit a 375px phone
 const ROYAL_HAND_TARGET_WIDTH = 316
-const EXPOSED_SIDE_LIFT_PX = 48
+const SIDE_EXPOSED_CARD_WIDTH = 32 // 'sm'
 
 /**
  * Shared card-table layout: an oval "table" surface with other players'
@@ -62,6 +62,11 @@ export function CardTable({
   const middleIndex = Math.floor((otherSeats.length - 1) / 2)
   const hasFrontSeat = otherSeats.length % 2 === 1
   const frontSeatHasExposedHand = hasFrontSeat && !!otherSeats[middleIndex]?.exposedCards
+  // A side seat's exposed hand (Teri's dummy, seen by a defender) can't fit
+  // beside the play area on a phone — it renders as its own row between
+  // the table and my hand instead. It's display-only: the only viewer who
+  // ever taps the dummy (GameLead) always sees it at the front seat.
+  const sideExposedSeat = otherSeats.find((seat, i) => seat.exposedCards && !(hasFrontSeat && i === middleIndex))
   // The exposed-hand fan now uses full "md" cards (see PlayerSeat.jsx),
   // taller than the "sm" cards this margin was originally tuned for —
   // widened accordingly so the taller fan doesn't push the seat's own
@@ -114,28 +119,20 @@ export function CardTable({
         {otherSeats.map((seat, i) => {
           const pos = getSeatPosition(i, otherSeats.length)
           const isFrontSeat = hasFrontSeat && i === middleIndex
-          // Which side of the table this seat sits on — an exposed hand
-          // (Teri's dummy) needs to grow away from the center play area,
-          // not into it, and which direction "away" is depends on this.
-          const exposedHandSide = isFrontSeat ? 'front' : i < middleIndex ? 'left' : 'right'
-          // A side seat's exposed hand grows downward in two rows, which
-          // otherwise runs past the table's bottom edge onto the viewer's
-          // own hand — lift the whole seat to make room.
-          const sideTop = seat.exposedCards ? `calc(${pos.top} - ${EXPOSED_SIDE_LIFT_PX}px)` : pos.top
+          const isSideExposed = seat === sideExposedSeat
           return (
             <div
               key={seat.player.id}
               className={`absolute -translate-x-1/2 ${isFrontSeat ? 'bottom-full mb-2' : '-translate-y-1/2'}`}
-              style={isFrontSeat ? { left: pos.left } : { left: pos.left, top: sideTop }}
+              style={isFrontSeat ? { left: pos.left } : { left: pos.left, top: pos.top }}
             >
               <PlayerSeat
                 player={seat.player}
-                cardCount={seat.cardCount}
+                cardCount={isSideExposed ? 0 : seat.cardCount}
                 isActiveTurn={seat.isActiveTurn}
                 accent={accent}
                 label={seat.label}
-                exposedCards={seat.exposedCards}
-                exposedHandSide={exposedHandSide}
+                exposedCards={isSideExposed ? undefined : seat.exposedCards}
                 onExposedCardTap={seat.onExposedCardTap}
                 disabledExposedCardIds={seat.disabledExposedCardIds}
                 highlightedExposedCardIds={seat.highlightedExposedCardIds}
@@ -179,6 +176,10 @@ export function CardTable({
           too subtle a cue for "it's your turn" on a small phone screen —
           an explicit label plus the game's own accent color reads clearly
           without needing to spot a faint tint. */}
+      {sideExposedSeat && (
+        <SideExposedRow seat={sideExposedSeat} variant={variant} />
+      )}
+
       {myIsActiveTurn && (royal ? (
         <p className="text-center -mb-1">
           <span className="royal-gold-pill inline-block text-xs px-4 py-1.5">Your Turn</span>
@@ -258,5 +259,36 @@ function RoyalTableSurface() {
       <div className="royal-ring inset-[30px] border border-white/10" />
       <div className="royal-ring inset-[44px] border border-dashed border-[#f0cf8e]/10" />
     </>
+  )
+}
+
+function SideExposedRow({ seat, variant }) {
+  const royal = variant === 'royal'
+  const cards = seat.exposedCards
+  const highlighted = seat.highlightedExposedCardIds ?? []
+  const step = getHandStep(cards.length, SIDE_EXPOSED_CARD_WIDTH, 330)
+  return (
+    <div className="flex flex-col items-center gap-1.5 -mt-1">
+      <p className={royal ? 'royal-name text-[10px]' : 'text-xs font-semibold text-textMuted'}>
+        {seat.player?.name ?? 'Player'} · Open hand
+      </p>
+      <div className="flex items-end">
+        {cards.map((cardId, i) => {
+          const { rank, suit } = parseCard(cardId)
+          return (
+            <PlayingCard
+              key={cardId}
+              face="up"
+              rank={rank}
+              suit={suit}
+              size="sm"
+              variant={variant}
+              highlighted={highlighted.includes(cardId)}
+              style={{ marginLeft: i === 0 ? 0 : step - SIDE_EXPOSED_CARD_WIDTH, zIndex: i }}
+            />
+          )
+        })}
+      </div>
+    </div>
   )
 }

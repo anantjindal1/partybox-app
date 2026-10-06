@@ -4,18 +4,9 @@ import { parseCard } from '../../multiplayer/deck'
 import { AiTag } from '../BotControls'
 import { getHandStep } from './seatLayout'
 
-const EXPOSED_CARD_WIDTH = 32
-const EXPOSED_TARGET_WIDTH = 150
-// The front seat sits centered above the table with the same open room
-// "my hand" gets below it — no reason to cram it into the same narrow
-// width the left/right rows need to avoid running off a phone's edge.
-// The front row is also the ONLY exposed-hand rendering that's ever
-// actually tappable (orderSeatsForViewer guarantees GameLead always
-// sees the dummy at front, and only GameLead ever gets onExposedCardTap
-// wired up) — so it uses full "md" cards, matching own-hand size
-// exactly, since that's where mis-taps from too-small cards actually
-// happen. Left/right stay at the smaller "sm" size — pure display for
-// defenders, never tapped, no accuracy concern to fix there.
+// The exposed-hand fan is the ONLY one ever tapped (GameLead always sees
+// the dummy at the front seat, and only GameLead gets onExposedCardTap), so
+// it matches own-hand card size exactly — that's where mis-taps happen.
 const EXPOSED_FRONT_CARD_WIDTH = 46
 const EXPOSED_FRONT_TARGET_WIDTH = 340
 const ROYAL_FRONT_CARD_WIDTH = 62
@@ -30,12 +21,9 @@ const ROYAL_FRONT_CARD_WIDTH = 62
  * ids) renders this seat's actual hand face-up, fanned the same way a
  * player's own hand is (overlapping, not laid out flat) — for a dummy-hand
  * rule (e.g. Teri) where a partner's cards are visible to everyone.
- * `exposedHandSide` ('front' | 'left' | 'right', default 'front') controls
- * which way that fan grows: a "front" seat (the one opposite the viewer)
- * grows UPWARD, into the open margin above the table, since growing
- * downward would run straight into the center play area; a "left"/"right"
- * seat instead wraps into two shorter rows below the avatar, since there's
- * no equivalent open margin to its side on a narrow phone screen.
+ * The fan grows UPWARD into the open margin above the table — only the
+ * front seat ever gets one (CardTable shows a side seat's exposed hand as
+ * its own row below the table instead).
  * `onExposedCardTap` (optional) makes that fan directly tappable — used
  * when GameLead is playing a card on the dummy's behalf; omitted, the
  * exposed hand is a pure display with no interaction. Default `undefined`
@@ -48,7 +36,6 @@ export function PlayerSeat({
   accent = 'maroon',
   label,
   exposedCards,
-  exposedHandSide = 'front',
   style,
   className = '',
   onExposedCardTap,
@@ -79,7 +66,7 @@ export function PlayerSeat({
     onExposedCardTap(cardId)
   }
 
-  function renderFanRow(cards, targetWidth = EXPOSED_TARGET_WIDTH, cardWidth = EXPOSED_CARD_WIDTH, size = 'sm') {
+  function renderFanRow(cards, targetWidth, cardWidth, size) {
     const step = getHandStep(cards.length, cardWidth, targetWidth)
     return (
       <div className="flex items-end w-max mx-auto">
@@ -145,7 +132,13 @@ export function PlayerSeat({
         {player?.isBot && <AiTag />}
       </span>
       {label && (royal
-        ? <span className="royal-pill text-[8.5px] px-2 py-0.5 whitespace-nowrap">{label}</span>
+        ? (
+          <span className="flex flex-wrap justify-center gap-1 max-w-[150px]">
+            {label.split(' · ').map(part => (
+              <span key={part} className="royal-pill text-[8.5px] px-2 py-0.5 whitespace-nowrap">{part}</span>
+            ))}
+          </span>
+        )
         : <span className="text-[10px] text-textMuted -mt-1">{label}</span>)}
       {exposedCards ? (
         // Absolutely positioned (not in normal flow) so a large exposed
@@ -153,26 +146,11 @@ export function PlayerSeat({
         // each seat wrapper on its avatar+name via -translate-y-1/2, and a
         // 12-card grid counted in that height would push the anchor (and
         // everything above it, like a game's score bar) far off target.
-        exposedHandSide === 'front' ? (
-          <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2">
-            {royal
-              ? renderFanRow(exposedCards, EXPOSED_FRONT_TARGET_WIDTH, ROYAL_FRONT_CARD_WIDTH, 'lg')
-              : renderFanRow(exposedCards, EXPOSED_FRONT_TARGET_WIDTH, EXPOSED_FRONT_CARD_WIDTH, 'md')}
-          </div>
-        ) : (
-          // Anchored from the edge nearer this seat's own position (not
-          // centered) and growing toward the table's center — a side seat
-          // already sits close to the screen edge, so centering a
-          // multi-card fan under it would push cards straight off-screen.
-          <div
-            className={`absolute top-full mt-1 flex flex-col gap-1 ${
-              exposedHandSide === 'left' ? 'left-0' : 'right-0'
-            }`}
-          >
-            {renderFanRow(exposedCards.slice(0, Math.ceil(exposedCards.length / 2)))}
-            {renderFanRow(exposedCards.slice(Math.ceil(exposedCards.length / 2)))}
-          </div>
-        )
+        <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2">
+          {royal
+            ? renderFanRow(exposedCards, EXPOSED_FRONT_TARGET_WIDTH, ROYAL_FRONT_CARD_WIDTH, 'lg')
+            : renderFanRow(exposedCards, EXPOSED_FRONT_TARGET_WIDTH, EXPOSED_FRONT_CARD_WIDTH, 'md')}
+        </div>
       ) : (
         <div className="relative h-[45px]" style={{ width: 32 + (Math.min(cardCount, 3) - 1) * 8 }}>
           {Array.from({ length: Math.min(cardCount, 3) }, (_, i) => (
