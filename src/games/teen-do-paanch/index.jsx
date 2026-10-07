@@ -7,7 +7,7 @@ import { useTurnVibration } from '../../hooks/useTurnVibration'
 import { useLang } from '../../store/LangContext'
 import { shuffleDeck, parseCard } from '../../multiplayer/deck'
 import { removeCardFromHand, addCardsToHand, sortHand } from '../../multiplayer/hand'
-import { dealCards } from '../../multiplayer/deal'
+import { dealCards, dealStagedWithFaceCards } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
 import { otherPlayersInSeatOrder } from '../../multiplayer/partnerships'
@@ -209,8 +209,7 @@ export default function TeenDoPaanch({ code }) {
     setStarting(true)
     try {
       const playerIds = players.map(p => p.id)
-      const deck = shuffleDeck(createReducedDeck())
-      const { hands, remaining } = dealCards(deck, playerIds, 5)
+      const { hands, remaining } = dealStagedWithFaceCards(() => shuffleDeck(createReducedDeck()), playerIds, 5, 5)
       const targets = computeTargets(playerIds, 0)
       const callerId = getCallerId(targets)
       const zeroed = Object.fromEntries(playerIds.map(id => [id, 0]))
@@ -264,8 +263,7 @@ export default function TeenDoPaanch({ code }) {
         return
       }
       const nextRoundNumber = current.roundNumber + 1
-      const deck = shuffleDeck(createReducedDeck())
-      const { hands, remaining } = dealCards(deck, current.turnOrder, 5)
+      const { hands, remaining } = dealStagedWithFaceCards(() => shuffleDeck(createReducedDeck()), current.turnOrder, 5, 5)
       const targets = computeTargets(current.turnOrder, nextRoundNumber)
       const callerId = getCallerId(targets)
       const zeroed = Object.fromEntries(current.turnOrder.map(id => [id, 0]))

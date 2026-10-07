@@ -7,7 +7,7 @@ import { useTurnVibration } from '../../hooks/useTurnVibration'
 import { useLang } from '../../store/LangContext'
 import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
 import { removeCardFromHand, sortHand } from '../../multiplayer/hand'
-import { dealCards } from '../../multiplayer/deal'
+import { dealCards, dealWithFaceCards } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
 import { buildTurnOrderFromPartner, otherPlayersInSeatOrder } from '../../multiplayer/partnerships'
@@ -146,9 +146,8 @@ export default function Mendikot({ code }) {
   async function handleStartGame() {
     setStarting(true)
     try {
-      const deck = shuffleDeck(createDeck())
       const playerIds = buildTurnOrderFromPartner(players.map(p => p.id), room.hostId, roomState.pendingPartnerId)
-      const { hands } = dealCards(deck, playerIds, 13)
+      const { hands } = dealWithFaceCards(() => dealCards(shuffleDeck(createDeck()), playerIds, 13))
       await clearActions()
       await persist({
         phase: 'playing',

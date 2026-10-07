@@ -1,3 +1,5 @@
+import { parseCard } from './deck'
+
 /**
  * Pure card dealing — no Firebase, no React.
  * cardsPerPlayer is required and never silently adjusted: each game
@@ -51,4 +53,41 @@ export function dealAll(deck, playerIds) {
     hands[playerIds[i % playerIds.length]].push(card)
   })
   return { hands }
+}
+
+const FACE_RANKS = ['A', 'K', 'Q', 'J']
+const MAX_REDEALS = 1000
+
+export function hasFaceCard(hand) {
+  return hand.some(card => FACE_RANKS.includes(parseCard(card).rank))
+}
+
+/**
+ * House rule (Teri, Court Piece, Mendikot, Teen Do Paanch): a deal where
+ * any player holds no face card (A/K/Q/J) is void and dealt again. Runs
+ * `deal` until every hand from `fullHands(result)` has one — silently, so
+ * nobody ever sees a void hand.
+ */
+export function dealWithFaceCards(deal, fullHands = result => result.hands) {
+  let result
+  for (let i = 0; i < MAX_REDEALS; i++) {
+    result = deal()
+    if (Object.values(fullHands(result)).every(hasFaceCard)) break
+  }
+  return result
+}
+
+/**
+ * For games that deal `firstCount` cards, call trump, then deal
+ * `secondCount` more from `remaining`: checks the complete hands up front,
+ * so trump is never called on a deal that would be void.
+ */
+export function dealStagedWithFaceCards(makeDeck, playerIds, firstCount, secondCount) {
+  return dealWithFaceCards(
+    () => dealCards(makeDeck(), playerIds, firstCount),
+    ({ hands, remaining }) => {
+      const { hands: rest } = dealCards(remaining, playerIds, secondCount)
+      return Object.fromEntries(playerIds.map(id => [id, [...hands[id], ...rest[id]]]))
+    }
+  )
 }

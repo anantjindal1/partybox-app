@@ -1,4 +1,4 @@
-import { dealCards, dealEven, dealAll } from '../deal'
+import { dealCards, dealEven, dealAll, hasFaceCard, dealWithFaceCards, dealStagedWithFaceCards } from '../deal'
 import { createDeck, shuffleDeck } from '../deck'
 
 describe('dealCards', () => {
@@ -146,5 +146,47 @@ describe('dealAll', () => {
     expect(hands.b[0]).toBe(deck[1])
     expect(hands.a[1]).toBe(deck[2])
     expect(hands.b[1]).toBe(deck[3])
+  })
+})
+
+describe('face-card redeal', () => {
+  const noFace = ['2S', '3S', '4S', '5S', '6S', '7S', '8S', '9S', '10S', '2H', '3H', '4H', '5H']
+  const withAce = ['AS', ...noFace.slice(1)]
+
+  test('hasFaceCard counts A, K, Q, J only', () => {
+    expect(hasFaceCard(noFace)).toBe(false)
+    for (const rank of ['A', 'K', 'Q', 'J']) expect(hasFaceCard([...noFace.slice(1), `${rank}D`])).toBe(true)
+    expect(hasFaceCard(['10S', '9H'])).toBe(false)
+    expect(hasFaceCard(['KS#2'])).toBe(true)
+  })
+
+  test('redeals while any hand has no face card, then keeps the first valid deal', () => {
+    const deals = [
+      { hands: { a: withAce, b: noFace } },
+      { hands: { a: noFace, b: withAce } },
+      { hands: { a: withAce, b: withAce } },
+    ]
+    const deal = jest.fn(() => deals.shift())
+    expect(dealWithFaceCards(deal).hands).toEqual({ a: withAce, b: withAce })
+    expect(deal).toHaveBeenCalledTimes(3)
+  })
+
+  test('staged deal checks the full hand, not just the first packet', () => {
+    // a's first packet never has a face card; only `valid` gives it one in the second packet.
+    const invalid = ['2S', '3S', 'KH', '4S', '5S', '6S', 'AD', '7S']
+    const valid = ['2S', '3S', 'KH', '4S', 'AD', '6S', '5S', '7S']
+    const decks = [invalid, valid]
+    const makeDeck = jest.fn(() => decks.shift())
+    const { hands, remaining } = dealStagedWithFaceCards(makeDeck, ['a', 'b'], 2, 2)
+    expect(makeDeck).toHaveBeenCalledTimes(2)
+    expect(hands).toEqual({ a: ['2S', '3S'], b: ['KH', '4S'] })
+    expect(remaining).toEqual(['AD', '6S', '5S', '7S'])
+  })
+
+  test('real shuffled deals always come back valid', () => {
+    for (let i = 0; i < 300; i++) {
+      const { hands } = dealWithFaceCards(() => dealCards(shuffleDeck(createDeck()), ['a', 'b', 'c', 'd'], 13))
+      expect(Object.values(hands).every(hasFaceCard)).toBe(true)
+    }
   })
 })

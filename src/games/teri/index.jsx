@@ -7,7 +7,7 @@ import { useTurnVibration } from '../../hooks/useTurnVibration'
 import { useLang } from '../../store/LangContext'
 import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
 import { removeCardFromHand, sortHand } from '../../multiplayer/hand'
-import { dealCards } from '../../multiplayer/deal'
+import { dealCards, dealWithFaceCards } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
 import { buildTurnOrderFromPartner, orderSeatsForViewer } from '../../multiplayer/partnerships'
@@ -436,7 +436,7 @@ export default function Teri({ code }) {
     try {
       const playerIds = buildTurnOrderFromPartner(players.map(p => p.id), room.hostId, roomState.pendingPartnerId)
       const shufflerId = determineInitialShuffler(shuffleDeck(createDeck()), playerIds)
-      const { hands } = dealCards(shuffleDeck(createDeck()), playerIds, 13)
+      const { hands } = dealWithFaceCards(() => dealCards(shuffleDeck(createDeck()), playerIds, 13))
       const biddingOrder = computeBiddingOrder(playerIds, shufflerId)
       await clearActions()
       await persist({
@@ -492,9 +492,9 @@ export default function Teri({ code }) {
         return
       }
       const nextRoundNumber = current.roundNumber + 1
-      const { hands } = current.realisticShuffle === false
+      const { hands } = dealWithFaceCards(() => current.realisticShuffle === false
         ? dealCards(shuffleDeck(createDeck()), current.turnOrder, 13)
-        : dealInPackets(realisticReshuffle(cardsInRoundOrder(current)), current.turnOrder)
+        : dealInPackets(realisticReshuffle(cardsInRoundOrder(current)), current.turnOrder))
       const biddingOrder = computeBiddingOrder(current.turnOrder, current.shufflerId)
       await clearActions()
       await persist({

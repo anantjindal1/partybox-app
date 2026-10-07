@@ -7,7 +7,7 @@ import { getBotTurns } from './bot'
 import { useLang } from '../../store/LangContext'
 import { createDeck, shuffleDeck, parseCard } from '../../multiplayer/deck'
 import { removeCardFromHand, addCardsToHand, sortHand } from '../../multiplayer/hand'
-import { dealCards } from '../../multiplayer/deal'
+import { dealCards, dealStagedWithFaceCards } from '../../multiplayer/deal'
 import { resolveTrick, getLegalPlays } from '../../multiplayer/trick'
 import { advanceTurn } from '../../multiplayer/turnManager'
 import { buildTurnOrderFromPartner, otherPlayersInSeatOrder } from '../../multiplayer/partnerships'
@@ -252,8 +252,7 @@ export default function CourtPiece({ code }) {
     setStarting(true)
     try {
       const playerIds = buildTurnOrderFromPartner(players.map(p => p.id), room.hostId, roomState.pendingPartnerId)
-      const deck = shuffleDeck(createDeck())
-      const { hands, remaining } = dealCards(deck, playerIds, 5)
+      const { hands, remaining } = dealStagedWithFaceCards(() => shuffleDeck(createDeck()), playerIds, 5, 8)
       const zeroed = Object.fromEntries(playerIds.map(id => [id, 0]))
       await clearActions()
       await persist({
@@ -300,8 +299,7 @@ export default function CourtPiece({ code }) {
         await persist({ phase: 'results' })
         return
       }
-      const deck = shuffleDeck(createDeck())
-      const { hands, remaining } = dealCards(deck, current.turnOrder, 5)
+      const { hands, remaining } = dealStagedWithFaceCards(() => shuffleDeck(createDeck()), current.turnOrder, 5, 8)
       const zeroed = Object.fromEntries(current.turnOrder.map(id => [id, 0]))
       await clearActions()
       await persist({
