@@ -1,5 +1,5 @@
 import { CARD_GAME_ACCENT_CLASSES } from '../cardGameAccent'
-import { AiTag } from '../BotControls'
+import { AiTag, Avatar } from '../BotControls'
 
 /**
  * Host-only "pick your partner" UI for a fixed 2v2 partnership game.
@@ -35,7 +35,7 @@ export function PartnerPicker({ players, hostId, myId, pendingPartnerId, onSelec
                       : 'bg-surfaceElevated text-textPrimary border-border/60 hover:border-textMuted'
                   }`}
                 >
-                  <span>{p.avatar ?? '🎮'}</span>
+                  <span><Avatar player={p} /></span>
                   <span>{p.name}{p.isBot && <AiTag />}</span>
                 </button>
               )
@@ -51,11 +51,11 @@ export function PartnerPicker({ players, hostId, myId, pendingPartnerId, onSelec
       {partner && (
         <div className="flex items-center justify-center gap-3 text-sm">
           <span className={`px-2.5 py-1 rounded-lg font-semibold ${accentClasses.soft} ${accentClasses.text}`}>
-            {hostPlayer?.avatar} {hostPlayer?.name} & {partner.avatar} {partner.name}
+            <Avatar player={hostPlayer} /> {hostPlayer?.name} & <Avatar player={partner} /> {partner.name}
           </span>
           <span className="text-textMuted">vs</span>
           <span className="px-2.5 py-1 rounded-lg font-semibold bg-surfaceElevated text-textPrimary">
-            {rest.map(p => `${p.avatar} ${p.name}`).join(' & ')}
+            {rest.map((p, i) => <span key={p.id}>{i > 0 && ' & '}<Avatar player={p} /> {p.name}</span>)}
           </span>
         </div>
       )}

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { addBot, setBotDifficulty } from '../services/room'
-import { makeBot, DIFFICULTIES, DEFAULT_DIFFICULTY } from '../multiplayer/bots/bots'
+import { makeBot, botColor, DIFFICULTIES, DEFAULT_DIFFICULTY } from '../multiplayer/bots/bots'
 
 const LABEL = { easy: 'Easy', medium: 'Medium', hard: 'Hard' }
 
@@ -64,6 +64,22 @@ export function AiTag() {
   return (
     <span className="inline-block align-middle ml-1 px-1 rounded text-[9px] font-bold leading-[14px] bg-textMuted/20 text-textSecondary">
       AI
+    </span>
+  )
+}
+
+/**
+ * A player's avatar: their chosen emoji, or for AI players a coloured
+ * monogram of their name. Sized in em, so it follows the parent font size.
+ */
+export function Avatar({ player }) {
+  if (!player?.isBot) return player?.avatar ?? '🎮'
+  return (
+    <span
+      className="inline-flex items-center justify-center rounded-full align-middle font-bold text-white"
+      style={{ fontSize: '0.75em', width: '1.9em', height: '1.9em', background: botColor(player.name) }}
+    >
+      {player.name?.[0]?.toUpperCase() ?? 'A'}
     </span>
   )
 }

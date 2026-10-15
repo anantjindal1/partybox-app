@@ -19,7 +19,7 @@ import { getGame } from '../games/registry'
 import { trackEvent } from '../lib/analytics/core'
 import { publicUrl } from '../lib/publicUrl'
 import FeedbackLink from '../components/FeedbackLink'
-import { BotControls, AiTag } from '../components/BotControls'
+import { BotControls, AiTag, Avatar } from '../components/BotControls'
 import { useFelt, feltVars } from '../lib/feltColor'
 import { CardVariantContext } from '../components/cards/cardVariant'
 import { FeltPicker } from '../components/cards/FeltPicker'
@@ -301,7 +301,7 @@ export default function Room() {
                   <div key={p.id} className="flex flex-col items-center gap-1">
                     <div className="relative">
                       <span className="text-4xl" style={{ minWidth: 48, display: 'inline-block', textAlign: 'center' }}>
-                        {p.avatar ?? '🎮'}
+                        <Avatar player={p} />
                       </span>
                       {p.id === room.hostId && (
                         <span className="absolute -top-1 -right-1 text-xs">👑</span>
@@ -405,7 +405,7 @@ export default function Room() {
                   key={p.id}
                   className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-surfaceMuted text-textMuted border border-border/40"
                 >
-                  {p.avatar ?? '🎮'} {p.name}
+                  <Avatar player={p} /> {p.name}
                   {isHost && (
                     <button
                       onClick={() => handleKickSpectator(p.id)}

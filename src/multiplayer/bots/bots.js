@@ -9,7 +9,21 @@ export const BOT_PREFIX = 'bot_'
 export const DIFFICULTIES = ['easy', 'medium', 'hard']
 export const DEFAULT_DIFFICULTY = 'medium'
 
-const BOT_NAMES = ['Ravi', 'Priya', 'Arjun', 'Neha', 'Kabir', 'Meera', 'Vikram', 'Anjali', 'Rohan', 'Pooja', 'Sameer', 'Kavya']
+// Distinct first letters, so no two AI players share a monogram.
+const BOT_NAMES = ['Ravi', 'Priya', 'Arjun', 'Neha', 'Kabir', 'Meera', 'Vikram', 'Isha', 'Dev', 'Tara', 'Sameer', 'Gauri']
+
+// One jewel colour per bot name (same order as BOT_NAMES), so each AI
+// player's monogram differs. Fixed light-theme accent values rather than
+// theme vars: they sit on light lobbies and dark felt tables alike, and
+// white text needs a dark fill in both.
+const BOT_COLORS = ['#a6314f', '#1f7a4d', '#1f5c82', '#8a4c28', '#6b3f73', '#146a58', '#a6402f', '#4a3f8c', '#217328', '#7a1f2b', '#2d3776', '#9c2a72']
+
+export function botColor(name = '') {
+  const i = BOT_NAMES.indexOf(name)
+  if (i >= 0) return BOT_COLORS[i]
+  const hash = [...name].reduce((h, c) => h + c.charCodeAt(0), 0)
+  return BOT_COLORS[hash % BOT_COLORS.length]
+}
 
 export function isBotId(id) {
   return typeof id === 'string' && id.startsWith(BOT_PREFIX)

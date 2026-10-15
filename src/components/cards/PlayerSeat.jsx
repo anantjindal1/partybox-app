@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { PlayingCard } from './PlayingCard'
 import { parseCard } from '../../multiplayer/deck'
-import { AiTag } from '../BotControls'
+import { AiTag, Avatar } from '../BotControls'
 import { getHandStep } from './seatLayout'
 import { useCardVariant } from './cardVariant'
 
@@ -120,7 +120,7 @@ export function PlayerSeat({
           : `relative flex items-center justify-center w-11 h-11 rounded-full bg-surfaceElevated border-[1.5px] border-border ${isActiveTurn ? 'animate-turn-glow' : ''}`}
         style={royal ? undefined : glowStyle}
       >
-        <span className="text-xl leading-none">{player?.avatar ?? '🎮'}</span>
+        <span className="text-xl leading-none"><Avatar player={player} /></span>
       </div>
       <span className="flex items-center">
         <span

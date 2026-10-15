@@ -1,5 +1,5 @@
 import { getLobbySeatPosition } from './seatLayout'
-import { AiTag } from '../BotControls'
+import { AiTag, Avatar } from '../BotControls'
 
 /**
  * Pre-game lobby player list, arranged as seats around an oval table
@@ -25,7 +25,7 @@ export function LobbyTable({ players, hostId, isHost, onKick }) {
           >
             <div className="relative">
               <span className="text-4xl" style={{ minWidth: 48, display: 'inline-block', textAlign: 'center' }}>
-                {p.avatar ?? '🎮'}
+                <Avatar player={p} />
               </span>
               {p.id === hostId && (
                 <span className="absolute -top-1 -right-1 text-xs">👑</span>
