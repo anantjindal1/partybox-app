@@ -16,9 +16,8 @@ for that history.
    Tambola have zero coverage. Work is a per-screen string sweep plus
    Hindi copy, not new infrastructure. Question/prompt content (quiz
    banks, prompts) is a separate, larger translation job.
-2. **P0 — Better AI player icons.** Bots currently share one look plus a
-   plain grey "AI" text tag (`AiTag` in `src/components/BotControls.jsx`).
-   Give each bot a distinct icon/avatar.
+2. **P0 — Better AI player icons.** DONE 2026-10-15: coloured monogram per
+   bot (`Avatar` in `BotControls.jsx`), unique initials. Ships to app users in v9.
 3. **Truly Indianise the non-card games** (quiz etc.) — card games are
    already Indian. Needs a per-game pass on content and framing.
 4. **New games:** Truth or Dare, Would You Rather, Never Have I Ever.
