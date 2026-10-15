@@ -1,5 +1,6 @@
 import { CARD_GAME_ACCENT_CLASSES } from '../cardGameAccent'
 import { AiTag, Avatar } from '../BotControls'
+import { useLang } from '../../store/LangContext'
 
 /**
  * Host-only "pick your partner" UI for a fixed 2v2 partnership game.
@@ -9,6 +10,7 @@ import { AiTag, Avatar } from '../BotControls'
  * the same team preview read-only, once the host has picked.
  */
 export function PartnerPicker({ players, hostId, myId, pendingPartnerId, onSelectPartner, accent = 'maroon' }) {
+  const { t } = useLang()
   const accentClasses = CARD_GAME_ACCENT_CLASSES[accent] ?? CARD_GAME_ACCENT_CLASSES.maroon
   const isHostViewer = myId === hostId
   const hostPlayer = players.find(p => p.id === hostId)
@@ -20,7 +22,7 @@ export function PartnerPicker({ players, hostId, myId, pendingPartnerId, onSelec
     <div className={`rounded-xl border ${accentClasses.border} ${accentClasses.soft} p-3 flex flex-col gap-3`}>
       {isHostViewer ? (
         <>
-          <p className="text-sm font-semibold text-textPrimary">Choose your partner</p>
+          <p className="text-sm font-semibold text-textPrimary">{t('choosePartner')}</p>
           <div className="flex flex-wrap gap-2">
             {others.map(p => {
               const isSelected = p.id === pendingPartnerId
@@ -43,9 +45,9 @@ export function PartnerPicker({ players, hostId, myId, pendingPartnerId, onSelec
           </div>
         </>
       ) : partner ? (
-        <p className="text-sm font-semibold text-textPrimary">Partners for this game</p>
+        <p className="text-sm font-semibold text-textPrimary">{t('partnersForGame')}</p>
       ) : (
-        <p className="text-sm text-textMuted">Host is choosing partners…</p>
+        <p className="text-sm text-textMuted">{t('hostChoosingPartners')}</p>
       )}
 
       {partner && (

@@ -1,6 +1,7 @@
 import { PlayingCard } from './PlayingCard'
 import { parseCard } from '../../multiplayer/deck'
 import { useCardVariant } from './cardVariant'
+import { useLang } from '../../store/LangContext'
 
 /**
  * Holds a completed hand's (1 card from each player) 4 cards on screen
@@ -18,6 +19,7 @@ import { useCardVariant } from './cardVariant'
  * hand outcome isn't a plain win (e.g. Bhabhi's discard / pick-up).
  */
 export function HandWinnerOverlay({ centerCards, handWinnerId, handWinnerName, accentColorClass = 'text-cobalt', unitLabel = 'hand', settle = true, message }) {
+  const { t } = useLang()
   const royal = useCardVariant() === 'royal'
   if (!handWinnerId) return null
   return (
@@ -43,7 +45,7 @@ export function HandWinnerOverlay({ centerCards, handWinnerId, handWinnerName, a
           )
         })}
       </div>
-      <p className={royal ? 'royal-font text-xs font-bold text-center text-[#f6d690]' : `text-xs font-bold ${accentColorClass}`}>{message ?? `${handWinnerName} won the ${unitLabel}!`}</p>
+      <p className={royal ? 'royal-font text-xs font-bold text-center text-[#f6d690]' : `text-xs font-bold ${accentColorClass}`}>{message ?? t('wonTheHand', { name: handWinnerName, hand: unitLabel })}</p>
     </div>
   )
 }

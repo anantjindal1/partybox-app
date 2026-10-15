@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { AVATARS } from '../data/avatars'
+import { useLang } from '../store/LangContext'
 
 // getProfile() (src/services/profile.js) already stores this literal
 // string as the untouched default for a brand-new device — treated here
@@ -18,6 +19,7 @@ function randomDefaultName() {
 // `profile`, if already available, seeds sensible defaults so a player
 // can just tap through instead of being forced to type/pick first.
 export default function PlayerIdentityModal({ onComplete, profile }) {
+  const { t } = useLang()
   const [name, setName] = useState(() => {
     if (profile?.name && profile.name !== UNSET_DEFAULT_NAME) return profile.name
     return randomDefaultName()
@@ -39,8 +41,8 @@ export default function PlayerIdentityModal({ onComplete, profile }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-4">
       <div className="bg-surfaceElevated rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-        <h2 className="text-xl font-bold text-textPrimary mb-1">Who are you?</h2>
-        <p className="text-textMuted text-sm mb-5">Pick an avatar and enter your name</p>
+        <h2 className="text-xl font-bold text-textPrimary mb-1">{t('whoAreYou')}</h2>
+        <p className="text-textMuted text-sm mb-5">{t('pickAvatarAndName')}</p>
 
         <div className="grid grid-cols-4 gap-2 mb-5">
           {AVATARS.map(a => (
@@ -66,7 +68,7 @@ export default function PlayerIdentityModal({ onComplete, profile }) {
             value={name}
             onChange={e => setName(e.target.value)}
             maxLength={12}
-            placeholder="Your name"
+            placeholder={t('yourNamePlaceholder')}
             className="w-full bg-surfaceElevated text-textPrimary placeholder-textMuted rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-gold mb-4"
           />
           <button
@@ -78,7 +80,7 @@ export default function PlayerIdentityModal({ onComplete, profile }) {
                 : 'bg-surfaceMuted text-textMuted cursor-not-allowed'
             }`}
           >
-            Let's Play!
+            {t('letsPlay')}
           </button>
         </form>
       </div>

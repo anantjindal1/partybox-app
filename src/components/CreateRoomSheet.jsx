@@ -80,7 +80,7 @@ export function CreateRoomSheet({ game, onClose }) {
 
         {/* Room type selection */}
         <p className="text-textMuted text-sm font-medium mb-3 uppercase tracking-wider">
-          Choose mode
+          {t('chooseMode')}
         </p>
 
         <div className="space-y-3">
@@ -114,11 +114,11 @@ export function CreateRoomSheet({ game, onClose }) {
             onChange={e => setIsPublic(e.target.checked)}
             className="w-4 h-4"
           />
-          List on Open Tables so anyone can join
+          {t('listOnOpenTables')}
         </label>
 
         {loading && (
-          <p className="text-textMuted text-sm text-center mt-4 animate-pulse">Creating room...</p>
+          <p className="text-textMuted text-sm text-center mt-4 animate-pulse">{t('creatingRoom')}</p>
         )}
         {error && (
           <p className="text-error text-sm text-center mt-4">{error}</p>

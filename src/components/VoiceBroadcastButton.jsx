@@ -3,6 +3,7 @@ import { db } from '../firebase'
 import { doc, setDoc, collection, onSnapshot, serverTimestamp } from 'firebase/firestore'
 import { expireAfterRetention } from '../services/room'
 import { getDeviceId } from '../services/profile'
+import { useLang } from '../store/LangContext'
 
 const MAX_RECORD_MS = 15000
 const AUDIO_BITS_PER_SECOND = 24000 // keeps a 15s clip's base64 well under Firestore's 1MiB doc cap
@@ -30,6 +31,7 @@ function blobToDataUrl(blob) {
 }
 
 export function VoiceBroadcastButton({ roomCode, playerName }) {
+  const { t } = useLang()
   const [status, setStatus] = useState('idle') // idle | recording | uploading | cooldown
   const [nowPlaying, setNowPlaying] = useState(null)
   const myId = getDeviceId()
@@ -116,7 +118,7 @@ export function VoiceBroadcastButton({ roomCode, playerName }) {
       if (dataUrl.length <= MAX_BASE64_BYTES) {
         await setDoc(doc(db, 'rooms', roomCode, 'voice', myId), {
           playerId: myId,
-          playerName: playerName ?? 'Someone',
+          playerName: playerName ?? t('someone'),
           url: dataUrl,
           createdAt: serverTimestamp(),
           expireAt: expireAfterRetention()
@@ -137,7 +139,7 @@ export function VoiceBroadcastButton({ roomCode, playerName }) {
   return (
     <div className="flex flex-col items-center gap-1 px-4 py-1">
       {nowPlaying && (
-        <p className="text-xs text-textMuted">🔊 {nowPlaying} is talking…</p>
+        <p className="text-xs text-textMuted">🔊 {t('isTalking', { name: nowPlaying })}</p>
       )}
       <button
         type="button"
@@ -155,7 +157,7 @@ export function VoiceBroadcastButton({ roomCode, playerName }) {
               : 'bg-surfaceElevated text-textPrimary border border-border/60'
         }`}
       >
-        {isRecording ? '🎙️ Recording… release to send' : status === 'uploading' ? 'Sending…' : '🎙️ Hold to talk'}
+        {isRecording ? t('recording') : status === 'uploading' ? t('sending') : t('holdToTalk')}
       </button>
     </div>
   )

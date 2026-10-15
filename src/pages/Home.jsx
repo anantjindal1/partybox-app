@@ -148,7 +148,7 @@ export default function Home() {
       await joinRoom(joinCode.toUpperCase(), profile.id, profile.name)
       navigate(`/room/${joinCode.toUpperCase()}`)
     } catch (e) {
-      setError(t('roomNotFound') || 'Room not found. Check the code and try again.')
+      setError(t('roomNotFound'))
     } finally {
       setLoading(false)
     }
@@ -268,7 +268,7 @@ export default function Home() {
         {!online && (
           <div className="mx-4 sm:mx-6 mt-3 py-2 px-4 rounded-xl bg-surfaceMuted border border-gold/30 text-gold text-sm font-medium text-center flex items-center justify-center gap-2">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 10a12 12 0 0116 0M7.5 13.5a7.5 7.5 0 019 0" strokeOpacity="0.4" /><path d="M1 1l22 22" /></svg>
-            Offline mode — all games work offline
+            {t('offlineMode')}
           </div>
         )}
 
@@ -279,10 +279,10 @@ export default function Home() {
           {showHero && (
             <div className="text-center mb-8 pt-2">
               <p className="text-2xl font-bold font-display">
-                Party games for every situation
+                {t('heroTitle')}
               </p>
               <p className="text-sm text-textMuted mt-2">
-                Play solo, pass the phone, or challenge friends online
+                {t('heroSubtitle')}
               </p>
             </div>
           )}
@@ -295,11 +295,11 @@ export default function Home() {
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="text-gold shrink-0"><path d="M8 5v14l11-7z" /></svg>
               <span className="flex-1 min-w-0 text-left">
                 <span className="block text-textPrimary font-semibold truncate">
-                  Your {activeRoomGame.title?.[lang] ?? activeRoomGame.title?.en ?? activeRoomGame.slug} table is still on
+                  {t('tableStillOn', { game: activeRoomGame.title?.[lang] ?? activeRoomGame.title?.en ?? activeRoomGame.slug })}
                 </span>
-                <span className="block text-textMuted text-xs">Room {activeRoom.code}</span>
+                <span className="block text-textMuted text-xs">{t('roomCodeLabel', { code: activeRoom.code })}</span>
               </span>
-              <span className="text-gold font-bold text-sm">Rejoin</span>
+              <span className="text-gold font-bold text-sm">{t('rejoin')}</span>
             </Card>
           )}
 
@@ -346,7 +346,7 @@ export default function Home() {
               className="flex-1 justify-center rounded-xl border border-border bg-surfaceElevated/80 backdrop-blur-sm text-textPrimary hover:bg-surfaceMuted text-sm font-semibold flex items-center gap-2 transition-colors min-h-[44px] px-4"
             >
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18" /></svg>
-              Open Tables
+              {t('openTables')}
             </button>
             </div>
 
@@ -391,17 +391,17 @@ export default function Home() {
           {/* ── Filters ─────────────────────────────────────────────────────── */}
           <div className="sticky top-0 z-20 -mx-4 sm:-mx-6 px-4 sm:px-6 py-2 mb-4 bg-bg/85 backdrop-blur-sm flex flex-col gap-2">
             <div className="flex gap-2 overflow-x-auto no-scrollbar">
-              {[{ key: 'all', label: 'All' }, ...CATEGORIES].map(c => (
+              {[{ key: 'all' }, ...CATEGORIES].map(c => (
                 <FilterChip key={c.key} active={category === c.key} onClick={() => setCategory(c.key)}>
-                  {c.key === 'all' ? 'All' : c.label}
+                  {c.key === 'all' ? t('all') : t(c.labelKey)}
                 </FilterChip>
               ))}
             </div>
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-              <span className="text-xs text-textMuted shrink-0">Players</span>
+              <span className="text-xs text-textMuted shrink-0">{t('players')}</span>
               {PLAYER_FILTERS.map(f => (
                 <FilterChip key={f.key} small active={players === f.key} onClick={() => setPlayers(f.key)}>
-                  {f.label}
+                  {f.key === 'any' ? t('any') : f.label}
                 </FilterChip>
               ))}
             </div>
@@ -414,8 +414,8 @@ export default function Home() {
             return (
               <section key={c.key} className="mb-7">
                 <div className="mb-3">
-                  <h2 className="text-lg font-bold font-display leading-tight">{c.label}</h2>
-                  <p className="text-xs text-textMuted">{c.blurb}</p>
+                  <h2 className="text-lg font-bold font-display leading-tight">{t(c.labelKey)}</h2>
+                  <p className="text-xs text-textMuted">{t(c.blurbKey)}</p>
                 </div>
                 <div className="flex gap-3 overflow-x-auto no-scrollbar snap-x scroll-px-4 -mx-4 px-4 pb-1 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 lg:grid-cols-4 sm:overflow-visible">
                   {cards.map(card => {
@@ -435,7 +435,7 @@ export default function Home() {
             )
           })}
           {VISIBLE_GAMES.every(card => !fitsPlayers(card, players)) && (
-            <p className="text-sm text-textMuted mb-6">No games for that group size.</p>
+            <p className="text-sm text-textMuted mb-6">{t('noGamesForSize')}</p>
           )}
 
           {/* ── For review — hidden/unfinished games, dev builds only ── */}
@@ -471,10 +471,10 @@ export default function Home() {
 
           {/* ── Privacy link ─────────────────────────────────────────────────── */}
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-textMuted">
-            <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="hover:text-textPrimary underline">Privacy Policy</a>
-            <a href="/terms.html" target="_blank" rel="noopener noreferrer" className="hover:text-textPrimary underline">Terms</a>
-            <a href="/refund.html" target="_blank" rel="noopener noreferrer" className="hover:text-textPrimary underline">Refunds</a>
-            <button onClick={() => setConsent(null)} className="hover:text-textPrimary underline">Analytics &amp; ads choice</button>
+            <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="hover:text-textPrimary underline">{t('privacyPolicy')}</a>
+            <a href="/terms.html" target="_blank" rel="noopener noreferrer" className="hover:text-textPrimary underline">{t('terms')}</a>
+            <a href="/refund.html" target="_blank" rel="noopener noreferrer" className="hover:text-textPrimary underline">{t('refunds')}</a>
+            <button onClick={() => setConsent(null)} className="hover:text-textPrimary underline">{t('analyticsChoice')}</button>
           </div>
 
           {/* ── Feedback link ────────────────────────────────────────────────── */}
@@ -484,7 +484,7 @@ export default function Home() {
             className="text-xs text-textMuted text-center hover:text-textPrimary transition-colors py-4 flex items-center justify-center gap-1.5 w-full"
           >
             <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.5 8.5 0 01-8.5 8.5c-1.3 0-2.5-.3-3.6-.8L3 21l1.8-5.9A8.5 8.5 0 1121 11.5z" /></svg>
-            Send feedback / report a problem
+            {t('sendFeedback')}
           </button>
         </main>
       </div>
@@ -503,7 +503,7 @@ export default function Home() {
                 onClick={() => dismissCarousel(false)}
                 className="text-textMuted text-sm font-medium hover:text-textPrimary transition-colors min-h-[44px]"
               >
-                Skip
+                {t('skip')}
               </button>
             )}
           </div>
@@ -515,11 +515,10 @@ export default function Home() {
               <>
                 <div className="mb-6"><LogoMark size={72} /></div>
                 <h2 className="text-2xl font-bold font-display mb-3">
-                  Welcome to PartyBox
+                  {t('welcomeTitle')}
                 </h2>
                 <p className="text-textMuted text-base leading-relaxed max-w-xs">
-                  A collection of party games you can play anywhere — solo,
-                  with friends in the same room, or with people online.
+                  {t('welcomeBody')}
                 </p>
               </>
             )}
@@ -527,7 +526,7 @@ export default function Home() {
             {carouselSlide === 1 && (
               <>
                 <h2 className="text-2xl font-bold font-display mb-6">
-                  {VISIBLE_GAMES.length}+ games, every situation
+                  {t('gamesCount', { n: VISIBLE_GAMES.length })}
                 </h2>
                 <div className="flex gap-3 mb-6 justify-center">
                   {[
@@ -549,8 +548,7 @@ export default function Home() {
                   ))}
                 </div>
                 <p className="text-textMuted text-base leading-relaxed max-w-xs">
-                  Quiz yourself solo, act out Bollywood movies at a party,
-                  or play card games and more with friends online.
+                  {t('welcomeBody2')}
                 </p>
               </>
             )}
@@ -559,11 +557,10 @@ export default function Home() {
               <>
                 <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="var(--color-accent-maroon)" strokeWidth="1.6" strokeLinecap="round" className="mb-6 mx-auto"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8" /></svg>
                 <h2 className="text-2xl font-bold font-display mb-3">
-                  First, what&apos;s your name?
+                  {t('askName')}
                 </h2>
                 <p className="text-textMuted text-base leading-relaxed max-w-xs">
-                  Pick a name and avatar to track your scores and challenge
-                  friends.
+                  {t('askNameBody')}
                 </p>
               </>
             )}
@@ -588,14 +585,14 @@ export default function Home() {
                 onClick={nextCarouselSlide}
                 className="w-full py-4 rounded-2xl bg-maroon text-onMaroon font-bold text-base hover:opacity-90 active:scale-[0.98] transition-all"
               >
-                Next →
+                {t('next')}
               </button>
             ) : (
               <button
                 onClick={() => dismissCarousel(true)}
                 className="w-full py-4 rounded-2xl bg-maroon text-onMaroon font-bold text-base hover:opacity-90 active:scale-[0.98] transition-all"
               >
-                Let&apos;s Go!
+                {t('letsGo')}
               </button>
             )}
           </div>

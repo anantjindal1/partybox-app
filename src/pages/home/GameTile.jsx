@@ -1,6 +1,8 @@
 import { ACCENT_STYLES } from './gameCatalog'
+import { useLang } from '../../store/LangContext'
 
 export default function GameTile({ card, disabled, offlineNotice, onClick }) {
+  const { t } = useLang()
   const accent = ACCENT_STYLES[card.accent]
   const Icon = card.icon
   const ModeIcon = card.modeIcon
@@ -35,7 +37,7 @@ export default function GameTile({ card, disabled, offlineNotice, onClick }) {
           {card.playersPill}
         </span>
         <span className={`text-[11px] font-semibold px-2 py-1 rounded-lg ${accent.cta}`}>
-          {card.isOnline ? 'Host' : 'Play'}
+          {card.isOnline ? t('host') : t('play')}
         </span>
       </div>
 

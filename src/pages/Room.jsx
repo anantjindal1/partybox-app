@@ -183,7 +183,7 @@ export default function Room() {
   if (!room || !profile) {
     return (
       <div className="min-h-screen bg-surface text-textPrimary flex items-center justify-center">
-        <p className="text-textMuted text-xl animate-pulse">Connecting...</p>
+        <p className="text-textMuted text-xl animate-pulse">{t('connecting')}</p>
       </div>
     )
   }
@@ -214,8 +214,7 @@ export default function Room() {
   function getInviteText() {
     const rawTitle = game?.title
     const gameName = (typeof rawTitle === 'string' ? rawTitle : rawTitle?.[lang] ?? rawTitle?.en) ?? 'PartyBox'
-    const playerName = profile?.name ?? 'Someone'
-    return `${playerName} is inviting you to play ${gameName}! Come play:\n${publicUrl()}\nRoom code: ${code}`
+    return t('inviteMessage', { name: profile?.name ?? t('someone'), game: gameName, link: publicUrl(), code })
   }
 
   function handleCopyLink() {
@@ -261,7 +260,7 @@ export default function Room() {
               onClick={handleEndGame}
               className="whitespace-nowrap text-error hover:text-error text-sm font-semibold border border-error/60 rounded-xl px-3 py-1.5"
             >
-              {gameInProgress ? t('endGame') : 'Close Room'}
+              {gameInProgress ? t('endGame') : t('closeRoom')}
             </button>
           )}
           <LangToggle />
@@ -279,7 +278,7 @@ export default function Room() {
         <div className="px-4 sm:px-6 pt-6 pb-4 space-y-4">
           {/* Room code */}
           <div className="text-center">
-            <p className="text-textMuted text-xs mb-2">or share code manually</p>
+            <p className="text-textMuted text-xs mb-2">{t('shareManually')}</p>
             <RoomCode code={code} />
           </div>
 
@@ -325,7 +324,7 @@ export default function Room() {
               </div>
             )}
             <p className="text-textMuted text-sm mt-3">
-              Waiting for players... ({room.players.length}/{game?.maxPlayers ?? 6})
+              {t('waitingCount', { n: room.players.length, max: game?.maxPlayers ?? 6 })}
             </p>
           </div>
 
@@ -339,13 +338,13 @@ export default function Room() {
               onClick={handleWhatsApp}
               className="flex-1 py-3 rounded-xl bg-teal hover:bg-teal text-textPrimary font-semibold text-sm"
             >
-              Share on WhatsApp
+              {t('shareWhatsApp')}
             </button>
             <button
               onClick={handleCopyLink}
               className="flex-1 py-3 rounded-xl bg-surfaceMuted hover:bg-surfaceMuted text-textPrimary font-semibold text-sm"
             >
-              {copied ? '✓ Copied!' : 'Copy Link'}
+              {copied ? t('copied') : t('copyLink')}
             </button>
           </div>
 
@@ -359,7 +358,7 @@ export default function Room() {
               onClick={() => document.querySelector('.game-area')?.scrollIntoView({ behavior: 'smooth' })}
               className="w-full py-3 rounded-xl font-semibold text-sm border-[1.5px] border-border text-textMuted hover:text-textPrimary hover:border-textMuted transition-colors"
             >
-              Jump to Start ↓
+              {t('jumpToStart')}
             </button>
           )}
         </div>
@@ -374,7 +373,7 @@ export default function Room() {
           )}
           {isSpectator && (
             <p className="text-center text-textMuted text-sm">
-              👁️ Spectating — you can watch but not play this round.
+              {t('spectating')}
             </p>
           )}
           {/* Games that already show every player's name/avatar on their
@@ -399,7 +398,7 @@ export default function Room() {
           )}
           {spectators.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-textMuted text-xs">Watching:</span>
+              <span className="text-textMuted text-xs">{t('watching')}</span>
               {spectators.map(p => (
                 <span
                   key={p.id}
@@ -433,7 +432,7 @@ export default function Room() {
           </CardVariantContext.Provider>
         ) : (
           <Card className="p-6 text-center">
-            <p className="text-textMuted">Game not found: {room.gameSlug}</p>
+            <p className="text-textMuted">{t('gameNotFound', { slug: room.gameSlug })}</p>
           </Card>
         )}
       </div>

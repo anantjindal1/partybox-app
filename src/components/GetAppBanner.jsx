@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Capacitor } from '@capacitor/core'
+import { useLang } from '../store/LangContext'
 
 // Off until the app is in production on Play: closed-test links 404 for
 // anyone who isn't an opted-in tester.
@@ -13,6 +14,7 @@ function wasDismissed() {
 
 // Android browsers only; the app has no iOS build.
 export default function GetAppBanner() {
+  const { t } = useLang()
   const [hidden, setHidden] = useState(wasDismissed)
   if (!PLAY_STORE_LIVE || hidden || Capacitor.isNativePlatform() || !/Android/i.test(navigator.userAgent)) return null
 
@@ -23,11 +25,11 @@ export default function GetAppBanner() {
 
   return (
     <div className="mb-5 flex items-center gap-3 rounded-xl border border-border bg-surface px-4 py-3">
-      <p className="flex-1 text-sm text-textPrimary">PartyBox is on Google Play. Faster, full screen, works with invite links.</p>
+      <p className="flex-1 text-sm text-textPrimary">{t('getAppText')}</p>
       <a href={PLAY_URL} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-lg bg-maroon px-3 py-2 text-sm font-bold text-onMaroon">
-        Get the app
+        {t('getApp')}
       </a>
-      <button onClick={dismiss} aria-label="Dismiss" className="shrink-0 text-textMuted hover:text-textPrimary text-lg leading-none px-1">×</button>
+      <button onClick={dismiss} aria-label={t('dismiss')} className="shrink-0 text-textMuted hover:text-textPrimary text-lg leading-none px-1">×</button>
     </div>
   )
 }

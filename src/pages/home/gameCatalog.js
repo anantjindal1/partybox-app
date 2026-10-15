@@ -410,9 +410,9 @@ export const VISIBLE_GAMES = [
 ]
 
 export const CATEGORIES = [
-  { key: 'cards', label: 'Card Games', blurb: 'Classic desi card games, online with friends' },
-  { key: 'party', label: 'Party & Social', blurb: 'Bluff, act, accuse and argue' },
-  { key: 'quiz', label: 'Quiz & Classic', blurb: 'Trivia and Tambola' },
+  { key: 'cards', labelKey: 'sectionCards', blurbKey: 'sectionCardsBlurb' },
+  { key: 'party', labelKey: 'sectionParty', blurbKey: 'sectionPartyBlurb' },
+  { key: 'quiz', labelKey: 'sectionQuiz', blurbKey: 'sectionQuizBlurb' },
 ]
 
 const CATEGORY_BY_SLUG = {

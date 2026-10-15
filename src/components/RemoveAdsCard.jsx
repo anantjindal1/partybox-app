@@ -3,9 +3,11 @@ import { Capacitor } from '@capacitor/core'
 import { Card } from './Card'
 import { useAdsRemoved } from '../hooks/useAdsRemoved'
 import { getRemoveAdsPackage, buyRemoveAds, restorePurchases } from '../lib/purchases'
+import { useLang } from '../store/LangContext'
 
 // Purchases only exist in the Android app; on the web this renders nothing.
 export default function RemoveAdsCard() {
+  const { t } = useLang()
   const adsRemoved = useAdsRemoved()
   const [pkg, setPkg] = useState(null)
   const [busy, setBusy] = useState(false)
@@ -24,7 +26,7 @@ export default function RemoveAdsCard() {
     try {
       await action()
     } catch {
-      setMessage("Couldn't reach Google Play. Check your connection and try again.")
+      setMessage('playUnreachable')
     } finally {
       setBusy(false)
     }
@@ -37,34 +39,34 @@ export default function RemoveAdsCard() {
   function handleRestore() {
     run(async () => {
       const restored = await restorePurchases()
-      if (!restored) setMessage('No previous Remove Ads purchase found on this Google account.')
+      if (!restored) setMessage('noPurchaseFound')
     })
   }
 
   return (
     <Card className="p-5 space-y-3">
-      <p className="text-textMuted text-sm uppercase tracking-wider">Remove ads</p>
+      <p className="text-textMuted text-sm uppercase tracking-wider">{t('removeAds')}</p>
       {adsRemoved ? (
-        <p className="text-sm text-textPrimary">Ads are removed on this Google account. Thanks for supporting PartyBox!</p>
+        <p className="text-sm text-textPrimary">{t('adsRemoved')}</p>
       ) : (
         <>
           <p className="text-sm text-textPrimary">
-            One-time purchase. No banners, no ads between games, every game still free.{' '}
-            <a href="/refund.html" target="_blank" rel="noopener noreferrer" className="underline text-textMuted">Refund policy</a>
+            {t('removeAdsDesc')}{' '}
+            <a href="/refund.html" target="_blank" rel="noopener noreferrer" className="underline text-textMuted">{t('refundPolicy')}</a>
           </p>
           <button
             onClick={handleBuy}
             disabled={!pkg || busy}
             className="w-full min-h-[44px] rounded-xl bg-maroon text-onMaroon font-bold disabled:opacity-50"
           >
-            {busy ? 'Please wait…' : pkg ? `Remove ads · ${pkg.product.priceString}` : 'Remove ads (unavailable)'}
+            {busy ? t('pleaseWait') : pkg ? t('removeAdsPrice', { price: pkg.product.priceString }) : t('removeAdsUnavailable')}
           </button>
         </>
       )}
       <button onClick={handleRestore} disabled={busy} className="text-sm underline text-textPrimary disabled:opacity-50">
-        Restore purchase
+        {t('restorePurchase')}
       </button>
-      {message && <p className="text-sm text-textMuted">{message}</p>}
+      {message && <p className="text-sm text-textMuted">{t(message)}</p>}
     </Card>
   )
 }

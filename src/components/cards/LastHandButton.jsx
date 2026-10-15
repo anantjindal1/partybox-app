@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { HandWinnerOverlay } from './HandWinnerOverlay'
 import { CARD_GAME_ACCENT_CLASSES } from '../cardGameAccent'
 import { useCardVariant } from './cardVariant'
+import { useLang } from '../../store/LangContext'
 
 /**
  * "View Last Hand" button + modal — the live winner overlay clears itself
@@ -11,11 +12,12 @@ import { useCardVariant } from './cardVariant'
  * each game persists it when a hand completes.
  */
 export function LastHandButton({ lastHand, players, accent = 'maroon', variant: variantProp }) {
+  const { t } = useLang()
   const variant = useCardVariant(variantProp)
   const [open, setOpen] = useState(false)
   if (!lastHand) return null
   const accentClasses = CARD_GAME_ACCENT_CLASSES[accent] ?? CARD_GAME_ACCENT_CLASSES.maroon
-  const winnerName = players.find(p => p.id === lastHand.winnerId)?.name ?? 'Player'
+  const winnerName = players.find(p => p.id === lastHand.winnerId)?.name ?? t('player')
   const centerCards = lastHand.cards.map(({ playerId, card }) => ({
     card,
     playerId,
@@ -30,7 +32,7 @@ export function LastHandButton({ lastHand, players, accent = 'maroon', variant: 
           ? 'royal-pill self-center px-4 min-h-[36px] text-[10px]'
           : `self-center text-sm font-bold border-[1.5px] rounded-xl px-4 py-2 ${accentClasses.text} ${accentClasses.border} ${accentClasses.soft}`}
       >
-        View Last Hand
+        {t('viewLastHand')}
       </button>
       {open && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-4 py-8 overflow-y-auto">
@@ -40,7 +42,7 @@ export function LastHandButton({ lastHand, players, accent = 'maroon', variant: 
                 onClick={() => setOpen(false)}
                 className="text-textMuted hover:text-textPrimary text-sm font-semibold px-3 py-1"
               >
-                Close
+                {t('close')}
               </button>
             </div>
             <HandWinnerOverlay

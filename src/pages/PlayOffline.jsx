@@ -4,6 +4,7 @@ import { getGame } from '../games/registry'
 import { useGameTheme } from '../store/GameThemeContext'
 import { reportError } from '../lib/crashReporting'
 import FeedbackLink from '../components/FeedbackLink'
+import { useLang } from '../store/LangContext'
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -20,14 +21,7 @@ class ErrorBoundary extends Component {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-bg text-textPrimary flex flex-col items-center justify-center px-6 text-center">
-          <p className="text-5xl mb-4">⚠️</p>
-          <p className="text-xl text-textMuted">Failed to load game. Check your connection.</p>
-          <button
-            onClick={() => { this.setState({ hasError: false }); this.props.onRetry?.() }}
-            className="mt-6 text-gold hover:text-gold text-lg font-medium"
-          >
-            ← Back to Home
-          </button>
+          <LoadFailed onBack={() => { this.setState({ hasError: false }); this.props.onRetry?.() }} />
         </div>
       )
     }
@@ -35,11 +29,25 @@ class ErrorBoundary extends Component {
   }
 }
 
+function LoadFailed({ onBack }) {
+  const { t } = useLang()
+  return (
+    <>
+      <p className="text-5xl mb-4">⚠️</p>
+      <p className="text-xl text-textMuted">{t('gameLoadFailed')}</p>
+      <button onClick={onBack} className="mt-6 text-gold hover:text-gold text-lg font-medium">
+        {t('backToHome')}
+      </button>
+    </>
+  )
+}
+
 function GameLoadingSpinner() {
+  const { t } = useLang()
   const { theme } = useGameTheme()
   return (
     <div className={`min-h-screen ${theme.bg} ${theme.text} flex items-center justify-center`}>
-      <p className={`${theme.textMuted} text-xl animate-pulse`}>Loading…</p>
+      <p className={`${theme.textMuted} text-xl animate-pulse`}>{t('loading')}</p>
     </div>
   )
 }
@@ -51,6 +59,7 @@ function GameLoadingSpinner() {
  * ErrorBoundary catches chunk-load failures (e.g. flaky network).
  */
 export default function PlayOffline() {
+  const { t } = useLang()
   const { slug } = useParams()
   const navigate = useNavigate()
   const game = getGame(slug)
@@ -59,12 +68,12 @@ export default function PlayOffline() {
     return (
       <div className="min-h-screen bg-bg text-textPrimary flex flex-col items-center justify-center px-6 text-center">
         <p className="text-5xl mb-4">🎮</p>
-        <p className="text-xl text-textMuted">Game not found: {slug}</p>
+        <p className="text-xl text-textMuted">{t('gameNotFound', { slug })}</p>
         <button
           onClick={() => navigate('/')}
           className="mt-6 text-gold hover:text-gold text-lg font-medium"
         >
-          ← Back to Home
+          {t('backToHome')}
         </button>
       </div>
     )

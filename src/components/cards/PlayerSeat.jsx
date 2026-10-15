@@ -4,6 +4,7 @@ import { parseCard } from '../../multiplayer/deck'
 import { AiTag, Avatar } from '../BotControls'
 import { getHandStep } from './seatLayout'
 import { useCardVariant } from './cardVariant'
+import { useLang } from '../../store/LangContext'
 
 // The exposed-hand fan is the ONLY one ever tapped (GameLead always sees
 // the dummy at the front seat, and only GameLead gets onExposedCardTap), so
@@ -45,6 +46,7 @@ export function PlayerSeat({
   selectedExposedCardIds = [],
   variant: variantProp
 }) {
+  const { t } = useLang()
   const variant = useCardVariant(variantProp)
   const royal = variant === 'royal'
   const glowStyle = isActiveTurn ? { '--turn-glow-color': `rgb(var(--color-accent-${accent}-rgb))` } : {}
@@ -129,7 +131,7 @@ export function PlayerSeat({
             : `text-xs truncate max-w-[64px] ${isActiveTurn ? 'font-extrabold' : 'font-semibold text-textPrimary'}`}
           style={isActiveTurn && !royal ? { color: `rgb(var(--color-accent-${accent}-rgb))` } : undefined}
         >
-          {player?.name ?? 'Player'}
+          {player?.name ?? t('player')}
         </span>
         {player?.isBot && <AiTag />}
       </span>

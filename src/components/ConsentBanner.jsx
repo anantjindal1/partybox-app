@@ -1,7 +1,9 @@
 import { useConsent } from '../hooks/useConsent'
 import { setConsent } from '../lib/consent'
+import { useLang } from '../store/LangContext'
 
 export function ConsentBanner() {
+  const { t } = useLang()
   const consent = useConsent()
   if (consent !== null) return null
 
@@ -9,24 +11,22 @@ export function ConsentBanner() {
     <div className="fixed bottom-0 left-0 right-0 z-[60] px-3 pb-3 pointer-events-none">
       <div className="max-w-lg mx-auto rounded-2xl bg-surfaceElevated border border-border shadow-card p-4 pointer-events-auto">
         <p className="text-sm text-textPrimary">
-          PartyBox is free and shows ads. With your OK we record how the app is used (which games, how long) to improve
-          it, use Google Analytics, and personalise ads, which may set identifiers on your device. If you decline, nothing
-          is recorded and you still see ads, just not personalised ones.
+          {t('consentText')}
           {' '}
-          <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="underline text-textMuted">Privacy Policy</a>
+          <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="underline text-textMuted">{t('privacyPolicy')}</a>
         </p>
         <div className="flex gap-2 mt-3">
           <button
             onClick={() => setConsent('denied')}
             className="flex-1 min-h-[44px] rounded-xl border-[1.5px] border-border text-textPrimary font-semibold"
           >
-            Decline
+            {t('decline')}
           </button>
           <button
             onClick={() => setConsent('granted')}
             className="flex-1 min-h-[44px] rounded-xl bg-maroon text-onMaroon font-bold"
           >
-            Accept
+            {t('accept')}
           </button>
         </div>
       </div>

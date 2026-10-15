@@ -72,7 +72,7 @@ export default function Profile() {
   if (!profile) {
     return (
       <div className="min-h-screen bg-surface text-textPrimary flex items-center justify-center">
-        <p className="text-textMuted text-xl animate-pulse">Loading...</p>
+        <p className="text-textMuted text-xl animate-pulse">{t('loading')}</p>
       </div>
     )
   }
@@ -187,7 +187,7 @@ export default function Profile() {
         {/* Game stats (online only) */}
         {online && ONLINE_GAME_SLUGS.length > 0 && (
           <div>
-            <p className="text-textMuted text-sm mb-3 uppercase tracking-wider">Game Stats</p>
+            <p className="text-textMuted text-sm mb-3 uppercase tracking-wider">{t('gameStats')}</p>
             {statsLoading ? (
               <div className="grid grid-cols-2 gap-3">
                 {ONLINE_GAME_SLUGS.map(slug => (
@@ -219,7 +219,7 @@ export default function Profile() {
                           </div>
                         </div>
                       ) : (
-                        <p className="text-textMuted text-xs">No games yet</p>
+                        <p className="text-textMuted text-xs">{t('noGamesYet')}</p>
                       )}
                     </Card>
                   )
@@ -233,12 +233,12 @@ export default function Profile() {
 
         {/* Privacy */}
         <Card className="p-5 space-y-3">
-          <p className="text-textMuted text-sm uppercase tracking-wider">Privacy</p>
+          <p className="text-textMuted text-sm uppercase tracking-wider">{t('privacy')}</p>
           <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
-            <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="underline text-textPrimary">Privacy Policy</a>
-            <a href="/terms.html" target="_blank" rel="noopener noreferrer" className="underline text-textPrimary">Terms</a>
-            <a href="/refund.html" target="_blank" rel="noopener noreferrer" className="underline text-textPrimary">Refunds</a>
-            <button onClick={() => setConsent(null)} className="underline text-textPrimary">Change analytics &amp; ads choice</button>
+            <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="underline text-textPrimary">{t('privacyPolicy')}</a>
+            <a href="/terms.html" target="_blank" rel="noopener noreferrer" className="underline text-textPrimary">{t('terms')}</a>
+            <a href="/refund.html" target="_blank" rel="noopener noreferrer" className="underline text-textPrimary">{t('refunds')}</a>
+            <button onClick={() => setConsent(null)} className="underline text-textPrimary">{t('changeAnalyticsChoice')}</button>
           </div>
           <FeedbackLink className="!text-sm !text-textPrimary !min-h-0" />
           {!confirmingDelete ? (
@@ -246,12 +246,12 @@ export default function Profile() {
               onClick={() => setConfirmingDelete(true)}
               className="text-sm font-semibold text-error border-[1.5px] border-error/40 rounded-xl px-4 py-2"
             >
-              Delete my data
+              {t('deleteMyData')}
             </button>
           ) : (
             <div className="space-y-2">
               <p className="text-sm text-textPrimary">
-                This erases your profile, XP, stats and usage records from our servers and from this device. It can't be undone.
+                {t('deleteWarning')}
               </p>
               <div className="flex gap-2">
                 <button
@@ -259,17 +259,17 @@ export default function Profile() {
                   disabled={deleting}
                   className="text-sm font-bold bg-error text-white rounded-xl px-4 py-2 disabled:opacity-50"
                 >
-                  {deleting ? 'Deleting…' : 'Yes, delete everything'}
+                  {deleting ? t('deleting') : t('deleteConfirm')}
                 </button>
                 <button
                   onClick={() => setConfirmingDelete(false)}
                   disabled={deleting}
                   className="text-sm font-semibold text-textMuted px-4 py-2"
                 >
-                  Cancel
+                  {t('cancel')}
                 </button>
               </div>
-              {deleteError && <p className="text-sm text-error">Couldn't delete right now. Check your connection and try again.</p>}
+              {deleteError && <p className="text-sm text-error">{t('deleteFailed')}</p>}
             </div>
           )}
         </Card>

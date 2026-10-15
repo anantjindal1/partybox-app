@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { addBot, setBotDifficulty } from '../services/room'
 import { makeBot, botColor, DIFFICULTIES, DEFAULT_DIFFICULTY } from '../multiplayer/bots/bots'
-
-const LABEL = { easy: 'Easy', medium: 'Medium', hard: 'Hard' }
+import { useLang } from '../store/LangContext'
 
 /**
  * Host-only lobby controls for filling empty seats with AI players.
  * Removing one reuses the lobby's normal kick (✕) on its seat.
  */
 export function BotControls({ code, room, maxPlayers }) {
+  const { t } = useLang()
   const [adding, setAdding] = useState(false)
   const difficulty = room.botDifficulty ?? DEFAULT_DIFFICULTY
   const hasBots = room.players.some(p => p.isBot)
@@ -27,20 +27,20 @@ export function BotControls({ code, room, maxPlayers }) {
     <div className="rounded-xl border border-border/60 bg-surfaceElevated p-3 flex flex-col gap-3">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-textPrimary">AI players</p>
-          <p className="text-xs text-textMuted">Fill empty seats with the computer. Tap ✕ on a seat to remove.</p>
+          <p className="text-sm font-semibold text-textPrimary">{t('aiPlayers')}</p>
+          <p className="text-xs text-textMuted">{t('aiPlayersDesc')}</p>
         </div>
         <button
           onClick={handleAdd}
           disabled={full || adding}
           className="shrink-0 px-3 py-2 rounded-xl text-sm font-semibold border-[1.5px] border-border text-textPrimary hover:border-textMuted disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          + Add AI
+          {t('addAi')}
         </button>
       </div>
       {hasBots && (
         <div className="flex items-center gap-2">
-          <span className="text-xs text-textMuted">Level</span>
+          <span className="text-xs text-textMuted">{t('level')}</span>
           {DIFFICULTIES.map(d => (
             <button
               key={d}
@@ -51,7 +51,7 @@ export function BotControls({ code, room, maxPlayers }) {
                   : 'border-border/60 text-textSecondary hover:border-textMuted'
               }`}
             >
-              {LABEL[d]}
+              {t(d)}
             </button>
           ))}
         </div>
@@ -61,9 +61,10 @@ export function BotControls({ code, room, maxPlayers }) {
 }
 
 export function AiTag() {
+  const { t } = useLang()
   return (
     <span className="inline-block align-middle ml-1 px-1 rounded text-[9px] font-bold leading-[14px] bg-textMuted/20 text-textSecondary">
-      AI
+      {t('aiTag')}
     </span>
   )
 }

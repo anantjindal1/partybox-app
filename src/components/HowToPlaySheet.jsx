@@ -53,7 +53,7 @@ export function HowToPlaySheet({ title, slides, accent, onClose }) {
 
         <p className="text-textMuted text-xs font-semibold uppercase tracking-wider mb-1">{title}</p>
         <p className={`text-xs font-semibold uppercase tracking-wider mb-5 ${accentClasses.text}`}>
-          How to Play
+          {t('howToPlay')}
         </p>
 
         <div className="min-h-[140px] flex flex-col justify-center px-1">
@@ -85,7 +85,7 @@ export function HowToPlaySheet({ title, slides, accent, onClose }) {
             onClick={next}
             className={`flex-1 py-3 rounded-xl font-bold ${accentClasses.button}`}
           >
-            {isLast ? 'Got it!' : 'Next →'}
+            {isLast ? t('gotItBang') : t('next')}
           </button>
         </div>
       </div>

@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { FELT_OPTIONS, setFelt, useFelt } from '../../lib/feltColor'
+import { useLang } from '../../store/LangContext'
 
 // The viewer's own table colour on the royal table — a device preference,
 // never shared with the other players.
 export function FeltPicker() {
+  const { t } = useLang()
   const felt = useFelt()
   const [open, setOpen] = useState(false)
 
@@ -16,7 +18,7 @@ export function FeltPicker() {
         className="royal-pill flex items-center gap-2 px-3 min-h-[36px] text-[10px]"
       >
         <span className="w-4 h-4 rounded-full border border-[#e9c77e]" style={{ background: felt.hex }} />
-        Table
+        {t('table')}
       </button>
       {open && FELT_OPTIONS.map(option => (
         <button

@@ -1,3 +1,4 @@
+import { useLang } from '../../store/LangContext'
 /**
  * The "between hands" seat list — lets an active player give up their
  * seat and a spectator claim an open one. Rendered inside a game's own
@@ -6,9 +7,10 @@
  * `openSeats.length === 0` so play can't continue with an empty seat.
  */
 export function SeatManagement({ turnOrder, openSeats, myId, isSpectator, nameOf, onLeaveSeat, onClaimSeat }) {
+  const { t } = useLang()
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-xs text-textMuted uppercase tracking-wider text-center">Seats</p>
+      <p className="text-xs text-textMuted uppercase tracking-wider text-center">{t('seats')}</p>
       {turnOrder.map(seatId => {
         const isOpen = openSeats.includes(seatId)
         const isMe = seatId === myId
@@ -20,23 +22,23 @@ export function SeatManagement({ turnOrder, openSeats, myId, isSpectator, nameOf
             }`}
           >
             <span className="text-sm font-semibold text-textPrimary">
-              {isOpen ? 'Empty seat' : nameOf(seatId)}
+              {isOpen ? t('emptySeat') : nameOf(seatId)}
             </span>
             {isOpen && isSpectator ? (
               <button
                 onClick={() => onClaimSeat(seatId)}
                 className="text-xs font-bold text-cobalt border-[1.5px] border-cobalt rounded-lg px-3 py-1.5"
               >
-                Join this seat →
+                {t('joinSeat')}
               </button>
             ) : isOpen ? (
-              <span className="text-xs text-textMuted">Waiting for a player…</span>
+              <span className="text-xs text-textMuted">{t('waitingForPlayer')}</span>
             ) : isMe ? (
               <button
                 onClick={onLeaveSeat}
                 className="text-xs font-semibold text-error border-[1.5px] border-error/40 rounded-lg px-3 py-1.5"
               >
-                Leave Seat
+                {t('leaveSeat')}
               </button>
             ) : null}
           </div>

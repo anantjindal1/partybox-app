@@ -1,13 +1,15 @@
 import { useTheme } from '../store/ThemeContext'
+import { useLang } from '../store/LangContext'
 
 export function ThemeToggle({ className = '' }) {
+  const { t } = useLang()
   const { theme, toggleTheme } = useTheme()
 
   return (
     <button
       onClick={toggleTheme}
       className={`w-11 h-11 flex items-center justify-center rounded-xl bg-surfaceElevated hover:bg-surfaceMuted text-textPrimary border border-border transition-colors ${className}`.trim()}
-      aria-label="Toggle light/dark theme"
+      aria-label={t('toggleTheme')}
     >
       {theme === 'dark' ? (
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

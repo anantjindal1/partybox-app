@@ -8,11 +8,11 @@ import { getGame } from '../games/registry'
 import { subscribeToOpenTables, describeTable } from '../services/openTables'
 import { getDeviceId } from '../services/profile'
 
-function formatAge(createdAtMs, now) {
+function formatAge(createdAtMs, now, t) {
   const minutes = Math.max(0, Math.floor((now - createdAtMs) / 60000))
-  if (minutes < 1) return 'just now'
-  if (minutes < 60) return `${minutes} min ago`
-  return `${Math.floor(minutes / 60)}h ${minutes % 60}m ago`
+  if (minutes < 1) return t('justNow')
+  if (minutes < 60) return t('minAgo', { n: minutes })
+  return t('hoursAgo', { h: Math.floor(minutes / 60), m: minutes % 60 })
 }
 
 function formatClock(createdAtMs) {
@@ -66,10 +66,10 @@ export default function Tables() {
     const title = game.title[lang] ?? game.title.en
     const isMine = table.playerIds.includes(myId)
     const status = isMine
-      ? 'Tap to rejoin'
+      ? t('tapToRejoin')
       : table.inLobby
         ? null
-        : table.openSeats > 0 ? 'In progress — join as a replacement' : 'In progress — watch'
+        : table.openSeats > 0 ? t('joinAsReplacement') : t('inProgressWatch')
     return (
       <Card
         key={table.code}
@@ -84,7 +84,7 @@ export default function Tables() {
           <p className="text-textMuted text-sm truncate">{table.hostAvatar} {table.hostName}</p>
           {table.createdAtMs && (
             <p className="text-textMuted text-xs">
-              Created {formatClock(table.createdAtMs)} · {formatAge(table.createdAtMs, now)}
+              {t('createdAgo', { time: formatClock(table.createdAtMs) })} · {formatAge(table.createdAtMs, now, t)}
             </p>
           )}
           {status && <p className="text-textMuted text-xs">{status}</p>}
@@ -92,7 +92,7 @@ export default function Tables() {
         <div className="text-right flex-shrink-0">
           <p className="text-textPrimary font-bold tabular-nums">{table.playerCount}/{table.playerCount + table.openSeats}</p>
           <p className="text-textMuted text-xs">
-            {isMine ? 'Rejoin' : table.openSeats === 0 ? 'Watch' : table.openSeats === 1 ? '1 seat' : `${table.openSeats} seats`}
+            {isMine ? t('rejoin') : table.openSeats === 0 ? t('watch') : table.openSeats === 1 ? t('oneSeat') : t('nSeats', { n: table.openSeats })}
           </p>
         </div>
       </Card>
@@ -113,13 +113,13 @@ export default function Tables() {
 
       <div className="flex-1 px-4 sm:px-6 py-8 max-w-xl mx-auto w-full flex flex-col gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-textPrimary">Open Tables</h1>
-          <p className="text-textMuted text-sm mt-1">Sit at a table with a free seat, or watch a game that's already running.</p>
-          <p className="text-textMuted text-xs mt-1">Friendly play — games aren't cheat-proof, so play for fun, not stakes.</p>
+          <h1 className="text-3xl font-bold text-textPrimary">{t('openTables')}</h1>
+          <p className="text-textMuted text-sm mt-1">{t('tablesIntro')}</p>
+          <p className="text-textMuted text-xs mt-1">{t('tablesFriendly')}</p>
         </div>
 
-        <div role="tablist" aria-label="Which tables to show" className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-surfaceMuted border border-border/60">
-          {[['open', 'Open seats'], ['all', 'All tables']].map(([value, label]) => (
+        <div role="tablist" aria-label={t('whichTables')} className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-surfaceMuted border border-border/60">
+          {[['open', t('openSeats')], ['all', t('allTables')]].map(([value, label]) => (
             <button
               key={value}
               type="button"
@@ -135,26 +135,26 @@ export default function Tables() {
           ))}
         </div>
 
-        {failed && <p className="text-error text-sm">Couldn't load tables. Check your connection.</p>}
-        {!failed && tables === null && <p className="text-textMuted animate-pulse">Looking for tables…</p>}
+        {failed && <p className="text-error text-sm">{t('tablesLoadFailed')}</p>}
+        {!failed && tables === null && <p className="text-textMuted animate-pulse">{t('lookingForTables')}</p>}
 
         {mine.length > 0 && (
           <>
-            <p className="text-gold text-sm font-semibold uppercase tracking-wider mt-2">Your tables</p>
+            <p className="text-gold text-sm font-semibold uppercase tracking-wider mt-2">{t('yourTables')}</p>
             {mine.map(renderRow)}
           </>
         )}
 
         {mine.length > 0 && others.length > 0 && (
           <p className="text-textMuted text-sm font-semibold uppercase tracking-wider mt-2">
-            {filter === 'all' ? 'All tables' : 'Open seats'}
+            {filter === 'all' ? t('allTables') : t('openSeats')}
           </p>
         )}
         {tables && others.length === 0 && (
           <p className="text-textMuted py-8 text-center">
             {filter === 'all'
-              ? 'No tables running right now. Start one from Home and it will show up here.'
-              : 'No open seats right now. Switch to All tables to watch a game, or start one from Home.'}
+              ? t('noTables')
+              : t('noOpenSeats')}
           </p>
         )}
         {others.map(renderRow)}

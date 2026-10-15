@@ -1,5 +1,6 @@
 import { getLobbySeatPosition } from './seatLayout'
 import { AiTag, Avatar } from '../BotControls'
+import { useLang } from '../../store/LangContext'
 
 /**
  * Pre-game lobby player list, arranged as seats around an oval table
@@ -10,6 +11,7 @@ import { AiTag, Avatar } from '../BotControls'
  * replaces, just positioned via getLobbySeatPosition.
  */
 export function LobbyTable({ players, hostId, isHost, onKick }) {
+  const { t } = useLang()
   return (
     <div
       className="relative w-full max-w-md mx-auto rounded-[50%] border-[3px] border-border shadow-inner bg-surfaceMuted"
@@ -39,7 +41,7 @@ export function LobbyTable({ players, hostId, isHost, onKick }) {
               <button
                 onClick={() => onKick(p.id)}
                 className="text-xs text-textMuted hover:text-error"
-                aria-label={`Remove ${p.name}`}
+                aria-label={t('removeName', { name: p.name })}
               >
                 ✕
               </button>

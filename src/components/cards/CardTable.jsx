@@ -6,6 +6,7 @@ import { CARD_GAME_ACCENT_CLASSES } from '../cardGameAccent'
 import { getSeatPosition, getHandStep } from './seatLayout'
 import { useCardVariant } from './cardVariant'
 import { tapHaptic, turnHaptic } from '../../lib/haptics'
+import { useLang } from '../../store/LangContext'
 
 const HAND_CARD_WIDTH = 46 // matches PlayingCard's 'md' size
 // Royal hands use 'lg' cards up to 13 (spaced to fit a 375px phone); a
@@ -49,6 +50,7 @@ export function CardTable({
   // (see .royal-* in index.css). Omitted, every game renders as before.
   variant: variantProp
 }) {
+  const { t } = useLang()
   const variant = useCardVariant(variantProp)
   const [playingCardId, setPlayingCardId] = useState(null)
   const royal = variant === 'royal'
@@ -191,11 +193,11 @@ export function CardTable({
 
       {myIsActiveTurn && (royal ? (
         <p className="text-center -mb-1">
-          <span className="royal-gold-pill inline-block text-xs px-4 py-1.5">Your Turn</span>
+          <span className="royal-gold-pill inline-block text-xs px-4 py-1.5">{t('yourTurn')}</span>
         </p>
       ) : (
         <p className={`text-center text-xs font-extrabold uppercase tracking-wide -mb-2 ${accentClasses.text}`}>
-          Your Turn
+          {t('yourTurn')}
         </p>
       ))}
       <div className={royal ? '' : 'overflow-x-auto'}>
@@ -272,6 +274,7 @@ function RoyalTableSurface() {
 }
 
 function SideExposedRow({ seat, variant }) {
+  const { t } = useLang()
   const royal = variant === 'royal'
   const cards = seat.exposedCards
   const highlighted = seat.highlightedExposedCardIds ?? []
@@ -279,7 +282,7 @@ function SideExposedRow({ seat, variant }) {
   return (
     <div className="flex flex-col items-center gap-1.5 -mt-1">
       <p className={royal ? 'royal-name text-[10px]' : 'text-xs font-semibold text-textMuted'}>
-        {seat.player?.name ?? 'Player'} · Open hand
+        {t('openHand', { name: seat.player?.name ?? t('player') })}
       </p>
       <div className="flex items-end">
         {cards.map((cardId, i) => {

@@ -1,4 +1,5 @@
 import { getGameIcon } from './gameIcons'
+import { useLang } from '../store/LangContext'
 
 /**
  * Small sheet for games that ship both a single-device and an online mode.
@@ -6,6 +7,7 @@ import { getGameIcon } from './gameIcons'
  * its own slugs/title/description in.
  */
 export function ModeChooserSheet({ game, onChooseOffline, onChooseOnline, onClose }) {
+  const { t } = useLang()
   if (!game) return null
   const Icon = getGameIcon(game.offlineSlug)
 
@@ -22,7 +24,7 @@ export function ModeChooserSheet({ game, onChooseOffline, onChooseOnline, onClos
           <p className="text-textPrimary text-lg font-bold">{game.title}</p>
         </div>
 
-        <p className="text-textMuted text-sm font-medium mb-3 uppercase tracking-wider">How do you want to play?</p>
+        <p className="text-textMuted text-sm font-medium mb-3 uppercase tracking-wider">{t('howToPlayQ')}</p>
 
         <div className="space-y-3">
           <button
@@ -34,8 +36,8 @@ export function ModeChooserSheet({ game, onChooseOffline, onChooseOnline, onClos
               <path d="M11 18h2" />
             </svg>
             <div>
-              <p className="text-textPrimary font-bold">Single Device</p>
-              <p className="text-textMuted text-sm">Pass one phone around — everyone votes out loud</p>
+              <p className="text-textPrimary font-bold">{t('singleDevice')}</p>
+              <p className="text-textMuted text-sm">{t('singleDeviceDesc')}</p>
             </div>
           </button>
 
@@ -48,8 +50,8 @@ export function ModeChooserSheet({ game, onChooseOffline, onChooseOnline, onClos
               <circle cx="12" cy="18" r="1.4" fill="currentColor" stroke="none" />
             </svg>
             <div>
-              <p className="text-textPrimary font-bold">Online Room</p>
-              <p className="text-textMuted text-sm">Everyone joins from their own phone, votes anonymously</p>
+              <p className="text-textPrimary font-bold">{t('onlineRoom')}</p>
+              <p className="text-textMuted text-sm">{t('onlineRoomDesc')}</p>
             </div>
           </button>
         </div>
@@ -58,7 +60,7 @@ export function ModeChooserSheet({ game, onChooseOffline, onChooseOnline, onClos
           onClick={onClose}
           className="mt-5 w-full text-textMuted hover:text-textSecondary text-sm font-medium py-2 transition-colors"
         >
-          Back
+          {t('back')}
         </button>
       </div>
     </>

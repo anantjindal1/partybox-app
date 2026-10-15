@@ -8,6 +8,7 @@ import { KeepAwake } from '@capacitor-community/keep-awake'
 import { useTheme } from '../store/ThemeContext'
 import { PUBLIC_ORIGIN } from '../lib/publicUrl'
 import { maybeShowInterstitial } from '../lib/nativeAds'
+import { useLang } from '../store/LangContext'
 
 const isNative = Capacitor.isNativePlatform()
 const IN_GAME = /^\/(room|play)\//
@@ -15,11 +16,14 @@ const IN_GAME = /^\/(room|play)\//
 // Native-only glue: hardware back, deep links from invite URLs, status bar
 // theming, and keeping the screen on during games. Renders nothing.
 export default function NativeBridge() {
+  const { t } = useLang()
   const location = useLocation()
   const navigate = useNavigate()
   const { theme } = useTheme()
   const pathRef = useRef(location.pathname)
   pathRef.current = location.pathname
+  const tRef = useRef(t)
+  tRef.current = t
 
   useEffect(() => {
     if (!isNative) return
@@ -28,7 +32,7 @@ export default function NativeBridge() {
     const back = App.addListener('backButton', () => {
       const path = pathRef.current
       if (path === '/') return App.exitApp()
-      if (IN_GAME.test(path) && !window.confirm('Leave this game?')) return
+      if (IN_GAME.test(path) && !window.confirm(tRef.current('leaveGameQ'))) return
       navigate(-1)
     })
 

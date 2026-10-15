@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { HowToPlaySheet } from './HowToPlaySheet'
 import { CARD_GAME_ACCENT_CLASSES } from './cardGameAccent'
+import { useLang } from '../store/LangContext'
 
 /**
  * Written rules + a "How to Play" tutorial button for a game's waiting
@@ -10,6 +11,7 @@ import { CARD_GAME_ACCENT_CLASSES } from './cardGameAccent'
  * content, no per-game state/effect wiring needed.
  */
 export function GameRulesPanel({ title, rules, tutorialSlides, accent, phase }) {
+  const { t } = useLang()
   const [showTutorial, setShowTutorial] = useState(false)
   const accentClasses = CARD_GAME_ACCENT_CLASSES[accent] ?? CARD_GAME_ACCENT_CLASSES.maroon
 
@@ -19,7 +21,7 @@ export function GameRulesPanel({ title, rules, tutorialSlides, accent, phase }) 
 
   return (
     <div className={`rounded-2xl border-[1.5px] ${accentClasses.border} ${accentClasses.soft} p-4 flex flex-col gap-3`}>
-      <p className={`text-xs font-semibold uppercase tracking-wider ${accentClasses.text}`}>How to Play</p>
+      <p className={`text-xs font-semibold uppercase tracking-wider ${accentClasses.text}`}>{t('howToPlay')}</p>
       <ul className="flex flex-col gap-1.5">
         {rules.map((rule, i) => (
           <li key={i} className="text-textSecondary text-sm leading-snug flex gap-2">
@@ -32,7 +34,7 @@ export function GameRulesPanel({ title, rules, tutorialSlides, accent, phase }) 
         onClick={() => setShowTutorial(true)}
         className={`self-start text-xs font-bold ${accentClasses.text} hover:opacity-70 transition-opacity`}
       >
-        See full tutorial →
+        {t('fullTutorial')}
       </button>
 
       {showTutorial && (
