@@ -9,7 +9,9 @@ for that history.
 
 ## Product backlog (added 2026-10-15)
 
-1. **P0 — Hindi/English for every visible string.** A `LangContext` +
+1. **P0 — Hindi/English for every visible string.** Batch 1 (all shared
+   screens) DONE 2026-10-15 (da7f130), reviewed via Google Sheet. Next:
+   Home game cards + card games, then party games. A `LangContext` +
    `LangToggle` + `t()` already exist, and game titles carry `{en, hi}`,
    but only 32 of 163 `.jsx` files use `useLang`. Most game screens are
    English-only; Bhed, Chugli Detective, Codenames, Spot the Jugaad and
