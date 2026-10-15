@@ -13,7 +13,7 @@ export default {
     en: [
       'One player opens a round by playing 1–4 cards and naming a rank.',
       'Others can Pass, Add more cards of the same rank, or Call Bluff on the latest play.',
-      'Wrong bluff call → the whole pile goes to the bluffer. Right call → it goes to you.',
+      'Wrong bluff call → you take the whole pile. Right call → the bluffer takes it.',
       'Empty your hand first to win!'
     ],
     hi: [
