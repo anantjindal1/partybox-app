@@ -74,7 +74,7 @@ BillDesk KYC approval (Play payments profile), 12 testers opting in to
 the closed test, Play review of v4.
 
 **User's to-dos:**
-1. v7 uploaded (2026-10-05). Testers: 12/23 opted in on 2026-10-02 — production ~2026-10-16. Upload v8 (`~/Desktop/partybox-v8.aab`, 1.0.7 — table rejoin after app kill, Open Tables "All tables", royal card table on 9 card games); supersedes v7.
+1. v8 uploaded (confirmed 2026-10-15). Next upload is v9: carries analytics P0 (ac84218) for app users. Mark your own phone/browser internal once by opening any page with `?internal=1`. Earlier: v7 uploaded (2026-10-05). Testers: 12/23 opted in on 2026-10-02 — production ~2026-10-16. Upload v8 (`~/Desktop/partybox-v8.aab`, 1.0.7 — table rejoin after app kill, Open Tables "All tables", royal card table on 9 card games); supersedes v7.
 2. PARKED until after production launch: BillDesk appears to want the app live before approving (they asked why the app isn't visible; user replied 2026-10-05, automated reminders continue). After approval: add bank account (Payments → How you get paid).
 3. Create one-time product `remove_ads` (₹99) in Play Console, then
    RevenueCat: import product → entitlement `no_ads` → default offering
