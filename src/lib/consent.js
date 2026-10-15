@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'partybox_consent_v1'
+const STORAGE_KEY = 'partybox_consent_v2'
 const listeners = new Set()
 
 /** 'granted' | 'denied' | null (not asked yet). */

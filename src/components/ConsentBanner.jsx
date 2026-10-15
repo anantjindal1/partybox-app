@@ -9,8 +9,9 @@ export function ConsentBanner() {
     <div className="fixed bottom-0 left-0 right-0 z-[60] px-3 pb-3 pointer-events-none">
       <div className="max-w-lg mx-auto rounded-2xl bg-surfaceElevated border border-border shadow-card p-4 pointer-events-auto">
         <p className="text-sm text-textPrimary">
-          PartyBox is free and shows ads. With your OK we personalise those ads and use Google Analytics, which may set
-          identifiers on your device. If you decline, you still see ads, just not personalised ones.
+          PartyBox is free and shows ads. With your OK we record how the app is used (which games, how long) to improve
+          it, use Google Analytics, and personalise ads, which may set identifiers on your device. If you decline, nothing
+          is recorded and you still see ads, just not personalised ones.
           {' '}
           <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="underline text-textMuted">Privacy Policy</a>
         </p>
