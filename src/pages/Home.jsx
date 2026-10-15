@@ -496,8 +496,9 @@ export default function Home() {
           onTouchStart={handleCarouselTouchStart}
           onTouchEnd={handleCarouselTouchEnd}
         >
-          {/* Skip button — slides 0 and 1 only */}
-          <div className="flex justify-end px-6 pt-6 min-h-[52px]">
+          {/* Language toggle + Skip (Skip on slides 0 and 1 only) */}
+          <div className="flex items-center justify-between px-6 pt-6 min-h-[52px]">
+            <LangToggle />
             {carouselSlide < 2 && (
               <button
                 onClick={() => dismissCarousel(false)}
