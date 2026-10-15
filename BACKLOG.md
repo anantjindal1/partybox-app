@@ -7,6 +7,25 @@ project memory's `project_backlog_status.md`/`project_game_implementations.md`/
 `project_playtesting_round_2026_09_20.md`/`project_launch_privacy_prep.md`
 for that history.
 
+## Product backlog (added 2026-10-15)
+
+1. **P0 — Hindi/English for every visible string.** A `LangContext` +
+   `LangToggle` + `t()` already exist, and game titles carry `{en, hi}`,
+   but only 32 of 163 `.jsx` files use `useLang`. Most game screens are
+   English-only; Bhed, Chugli Detective, Codenames, Spot the Jugaad and
+   Tambola have zero coverage. Work is a per-screen string sweep plus
+   Hindi copy, not new infrastructure. Question/prompt content (quiz
+   banks, prompts) is a separate, larger translation job.
+2. **P0 — Better AI player icons.** Bots currently share one look plus a
+   plain grey "AI" text tag (`AiTag` in `src/components/BotControls.jsx`).
+   Give each bot a distinct icon/avatar.
+3. **Truly Indianise the non-card games** (quiz etc.) — card games are
+   already Indian. Needs a per-game pass on content and framing.
+4. **New games:** Truth or Dare, Would You Rather, Never Have I Ever.
+   (Who Is Most Likely To already exists as Sabse Zyada Kaun.)
+5. **Game packs** — a series of 3–4 games played back-to-back as a group,
+   with a combined scoreboard.
+
 ## Launch follow-ups (added 2026-09-28)
 
 Privacy policy, consent banner, delete-my-data, ad infra, and the daily
