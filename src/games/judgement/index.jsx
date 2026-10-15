@@ -33,7 +33,7 @@ const SUIT_LABEL = { spades: '♠', hearts: '♥', diamonds: '♦', clubs: '♣'
 
 export default function Judgement({ code }) {
   const navigate = useNavigate()
-  const { lang } = useLang()
+  const { lang, t } = useLang()
   const {
     room,
     roomState,
@@ -333,7 +333,7 @@ export default function Judgement({ code }) {
   if (!room || !myId) {
     return (
       <div className="flex-1 flex items-center justify-center py-12">
-        <p className="text-textMuted animate-pulse">Connecting…</p>
+        <p className="text-textMuted animate-pulse">{t('connecting')}</p>
       </div>
     )
   }
@@ -351,7 +351,7 @@ export default function Judgement({ code }) {
         />
         {roomFull && (
           <p className="text-center text-error text-sm">
-            Room full ({metadata.maxPlayers}/{metadata.maxPlayers}) — ask the host to remove a player to start.
+            {t('roomFull', { n: metadata.maxPlayers })}
           </p>
         )}
         {isHost ? (
@@ -361,13 +361,13 @@ export default function Judgement({ code }) {
             className="min-h-[48px] rounded-xl bg-peridot text-onPeridot font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {starting
-              ? 'Dealing...'
+              ? t('dealing')
               : players.length < metadata.minPlayers
-                ? `Waiting for players (${players.length}/${metadata.minPlayers})`
-                : 'Start Game →'}
+                ? t('waitingPlayersN', { n: players.length, max: metadata.minPlayers })
+                : t('startGameArrow')}
           </button>
         ) : (
-          <p className="text-center text-textMuted text-sm">Waiting for host to start...</p>
+          <p className="text-center text-textMuted text-sm">{t('waitingForHostStart')}</p>
         )}
       </div>
     )
@@ -410,7 +410,7 @@ export default function Judgement({ code }) {
 
   if (phase === 'choosing_trump') {
     const isChooser = myId === roomState.trumpChooserId
-    const chooserName = players.find(p => p.id === roomState.trumpChooserId)?.name ?? 'Player'
+    const chooserName = players.find(p => p.id === roomState.trumpChooserId)?.name ?? t('player')
     return (
       <TrumpChoiceScreen
         isChooser={isChooser}
@@ -447,13 +447,13 @@ export default function Judgement({ code }) {
     const roundNumber = (roomState.roundIndex ?? 0) + 1
     const totalRounds = roomState.handSizeSequence?.length ?? 1
     const scoreEntries = [
-      { label: 'Round', value: `${roundNumber}/${totalRounds}` },
-      { label: 'Trump', value: SUIT_LABEL[roomState.trumpSuit], valueClassName: SUIT_TEXT_CLASS[roomState.trumpSuit] },
-      { label: 'You', value: `bid ${roomState.bids?.[myId]} · won ${roomState.handsWon?.[myId] ?? 0}` }
+      { label: t('round'), value: `${roundNumber}/${totalRounds}` },
+      { label: t('trump'), value: SUIT_LABEL[roomState.trumpSuit], valueClassName: SUIT_TEXT_CLASS[roomState.trumpSuit] },
+      { label: t('you'), value: t('jYouScore', { bid: roomState.bids?.[myId], won: roomState.handsWon?.[myId] ?? 0 }) }
     ]
 
     const handWinnerId = roomState.handWinnerId
-    const handWinnerName = handWinnerId ? (players.find(p => p.id === handWinnerId)?.name ?? 'Player') : null
+    const handWinnerName = handWinnerId ? (players.find(p => p.id === handWinnerId)?.name ?? t('player')) : null
     const centerSlot = handWinnerId ? (
       <HandWinnerOverlay
         centerCards={centerCards}
@@ -489,10 +489,10 @@ export default function Judgement({ code }) {
         />
         <p className="text-center text-textMuted text-sm py-2">
           {!isMyTurn
-            ? `Waiting for ${currentTurnName} to play...`
+            ? t('waitingToPlay', { name: currentTurnName })
             : roomState.ledSuit
-              ? `Follow suit: ${SUIT_LABEL[roomState.ledSuit]}`
-              : 'Lead any card'}
+              ? t('followSuit', { suit: SUIT_LABEL[roomState.ledSuit] })
+              : t('leadAny')}
         </p>
       </div>
     )

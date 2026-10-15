@@ -21,7 +21,7 @@ import metadata from './metadata'
 
 export default function Satti({ code }) {
   const navigate = useNavigate()
-  const { lang } = useLang()
+  const { lang, t } = useLang()
   const {
     room,
     roomState,
@@ -174,7 +174,7 @@ export default function Satti({ code }) {
   if (!room || !myId) {
     return (
       <div className="flex-1 flex items-center justify-center py-12">
-        <p className="text-textMuted animate-pulse">Connecting…</p>
+        <p className="text-textMuted animate-pulse">{t('connecting')}</p>
       </div>
     )
   }
@@ -195,10 +195,10 @@ export default function Satti({ code }) {
             disabled={players.length < metadata.minPlayers || starting}
             className="min-h-[48px] rounded-xl bg-amethyst text-onAmethyst font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {starting ? 'Dealing...' : 'Start Game →'}
+            {starting ? t('dealing') : t('startGameArrow')}
           </button>
         ) : (
-          <p className="text-center text-textMuted text-sm">Waiting for host to start...</p>
+          <p className="text-center text-textMuted text-sm">{t('waitingForHostStart')}</p>
         )}
       </div>
     )
@@ -240,11 +240,11 @@ export default function Satti({ code }) {
             onClick={handlePass}
             className="min-h-[44px] rounded-xl bg-amethyst text-onAmethyst font-bold"
           >
-            No legal move — Pass →
+            {t('noLegalMove')}
           </button>
         ) : (
           <p className="text-center text-textMuted text-sm py-2">
-            {!isMyTurn ? `Waiting for ${currentTurnName} to play...` : 'Tap a card to play it'}
+            {!isMyTurn ? t('waitingToPlay', { name: currentTurnName }) : t('tapToPlay')}
           </p>
         )}
       </div>

@@ -1,15 +1,17 @@
 import { SeatManagement } from '../../components/cards/SeatManagement'
+import { useLang } from '../../store/LangContext'
 
 export function RoundRevealScreen({ lastRoundResult, players, isHost, isLastRound, onNextRound, advancing, seatManagement }) {
+  const { t } = useLang()
   const perPlayer = lastRoundResult?.perPlayer ?? {}
   function nameOf(id) {
-    return players.find(p => p.id === id)?.name ?? 'Player'
+    return players.find(p => p.id === id)?.name ?? t('player')
   }
 
   return (
     <div className="flex-1 flex flex-col px-4 sm:px-6 py-6 gap-5 max-w-lg w-full mx-auto">
       <p className="text-xs text-textMuted uppercase tracking-wider text-center">
-        Round {lastRoundResult?.roundNumber} Results
+        {t('cbResults', { n: lastRoundResult?.roundNumber })}
       </p>
 
       <div className="flex flex-col gap-2">
@@ -22,14 +24,14 @@ export function RoundRevealScreen({ lastRoundResult, players, isHost, isLastRoun
               <div className="flex flex-col">
                 <span className="text-sm font-semibold text-textPrimary">{p.name}</span>
                 <span className="text-xs text-textMuted">
-                  Bid {r.bid} · Won {r.handsWon}
+                  {t('bidWon', { bid: r.bid, won: r.handsWon })}
                 </span>
               </div>
               <div className="flex flex-col items-end">
                 <span className={`text-sm font-bold tabular-nums ${made ? 'text-turquoise' : 'text-error'}`}>
                   {r.scoreDelta > 0 ? '+' : ''}{r.scoreDelta.toFixed(1)}
                 </span>
-                <span className="text-xs text-textMuted tabular-nums">Total: {r.cumulativeAfter.toFixed(1)}</span>
+                <span className="text-xs text-textMuted tabular-nums">{t('totalScore', { n: r.cumulativeAfter.toFixed(1) })}</span>
               </div>
             </div>
           )
@@ -50,7 +52,7 @@ export function RoundRevealScreen({ lastRoundResult, players, isHost, isLastRoun
 
       {seatManagement && seatManagement.openSeats.length > 0 ? (
         <p className="text-center text-textMuted text-sm">
-          Waiting for {seatManagement.openSeats.length === 1 ? 'an empty seat' : `${seatManagement.openSeats.length} empty seats`} to be filled before continuing…
+          {seatManagement.openSeats.length === 1 ? t('waitingSeat1') : t('waitingSeatsN', { n: seatManagement.openSeats.length })}
         </p>
       ) : isHost ? (
         <button
@@ -58,10 +60,10 @@ export function RoundRevealScreen({ lastRoundResult, players, isHost, isLastRoun
           disabled={advancing}
           className="min-h-[44px] rounded-xl bg-turquoise text-onTurquoise font-bold disabled:opacity-40 transition-opacity"
         >
-          {isLastRound ? 'See Final Results →' : 'Next Round →'}
+          {isLastRound ? t('finalResultsArrow') : t('nextRoundArrow')}
         </button>
       ) : (
-        <p className="text-center text-textMuted text-sm">Waiting for the host to continue…</p>
+        <p className="text-center text-textMuted text-sm">{t('waitingForHostContinue')}</p>
       )}
     </div>
   )

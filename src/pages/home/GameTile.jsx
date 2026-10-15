@@ -1,8 +1,10 @@
-import { ACCENT_STYLES } from './gameCatalog'
+import { ACCENT_STYLES, cardKey, localizeCard } from './gameCatalog'
+import { getGame } from '../../games/registry'
 import { useLang } from '../../store/LangContext'
 
 export default function GameTile({ card, disabled, offlineNotice, onClick }) {
-  const { t } = useLang()
+  const { t, lang } = useLang()
+  const text = localizeCard(card, t, lang, getGame(cardKey(card))?.title?.hi)
   const accent = ACCENT_STYLES[card.accent]
   const Icon = card.icon
   const ModeIcon = card.modeIcon
@@ -21,20 +23,20 @@ export default function GameTile({ card, disabled, offlineNotice, onClick }) {
         </div>
         <span className={`flex items-center gap-1 text-[11px] font-semibold border-b-[1.5px] pb-0.5 ${accent.tab}`}>
           <ModeIcon />
-          {card.modeBadge}
+          {text.modeBadge}
         </span>
       </div>
 
       <span className="text-sm font-bold text-textPrimary leading-tight line-clamp-2 min-h-[2.5em]">
-        {card.title}
+        {text.title}
       </span>
       <p className="text-textMuted text-xs leading-snug mt-1 line-clamp-2 min-h-[2.5em]">
-        {card.description}
+        {text.description}
       </p>
 
       <div className="flex items-center justify-between gap-1 mt-3">
         <span className="border border-border rounded-full px-2 py-0.5 text-[11px] text-textMuted whitespace-nowrap">
-          {card.playersPill}
+          {text.playersPill}
         </span>
         <span className={`text-[11px] font-semibold px-2 py-1 rounded-lg ${accent.cta}`}>
           {card.isOnline ? t('host') : t('play')}

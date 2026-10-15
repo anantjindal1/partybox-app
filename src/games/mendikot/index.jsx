@@ -29,7 +29,7 @@ const TEN_IDS = ['10S', '10H', '10D', '10C']
 
 export default function Mendikot({ code }) {
   const navigate = useNavigate()
-  const { lang } = useLang()
+  const { lang, t } = useLang()
   const {
     room,
     roomState,
@@ -193,7 +193,7 @@ export default function Mendikot({ code }) {
   if (!room || !myId) {
     return (
       <div className="flex-1 flex items-center justify-center py-12">
-        <p className="text-textMuted animate-pulse">Connecting…</p>
+        <p className="text-textMuted animate-pulse">{t('connecting')}</p>
       </div>
     )
   }
@@ -224,10 +224,10 @@ export default function Mendikot({ code }) {
             disabled={players.length < metadata.minPlayers || players.length > metadata.maxPlayers || starting}
             className="min-h-[48px] rounded-xl bg-citrine text-onCitrine font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {starting ? 'Dealing...' : 'Start Game →'}
+            {starting ? t('dealing') : t('startGameArrow')}
           </button>
         ) : (
-          <p className="text-center text-textMuted text-sm">Waiting for host to start...</p>
+          <p className="text-center text-textMuted text-sm">{t('waitingForHostStart')}</p>
         )}
       </div>
     )
@@ -255,17 +255,17 @@ export default function Mendikot({ code }) {
         player: p,
         cardCount: roomState.hands?.[p.id]?.length ?? 0,
         isActiveTurn: roomState.turnOrder?.[roomState.currentIdx] === p.id,
-        label: getTeamOf(p.id, roomState.turnOrder) === myTeam ? 'Partner' : undefined
+        label: getTeamOf(p.id, roomState.turnOrder) === myTeam ? t('partner') : undefined
       }))
     const teamHands = computeTeamHands(roomState.turnOrder, roomState.handsWon ?? {})
     const tensCaptured = roomState.tensCaptured ?? { teamA: 0, teamB: 0 }
     const scoreEntries = [
-      { label: 'Team A', value: `${teamHands.teamA} hands, ${tensCaptured.teamA} tens` },
-      { label: 'Team B', value: `${teamHands.teamB} hands, ${tensCaptured.teamB} tens` }
+      { label: t('teamA'), value: t('mTeamScore', { h: teamHands.teamA, t: tensCaptured.teamA }) },
+      { label: t('teamB'), value: t('mTeamScore', { h: teamHands.teamB, t: tensCaptured.teamB }) }
     ]
 
     const handWinnerId = roomState.handWinnerId
-    const handWinnerName = handWinnerId ? (players.find(p => p.id === handWinnerId)?.name ?? 'Player') : null
+    const handWinnerName = handWinnerId ? (players.find(p => p.id === handWinnerId)?.name ?? t('player')) : null
     const centerSlot = handWinnerId ? (
       <HandWinnerOverlay
         centerCards={centerCards}
@@ -292,10 +292,10 @@ export default function Mendikot({ code }) {
         />
         <p className="text-center text-textMuted text-sm py-2">
           {!isMyTurn
-            ? `Waiting for ${currentTurnName} to play...`
+            ? t('waitingToPlay', { name: currentTurnName })
             : roomState.ledSuit
-              ? `Follow suit: ${SUIT_LABEL[roomState.ledSuit]}`
-              : 'Lead any card'}
+              ? t('followSuit', { suit: SUIT_LABEL[roomState.ledSuit] })
+              : t('leadAny')}
         </p>
       </div>
     )

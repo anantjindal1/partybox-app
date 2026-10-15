@@ -41,7 +41,7 @@ function buildRoundStartFields(activePlayerIds) {
 
 export default function Donkey({ code }) {
   const navigate = useNavigate()
-  const { lang } = useLang()
+  const { lang, t } = useLang()
   const {
     room,
     roomState,
@@ -267,7 +267,7 @@ export default function Donkey({ code }) {
   if (!room || !myId) {
     return (
       <div className="flex-1 flex items-center justify-center py-12">
-        <p className="text-textMuted animate-pulse">Connecting…</p>
+        <p className="text-textMuted animate-pulse">{t('connecting')}</p>
       </div>
     )
   }
@@ -288,10 +288,10 @@ export default function Donkey({ code }) {
             disabled={players.length < metadata.minPlayers || players.length > metadata.maxPlayers || starting}
             className="min-h-[48px] rounded-xl bg-amber text-onAmber font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {starting ? 'Dealing...' : 'Start Game →'}
+            {starting ? t('dealing') : t('startGameArrow')}
           </button>
         ) : (
-          <p className="text-center text-textMuted text-sm">Waiting for host to start...</p>
+          <p className="text-center text-textMuted text-sm">{t('waitingForHostStart')}</p>
         )}
       </div>
     )
@@ -301,8 +301,8 @@ export default function Donkey({ code }) {
   if (iAmEliminated && (phase === 'passing' || phase === 'reacting')) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center py-12 gap-2">
-        <p className="text-lg font-bold text-textPrimary">You've been eliminated</p>
-        <p className="text-sm text-textMuted">Spectating the rest of the match…</p>
+        <p className="text-lg font-bold text-textPrimary">{t('dkYouOut')}</p>
+        <p className="text-sm text-textMuted">{t('dkSpectating')}</p>
       </div>
     )
   }

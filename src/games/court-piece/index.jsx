@@ -36,7 +36,7 @@ const SUIT_LABEL = { spades: '♠', hearts: '♥', diamonds: '♦', clubs: '♣'
 
 export default function CourtPiece({ code }) {
   const navigate = useNavigate()
-  const { lang } = useLang()
+  const { lang, t } = useLang()
   const {
     room,
     roomState,
@@ -81,7 +81,7 @@ export default function CourtPiece({ code }) {
           onClick={() => setShowLastRound(true)}
           className="self-center text-sm font-bold text-jade border-[1.5px] border-jade bg-jade/10 rounded-xl px-4 py-2"
         >
-          📜 View Last Round
+          📜 {t('viewLastRound')}
         </button>
         {showLastRound && (
           <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-4 py-8 overflow-y-auto">
@@ -91,7 +91,7 @@ export default function CourtPiece({ code }) {
                   onClick={() => setShowLastRound(false)}
                   className="text-textMuted hover:text-textPrimary text-sm font-semibold px-3 py-1"
                 >
-                  ✕ Close
+                  {t('closeX')}
                 </button>
               </div>
               <RoundRevealScreen
@@ -347,7 +347,7 @@ export default function CourtPiece({ code }) {
   if (!room || !myId) {
     return (
       <div className="flex-1 flex items-center justify-center py-12">
-        <p className="text-textMuted animate-pulse">Connecting…</p>
+        <p className="text-textMuted animate-pulse">{t('connecting')}</p>
       </div>
     )
   }
@@ -365,7 +365,7 @@ export default function CourtPiece({ code }) {
         />
         {roomFull && (
           <p className="text-center text-error text-sm">
-            Room full (4/4) — ask the host to remove a player to start.
+            {t('roomFull', { n: 4 })}
           </p>
         )}
         {players.length === 4 && (
@@ -384,10 +384,10 @@ export default function CourtPiece({ code }) {
             disabled={players.length !== 4 || starting}
             className="min-h-[48px] rounded-xl bg-jade text-onJade font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {starting ? 'Dealing...' : players.length < 4 ? `Waiting for players (${players.length}/4)` : 'Start Game →'}
+            {starting ? t('dealing') : players.length < 4 ? t('waitingPlayersN', { n: players.length, max: 4 }) : t('startGameArrow')}
           </button>
         ) : (
-          <p className="text-center text-textMuted text-sm">Waiting for host to start...</p>
+          <p className="text-center text-textMuted text-sm">{t('waitingForHostStart')}</p>
         )}
       </div>
     )
@@ -395,7 +395,7 @@ export default function CourtPiece({ code }) {
 
   if (phase === 'calling_trump') {
     const isCaller = myId === roomState.callerId
-    const callerName = players.find(p => p.id === roomState.callerId)?.name ?? 'Player'
+    const callerName = players.find(p => p.id === roomState.callerId)?.name ?? t('player')
     const myHand = sortHand(roomState.hands?.[myId] ?? [])
     return (
       <>
@@ -431,21 +431,21 @@ export default function CourtPiece({ code }) {
         player: p,
         cardCount: roomState.hands?.[p.id]?.length ?? 0,
         isActiveTurn: roomState.turnOrder?.[roomState.currentIdx] === p.id,
-        label: getTeamOf(p.id, roomState.turnOrder) === myTeam ? 'Partner' : undefined
+        label: getTeamOf(p.id, roomState.turnOrder) === myTeam ? t('partner') : undefined
       }))
 
     const roundsWon = roomState.roundsWon ?? { teamA: 0, teamB: 0 }
     const gameScores = roomState.gameScores ?? { teamA: 0, teamB: 0 }
     const scoreEntries = [
-      { label: 'Round', value: roomState.roundNumber ?? 1 },
-      { label: 'Team A', value: `${gameScores.teamA}pts (${roundsWon.teamA} rounds)` },
-      { label: 'Team B', value: `${gameScores.teamB}pts (${roundsWon.teamB} rounds)` },
-      { label: 'Trump', value: SUIT_LABEL[roomState.trumpSuit], valueClassName: SUIT_TEXT_CLASS[roomState.trumpSuit] }
+      { label: t('round'), value: roomState.roundNumber ?? 1 },
+      { label: t('teamA'), value: t('cpTeamScore', { pts: gameScores.teamA, rounds: roundsWon.teamA }) },
+      { label: t('teamB'), value: t('cpTeamScore', { pts: gameScores.teamB, rounds: roundsWon.teamB }) },
+      { label: t('trump'), value: SUIT_LABEL[roomState.trumpSuit], valueClassName: SUIT_TEXT_CLASS[roomState.trumpSuit] }
     ]
     const handsThisRound = computeTeamHands(roomState.turnOrder ?? [], roomState.handsWon ?? {})
 
     const handWinnerId = roomState.handWinnerId
-    const handWinnerName = handWinnerId ? (players.find(p => p.id === handWinnerId)?.name ?? 'Player') : null
+    const handWinnerName = handWinnerId ? (players.find(p => p.id === handWinnerId)?.name ?? t('player')) : null
     const centerSlot = handWinnerId ? (
       <HandWinnerOverlay
         centerCards={centerCards}
@@ -464,7 +464,7 @@ export default function CourtPiece({ code }) {
         </div>
         <TableScoreBar entries={scoreEntries} />
         <p className="text-center text-textMuted text-xs">
-          Hands won this round — Team A: {handsThisRound.teamA}, Team B: {handsThisRound.teamB}
+          {t('cpHandsLine', { a: handsThisRound.teamA, b: handsThisRound.teamB })}
         </p>
         <CardTable
           otherSeats={otherSeats}
@@ -479,10 +479,10 @@ export default function CourtPiece({ code }) {
         />
         <p className="text-center text-textMuted text-sm py-2">
           {!isMyTurn
-            ? `Waiting for ${currentTurnName} to play...`
+            ? t('waitingToPlay', { name: currentTurnName })
             : roomState.ledSuit
-              ? `Follow suit: ${SUIT_LABEL[roomState.ledSuit]}`
-              : 'Lead any card'}
+              ? t('followSuit', { suit: SUIT_LABEL[roomState.ledSuit] })
+              : t('leadAny')}
         </p>
       </div>
     )

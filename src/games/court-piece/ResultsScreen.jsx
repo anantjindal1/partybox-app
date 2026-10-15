@@ -1,4 +1,5 @@
 import { getTeamA, getTeamB } from './courtPieceLogic'
+import { useLang } from '../../store/LangContext'
 
 function TrophyIcon(props) {
   return (
@@ -11,8 +12,9 @@ function TrophyIcon(props) {
 }
 
 export function ResultsScreen({ turnOrder, players, gameWinner, gameScores, roundsWon, myId, isHost, onRematch, onHome }) {
+  const { t } = useLang()
   function nameOf(id) {
-    return players.find(p => p.id === id)?.name ?? 'Player'
+    return players.find(p => p.id === id)?.name ?? t('player')
   }
   function teamNames(ids) {
     return ids.map(nameOf).join(' & ')
@@ -34,7 +36,7 @@ export function ResultsScreen({ turnOrder, players, gameWinner, gameScores, roun
         <div className="w-16 h-16 rounded-full border-[1.5px] border-jade text-jade flex items-center justify-center">
           <TrophyIcon />
         </div>
-        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">Winner</p>
+        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">{t('winner')}</p>
         <p className="text-2xl font-bold font-display text-textPrimary">
           {teamNames(gameWinner === 'teamA' ? teamAIds : teamBIds)}
         </p>
@@ -49,7 +51,7 @@ export function ResultsScreen({ turnOrder, players, gameWinner, gameScores, roun
             }`}
           >
             <span className="text-sm font-semibold text-textPrimary">
-              {teamNames(ids)}{ids === myTeamIds ? ' (You)' : ''}
+              {teamNames(ids)}{ids === myTeamIds ? t('youSuffix') : ''}
             </span>
             <div className="flex flex-col items-end">
               <span className="text-sm font-bold text-jade tabular-nums">{roundsWon[key]} rounds</span>
@@ -62,11 +64,11 @@ export function ResultsScreen({ turnOrder, players, gameWinner, gameScores, roun
       <div className="flex flex-col gap-3">
         {isHost && (
           <button onClick={onRematch} className="min-h-[44px] rounded-xl bg-jade text-onJade font-bold">
-            Rematch →
+            {t('rematchArrow')}
           </button>
         )}
         <button onClick={onHome} className="min-h-[44px] rounded-xl border-[1.5px] border-border text-textPrimary font-semibold">
-          Home
+          {t('home')}
         </button>
       </div>
     </div>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { SpadeIcon, HeartIcon, DiamondIcon, ClubIcon } from '../../components/cards/suitIcons'
 import { PlayingCard } from '../../components/cards/PlayingCard'
 import { parseCard } from '../../multiplayer/deck'
+import { useLang } from '../../store/LangContext'
 
 const SUITS = [
   { suit: 'spades', Icon: SpadeIcon, colorClass: 'text-cardBlack' },
@@ -11,6 +12,7 @@ const SUITS = [
 ]
 
 export function TrumpCallScreen({ isCaller, callerName, myHand, onCall }) {
+  const { t } = useLang()
   const [selectedSuit, setSelectedSuit] = useState(null)
 
   return (
@@ -18,9 +20,9 @@ export function TrumpCallScreen({ isCaller, callerName, myHand, onCall }) {
       <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">
         {isCaller
           ? selectedSuit
-            ? 'Declare It or Keep It Hidden?'
-            : 'Your 5 Cards — Call Trump'
-          : 'Calling Trump…'}
+            ? t('tdpDeclareQ')
+            : t('callTrump5')
+          : t('callingTrump')}
       </p>
 
       <div className="flex gap-1.5">
@@ -37,19 +39,19 @@ export function TrumpCallScreen({ isCaller, callerName, myHand, onCall }) {
               onClick={() => onCall(selectedSuit, 'declared')}
               className="min-h-[56px] rounded-2xl border-[1.5px] border-orchid bg-orchid/10 text-textPrimary font-bold"
             >
-              Declare Trump — everyone sees it
+              {t('tdpDeclare')}
             </button>
             <button
               onClick={() => onCall(selectedSuit, 'hidden')}
               className="min-h-[56px] rounded-2xl border-[1.5px] border-border bg-surfaceElevated text-textPrimary font-bold"
             >
-              Keep It Hidden — revealed only if asked
+              {t('tdpKeepHidden')}
             </button>
             <button
               onClick={() => setSelectedSuit(null)}
               className="text-center text-sm text-textMuted"
             >
-              ← Pick a different suit
+              {t('tdpPickOther')}
             </button>
           </div>
         ) : (
@@ -68,7 +70,7 @@ export function TrumpCallScreen({ isCaller, callerName, myHand, onCall }) {
         )
       ) : (
         <p className="text-center text-textMuted text-sm py-8">
-          {callerName} is targeting 5 this hand — waiting for them to call trump…
+          {t('tdpCallerWaiting', { name: callerName })}
         </p>
       )}
     </div>

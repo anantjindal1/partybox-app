@@ -271,7 +271,7 @@ export const VISIBLE_GAMES = [
     modeBadge: 'Online',
     modeIcon: SignalIcon,
     accent: 'turquoise',
-    description: 'Bid your tricks, spades are always trump — 5 rounds to the top',
+    description: 'Bid your hands, spades are always trump — 5 rounds to the top',
     playersPill: 'Exactly 4 players',
     timePill: '~30 mins',
     cta: 'Create Room →',
@@ -297,7 +297,7 @@ export const VISIBLE_GAMES = [
     modeBadge: 'Online',
     modeIcon: SignalIcon,
     accent: 'jade',
-    description: 'Fixed 2v2 partnerships — sweep a Kot or race to 7 match points',
+    description: 'Fixed 2v2 partnerships — sweep a Kot or race to 7 game points',
     playersPill: 'Exactly 4 players',
     timePill: '~30-45 mins',
     cta: 'Create Room →',
@@ -336,7 +336,7 @@ export const VISIBLE_GAMES = [
     modeBadge: 'Online',
     modeIcon: SignalIcon,
     accent: 'orchid',
-    description: 'Fixed rotating targets of 3, 2, and 5 tricks — declared or hidden trump',
+    description: 'Fixed rotating targets of 3, 2, and 5 hands — declared or hidden trump',
     playersPill: 'Exactly 3 players',
     timePill: '~30-45 mins',
     cta: 'Create Room →',
@@ -436,6 +436,25 @@ export function playerRange(card) {
   const nums = (card.playersPill.match(/\d+/g) || []).map(Number)
   if (/\+/.test(card.playersPill)) return [nums[0], Infinity]
   return [nums[0], nums[1] ?? nums[0]]
+}
+
+const MODE_KEY = { Solo: 'modeSolo', Party: 'modeParty', Online: 'modeOnline' }
+
+// Display text for a card in the current language. English data stays the
+// source of truth (playerRange parses playersPill), so this only translates.
+export function localizeCard(card, t, lang, hiTitle) {
+  const [min, max] = playerRange(card)
+  const players = max === Infinity
+    ? t('playersPlus', { n: min })
+    : min === max
+      ? (/exactly/i.test(card.playersPill) ? t('playersExactly', { n: min }) : min === 1 ? t('playersOne') : t('playersRange', { a: min, b: max }))
+      : t('playersRange', { a: min, b: max })
+  return {
+    title: lang === 'hi' && hiTitle ? hiTitle : card.title,
+    modeBadge: MODE_KEY[card.modeBadge] ? t(MODE_KEY[card.modeBadge]) : card.modeBadge,
+    description: t(`desc.${cardKey(card)}`),
+    playersPill: players,
+  }
 }
 
 // Every registered slug that has a Home card (dual-mode cards cover both slugs).

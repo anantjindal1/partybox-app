@@ -26,7 +26,7 @@ const REVEAL_PAUSE_MS = 1800
 
 export default function Bhabhi({ code }) {
   const navigate = useNavigate()
-  const { lang } = useLang()
+  const { lang, t } = useLang()
   const {
     room,
     roomState,
@@ -120,7 +120,7 @@ export default function Bhabhi({ code }) {
     // Hold the pile + outcome on screen for a beat before applying it —
     // same pause-then-clear pattern used by every other trick game here.
     await clearActions()
-    const highCardName = players.find(p => p.id === highCardId)?.name ?? 'Player'
+    const highCardName = players.find(p => p.id === highCardId)?.name ?? t('player')
     await persist({
       hands: newHands,
       pile: newPile,
@@ -130,8 +130,8 @@ export default function Bhabhi({ code }) {
         cards: newPile,
         winnerId: highCardId,
         message: outcome === 'discard'
-          ? `Discarded — ${highCardName} led next`
-          : `${highCardName} picked up ${newPile.length} cards`
+          ? t('bhDiscardLed', { name: highCardName })
+          : t('bhPickedUp', { name: highCardName, n: newPile.length })
       }
     })
     await new Promise(resolve => setTimeout(resolve, REVEAL_PAUSE_MS))
@@ -207,7 +207,7 @@ export default function Bhabhi({ code }) {
   if (!room || !myId) {
     return (
       <div className="flex-1 flex items-center justify-center py-12">
-        <p className="text-textMuted animate-pulse">Connecting…</p>
+        <p className="text-textMuted animate-pulse">{t('connecting')}</p>
       </div>
     )
   }
@@ -228,10 +228,10 @@ export default function Bhabhi({ code }) {
             disabled={players.length < metadata.minPlayers || starting}
             className="min-h-[48px] rounded-xl bg-slate text-onSlate font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {starting ? 'Dealing...' : 'Start Game →'}
+            {starting ? t('dealing') : t('startGameArrow')}
           </button>
         ) : (
-          <p className="text-center text-textMuted text-sm">Waiting for host to start...</p>
+          <p className="text-center text-textMuted text-sm">{t('waitingForHostStart')}</p>
         )}
       </div>
     )
@@ -250,7 +250,7 @@ export default function Bhabhi({ code }) {
       : []
     const disabledCardIds = isInteractive ? myHand.filter(id => !legalPlays.includes(id)) : myHand
     const currentTurnName = players.find(p => p.id === currentTurnHolder)?.name ?? 'player'
-    const highCardName = pileResult ? (players.find(p => p.id === pileResult.highCardId)?.name ?? 'Player') : null
+    const highCardName = pileResult ? (players.find(p => p.id === pileResult.highCardId)?.name ?? t('player')) : null
     const centerCards = (roomState.pile ?? []).map(({ playerId, card }) => ({
       card,
       playerId,
@@ -278,8 +278,8 @@ export default function Bhabhi({ code }) {
         </div>
         <p className="text-xs font-bold text-slate text-center">
           {pileResult.outcome === 'discard'
-            ? `Discarded — ${highCardName} leads next!`
-            : `${highCardName} couldn't follow suit — picks up ${pileResult.cardCount} cards!`}
+            ? t('bhDiscardLeads', { name: highCardName })
+            : t('bhCantFollow', { name: highCardName, n: pileResult.cardCount })}
         </p>
       </div>
     ) : null
@@ -306,12 +306,12 @@ export default function Bhabhi({ code }) {
         />
         <p className="text-center text-textMuted text-sm py-2">
           {mustPlayAceOfSpades && isMyTurn
-            ? 'You open with the Ace of Spades'
+            ? t('bhAceSpades')
             : !isMyTurn
-              ? `Waiting for ${currentTurnName} to play...`
+              ? t('waitingToPlay', { name: currentTurnName })
               : roomState.ledSuit
-                ? `Follow suit: ${SUIT_LABEL[roomState.ledSuit]} (or play anything if you can't — but whoever's ahead in ${SUIT_LABEL[roomState.ledSuit]} picks up the pile!)`
-                : 'Lead any card'}
+                ? t('bhFollow', { suit: SUIT_LABEL[roomState.ledSuit] })
+                : t('leadAny')}
         </p>
       </div>
     )

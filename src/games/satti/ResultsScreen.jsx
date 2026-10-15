@@ -1,6 +1,8 @@
 import { SevenIcon } from '../../components/gameIcons'
+import { useLang } from '../../store/LangContext'
 
 export function ResultsScreen({ players, winnerIds, hands, myId, isHost, onRematch, onHome }) {
+  const { t } = useLang()
   const ranked = [...players].sort((a, b) => (hands[a.id]?.length ?? 0) - (hands[b.id]?.length ?? 0))
   const winners = players.filter(p => winnerIds.includes(p.id))
   const amIWinner = winnerIds.includes(myId)
@@ -12,12 +14,12 @@ export function ResultsScreen({ players, winnerIds, hands, myId, isHost, onRemat
           <SevenIcon width="30" height="30" />
         </div>
         <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">
-          {winners.length > 1 ? 'Winners' : 'Winner'}
+          {winners.length > 1 ? t('winners') : t('winner')}
         </p>
         <p className="text-2xl font-bold font-display text-textPrimary">
           {winners.map(w => w.name).join(' & ')}
         </p>
-        {amIWinner && <p className="text-sm text-textMuted">That's you!</p>}
+        {amIWinner && <p className="text-sm text-textMuted">{t('thatsYou')}</p>}
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -29,7 +31,7 @@ export function ResultsScreen({ players, winnerIds, hands, myId, isHost, onRemat
             }`}
           >
             <span className="text-sm font-semibold text-textPrimary">
-              {p.name}{p.id === myId ? ' (You)' : ''}
+              {p.name}{p.id === myId ? t('youSuffix') : ''}
             </span>
             <span className="text-sm font-bold text-amethyst tabular-nums">
               {hands[p.id]?.length ?? 0} card{(hands[p.id]?.length ?? 0) === 1 ? '' : 's'} left
@@ -41,11 +43,11 @@ export function ResultsScreen({ players, winnerIds, hands, myId, isHost, onRemat
       <div className="flex flex-col gap-3">
         {isHost && (
           <button onClick={onRematch} className="min-h-[44px] rounded-xl bg-amethyst text-onAmethyst font-bold">
-            Rematch →
+            {t('rematchArrow')}
           </button>
         )}
         <button onClick={onHome} className="min-h-[44px] rounded-xl border-[1.5px] border-border text-textPrimary font-semibold">
-          Home
+          {t('home')}
         </button>
       </div>
     </div>

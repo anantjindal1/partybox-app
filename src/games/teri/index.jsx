@@ -21,7 +21,7 @@ import { LastHandButton } from '../../components/cards/LastHandButton'
 import { GameRulesPanel } from '../../components/GameRulesPanel'
 import { PartnerPicker } from '../../components/cards/PartnerPicker'
 import { BiddingScreen } from './BiddingScreen'
-import { formatBidHi } from './suitNames'
+import { formatBid } from './suitNames'
 import { RoundRevealScreen } from './RoundRevealScreen'
 import { ResultsScreen } from './ResultsScreen'
 import {
@@ -83,7 +83,7 @@ function cardsInRoundOrder(state) {
 
 export default function Teri({ code }) {
   const navigate = useNavigate()
-  const { lang } = useLang()
+  const { lang, t } = useLang()
   const {
     room,
     roomState,
@@ -139,8 +139,8 @@ export default function Teri({ code }) {
     }
     if (!bid || signature === lastAnnouncedBidRef.current) return
     lastAnnouncedBidRef.current = signature
-    const bidderName = players.find(p => p.id === bid.playerId)?.name ?? 'Player'
-    const phrase = formatBidHi(bid.number, bid.suit)
+    const bidderName = players.find(p => p.id === bid.playerId)?.name ?? t('player')
+    const phrase = formatBid(bid.number, bid.suit, t)
     setBidAnnouncement(`${bidderName}: ${phrase}!`)
     const dismiss = setTimeout(() => setBidAnnouncement(null), 2500)
     return () => clearTimeout(dismiss)
@@ -175,7 +175,7 @@ export default function Teri({ code }) {
           onClick={() => setShowLastRound(true)}
           className="royal-pill self-center px-4 min-h-[36px] text-[10px]"
         >
-          View Last Round
+          {t('viewLastRound')}
         </button>
         {showLastRound && (
           <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-4 py-8 overflow-y-auto">
@@ -185,7 +185,7 @@ export default function Teri({ code }) {
                   onClick={() => setShowLastRound(false)}
                   className="text-textMuted hover:text-textPrimary text-sm font-semibold px-3 py-1"
                 >
-                  ✕ Close
+                  {t('closeX')}
                 </button>
               </div>
               <RoundRevealScreen
@@ -544,7 +544,7 @@ export default function Teri({ code }) {
   if (!room || !myId) {
     return (
       <div className="flex-1 flex items-center justify-center py-12">
-        <p className="text-textMuted animate-pulse">Connecting…</p>
+        <p className="text-textMuted animate-pulse">{t('connecting')}</p>
       </div>
     )
   }
@@ -578,9 +578,9 @@ export default function Teri({ code }) {
             onChange={e => persist({ realisticShuffle: e.target.checked })}
           />
           <span className="text-sm text-textPrimary">
-            <span className="font-semibold">Realistic shuffle</span>
+            <span className="font-semibold">{t('tRealistic')}</span>
             <span className="block text-xs text-textMuted">
-              Each round's cards are only lightly shuffled, so suits stay grouped like at a real table — longer suits and bigger bids as the game goes on.
+              {t('tRealisticDesc')}
             </span>
           </span>
         </label>
@@ -590,10 +590,10 @@ export default function Teri({ code }) {
             disabled={players.length !== 4 || starting}
             className="min-h-[48px] rounded-xl bg-cobalt text-onCobalt font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {starting ? 'Dealing...' : players.length < 4 ? `Waiting for players (${players.length}/4)` : 'Start Game →'}
+            {starting ? t('dealing') : players.length < 4 ? t('waitingPlayersN', { n: players.length, max: 4 }) : t('startGameArrow')}
           </button>
         ) : (
-          <p className="text-center text-textMuted text-sm">Waiting for host to start...</p>
+          <p className="text-center text-textMuted text-sm">{t('waitingForHostStart')}</p>
         )}
       </div>
     )
@@ -610,7 +610,7 @@ export default function Teri({ code }) {
     const iAlreadyPassed = hasCurrentlyPassed(myId, rawBidHistory)
     const isMyTurn = currentBidder === myId
     const isFirstTurn = roomState.bidTurnIndex === 0
-    const currentBidderName = players.find(p => p.id === currentBidder)?.name ?? 'Player'
+    const currentBidderName = players.find(p => p.id === currentBidder)?.name ?? t('player')
     const seats = orderSeatsForViewer(roomState.turnOrder, myId)
       .map(id => players.find(p => p.id === id))
       .filter(Boolean)
@@ -622,10 +622,10 @@ export default function Teri({ code }) {
         hasPassed: hasCurrentlyPassed(p.id, rawBidHistory),
         isHighBidder: roomState.currentHighBid?.playerId === p.id
       }))
-    const shufflerName = players.find(p => p.id === roomState.shufflerId)?.name ?? 'Someone'
+    const shufflerName = players.find(p => p.id === roomState.shufflerId)?.name ?? t('someone')
     const bidHistory = rawBidHistory.map(entry => ({
       ...entry,
-      playerName: players.find(p => p.id === entry.playerId)?.name ?? 'Player'
+      playerName: players.find(p => p.id === entry.playerId)?.name ?? t('player')
     }))
     return (
       <>
@@ -640,9 +640,7 @@ export default function Teri({ code }) {
             onClick={() => setShowShufflerIntro(false)}
             className="mx-4 sm:mx-6 mt-3 py-2.5 px-4 rounded-xl bg-cobalt/10 border border-cobalt/30 text-cobalt text-sm font-medium text-center"
           >
-            🔀 {shufflerName} is the Shuffler this round — their running score
-            (currently {roomState.shufflerScore}) decides when the role passes
-            to someone else. Tap to dismiss.
+            {t('tShufflerIntro', { name: shufflerName, n: roomState.shufflerScore })}
           </button>
         )}
         <BiddingScreen
@@ -722,7 +720,7 @@ export default function Teri({ code }) {
     // takes over — hand-settle fades/shrinks the whole reveal over the
     // same window applyPlay pauses for, so it dissolves right on cue.
     const handWinnerId = roomState.handWinnerId
-    const handWinnerName = handWinnerId ? (players.find(p => p.id === handWinnerId)?.name ?? 'Player') : null
+    const handWinnerName = handWinnerId ? (players.find(p => p.id === handWinnerId)?.name ?? t('player')) : null
     const centerSlot = handWinnerId ? (
       <HandWinnerOverlay
         centerCards={centerCards}
@@ -744,10 +742,10 @@ export default function Teri({ code }) {
         const isMyPartner = getTeamOf(myId, roomState.turnOrder) === getTeamOf(p.id, roomState.turnOrder)
         const isDummySeat = p.id === partnerOfGameLead
         const labels = []
-        if (isMyPartner) labels.push('Your Partner')
-        if (p.id === roomState.shufflerId) labels.push('Shuffler')
+        if (isMyPartner) labels.push(t('yourPartner'))
+        if (p.id === roomState.shufflerId) labels.push(t('shuffler'))
         if (p.id === gameLeadId) labels.push('GameLead')
-        if (isDummySeat) labels.push('Open Hand')
+        if (isDummySeat) labels.push(t('openHandTag'))
         return {
           player: p,
           cardCount: roomState.hands?.[p.id]?.length ?? 0,
@@ -775,9 +773,9 @@ export default function Teri({ code }) {
     const defenderTeam = gameLeadTeam === 'teamA' ? 'teamB' : 'teamA'
     const scoreEntries = [
       { label: 'GameLead', value: `${teamHands[gameLeadTeam]}/${roomState.bid}` },
-      { label: 'Defenders', value: `${teamHands[defenderTeam]}` },
+      { label: t('defenders'), value: `${teamHands[defenderTeam]}` },
       {
-        label: 'Trump',
+        label: t('trump'),
         value: SUIT_LABEL[roomState.trumpSuit],
         valueClassName: SUIT_TEXT_CLASS[roomState.trumpSuit],
         royalValue: renderTrumpChip(roomState.trumpSuit)
@@ -787,14 +785,14 @@ export default function Teri({ code }) {
     const partnerName = players.find(p => p.id === partnerOfGameLead)?.name ?? 'partner'
     const currentTurnName = players.find(p => p.id === currentTurnHolder)?.name ?? 'player'
     const statusText = isPlayingForDummy
-      ? `Tap a card in ${partnerName}'s hand above to play it`
+      ? t('tTapDummy', { name: partnerName })
       : (isPartnerOfGameLead && isPartnerTurn)
-        ? 'GameLead is choosing your card — tap to suggest'
+        ? t('tSuggest')
         : !isMyTurnNormally
-          ? `Waiting for ${currentTurnName} to play...`
+          ? t('waitingToPlay', { name: currentTurnName })
           : roomState.ledSuit
-            ? `Follow suit: ${SUIT_LABEL[roomState.ledSuit]}`
-            : 'Lead any card'
+            ? t('followSuit', { suit: SUIT_LABEL[roomState.ledSuit] })
+            : t('leadAny')
 
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">

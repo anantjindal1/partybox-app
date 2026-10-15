@@ -1,8 +1,10 @@
 import { DoorExitIcon } from '../../components/gameIcons'
+import { useLang } from '../../store/LangContext'
 
 export function ResultsScreen({ players, winners, myId, isHost, onRematch, onHome }) {
+  const { t } = useLang()
   const winnerId = winners[0]
-  const winnerName = players.find(p => p.id === winnerId)?.name ?? 'Player'
+  const winnerName = players.find(p => p.id === winnerId)?.name ?? t('player')
   const iWon = winnerId === myId
 
   return (
@@ -11,21 +13,21 @@ export function ResultsScreen({ players, winners, myId, isHost, onRematch, onHom
         <div className="w-16 h-16 rounded-full border-[1.5px] border-slate text-slate flex items-center justify-center">
           <DoorExitIcon width="30" height="30" />
         </div>
-        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">Got Away First</p>
-        <p className="text-2xl font-bold font-display text-textPrimary">{winnerName}{iWon ? ' (You)' : ''}</p>
+        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">{t('bhGotAway')}</p>
+        <p className="text-2xl font-bold font-display text-textPrimary">{winnerName}{iWon ? t('youSuffix') : ''}</p>
         <p className="text-sm text-textMuted">
-          {iWon ? 'You emptied your hand first — you win!' : 'Emptied their hand first and won the game.'}
+          {iWon ? t('bhYouWin') : t('bhTheyWon')}
         </p>
       </div>
 
       <div className="flex flex-col gap-3">
         {isHost && (
           <button onClick={onRematch} className="min-h-[44px] rounded-xl bg-slate text-onSlate font-bold">
-            Rematch →
+            {t('rematchArrow')}
           </button>
         )}
         <button onClick={onHome} className="min-h-[44px] rounded-xl border-[1.5px] border-border text-textPrimary font-semibold">
-          Home
+          {t('home')}
         </button>
       </div>
     </div>

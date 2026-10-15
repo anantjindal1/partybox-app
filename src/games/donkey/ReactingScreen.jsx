@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { PlayerSeat } from '../../components/cards/PlayerSeat'
 import CircularTimer from '../../components/CircularTimer'
+import { useLang } from '../../store/LangContext'
 
 const TOTAL_SECONDS = 8
 
 export function ReactingScreen({ players, myId, signaledPlayerIds, deadline, isSignaled, hasReacted, onReact }) {
+  const { t } = useLang()
   const [secondsLeft, setSecondsLeft] = useState(TOTAL_SECONDS)
 
   useEffect(() => {
@@ -28,15 +30,15 @@ export function ReactingScreen({ players, myId, signaledPlayerIds, deadline, isS
             cardCount={4}
             isActiveTurn={signaledPlayerIds.includes(p.id)}
             accent="amber"
-            label={signaledPlayerIds.includes(p.id) ? 'Signaled!' : undefined}
+            label={signaledPlayerIds.includes(p.id) ? t('signaled') : undefined}
           />
         ))}
       </div>
 
       {isSignaled ? (
         <div className="flex flex-col items-center gap-2 py-8">
-          <p className="text-xl font-bold font-display text-amber">You got it!</p>
-          <p className="text-sm text-textMuted">Waiting for everyone else to notice…</p>
+          <p className="text-xl font-bold font-display text-amber">{t('dkGotIt')}</p>
+          <p className="text-sm text-textMuted">{t('dkWaitNotice')}</p>
         </div>
       ) : (
         <>
@@ -46,7 +48,7 @@ export function ReactingScreen({ players, myId, signaledPlayerIds, deadline, isS
             disabled={hasReacted}
             className="min-h-[64px] w-full rounded-2xl bg-amber text-onAmber font-bold text-lg disabled:opacity-40"
           >
-            {hasReacted ? 'Waiting…' : 'Copy the Signal!'}
+            {hasReacted ? t('waitingWithCount') : t('dkCopy')}
           </button>
         </>
       )}

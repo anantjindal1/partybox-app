@@ -37,7 +37,7 @@ const SUIT_LABEL = { spades: '♠', hearts: '♥', diamonds: '♦', clubs: '♣'
 
 export default function TeenDoPaanch({ code }) {
   const navigate = useNavigate()
-  const { lang } = useLang()
+  const { lang, t } = useLang()
   const {
     room,
     roomState,
@@ -314,7 +314,7 @@ export default function TeenDoPaanch({ code }) {
   if (!room || !myId) {
     return (
       <div className="flex-1 flex items-center justify-center py-12">
-        <p className="text-textMuted animate-pulse">Connecting…</p>
+        <p className="text-textMuted animate-pulse">{t('connecting')}</p>
       </div>
     )
   }
@@ -335,10 +335,10 @@ export default function TeenDoPaanch({ code }) {
             disabled={players.length !== 3 || starting}
             className="min-h-[48px] rounded-xl bg-orchid text-onOrchid font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {starting ? 'Dealing...' : players.length < 3 ? `Waiting for players (${players.length}/3)` : 'Start Game →'}
+            {starting ? t('dealing') : players.length < 3 ? t('waitingPlayersN', { n: players.length, max: 3 }) : t('startGameArrow')}
           </button>
         ) : (
-          <p className="text-center text-textMuted text-sm">Waiting for host to start...</p>
+          <p className="text-center text-textMuted text-sm">{t('waitingForHostStart')}</p>
         )}
       </div>
     )
@@ -346,7 +346,7 @@ export default function TeenDoPaanch({ code }) {
 
   if (phase === 'calling_trump') {
     const isCaller = myId === roomState.callerId
-    const callerName = players.find(p => p.id === roomState.callerId)?.name ?? 'Player'
+    const callerName = players.find(p => p.id === roomState.callerId)?.name ?? t('player')
     const myHand = sortHand(roomState.hands?.[myId] ?? [])
     return (
       <TrumpCallScreen
@@ -387,14 +387,14 @@ export default function TeenDoPaanch({ code }) {
 
     const scoreEntries = [
       ...(roomState.turnOrder ?? []).map(id => ({
-        label: players.find(p => p.id === id)?.name ?? 'Player',
+        label: players.find(p => p.id === id)?.name ?? t('player'),
         value: `${roomState.handsWon?.[id] ?? 0}/${roomState.targets?.[id] ?? '?'}`
       })),
-      { label: 'Trump', value: knowTrump ? SUIT_LABEL[roomState.trumpSuit] : 'Hidden', valueClassName: knowTrump ? SUIT_TEXT_CLASS[roomState.trumpSuit] : undefined }
+      { label: t('trump'), value: knowTrump ? SUIT_LABEL[roomState.trumpSuit] : t('hiddenTrump'), valueClassName: knowTrump ? SUIT_TEXT_CLASS[roomState.trumpSuit] : undefined }
     ]
 
     const handWinnerId = roomState.handWinnerId
-    const handWinnerName = handWinnerId ? (players.find(p => p.id === handWinnerId)?.name ?? 'Player') : null
+    const handWinnerName = handWinnerId ? (players.find(p => p.id === handWinnerId)?.name ?? t('player')) : null
     const centerSlot = handWinnerId ? (
       <HandWinnerOverlay
         centerCards={centerCards}
@@ -424,15 +424,15 @@ export default function TeenDoPaanch({ code }) {
             onClick={handleRevealTrump}
             className="min-h-[44px] rounded-xl bg-orchid text-onOrchid font-bold"
           >
-            Can't follow suit — Reveal Trump →
+            {t('tdpReveal')}
           </button>
         ) : (
           <p className="text-center text-textMuted text-sm py-2">
             {!isMyTurn
-              ? `Waiting for ${currentTurnName} to play...`
+              ? t('waitingToPlay', { name: currentTurnName })
               : roomState.ledSuit
-                ? `Follow suit: ${SUIT_LABEL[roomState.ledSuit]}`
-                : 'Lead any card'}
+                ? t('followSuit', { suit: SUIT_LABEL[roomState.ledSuit] })
+                : t('leadAny')}
           </p>
         )}
       </div>

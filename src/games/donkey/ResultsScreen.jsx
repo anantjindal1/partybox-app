@@ -1,8 +1,10 @@
 import { DonkeyIcon } from '../../components/gameIcons'
+import { useLang } from '../../store/LangContext'
 
 export function ResultsScreen({ players, eliminatedPlayerIds, matchWinnerId, myId, isHost, onRematch, onHome }) {
+  const { t } = useLang()
   function nameOf(id) {
-    return players.find(p => p.id === id)?.name ?? 'Player'
+    return players.find(p => p.id === id)?.name ?? t('player')
   }
 
   // Winner first, then most-recently-eliminated (runner-up) down to the
@@ -15,7 +17,7 @@ export function ResultsScreen({ players, eliminatedPlayerIds, matchWinnerId, myI
         <div className="w-16 h-16 rounded-full border-[1.5px] border-amber text-amber flex items-center justify-center">
           <DonkeyIcon width="30" height="30" />
         </div>
-        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">Winner</p>
+        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">{t('winner')}</p>
         <p className="text-2xl font-bold font-display text-textPrimary">{nameOf(matchWinnerId)}</p>
       </div>
 
@@ -28,7 +30,7 @@ export function ResultsScreen({ players, eliminatedPlayerIds, matchWinnerId, myI
             }`}
           >
             <span className="text-sm font-semibold text-textPrimary">
-              {i + 1}. {nameOf(id)}{id === myId ? ' (You)' : ''}
+              {i + 1}. {nameOf(id)}{id === myId ? t('youSuffix') : ''}
             </span>
           </div>
         ))}
@@ -37,11 +39,11 @@ export function ResultsScreen({ players, eliminatedPlayerIds, matchWinnerId, myI
       <div className="flex flex-col gap-3">
         {isHost && (
           <button onClick={onRematch} className="min-h-[44px] rounded-xl bg-amber text-onAmber font-bold">
-            Rematch →
+            {t('rematchArrow')}
           </button>
         )}
         <button onClick={onHome} className="min-h-[44px] rounded-xl border-[1.5px] border-border text-textPrimary font-semibold">
-          Home
+          {t('home')}
         </button>
       </div>
     </div>

@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { SpadeIcon, HeartIcon, DiamondIcon, ClubIcon } from '../../components/cards/suitIcons'
 import { PlayingCard } from '../../components/cards/PlayingCard'
 import { parseCard } from '../../multiplayer/deck'
-import { SUIT_NAME_HI, formatBidHi } from './suitNames'
+import { BID_SUIT_KEY, formatBid } from './suitNames'
+import { useLang } from '../../store/LangContext'
 
 const SUITS = [
   { suit: 'spades', Icon: SpadeIcon, colorClass: 'text-cardBlack' },
@@ -12,6 +13,7 @@ const SUITS = [
 ]
 
 export function BiddingScreen({ myHand, seats = [], bidHistory = [], isMyTurn, isFirstTurn, currentHighBid, currentBidderName, iAlreadyPassed, onBid, onPass }) {
+  const { t } = useLang()
   const [selectedNumber, setSelectedNumber] = useState(null)
   const [selectedSuit, setSelectedSuit] = useState(null)
   const [passClicked, setPassClicked] = useState(false)
@@ -60,15 +62,15 @@ export function BiddingScreen({ myHand, seats = [], bidHistory = [], isMyTurn, i
               }`}
             >
               <span className="text-xs font-semibold text-textPrimary truncate max-w-[90px]">{seat.name}</span>
-              {seat.isPartner && <span className="text-[10px] text-textMuted">Your Partner</span>}
+              {seat.isPartner && <span className="text-[10px] text-textMuted">{t('yourPartner')}</span>}
               <span className="text-[10px] font-semibold">
                 {seat.isCurrentBidder
-                  ? <span className="text-cobalt">Bidding…</span>
+                  ? <span className="text-cobalt">{t('tBidding')}</span>
                   : seat.hasPassed
-                    ? <span className="text-textMuted">Passed</span>
+                    ? <span className="text-textMuted">{t('tPassed')}</span>
                     : seat.isHighBidder
-                      ? <span className="text-cobalt">{formatBidHi(currentHighBid.number, currentHighBid.suit)}</span>
-                      : <span className="text-textMuted">Waiting</span>}
+                      ? <span className="text-cobalt">{formatBid(currentHighBid.number, currentHighBid.suit, t)}</span>
+                      : <span className="text-textMuted">{t('tWaiting')}</span>}
               </span>
             </div>
           ))}
@@ -77,8 +79,8 @@ export function BiddingScreen({ myHand, seats = [], bidHistory = [], isMyTurn, i
 
       <p className="text-xs font-semibold text-textMuted uppercase tracking-wider text-center">
         {currentHighBid
-          ? `High bid: ${formatBidHi(currentHighBid.number, currentHighBid.suit)}`
-          : 'No bids yet'}
+          ? t('tHighBid', { bid: formatBid(currentHighBid.number, currentHighBid.suit, t) })
+          : t('tNoBids')}
       </p>
 
       {bidHistory.length > 0 && (
@@ -90,7 +92,7 @@ export function BiddingScreen({ myHand, seats = [], bidHistory = [], isMyTurn, i
             >
               <span className="font-semibold text-textPrimary">{entry.playerName}</span>
               <span className={entry.type === 'PASS' ? 'text-textMuted' : 'text-cobalt font-semibold'}>
-                {entry.type === 'PASS' ? 'Passed' : formatBidHi(entry.number, entry.suit)}
+                {entry.type === 'PASS' ? t('tPassed') : formatBid(entry.number, entry.suit, t)}
               </span>
             </div>
           ))}
@@ -107,7 +109,7 @@ export function BiddingScreen({ myHand, seats = [], bidHistory = [], isMyTurn, i
       {isMyTurn ? (
         <div className="flex flex-col gap-3 w-full">
           <p className="text-xs font-semibold text-textMuted uppercase tracking-wider text-center">
-            {isFirstTurn ? 'Bid 7 or higher, and a suit' : 'Bid higher, or pass'}
+            {isFirstTurn ? t('tBidFirst') : t('tBidHigher')}
           </p>
           <div className="grid grid-cols-4 gap-2">
             {numbers.map(n => (
@@ -132,7 +134,7 @@ export function BiddingScreen({ myHand, seats = [], bidHistory = [], isMyTurn, i
                 }`}
               >
                 <Icon width="22" height="22" className={colorClass} />
-                <span className="text-[10px] font-semibold text-textMuted">{SUIT_NAME_HI[suit]}</span>
+                <span className="text-[10px] font-semibold text-textMuted">{t(BID_SUIT_KEY[suit])}</span>
               </button>
             ))}
           </div>
@@ -141,7 +143,7 @@ export function BiddingScreen({ myHand, seats = [], bidHistory = [], isMyTurn, i
             disabled={!selectedNumber || !selectedSuit || !isSelectionValid}
             className="min-h-[48px] rounded-xl bg-cobalt text-onCobalt font-bold disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {selectedNumber && selectedSuit ? `Bid ${formatBidHi(selectedNumber, selectedSuit)} →` : 'Pick a number and a suit'}
+            {selectedNumber && selectedSuit ? t('tBidBtn', { bid: formatBid(selectedNumber, selectedSuit, t) }) : t('tPickNS')}
           </button>
           {!isFirstTurn && (
             <button
@@ -149,13 +151,13 @@ export function BiddingScreen({ myHand, seats = [], bidHistory = [], isMyTurn, i
               disabled={passClicked}
               className="min-h-[44px] rounded-xl border-[1.5px] border-border text-textPrimary font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {passClicked ? 'Passed' : 'Pass'}
+              {passClicked ? t('tPassed') : t('tPass')}
             </button>
           )}
         </div>
       ) : (
         <p className="text-center text-textMuted text-sm py-8">
-          {iAlreadyPassed ? 'You already passed — waiting for the auction to continue…' : `Waiting for ${currentBidderName}…`}
+          {iAlreadyPassed ? t('tAlreadyPassed') : t('tWaitingFor', { name: currentBidderName })}
         </p>
       )}
     </div>

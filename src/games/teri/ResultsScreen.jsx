@@ -1,4 +1,5 @@
 import { getTeamA, getTeamB } from './teriLogic'
+import { useLang } from '../../store/LangContext'
 
 function TrophyIcon(props) {
   return (
@@ -11,8 +12,9 @@ function TrophyIcon(props) {
 }
 
 export function ResultsScreen({ turnOrder, players, gameWinnerTeam, burstPlayerIds, myId, isHost, onRematch, onHome }) {
+  const { t } = useLang()
   function nameOf(id) {
-    return players.find(p => p.id === id)?.name ?? 'Player'
+    return players.find(p => p.id === id)?.name ?? t('player')
   }
   function teamNames(ids) {
     return ids.map(nameOf).join(' & ')
@@ -33,7 +35,7 @@ export function ResultsScreen({ turnOrder, players, gameWinnerTeam, burstPlayerI
         <div className="w-16 h-16 rounded-full border-[1.5px] border-cobalt text-cobalt flex items-center justify-center">
           <TrophyIcon />
         </div>
-        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">Winner</p>
+        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">{t('winner')}</p>
         <p className="text-2xl font-bold font-display text-textPrimary">
           {teamNames(gameWinnerTeam === 'teamA' ? teamAIds : teamBIds)}
         </p>
@@ -48,7 +50,7 @@ export function ResultsScreen({ turnOrder, players, gameWinnerTeam, burstPlayerI
             }`}
           >
             <span className="text-sm font-semibold text-textPrimary">
-              {teamNames(ids)}{ids === myTeamIds ? ' (You)' : ''}
+              {teamNames(ids)}{ids === myTeamIds ? t('youSuffix') : ''}
             </span>
             <span className="text-xs text-textMuted">
               {ids.filter(id => (burstPlayerIds ?? []).includes(id)).length} burst
@@ -60,11 +62,11 @@ export function ResultsScreen({ turnOrder, players, gameWinnerTeam, burstPlayerI
       <div className="flex flex-col gap-3">
         {isHost && (
           <button onClick={onRematch} className="min-h-[44px] rounded-xl bg-cobalt text-onCobalt font-bold">
-            Rematch →
+            {t('rematchArrow')}
           </button>
         )}
         <button onClick={onHome} className="min-h-[44px] rounded-xl border-[1.5px] border-border text-textPrimary font-semibold">
-          Home
+          {t('home')}
         </button>
       </div>
     </div>

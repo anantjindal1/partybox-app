@@ -22,7 +22,7 @@ import metadata from './metadata'
 
 export default function Bluff({ code }) {
   const navigate = useNavigate()
-  const { lang } = useLang()
+  const { lang, t } = useLang()
   const {
     room,
     roomState,
@@ -310,7 +310,7 @@ export default function Bluff({ code }) {
   if (!room || !myId) {
     return (
       <div className="flex-1 flex items-center justify-center py-12">
-        <p className="text-textMuted animate-pulse">Connecting…</p>
+        <p className="text-textMuted animate-pulse">{t('connecting')}</p>
       </div>
     )
   }
@@ -328,7 +328,7 @@ export default function Bluff({ code }) {
         {isHost ? (
           <>
             <div>
-              <p className="text-xs text-textMuted uppercase tracking-wider mb-1.5 text-center">Deck</p>
+              <p className="text-xs text-textMuted uppercase tracking-wider mb-1.5 text-center">{t('bDeck')}</p>
               <div className="grid grid-cols-2 gap-3">
                 {[1, 2].map(count => (
                   <button
@@ -340,7 +340,7 @@ export default function Bluff({ code }) {
                         : 'bg-surfaceElevated border-border text-textMuted'
                     }`}
                   >
-                    {count} Deck{count > 1 ? 's' : ''} ({count * 52} cards)
+                    {count > 1 ? t('bDeckN', { n: count, c: count * 52 }) : t('bDeckOne', { c: count * 52 })}
                   </button>
                 ))}
               </div>
@@ -350,11 +350,11 @@ export default function Bluff({ code }) {
               disabled={players.length < metadata.minPlayers || starting}
               className="min-h-[48px] rounded-xl bg-indigo text-onIndigo font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {starting ? 'Dealing...' : 'Start Game →'}
+              {starting ? t('dealing') : t('startGameArrow')}
             </button>
           </>
         ) : (
-          <p className="text-center text-textMuted text-sm">Waiting for host to start...</p>
+          <p className="text-center text-textMuted text-sm">{t('waitingForHostStart')}</p>
         )}
       </div>
     )
@@ -363,7 +363,7 @@ export default function Bluff({ code }) {
   if (phase === 'playing') {
     const myHand = sortHandByRank(roomState.hands?.[myId] ?? [])
     const isMyTurn = roomState.turnOrder?.[roomState.currentIdx] === myId
-    const currentTurnName = players.find(p => p.id === roomState.turnOrder?.[roomState.currentIdx])?.name ?? 'Player'
+    const currentTurnName = players.find(p => p.id === roomState.turnOrder?.[roomState.currentIdx])?.name ?? t('player')
     const amLatestHandOwner = roomState.latestHandPlayerId === myId
     const otherSeats = otherPlayersInSeatOrder(players, roomState.turnOrder, myId)
       .map(p => ({

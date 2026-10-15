@@ -1,5 +1,7 @@
 import { HandRow } from './HandRow'
 import { SpadeIcon, HeartIcon, DiamondIcon, ClubIcon } from '../../components/cards/suitIcons'
+import { SUIT_NAME_KEY } from '../../i18n/strings'
+import { useLang } from '../../store/LangContext'
 
 const SUITS = [
   { suit: 'spades', Icon: SpadeIcon, colorClass: 'text-cardBlack' },
@@ -9,14 +11,15 @@ const SUITS = [
 ]
 
 export function TrumpChoiceScreen({ isChooser, chooserName, chooserBid, myHand = [], onChoose }) {
+  const { t } = useLang()
   return (
     <div className="flex-1 flex flex-col items-center px-4 sm:px-6 py-6 gap-5 max-w-lg w-full mx-auto">
       <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">
-        {isChooser ? 'You Won the Bid — Choose Trump' : 'Choosing Trump…'}
+        {isChooser ? t('jChooseTrump') : t('jChoosing')}
       </p>
 
       <p className="text-sm text-textPrimary font-semibold text-center">
-        {isChooser ? 'You' : chooserName} bid the highest — {chooserBid}
+        {isChooser ? t('jYouBidHighest', { bid: chooserBid }) : t('jBidHighest', { name: chooserName, bid: chooserBid })}
       </p>
 
       <HandRow cards={myHand} />
@@ -30,13 +33,13 @@ export function TrumpChoiceScreen({ isChooser, chooserName, chooserBid, myHand =
               className="flex flex-col items-center gap-2 py-6 rounded-2xl border-[1.5px] border-border bg-surfaceElevated hover:border-peridot transition-colors"
             >
               <Icon width="36" height="36" className={colorClass} />
-              <span className="text-sm font-bold text-textPrimary capitalize">{suit}</span>
+              <span className="text-sm font-bold text-textPrimary capitalize">{t(SUIT_NAME_KEY[suit])}</span>
             </button>
           ))}
         </div>
       ) : (
         <p className="text-center text-textMuted text-sm py-8">
-          Waiting for {chooserName} to choose trump…
+          {t('jWaitChoose', { name: chooserName })}
         </p>
       )}
     </div>

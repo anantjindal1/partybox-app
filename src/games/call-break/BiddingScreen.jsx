@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { PlayingCard } from '../../components/cards/PlayingCard'
 import { parseCard } from '../../multiplayer/deck'
+import { useLang } from '../../store/LangContext'
 
 const BID_OPTIONS = Array.from({ length: 13 }, (_, i) => i + 1)
 
 export function BiddingScreen({ myHand = [], roundNumber, bidsIn, totalPlayers, onSubmit, submitted }) {
+  const { t } = useLang()
   const [selected, setSelected] = useState(null)
 
   function handleSubmit() {
@@ -15,7 +17,7 @@ export function BiddingScreen({ myHand = [], roundNumber, bidsIn, totalPlayers, 
   return (
     <div className="flex-1 flex flex-col items-center px-4 sm:px-6 py-6 gap-5 max-w-lg w-full mx-auto">
       <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">
-        Round {roundNumber} of 5 — Bidding
+        {t('cbBidHeader', { n: roundNumber })}
       </p>
 
       <div className="flex flex-wrap justify-center gap-1.5">
@@ -26,10 +28,10 @@ export function BiddingScreen({ myHand = [], roundNumber, bidsIn, totalPlayers, 
       </div>
 
       {submitted ? (
-        <p className="text-sm text-textMuted py-4">Bid locked in — waiting for the room…</p>
+        <p className="text-sm text-textMuted py-4">{t('cbBidLocked')}</p>
       ) : (
         <div className="w-full flex flex-col gap-4">
-          <p className="text-center text-textPrimary font-semibold">How many hands will you win?</p>
+          <p className="text-center text-textPrimary font-semibold">{t('howManyHands')}</p>
           <div className="grid grid-cols-5 gap-2">
             {BID_OPTIONS.map(n => (
               <button
@@ -50,13 +52,13 @@ export function BiddingScreen({ myHand = [], roundNumber, bidsIn, totalPlayers, 
             disabled={selected == null}
             className="min-h-[44px] rounded-xl bg-turquoise text-onTurquoise font-bold disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Lock In Bid →
+            {t('lockInBid')}
           </button>
         </div>
       )}
 
       <p className="text-sm font-semibold text-textMuted mt-auto pt-3">
-        {bidsIn} of {totalPlayers} have bid
+        {t('haveBid', { n: bidsIn, total: totalPlayers })}
       </p>
     </div>
   )

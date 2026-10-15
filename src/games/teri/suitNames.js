@@ -1,24 +1,16 @@
 /**
  * Hindi card-game terms for Teri's bidding UI — the words players
  * actually use at the table, not a literal translation of "spades" etc.
+ * English mode shows them in Roman script ("Hukum mein Saat"), Hindi mode
+ * in Devanagari ("हुकुम में सात").
  */
-export const SUIT_NAME_HI = {
-  spades: 'Hukum',
-  hearts: 'Paan',
-  diamonds: 'Eent',
-  clubs: 'Chidi'
+export const BID_SUIT_KEY = {
+  spades: 'bidSuitSpades',
+  hearts: 'bidSuitHearts',
+  diamonds: 'bidSuitDiamonds',
+  clubs: 'bidSuitClubs'
 }
 
-const NUMBER_NAME_HI = {
-  7: 'Saat',
-  8: 'Aath',
-  9: 'Nau',
-  10: 'Dus',
-  11: 'Gyarah',
-  12: 'Baarah',
-  13: 'Terah'
-}
-
-export function formatBidHi(number, suit) {
-  return `${SUIT_NAME_HI[suit] ?? suit} mein ${NUMBER_NAME_HI[number] ?? number}`
+export function formatBid(number, suit, t) {
+  return t('tBidPhrase', { suit: t(BID_SUIT_KEY[suit]), number: t(`num${number}`) })
 }

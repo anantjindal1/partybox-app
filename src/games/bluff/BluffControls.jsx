@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { RANKS } from '../../multiplayer/deck'
+import { useLang } from '../../store/LangContext'
 
 export function BluffControls({
   isMyTurn,
@@ -12,10 +13,11 @@ export function BluffControls({
   onPass,
   onChallenge
 }) {
+  const { t } = useLang()
   const [claimedRank, setClaimedRank] = useState(null)
 
   if (!isMyTurn) {
-    return <p className="text-center text-textMuted text-sm py-2">Waiting for {currentTurnName} to play…</p>
+    return <p className="text-center text-textMuted text-sm py-2">{t('waitingToPlay', { name: currentTurnName })}</p>
   }
 
   const cardCountValid = selectedCardIds.length >= 1
@@ -32,7 +34,7 @@ export function BluffControls({
     return (
       <div className="flex flex-col gap-3 pb-2">
         <div>
-          <p className="text-xs text-textMuted uppercase tracking-wider mb-1.5 text-center">Claim a rank for your selected cards</p>
+          <p className="text-xs text-textMuted uppercase tracking-wider mb-1.5 text-center">{t('bClaimRank')}</p>
           <div className="grid grid-cols-7 gap-1.5">
             {RANKS.map(rank => (
               <button
@@ -54,7 +56,7 @@ export function BluffControls({
           disabled={!canOpen}
           className="min-h-[44px] rounded-xl bg-indigo text-onIndigo font-bold disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Open Round with {selectedCardIds.length || ''} Card{selectedCardIds.length === 1 ? '' : 's'} →
+          {selectedCardIds.length === 0 ? t('bOpenRound') : selectedCardIds.length === 1 ? t('bOpenRoundOne') : t('bOpenRoundN', { n: selectedCardIds.length })}
         </button>
       </div>
     )
@@ -72,14 +74,14 @@ export function BluffControls({
           onClick={onPass}
           className="flex-1 min-h-[44px] rounded-xl border-[1.5px] border-border text-textPrimary font-bold"
         >
-          Pass (burn pile)
+          {t('bPassBurn')}
         </button>
         <button
           onClick={handleAdd}
           disabled={!cardCountValid}
           className="flex-1 min-h-[44px] rounded-xl bg-indigo text-onIndigo font-bold disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Add {selectedCardIds.length || ''} Card{selectedCardIds.length === 1 ? '' : 's'}
+          {selectedCardIds.length === 0 ? t('bAdd') : selectedCardIds.length === 1 ? t('bAddOne') : t('bAddN', { n: selectedCardIds.length })}
         </button>
       </div>
     )
@@ -93,20 +95,20 @@ export function BluffControls({
         disabled={!cardCountValid}
         className="min-h-[44px] rounded-xl bg-indigo text-onIndigo font-bold disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        Add {selectedCardIds.length || ''} Card{selectedCardIds.length === 1 ? '' : 's'}
+        {selectedCardIds.length === 0 ? t('bAdd') : selectedCardIds.length === 1 ? t('bAddOne') : t('bAddN', { n: selectedCardIds.length })}
       </button>
       <div className="flex gap-3">
         <button
           onClick={onPass}
           className="flex-1 min-h-[44px] rounded-xl border-[1.5px] border-border text-textPrimary font-bold"
         >
-          Pass
+          {t('tPass')}
         </button>
         <button
           onClick={onChallenge}
           className="flex-1 min-h-[44px] rounded-xl border-[1.5px] border-error text-error font-bold"
         >
-          Call Bluff!
+          {t('bCallBluff')}
         </button>
       </div>
     </div>

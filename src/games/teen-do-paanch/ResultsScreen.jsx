@@ -1,3 +1,4 @@
+import { useLang } from '../../store/LangContext'
 function TrophyIcon(props) {
   return (
     <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -9,6 +10,7 @@ function TrophyIcon(props) {
 }
 
 export function ResultsScreen({ players, gameScores, winnerIds, myId, isHost, onRematch, onHome }) {
+  const { t } = useLang()
   const ranked = [...players].sort((a, b) => (gameScores[b.id] ?? 0) - (gameScores[a.id] ?? 0))
   const winners = players.filter(p => winnerIds.includes(p.id))
 
@@ -19,7 +21,7 @@ export function ResultsScreen({ players, gameScores, winnerIds, myId, isHost, on
           <TrophyIcon />
         </div>
         <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">
-          {winners.length > 1 ? 'Winners' : 'Winner'}
+          {winners.length > 1 ? t('winners') : t('winner')}
         </p>
         <p className="text-2xl font-bold font-display text-textPrimary">
           {winners.map(w => w.name).join(' & ')}
@@ -35,7 +37,7 @@ export function ResultsScreen({ players, gameScores, winnerIds, myId, isHost, on
             }`}
           >
             <span className="text-sm font-semibold text-textPrimary">
-              {i + 1}. {p.name}{p.id === myId ? ' (You)' : ''}
+              {i + 1}. {p.name}{p.id === myId ? t('youSuffix') : ''}
             </span>
             <span className="text-sm font-bold text-orchid tabular-nums">
               {gameScores[p.id] ?? 0}
@@ -47,11 +49,11 @@ export function ResultsScreen({ players, gameScores, winnerIds, myId, isHost, on
       <div className="flex flex-col gap-3">
         {isHost && (
           <button onClick={onRematch} className="min-h-[44px] rounded-xl bg-orchid text-onOrchid font-bold">
-            Rematch →
+            {t('rematchArrow')}
           </button>
         )}
         <button onClick={onHome} className="min-h-[44px] rounded-xl border-[1.5px] border-border text-textPrimary font-semibold">
-          Home
+          {t('home')}
         </button>
       </div>
     </div>

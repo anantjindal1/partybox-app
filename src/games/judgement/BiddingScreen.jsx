@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { HandRow } from './HandRow'
+import { useLang } from '../../store/LangContext'
 
 export function BiddingScreen({
   myHand = [],
@@ -15,6 +16,7 @@ export function BiddingScreen({
   onSubmit,
   submitted
 }) {
+  const { t } = useLang()
   const [selected, setSelected] = useState(null)
   const bidOptions = Array.from({ length: handSizeThisRound + 1 }, (_, i) => i)
 
@@ -24,28 +26,28 @@ export function BiddingScreen({
   }
 
   const locked = isLastBidder && !allOthersHaveBid
-  const waitingList = waitingForNames.join(', ') || 'the room'
+  const waitingList = waitingForNames.join(', ') || t('theRoom')
 
   return (
     <div className="flex-1 flex flex-col items-center px-4 sm:px-6 py-6 gap-5 max-w-lg w-full mx-auto">
       <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">
-        Round {roundNumber} of {totalRounds} — Bidding ({handSizeThisRound}-card hand)
+        {t('jBidHeader', { n: roundNumber, total: totalRounds, size: handSizeThisRound })}
       </p>
 
       <HandRow cards={myHand} />
 
       {submitted ? (
-        <p className="text-sm text-textMuted py-4 text-center">Bid locked in — waiting for {waitingList}…</p>
+        <p className="text-sm text-textMuted py-4 text-center">{t('jBidLocked', { names: waitingList })}</p>
       ) : locked ? (
         <p className="text-sm text-textMuted py-4 text-center">
-          You bid last this round — waiting for {waitingList} to bid first…
+          {t('jBidLast', { names: waitingList })}
         </p>
       ) : (
         <div className="w-full flex flex-col gap-4">
-          <p className="text-center text-textPrimary font-semibold">How many hands will you win?</p>
+          <p className="text-center text-textPrimary font-semibold">{t('howManyHands')}</p>
           {isLastBidder && forbiddenBid != null && (
             <p className="text-center text-xs text-error">
-              You can't bid {forbiddenBid} — it would make everyone's bids add up to the hand size.
+              {t('jForbidden', { n: forbiddenBid })}
             </p>
           )}
           <div className="flex flex-wrap justify-center gap-2">
@@ -72,13 +74,13 @@ export function BiddingScreen({
             disabled={selected == null}
             className="min-h-[44px] rounded-xl bg-peridot text-onPeridot font-bold disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Lock In Bid →
+            {t('lockInBid')}
           </button>
         </div>
       )}
 
       <p className="text-sm font-semibold text-textMuted mt-auto pt-3">
-        {bidsIn} of {totalPlayers} have bid
+        {t('haveBid', { n: bidsIn, total: totalPlayers })}
       </p>
     </div>
   )

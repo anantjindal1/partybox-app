@@ -1,14 +1,17 @@
 import { PlayingCard } from '../../components/cards/PlayingCard'
 import { parseCard } from '../../multiplayer/deck'
+import { useLang } from '../../store/LangContext'
 
-const RANK_LABEL = { A: 'Ace', J: 'Jack', Q: 'Queen', K: 'King' }
-function rankLabel(rank) {
-  return RANK_LABEL[rank] ?? rank
+const RANK_KEY = { A: 'rankA', J: 'rankJ', Q: 'rankQ', K: 'rankK' }
+
+function rankLabel(rank, t) {
+  return RANK_KEY[rank] ? t(RANK_KEY[rank]) : rank
 }
 
 export function BluffPile({ pileCount, claimedRank, latestHandPlayerId, players, pendingReveal }) {
+  const { t } = useLang()
   function nameOf(id) {
-    return players.find(p => p.id === id)?.name ?? 'Player'
+    return players.find(p => p.id === id)?.name ?? t('player')
   }
 
   if (pendingReveal) {
@@ -21,7 +24,7 @@ export function BluffPile({ pileCount, claimedRank, latestHandPlayerId, players,
           })}
         </div>
         <p className={`text-sm font-bold ${pendingReveal.correct ? 'text-indigo' : 'text-error'}`}>
-          {pendingReveal.correct ? '✓ True! The claim was honest.' : '✗ Bluff caught!'}
+          {pendingReveal.correct ? t('bHonest') : t('bCaught')}
         </p>
       </div>
     )
@@ -37,17 +40,17 @@ export function BluffPile({ pileCount, claimedRank, latestHandPlayerId, players,
             ))}
           </div>
           <p className="text-xs text-textMuted text-center">
-            Round claim: <span className="font-bold text-textPrimary">{rankLabel(claimedRank)}</span>
+            {t('bRoundClaim', { rank: rankLabel(claimedRank, t) })}
           </p>
           <p className="text-[10px] text-textMuted">
-            Latest hand by <span className="font-bold text-textPrimary">{nameOf(latestHandPlayerId)}</span>
+            {t('bLatestBy', { name: nameOf(latestHandPlayerId) })}
           </p>
         </>
       ) : (
-        <p className="text-xs text-textMuted">No round open — waiting for the next player to open one</p>
+        <p className="text-xs text-textMuted">{t('bNoRound')}</p>
       )}
       {pileCount > 0 && (
-        <p className="text-[10px] text-textMuted">{pileCount} card{pileCount === 1 ? '' : 's'} in the pile</p>
+        <p className="text-[10px] text-textMuted">{pileCount === 1 ? t('bPileOne') : t('bPileN', { n: pileCount })}</p>
       )}
     </div>
   )

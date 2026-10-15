@@ -1,6 +1,6 @@
 export default {
   slug: 'bhed',
-  title: { en: 'Bhed (Jasoos)', hi: 'भेड़ (जासूस)' },
+  title: { en: 'Bhed (Jasoos)', hi: 'भेद (जासूस)' },
   minPlayers: 4,
   maxPlayers: 8,
   noAutoClose: true,

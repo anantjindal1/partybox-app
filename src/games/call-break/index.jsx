@@ -27,7 +27,7 @@ const TOTAL_ROUNDS = 5
 
 export default function CallBreak({ code }) {
   const navigate = useNavigate()
-  const { lang } = useLang()
+  const { lang, t } = useLang()
   const {
     room,
     roomState,
@@ -280,7 +280,7 @@ export default function CallBreak({ code }) {
   if (!room || !myId) {
     return (
       <div className="flex-1 flex items-center justify-center py-12">
-        <p className="text-textMuted animate-pulse">Connecting…</p>
+        <p className="text-textMuted animate-pulse">{t('connecting')}</p>
       </div>
     )
   }
@@ -298,7 +298,7 @@ export default function CallBreak({ code }) {
         />
         {roomFull && (
           <p className="text-center text-error text-sm">
-            Room full (4/4) — ask the host to remove a player to start.
+            {t('roomFull', { n: 4 })}
           </p>
         )}
         {isHost ? (
@@ -307,10 +307,10 @@ export default function CallBreak({ code }) {
             disabled={players.length !== 4 || starting}
             className="min-h-[48px] rounded-xl bg-turquoise text-onTurquoise font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {starting ? 'Dealing...' : players.length < 4 ? `Waiting for players (${players.length}/4)` : 'Start Game →'}
+            {starting ? t('dealing') : players.length < 4 ? t('waitingPlayersN', { n: players.length, max: 4 }) : t('startGameArrow')}
           </button>
         ) : (
-          <p className="text-center text-textMuted text-sm">Waiting for host to start...</p>
+          <p className="text-center text-textMuted text-sm">{t('waitingForHostStart')}</p>
         )}
       </div>
     )
@@ -356,8 +356,8 @@ export default function CallBreak({ code }) {
     return (
       <div className="flex flex-col gap-3 max-w-2xl w-full mx-auto pt-2 pb-6">
         <p className="text-center text-textMuted text-xs uppercase tracking-wider">
-          Round {roomState.roundNumber} of {TOTAL_ROUNDS} — your bid: {myBid} —{' '}
-          <span className={bidReached ? 'text-emerald font-bold' : ''}>hands won: {myHandsWon}</span>
+          {t('cbStatus', { n: roomState.roundNumber, total: TOTAL_ROUNDS, bid: myBid })}{' '}
+          <span className={bidReached ? 'text-emerald font-bold' : ''}>{t('cbHandsWon', { n: myHandsWon })}</span>
         </p>
         <CardTable
           otherSeats={otherSeats}
@@ -371,10 +371,10 @@ export default function CallBreak({ code }) {
         />
         <p className="text-center text-textMuted text-sm py-2">
           {!isMyTurn
-            ? `Waiting for ${currentTurnName} to play...`
+            ? t('waitingToPlay', { name: currentTurnName })
             : roomState.ledSuit
-              ? `Follow suit: ${SUIT_LABEL[roomState.ledSuit]}`
-              : 'Lead any card'}
+              ? t('followSuit', { suit: SUIT_LABEL[roomState.ledSuit] })
+              : t('leadAny')}
         </p>
       </div>
     )
