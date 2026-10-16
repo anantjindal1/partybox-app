@@ -14,7 +14,7 @@ for that history.
    card games, incl. rules) DONE 2026-10-16 (5c0303f); batch 3 (Dumb
    Charades, Bhed, Bakwaas, Tambola) DONE 2026-10-16 (8d2a2d0); batch 4
    (SZK, Raja Mantri, Adaalat, Chugli, Codenames) DONE (26c3c3d). Left:
-   ThinkFast + FirstBell (UI + question banks). The 3 solo games are not
+   ThinkFast + FirstBell (UI + question banks) — PARKED by user 2026-10-16. The 3 solo games are not
    on Home and were skipped. A `LangContext` +
    `LangToggle` + `t()` already exist, and game titles carry `{en, hi}`,
    but only 32 of 163 `.jsx` files use `useLang`. Most game screens are
@@ -79,7 +79,7 @@ BillDesk KYC approval (Play payments profile), 12 testers opting in to
 the closed test, Play review of v4.
 
 **User's to-dos:**
-1. v8 uploaded (confirmed 2026-10-15). Next upload is v9: carries analytics P0 (ac84218) for app users. Mark your own phone/browser internal once by opening any page with `?internal=1`. Earlier: v7 uploaded (2026-10-05). Testers: 12/23 opted in on 2026-10-02 — production ~2026-10-16. Upload v8 (`~/Desktop/partybox-v8.aab`, 1.0.7 — table rejoin after app kill, Open Tables "All tables", royal card table on 9 card games); supersedes v7.
+1. v9 (versionCode 9, 1.0.8) built 2026-10-16 at `~/Desktop/partybox-v9.aab` — analytics P0, AI icons, Hindi for every game except ThinkFast/FirstBell, welcome-screen language toggle. UPLOAD IT, then check production access. v8 uploaded 2026-10-15. Mark your own phone/browser internal once by opening any page with `?internal=1`. Earlier: v7 uploaded (2026-10-05). Testers: 12/23 opted in on 2026-10-02 — production ~2026-10-16. Upload v8 (`~/Desktop/partybox-v8.aab`, 1.0.7 — table rejoin after app kill, Open Tables "All tables", royal card table on 9 card games); supersedes v7.
 2. PARKED until after production launch: BillDesk appears to want the app live before approving (they asked why the app isn't visible; user replied 2026-10-05, automated reminders continue). After approval: add bank account (Payments → How you get paid).
 3. Create one-time product `remove_ads` (₹99) in Play Console, then
    RevenueCat: import product → entitlement `no_ads` → default offering
