@@ -3,11 +3,12 @@ import { ACTIONS } from './reducer'
 import AdBanner from '../../components/AdBanner'
 import { publicUrl } from '../../lib/publicUrl'
 import { useLang } from '../../store/LangContext'
+import { displayWord } from './wordpacks.hi'
 
 // ── TurnResultScreen ──────────────────────────────────────────────────────────
 
 export function TurnResultScreen({ state, dispatch }) {
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const { teams, currentTeamIdx, turnOutcome, turnHistory, winPoints } = state
   const currentTeam = teams[currentTeamIdx]
 
@@ -40,7 +41,7 @@ export function TurnResultScreen({ state, dispatch }) {
           <p className="text-textMuted font-semibold text-base">{t('dcNoPoint')}</p>
           {timeoutEntry && (
             <p className="text-textMuted text-sm">
-              {t('dcWasActing', { word: timeoutEntry.word })}
+              {t('dcWasActing', { word: displayWord(timeoutEntry.word, lang) })}
             </p>
           )}
         </div>
@@ -51,7 +52,7 @@ export function TurnResultScreen({ state, dispatch }) {
         <div className="bg-surfaceElevated/80 border border-border/50 rounded-2xl px-4 py-3">
           <p className="text-textMuted text-xs uppercase tracking-widest mb-2">{t('dcSkipped')}</p>
           <p className="text-textMuted text-sm leading-relaxed">
-            {skippedWords.join(', ')}
+            {skippedWords.map(w => displayWord(w, lang)).join(', ')}
           </p>
         </div>
       )}

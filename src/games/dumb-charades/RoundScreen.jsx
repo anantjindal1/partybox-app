@@ -3,9 +3,10 @@ import CircularTimer from '../../components/CircularTimer'
 import { ACTIONS } from './reducer'
 import { WORD_PACKS } from './wordpacks'
 import { useLang } from '../../store/LangContext'
+import { displayWord } from './wordpacks.hi'
 
 export function RoundScreen({ state, dispatch }) {
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const { currentWord, turnSkipped, wordQueue, timerSeconds, categories } = state
   const [secondsLeft, setSecondsLeft] = useState(timerSeconds)
   const [flash, setFlash] = useState(null)    // 'correct' | 'skip' | null
@@ -59,7 +60,7 @@ export function RoundScreen({ state, dispatch }) {
     return entry?.hints ?? null
   }, [currentWord, categories])
 
-  const wordLen = currentWord.length
+  const wordLen = displayWord(currentWord, lang).length
   const fontSize = wordLen > 24 ? '1.5rem' : wordLen > 16 ? '2rem' : wordLen > 10 ? '2.6rem' : '3.2rem'
   const remaining = wordQueue.length
 
@@ -101,7 +102,7 @@ export function RoundScreen({ state, dispatch }) {
             className="text-textPrimary font-black leading-tight break-words"
             style={{ fontSize }}
           >
-            {currentWord}
+            {displayWord(currentWord, lang)}
           </p>
         </div>
 

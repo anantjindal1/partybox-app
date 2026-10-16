@@ -10,6 +10,7 @@ import { Timer } from './Timer'
 import { buildWordQueue } from './wordpacks'
 import { findWinners, calcXP } from './scoring'
 import { DC } from './theme'
+import { displayWord } from './wordpacks.hi'
 
 const PREP_SECONDS = 30
 
@@ -442,6 +443,7 @@ function HostEndGameButton({ onConfirm, t }) {
 // ─── Online Actor Prep Screen ─────────────────────────────────────────────────
 
 function OnlineActorPrepScreen({ roomState, sendAction, setState, isHost, t, devMode }) {
+  const { lang } = useLang()
   const { wordQueue = [], replacementsLeft = 3, teams = [], settings = {} } = roomState
   const currentMovie = wordQueue[0] ?? ''
   const currentTeam = teams.find(tm => tm.id === roomState.currentTeamId)
@@ -492,7 +494,7 @@ function OnlineActorPrepScreen({ roomState, sendAction, setState, isHost, t, dev
           className="text-textPrimary font-black leading-tight break-words"
           style={{ fontSize: currentMovie.length > 20 ? '1.8rem' : currentMovie.length > 12 ? '2.4rem' : '3rem' }}
         >
-          {currentMovie}
+          {displayWord(currentMovie, lang)}
         </p>
       </div>
 
@@ -572,6 +574,7 @@ function GuesserWaitScreen({ roomState, t }) {
 // ─── Online Actor Acting Screen ───────────────────────────────────────────────
 
 function OnlineActorActingScreen({ roomState, sendAction, setState, isHost, t, devMode }) {
+  const { lang } = useLang()
   const { wordQueue = [], settings = {}, teams = [] } = roomState
   const currentMovie = wordQueue[0] ?? ''
   const currentTeam = teams.find(tm => tm.id === roomState.currentTeamId)
@@ -609,7 +612,7 @@ function OnlineActorActingScreen({ roomState, sendAction, setState, isHost, t, d
           className="text-textPrimary font-black leading-tight break-words"
           style={{ fontSize: currentMovie.length > 20 ? '2rem' : currentMovie.length > 12 ? '2.8rem' : '3.8rem' }}
         >
-          {currentMovie}
+          {displayWord(currentMovie, lang)}
         </p>
       </div>
 
