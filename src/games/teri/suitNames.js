@@ -1,7 +1,7 @@
 import { SUIT_NAME_KEY } from '../../i18n/strings'
 
 /**
- * Teri's bid phrase: "7 in Diamond" in English, "ईंट में सात" in Hindi —
+ * Teri's bid phrase: "7 in Diamonds" in English, "ईंट में सात" in Hindi —
  * the words players actually use at a Hindi-speaking table.
  */
 export function formatBid(number, suit, t) {
