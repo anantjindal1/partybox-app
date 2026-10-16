@@ -1,15 +1,17 @@
+import { useLang } from '../../store/LangContext'
 export function RevealScreen({ prompt, tally, winnerIds, players, isHost, isLastRound, onNextRound, advancing, t }) {
+  const { lang } = useLang()
   const maxVotes = Math.max(0, ...Object.values(tally))
   const sortedPlayers = [...players].sort((a, b) => (tally[b.id] ?? 0) - (tally[a.id] ?? 0))
   const winnerNames = winnerIds.map((id) => players.find((p) => p.id === id)?.name).filter(Boolean)
 
   return (
     <div className="flex-1 flex flex-col px-4 sm:px-6 py-6 gap-5 max-w-lg w-full mx-auto">
-      <p className="text-xs text-textMuted uppercase tracking-wider text-center">{prompt?.en}</p>
+      <p className="text-xs text-textMuted uppercase tracking-wider text-center">{prompt?.[lang] ?? prompt?.en}</p>
 
       <div className="bg-rose/10 border-[1.5px] border-rose rounded-2xl p-5 text-center">
         <p className="text-xl font-bold font-display text-rose">
-          {winnerNames.length > 0 ? winnerNames.join(' & ') : 'No votes this round'}
+          {winnerNames.length > 0 ? winnerNames.join(' & ') : t('bkNoVotes')}
         </p>
       </div>
 

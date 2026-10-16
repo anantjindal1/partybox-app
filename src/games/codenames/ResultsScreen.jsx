@@ -1,38 +1,40 @@
+import { useLang } from '../../store/LangContext'
 export function ResultsScreen({ players, teams, winner, loseReason, myId, isHost, onRematch, onHome }) {
-  const winnerLabel = winner === 'red' ? 'Red' : 'Blue'
+  const { t } = useLang()
+  const winnerLabel = t(winner === 'red' ? 'cnRed' : 'cnBlue')
   const winnerColorClass = winner === 'red' ? 'text-maroon' : 'text-cobalt'
   const reasonText =
     loseReason === 'assassin'
-      ? `${winner === 'red' ? 'Blue' : 'Red'} team tapped the assassin!`
-      : `${winnerLabel} team found all their words!`
+      ? t('cnAssassin', { team: t(winner === 'red' ? 'cnBlue' : 'cnRed') })
+      : t('cnFoundAll', { team: winnerLabel })
   const myTeam = teams.red.includes(myId) ? 'red' : teams.blue.includes(myId) ? 'blue' : null
 
   function nameOf(id) {
-    return players.find(p => p.id === id)?.name ?? 'Player'
+    return players.find(p => p.id === id)?.name ?? t('player')
   }
 
   return (
     <div className="flex-1 flex flex-col px-4 sm:px-6 py-6 gap-6 max-w-lg w-full mx-auto">
       <div className="flex flex-col items-center gap-2 text-center">
-        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">Game Over</p>
-        <p className={`text-2xl font-bold font-display ${winnerColorClass}`}>{winnerLabel} Team Wins!</p>
+        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">{t('cnGameOver')}</p>
+        <p className={`text-2xl font-bold font-display ${winnerColorClass}`}>{t('cnTeamWins', { team: winnerLabel })}</p>
         <p className="text-sm text-textMuted">{reasonText}</p>
         {myTeam && (
           <p className="text-sm font-semibold text-textPrimary">
-            {myTeam === winner ? 'You won! 🎉' : 'Better luck next time!'}
+            {myTeam === winner ? t('cnYouWon') : t('cnBetterLuck')}
           </p>
         )}
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl border-[1.5px] border-maroon bg-maroon/10 p-3">
-          <p className="text-xs font-bold text-maroon uppercase mb-1">Red</p>
+          <p className="text-xs font-bold text-maroon uppercase mb-1">{t('cnRed')}</p>
           {teams.red.map(id => (
             <p key={id} className="text-sm text-textPrimary">{nameOf(id)}</p>
           ))}
         </div>
         <div className="rounded-xl border-[1.5px] border-cobalt bg-cobalt/10 p-3">
-          <p className="text-xs font-bold text-cobalt uppercase mb-1">Blue</p>
+          <p className="text-xs font-bold text-cobalt uppercase mb-1">{t('cnBlue')}</p>
           {teams.blue.map(id => (
             <p key={id} className="text-sm text-textPrimary">{nameOf(id)}</p>
           ))}
@@ -42,13 +44,13 @@ export function ResultsScreen({ players, teams, winner, loseReason, myId, isHost
       <div className="flex flex-col gap-3">
         {isHost ? (
           <button onClick={onRematch} className="min-h-[44px] rounded-xl bg-sage text-onSage font-bold">
-            Rematch →
+            {t('rematchArrow')}
           </button>
         ) : (
-          <p className="text-center text-textMuted text-sm">Waiting for the host…</p>
+          <p className="text-center text-textMuted text-sm">{t('waitingHostShort')}</p>
         )}
         <button onClick={onHome} className="min-h-[44px] rounded-xl border-[1.5px] border-border text-textPrimary font-semibold">
-          Home
+          {t('home')}
         </button>
       </div>
     </div>

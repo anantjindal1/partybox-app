@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { useLang } from '../../store/LangContext'
 
 const TIME_OPTIONS = [15, 30, 45, 60]
 const ROUND_OPTIONS = [5, 8, 10]
 
 export function LobbyScreen({ isHost, minPlayers, players, onStart, starting }) {
+  const { t } = useLang()
   const [turnSeconds, setTurnSeconds] = useState(30)
   const [roundCount, setRoundCount] = useState(8)
   const canStart = isHost && players.length >= minPlayers && !starting
@@ -11,7 +13,7 @@ export function LobbyScreen({ isHost, minPlayers, players, onStart, starting }) 
   if (!isHost) {
     return (
       <div className="flex flex-col gap-4 max-w-lg w-full mx-auto pt-2">
-        <p className="text-center text-textMuted text-sm">Waiting for host to start...</p>
+        <p className="text-center text-textMuted text-sm">{t('waitingForHostStart')}</p>
       </div>
     )
   }
@@ -20,7 +22,7 @@ export function LobbyScreen({ isHost, minPlayers, players, onStart, starting }) 
     <div className="flex flex-col gap-5 max-w-lg w-full mx-auto pt-2">
       <div>
         <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">
-          Seconds per lawyer
+          {t('adSecondsPerLawyer')}
         </p>
         <div className="grid grid-cols-4 gap-2">
           {TIME_OPTIONS.map(n => (
@@ -40,7 +42,7 @@ export function LobbyScreen({ isHost, minPlayers, players, onStart, starting }) 
       </div>
 
       <div>
-        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">Cases</p>
+        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">{t('adCases')}</p>
         <div className="grid grid-cols-3 gap-2">
           {ROUND_OPTIONS.map(n => (
             <button
@@ -63,7 +65,7 @@ export function LobbyScreen({ isHost, minPlayers, players, onStart, starting }) 
         disabled={!canStart}
         className="min-h-[48px] rounded-xl bg-taupe text-onTaupe font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
       >
-        {starting ? 'Starting...' : players.length < minPlayers ? `Waiting for players (${players.length}/${minPlayers})` : 'Start Game →'}
+        {starting ? t('adStarting') : players.length < minPlayers ? t('waitingPlayersN', { n: players.length, max: minPlayers }) : t('startGameArrow')}
       </button>
     </div>
   )

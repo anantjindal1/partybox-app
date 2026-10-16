@@ -51,7 +51,7 @@ export function LobbyScreen({ isHost, minPlayers, players, onStart, starting, t 
         }`}
       >
         <span>{t('bkAdult')}</span>
-        <span className="text-xs font-bold">{includeAdult ? 'ON' : 'OFF'}</span>
+        <span className="text-xs font-bold">{includeAdult ? t('on') : t('off')}</span>
       </button>
 
       <div>

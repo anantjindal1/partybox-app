@@ -1,8 +1,12 @@
 import { useState } from 'react'
 import { TAGS } from './prompts'
 import { ACTIONS } from './reducer'
+import { resolveTitle } from '../../utils/strings'
+import metadata from './metadata-offline'
+import { useLang } from '../../store/LangContext'
 
 export function SetupScreenOffline({ state, dispatch }) {
+  const { lang, t } = useLang()
   const [selectedTags, setSelectedTags] = useState(state.selectedTags)
   const [includeAdult, setIncludeAdult] = useState(state.includeAdult)
 
@@ -21,14 +25,14 @@ export function SetupScreenOffline({ state, dispatch }) {
   return (
     <div className="px-4 py-6 space-y-6 max-w-lg mx-auto">
       <div className="text-center space-y-1">
-        <h1 className="text-2xl font-black font-display text-textPrimary">Sabse Zyada Kaun</h1>
+        <h1 className="text-2xl font-black font-display text-textPrimary">{resolveTitle(metadata.title, lang)}</h1>
         <p className="text-textMuted text-sm">
-          One phone, one host. Read each prompt aloud — the room decides out loud who it fits.
+          {t('szIntro')}
         </p>
       </div>
 
       <div>
-        <p className="text-textMuted text-xs uppercase tracking-widest mb-3">Setting</p>
+        <p className="text-textMuted text-xs uppercase tracking-widest mb-3">{t('szSetting')}</p>
         <div className="grid grid-cols-1 gap-2">
           {Object.entries(TAGS).map(([key, label]) => (
             <button
@@ -40,7 +44,7 @@ export function SetupScreenOffline({ state, dispatch }) {
                   : 'bg-surfaceElevated text-textPrimary border-border hover:border-rose/50'
               }`}
             >
-              {label.en}
+              {label[lang] ?? label.en}
             </button>
           ))}
         </div>
@@ -52,15 +56,15 @@ export function SetupScreenOffline({ state, dispatch }) {
           includeAdult ? 'bg-error/10 border-error text-error' : 'bg-surfaceElevated border-border text-textMuted'
         }`}
       >
-        <span>Include 18+ prompts</span>
-        <span className="text-xs font-bold">{includeAdult ? 'ON' : 'OFF'}</span>
+        <span>{t('szAdult')}</span>
+        <span className="text-xs font-bold">{includeAdult ? t('on') : t('off')}</span>
       </button>
 
       <button
         onClick={handleStart}
         className="w-full min-h-[44px] py-4 rounded-2xl bg-rose text-onRose font-black text-lg transition-opacity"
       >
-        Start →
+        {t('szStart')}
       </button>
     </div>
   )

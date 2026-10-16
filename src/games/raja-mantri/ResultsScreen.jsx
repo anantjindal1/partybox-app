@@ -36,7 +36,7 @@ export function ResultsScreen({
             }`}
           >
             <span className="text-sm font-semibold text-textPrimary">
-              {i + 1}. {p.name}{p.id === myId ? ' (You)' : ''}
+              {i + 1}. {p.name}{p.id === myId ? t('youSuffix') : ''}
             </span>
             <span className="text-sm font-bold text-gold tabular-nums">
               {cumulativeScores[p.id] ?? 0}

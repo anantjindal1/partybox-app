@@ -1,4 +1,6 @@
+import { useLang } from '../../store/LangContext'
 export function ResultsScreen({ players, scores, myId, isHost, onRematch, onHome }) {
+  const { t } = useLang()
   const ranked = [...players].sort((a, b) => (scores[b.id] ?? 0) - (scores[a.id] ?? 0))
   const maxScore = Math.max(0, ...players.map(p => scores[p.id] ?? 0))
   const winners = players.filter(p => (scores[p.id] ?? 0) === maxScore && maxScore > 0)
@@ -6,7 +8,7 @@ export function ResultsScreen({ players, scores, myId, isHost, onRematch, onHome
   return (
     <div className="flex-1 flex flex-col px-4 sm:px-6 py-6 gap-6 max-w-lg w-full mx-auto">
       <div className="flex flex-col items-center gap-2 text-center">
-        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">Top Detective</p>
+        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">{t('chTopDetective')}</p>
         <p className="text-2xl font-bold font-display text-textPrimary">
           {winners.length > 0 ? winners.map(w => w.name).join(' & ') : '—'}
         </p>
@@ -21,7 +23,7 @@ export function ResultsScreen({ players, scores, myId, isHost, onRematch, onHome
             }`}
           >
             <span className="text-sm font-semibold text-textPrimary">
-              {i + 1}. {p.name}{p.id === myId ? ' (You)' : ''}
+              {i + 1}. {p.name}{p.id === myId ? t('youSuffix') : ''}
             </span>
             <span className="text-sm font-bold text-cerulean tabular-nums">{scores[p.id] ?? 0}</span>
           </div>
@@ -31,13 +33,13 @@ export function ResultsScreen({ players, scores, myId, isHost, onRematch, onHome
       <div className="flex flex-col gap-3">
         {isHost ? (
           <button onClick={onRematch} className="min-h-[44px] rounded-xl bg-cerulean text-onCerulean font-bold">
-            Rematch →
+            {t('rematchArrow')}
           </button>
         ) : (
-          <p className="text-center text-textMuted text-sm">Waiting for the host…</p>
+          <p className="text-center text-textMuted text-sm">{t('waitingHostShort')}</p>
         )}
         <button onClick={onHome} className="min-h-[44px] rounded-xl border-[1.5px] border-border text-textPrimary font-semibold">
-          Home
+          {t('home')}
         </button>
       </div>
     </div>

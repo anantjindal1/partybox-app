@@ -37,7 +37,7 @@ export const PROMPTS = [
   { id: 'charm-anyone', en: 'Most likely to charm anyone in the room', hi: 'कमरे में किसी को भी इम्प्रेस कर सकता है', tags: ['friends', 'icebreaker'], adult: false },
   { id: 'become-famous', en: 'Most likely to become famous one day', hi: 'एक दिन फेमस होने वाला', tags: ['friends', 'icebreaker'], adult: false },
   { id: 'cry-movie', en: 'Most likely to cry during a movie', hi: 'फिल्म देखते हुए रोने वाला', tags: ['friends'], adult: false },
-  { id: 'ghost-someone', en: 'Most likely to ghost someone', hi: 'किसी को अचानक गायब हो जाने वाला', tags: ['friends'], adult: false },
+  { id: 'ghost-someone', en: 'Most likely to ghost someone', hi: 'किसी को अचानक घोस्ट करने वाला', tags: ['friends'], adult: false },
   { id: 'start-dance', en: 'Most likely to start the dance floor', hi: 'डांस फ्लोर शुरू करने वाला', tags: ['friends', 'icebreaker'], adult: false },
   { id: 'marry-first', en: 'Most likely to get married first', hi: 'सबसे पहले शादी करने वाला', tags: ['friends'], adult: false },
   { id: 'zombie-survivor', en: 'Most likely to survive a zombie apocalypse', hi: 'ज़ॉम्बी अपोकैलिप्स में बचने वाला', tags: ['friends', 'icebreaker'], adult: false },

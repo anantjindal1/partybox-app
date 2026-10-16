@@ -11,6 +11,7 @@ import { awardXP } from '../../services/xp'
 import { writeGameStats } from '../../services/stats'
 import { awardBadge } from '../../services/profile'
 import metadata from './metadata'
+import { useLang } from '../../store/LangContext'
 
 function buildConfessions(actions) {
   const byPlayer = new Map()
@@ -24,6 +25,7 @@ function buildConfessions(actions) {
 }
 
 export default function ChugliDetective({ code }) {
+  const { t } = useLang()
   const navigate = useNavigate()
   const {
     room,
@@ -217,7 +219,7 @@ export default function ChugliDetective({ code }) {
   if (!room || !myId) {
     return (
       <div className="flex-1 flex items-center justify-center py-12">
-        <p className="text-textMuted animate-pulse">Connecting…</p>
+        <p className="text-textMuted animate-pulse">{t('connecting')}</p>
       </div>
     )
   }

@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useLang } from '../../store/LangContext'
 
 export function VotingScreen({ caseText, lawyers, canVote, votesIn, totalVoters, onVote, voted, isHost, onEndVoting }) {
+  const { t } = useLang()
   const [localVote, setLocalVote] = useState(null)
 
   function handlePick(playerId) {
@@ -11,9 +13,9 @@ export function VotingScreen({ caseText, lawyers, canVote, votesIn, totalVoters,
 
   return (
     <div className="flex-1 flex flex-col items-center px-4 sm:px-6 py-6 gap-5 max-w-lg w-full mx-auto">
-      <p className="text-xs font-semibold text-textMuted uppercase tracking-wider text-center">The Case</p>
+      <p className="text-xs font-semibold text-textMuted uppercase tracking-wider text-center">{t('adTheCase')}</p>
       <p className="text-sm text-textMuted text-center italic">"{caseText}"</p>
-      <p className="text-xl font-bold font-display text-textPrimary text-center">Who argued it better?</p>
+      <p className="text-xl font-bold font-display text-textPrimary text-center">{t('adWhoBetter')}</p>
 
       {canVote ? (
         <>
@@ -35,11 +37,11 @@ export function VotingScreen({ caseText, lawyers, canVote, votesIn, totalVoters,
               )
             })}
           </div>
-          {localVote && <p className="text-sm text-textMuted">Vote locked in — waiting for the room…</p>}
+          {localVote && <p className="text-sm text-textMuted">{t('voteLocked')}</p>}
         </>
       ) : (
         <p className="text-sm text-textMuted text-center py-4">
-          The room is deciding your fate — you can't vote for yourself!
+          {t('adYourFate')}
         </p>
       )}
 
@@ -51,7 +53,7 @@ export function VotingScreen({ caseText, lawyers, canVote, votesIn, totalVoters,
             disabled={votesIn === 0}
             className="min-h-[44px] w-full rounded-xl border-[1.5px] border-taupe text-taupe font-bold disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            End Voting & Reveal →
+            {t('endVotingReveal')}
           </button>
         )}
       </div>

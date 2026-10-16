@@ -1,17 +1,19 @@
 import { useState } from 'react'
+import { useLang } from '../../store/LangContext'
 
 function ClueForm({ onSubmit }) {
+  const { t } = useLang()
   const [word, setWord] = useState('')
   const [number, setNumber] = useState(1)
 
   return (
     <div className="rounded-xl border-[1.5px] border-sage bg-sage/10 p-3 flex flex-col gap-2">
-      <p className="text-xs font-semibold text-sage uppercase tracking-wider">Give a clue</p>
+      <p className="text-xs font-semibold text-sage uppercase tracking-wider">{t('cnGiveClue')}</p>
       <div className="flex gap-2">
         <input
           value={word}
           onChange={e => setWord(e.target.value)}
-          placeholder="One word..."
+          placeholder={t('cnOneWord')}
           className="flex-1 min-h-[40px] rounded-lg border-[1.5px] border-border bg-surfaceElevated px-3 text-textPrimary focus:outline-none focus:border-sage"
         />
         <select
@@ -29,7 +31,7 @@ function ClueForm({ onSubmit }) {
         disabled={word.trim().length === 0}
         className="min-h-[40px] rounded-lg bg-sage text-onSage font-bold disabled:opacity-40"
       >
-        Submit Clue
+        {t('cnSubmitClue')}
       </button>
     </div>
   )
@@ -65,14 +67,15 @@ export function BoardScreen({
   onTapCard,
   onPass,
 }) {
+  const { t } = useLang()
   return (
     <div className="flex-1 flex flex-col gap-4 px-3 sm:px-6 py-4 max-w-2xl w-full mx-auto">
       <div className="flex items-center justify-between text-sm font-bold">
-        <span className="text-maroon">Red: {remaining.red} left</span>
+        <span className="text-maroon">{t('cnLeft', { team: t('cnRed'), n: remaining.red })}</span>
         <span className={`uppercase tracking-wider ${activeTeam === 'red' ? 'text-maroon' : 'text-cobalt'}`}>
-          {activeTeam}'s turn
+          {t('cnTurn', { team: t(activeTeam === 'red' ? 'cnRed' : 'cnBlue') })}
         </span>
-        <span className="text-cobalt">Blue: {remaining.blue} left</span>
+        <span className="text-cobalt">{t('cnLeft', { team: t('cnBlue'), n: remaining.blue })}</span>
       </div>
 
       {clueHistory.length > 0 && (
@@ -94,12 +97,12 @@ export function BoardScreen({
       {currentClue ? (
         <div className="rounded-xl border-[1.5px] border-border bg-surfaceElevated p-3 flex items-center justify-between">
           <p className="text-textPrimary font-semibold">
-            Clue: <span className="font-bold uppercase">{currentClue.word}</span> — {currentClue.number}
-            <span className="text-textMuted font-normal"> ({guessesUsed}/{maxGuessesAllowed} guesses used)</span>
+            {t('cnClue', { word: currentClue.word, n: currentClue.number })}
+            <span className="text-textMuted font-normal"> {t('cnGuessesUsed', { used: guessesUsed, max: maxGuessesAllowed })}</span>
           </p>
           {canGuess && (
             <button onClick={onPass} className="text-xs font-semibold px-3 py-2 rounded-lg border-[1.5px] border-border text-textPrimary">
-              Pass
+              {t('cnPass')}
             </button>
           )}
         </div>
@@ -107,7 +110,7 @@ export function BoardScreen({
         <ClueForm onSubmit={onSubmitClue} />
       ) : (
         <p className="text-center text-textMuted text-sm">
-          Waiting for {activeTeam}'s spymaster to give a clue…
+          {t('cnWaitingClue', { team: t(activeTeam === 'red' ? 'cnRed' : 'cnBlue') })}
         </p>
       )}
 
@@ -137,7 +140,7 @@ export function BoardScreen({
 
       {myTeam && (
         <p className="text-center text-xs text-textMuted">
-          You're on {myTeam}{isSpymaster ? ' as spymaster' : ''}
+          {isSpymaster ? t('cnYoureOnSpy', { team: t(myTeam === 'red' ? 'cnRed' : 'cnBlue') }) : t('cnYoureOn', { team: t(myTeam === 'red' ? 'cnRed' : 'cnBlue') })}
         </p>
       )}
     </div>

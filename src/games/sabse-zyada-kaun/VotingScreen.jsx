@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useLang } from '../../store/LangContext'
 
 export function VotingScreen({ prompt, players, myId, votesIn, totalPlayers, onVote, voted, isHost, onEndVoting, currentRound, roundCount, t }) {
+  const { lang } = useLang()
   const [localVote, setLocalVote] = useState(null)
 
   function handlePick(playerId) {
@@ -17,7 +19,7 @@ export function VotingScreen({ prompt, players, myId, votesIn, totalPlayers, onV
 
       <div className="bg-surfaceElevated border-[1.5px] border-rose rounded-2xl p-6 text-center w-full">
         <p className="text-xl font-bold font-display text-textPrimary leading-snug">
-          {prompt?.en ?? '...'}
+          {prompt?.[lang] ?? prompt?.en ?? '...'}
         </p>
       </div>
 
@@ -35,14 +37,14 @@ export function VotingScreen({ prompt, players, myId, votesIn, totalPlayers, onV
             >
               <span className="text-lg leading-none">{p.avatar}</span>
               <span className="text-sm font-semibold truncate max-w-full">
-                {p.name}{p.id === myId ? ' (You)' : ''}
+                {p.name}{p.id === myId ? t('youSuffix') : ''}
               </span>
             </button>
           )
         })}
       </div>
 
-      {localVote && <p className="text-sm text-textMuted">Vote locked in — waiting for the room…</p>}
+      {localVote && <p className="text-sm text-textMuted">{t('voteLocked')}</p>}
 
       <div className="w-full flex flex-col items-center gap-3 mt-auto pt-3">
         <p className="text-sm font-semibold text-textMuted">
@@ -54,7 +56,7 @@ export function VotingScreen({ prompt, players, myId, votesIn, totalPlayers, onV
             disabled={votesIn === 0}
             className="min-h-[44px] w-full rounded-xl border-[1.5px] border-rose text-rose font-bold disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            End Voting &amp; Reveal →
+            {t('endVotingReveal')}
           </button>
         )}
       </div>

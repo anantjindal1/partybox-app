@@ -1,3 +1,4 @@
+import { useLang } from '../../store/LangContext'
 export function DetectingScreen({
   confessionText,
   confessionIndex,
@@ -11,10 +12,11 @@ export function DetectingScreen({
   isHost,
   onEndVoting,
 }) {
+  const { t } = useLang()
   return (
     <div className="flex-1 flex flex-col gap-5 px-4 sm:px-6 py-6 max-w-lg w-full mx-auto">
       <p className="text-xs text-textMuted uppercase tracking-wider text-center">
-        Confession {confessionIndex + 1} of {totalConfessions}
+        {t('chConfessionN', { n: confessionIndex + 1, total: totalConfessions })}
       </p>
 
       <div className="rounded-2xl p-5 border-[1.5px] bg-cerulean/10 border-cerulean text-center">
@@ -23,7 +25,7 @@ export function DetectingScreen({
 
       {canVote ? (
         <>
-          <p className="text-sm text-textMuted text-center">Who do you think wrote this?</p>
+          <p className="text-sm text-textMuted text-center">{t('chWhoWrote')}</p>
           <div className="grid grid-cols-2 gap-2">
             {suspects.map(p => (
               <button
@@ -36,20 +38,20 @@ export function DetectingScreen({
               </button>
             ))}
           </div>
-          {voted && <p className="text-center text-textMuted text-sm">Vote locked in — waiting on the rest of the room…</p>}
+          {voted && <p className="text-center text-textMuted text-sm">{t('chVoteLocked')}</p>}
         </>
       ) : (
-        <p className="text-center text-textMuted text-sm">This one's yours — sit tight while the room guesses!</p>
+        <p className="text-center text-textMuted text-sm">{t('chYours')}</p>
       )}
 
-      <p className="text-center text-xs text-textMuted">{votesIn}/{totalVoters} votes in</p>
+      <p className="text-center text-xs text-textMuted">{t('chVotesIn', { n: votesIn, total: totalVoters })}</p>
 
       {isHost && (
         <button
           onClick={onEndVoting}
           className="min-h-[44px] rounded-xl border-[1.5px] border-border text-textPrimary font-semibold"
         >
-          End Voting & Reveal
+          {t('chEndVoting')}
         </button>
       )}
     </div>

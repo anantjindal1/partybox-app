@@ -174,7 +174,7 @@ export default function SabseZyadaKaunOnline({ code }) {
   if (!room || !myId) {
     return (
       <div className="flex-1 flex items-center justify-center py-12">
-        <p className="text-textMuted animate-pulse">Connecting…</p>
+        <p className="text-textMuted animate-pulse">{t('connecting')}</p>
       </div>
     )
   }

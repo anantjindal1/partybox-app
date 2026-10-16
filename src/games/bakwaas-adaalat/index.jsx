@@ -22,7 +22,7 @@ function pickCaseId(usedIds, rng = Math.random) {
 
 export default function BakwaasAdaalat({ code }) {
   const navigate = useNavigate()
-  const { lang } = useLang()
+  const { lang, t } = useLang()
   const {
     room,
     roomState,
@@ -206,7 +206,7 @@ export default function BakwaasAdaalat({ code }) {
   if (!room || !myId) {
     return (
       <div className="flex-1 flex items-center justify-center py-12">
-        <p className="text-textMuted animate-pulse">Connecting…</p>
+        <p className="text-textMuted animate-pulse">{t('connecting')}</p>
       </div>
     )
   }
@@ -225,7 +225,7 @@ export default function BakwaasAdaalat({ code }) {
 
   if (phase === 'arguing') {
     const caseText = CASES.find(c => c.id === roomState.caseId)?.[lang] ?? ''
-    const lawyerNames = (roomState.lawyerIds ?? []).map(id => players.find(p => p.id === id)?.name ?? 'Player')
+    const lawyerNames = (roomState.lawyerIds ?? []).map(id => players.find(p => p.id === id)?.name ?? t('player'))
     return (
       <ArguingScreen
         caseText={caseText}

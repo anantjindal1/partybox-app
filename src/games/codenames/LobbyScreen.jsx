@@ -1,8 +1,10 @@
+import { useLang } from '../../store/LangContext'
 function TeamPanel({ team, colorClasses, players, teamIds, spymasterId, myId, onJoin, onBecomeSpymaster }) {
+  const { t } = useLang()
   const members = players.filter(p => teamIds.includes(p.id))
   return (
     <div className={`rounded-2xl border-[1.5px] p-4 flex flex-col gap-3 ${colorClasses.border} ${colorClasses.bg}`}>
-      <p className={`text-sm font-bold uppercase tracking-wider ${colorClasses.text}`}>{team} team</p>
+      <p className={`text-sm font-bold uppercase tracking-wider ${colorClasses.text}`}>{t('cnTeamHeading', { team: t(team === 'red' ? 'cnRed' : 'cnBlue') })}</p>
       <div className="flex flex-col gap-2">
         {members.map(p => (
           <div key={p.id} className="flex items-center justify-between gap-2">
@@ -15,19 +17,19 @@ function TeamPanel({ team, colorClasses, players, teamIds, spymasterId, myId, on
                 disabled={spymasterId === myId}
                 className={`text-xs font-semibold px-2 py-1 rounded-lg border-[1.5px] disabled:opacity-40 ${colorClasses.border} ${colorClasses.text}`}
               >
-                {spymasterId === myId ? 'Spymaster' : 'Become Spymaster'}
+                {spymasterId === myId ? t('cnSpymaster') : t('cnBecomeSpy')}
               </button>
             )}
           </div>
         ))}
-        {members.length === 0 && <p className="text-xs text-textMuted">No one yet</p>}
+        {members.length === 0 && <p className="text-xs text-textMuted">{t('cnNoOne')}</p>}
       </div>
       {!teamIds.includes(myId) && (
         <button
           onClick={() => onJoin(team)}
           className={`min-h-[40px] rounded-xl font-bold text-sm ${colorClasses.solidBg} ${colorClasses.solidText}`}
         >
-          Join {team}
+          {t('cnJoin', { team: t(team === 'red' ? 'cnRed' : 'cnBlue') })}
         </button>
       )}
     </div>
@@ -48,6 +50,7 @@ export function LobbyScreen({
   onStart,
   starting,
 }) {
+  const { t } = useLang()
   const redOk = teams.red.length >= 2 && spymasterIds.red && teams.red.includes(spymasterIds.red)
   const blueOk = teams.blue.length >= 2 && spymasterIds.blue && teams.blue.includes(spymasterIds.blue)
   const canStart = isHost && redOk && blueOk && players.length >= minPlayers && !starting
@@ -55,7 +58,7 @@ export function LobbyScreen({
   return (
     <div className="flex flex-col gap-5 max-w-lg w-full mx-auto pt-2">
       <div>
-        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">Word Bank</p>
+        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">{t('cnWordBank')}</p>
         <div className="grid grid-cols-2 gap-2">
           {['en', 'hi'].map(code => (
             <button
@@ -110,13 +113,13 @@ export function LobbyScreen({
           className="min-h-[48px] rounded-xl bg-sage text-onSage font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
         >
           {starting
-            ? 'Starting...'
+            ? t('adStarting')
             : !redOk || !blueOk
-            ? 'Each team needs 2+ players & a spymaster'
-            : 'Start Game →'}
+            ? t('cnNeedTeams')
+            : t('startGameArrow')}
         </button>
       ) : (
-        <p className="text-center text-textMuted text-sm">Waiting for host to start...</p>
+        <p className="text-center text-textMuted text-sm">{t('waitingForHostStart')}</p>
       )}
     </div>
   )

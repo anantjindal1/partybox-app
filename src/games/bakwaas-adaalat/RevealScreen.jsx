@@ -1,21 +1,23 @@
+import { useLang } from '../../store/LangContext'
 export function RevealScreen({ lastRoundResult, players, roundNumber, totalRounds, isHost, isLastRound, onNextRound, advancing }) {
+  const { t } = useLang()
   if (!lastRoundResult) return null
   const { caseText, lawyerIds, tally, winnerIds } = lastRoundResult
 
   function nameOf(id) {
-    return players.find(p => p.id === id)?.name ?? 'Player'
+    return players.find(p => p.id === id)?.name ?? t('player')
   }
 
   return (
     <div className="flex-1 flex flex-col px-4 sm:px-6 py-6 gap-5 max-w-lg w-full mx-auto">
       <p className="text-xs text-textMuted uppercase tracking-wider text-center">
-        Case {roundNumber} of {totalRounds}
+        {t('adCaseN', { n: roundNumber, total: totalRounds })}
       </p>
       <p className="text-sm text-textMuted text-center italic">"{caseText}"</p>
 
       <div className="rounded-2xl p-5 text-center border-[1.5px] bg-taupe/10 border-taupe">
         <p className="text-xl font-bold font-display text-taupe">
-          {winnerIds.length > 0 ? `${winnerIds.map(nameOf).join(' & ')} won this case!` : 'No votes — no winner this round'}
+          {winnerIds.length > 0 ? t('adWonCase', { names: winnerIds.map(nameOf).join(' & ') }) : t('adNoWinner')}
         </p>
       </div>
 
@@ -34,10 +36,10 @@ export function RevealScreen({ lastRoundResult, players, roundNumber, totalRound
           disabled={advancing}
           className="min-h-[44px] rounded-xl bg-taupe text-onTaupe font-bold disabled:opacity-40 transition-opacity"
         >
-          {isLastRound ? 'See Final Results →' : 'Next Case →'}
+          {isLastRound ? t('finalResultsArrow') : t('adNextCase')}
         </button>
       ) : (
-        <p className="text-center text-textMuted text-sm">Waiting for the host to continue…</p>
+        <p className="text-center text-textMuted text-sm">{t('waitingForHostContinue')}</p>
       )}
     </div>
   )

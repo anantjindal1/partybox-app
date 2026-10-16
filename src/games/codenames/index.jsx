@@ -10,11 +10,13 @@ import { awardXP } from '../../services/xp'
 import { writeGameStats } from '../../services/stats'
 import { awardBadge } from '../../services/profile'
 import metadata from './metadata'
+import { useLang } from '../../store/LangContext'
 
 const EMPTY_TEAMS = { red: [], blue: [] }
 const EMPTY_SPYMASTERS = { red: null, blue: null }
 
 export default function Codenames({ code }) {
+  const { t } = useLang()
   const navigate = useNavigate()
   const {
     room,
@@ -196,7 +198,7 @@ export default function Codenames({ code }) {
   if (!room || !myId) {
     return (
       <div className="flex-1 flex items-center justify-center py-12">
-        <p className="text-textMuted animate-pulse">Connecting…</p>
+        <p className="text-textMuted animate-pulse">{t('connecting')}</p>
       </div>
     )
   }
