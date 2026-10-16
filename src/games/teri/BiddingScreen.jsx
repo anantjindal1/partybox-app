@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { SpadeIcon, HeartIcon, DiamondIcon, ClubIcon } from '../../components/cards/suitIcons'
 import { PlayingCard } from '../../components/cards/PlayingCard'
 import { parseCard } from '../../multiplayer/deck'
-import { BID_SUIT_KEY, formatBid } from './suitNames'
+import { formatBid } from './suitNames'
+import { SUIT_NAME_KEY } from '../../i18n/strings'
 import { useLang } from '../../store/LangContext'
 
 const SUITS = [
@@ -134,7 +135,7 @@ export function BiddingScreen({ myHand, seats = [], bidHistory = [], isMyTurn, i
                 }`}
               >
                 <Icon width="22" height="22" className={colorClass} />
-                <span className="text-[10px] font-semibold text-textMuted">{t(BID_SUIT_KEY[suit])}</span>
+                <span className="text-[10px] font-semibold text-textMuted">{t(SUIT_NAME_KEY[suit])}</span>
               </button>
             ))}
           </div>
