@@ -1,11 +1,12 @@
 import { WORD_PACKS } from './wordpacks'
 import { ACTIONS } from './reducer'
+import { useLang } from '../../store/LangContext'
 
 const DIFFICULTIES = [
-  { key: 'easy',   label: 'Easy',   desc: 'Popular & recognisable' },
-  { key: 'medium', label: 'Medium', desc: 'Easy + slightly harder'  },
-  { key: 'hard',   label: 'Hard',   desc: 'All words + tough ones'  },
-  { key: 'mixed',  label: 'Mixed',  desc: 'Full pool every game'    },
+  { key: 'easy',   label: 'easy',    desc: 'dcEasyDesc' },
+  { key: 'medium', label: 'medium',  desc: 'dcMediumDesc' },
+  { key: 'hard',   label: 'hard',    desc: 'dcHardDesc' },
+  { key: 'mixed',  label: 'dcMixed', desc: 'dcMixedDesc' },
 ]
 
 // Every category shares Dumb Charades' one accent (terracotta) — a five-color
@@ -22,6 +23,7 @@ function wordCount(pack, difficulty) {
 }
 
 export function CategorySelect({ state, dispatch }) {
+  const { t } = useLang()
   const { categories, difficulty } = state
   const allKeys = Object.keys(WORD_PACKS)
   const allSelected = allKeys.every(k => categories.includes(k))
@@ -40,12 +42,12 @@ export function CategorySelect({ state, dispatch }) {
   return (
     <div className="px-4 py-6 space-y-5">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-black text-textPrimary">Pick Categories</h2>
+        <h2 className="text-xl font-black text-textPrimary">{t('dcPickCategories')}</h2>
         <button
           onClick={toggleAll}
           className="text-xs font-semibold text-textMuted hover:text-textPrimary border border-border rounded-lg px-3 py-1 transition-colors"
         >
-          {allSelected ? 'Deselect All' : 'Select All'}
+          {allSelected ? t('dcDeselectAll') : t('dcSelectAll')}
         </button>
       </div>
 
@@ -70,9 +72,9 @@ export function CategorySelect({ state, dispatch }) {
               <span className="text-3xl leading-none">{pack.emoji}</span>
               <div className="flex-1 min-w-0">
                 <p className={`font-bold text-base ${selected ? 'text-textPrimary' : 'text-textSecondary'}`}>
-                  {pack.label}
+                  {t(`dcCat.${key}`)}
                 </p>
-                <p className="text-textMuted text-xs mt-0.5">{count} words</p>
+                <p className="text-textMuted text-xs mt-0.5">{t('dcWordCount', { n: count })}</p>
               </div>
               <span className={`text-xl ${selected ? acc.text : 'text-textSecondary'}`}>
                 {selected ? '✓' : '○'}
@@ -84,7 +86,7 @@ export function CategorySelect({ state, dispatch }) {
 
       {/* Difficulty */}
       <div>
-        <p className="text-textMuted text-xs uppercase tracking-widest mb-3">Difficulty</p>
+        <p className="text-textMuted text-xs uppercase tracking-widest mb-3">{t('dcDifficulty')}</p>
         <div className="grid grid-cols-2 gap-2">
           {DIFFICULTIES.map(d => (
             <button
@@ -96,22 +98,22 @@ export function CategorySelect({ state, dispatch }) {
                   : 'bg-surfaceElevated/80 border-border/50 text-textMuted hover:border-border'
               }`}
             >
-              <p className="font-bold text-sm">{d.label}</p>
-              <p className="text-textMuted text-xs mt-0.5">{d.desc}</p>
+              <p className="font-bold text-sm">{t(d.label)}</p>
+              <p className="text-textMuted text-xs mt-0.5">{t(d.desc)}</p>
             </button>
           ))}
         </div>
       </div>
 
       {state.error && (
-        <p className="text-terracotta text-center font-semibold text-sm">{state.error === 'selectAtLeastOne' ? 'Pick at least one category!' : state.error}</p>
+        <p className="text-terracotta text-center font-semibold text-sm">{state.error === 'selectAtLeastOne' ? t('dcPickOne') : state.error}</p>
       )}
 
       <button
         onClick={() => dispatch({ type: ACTIONS.CONFIRM_CATEGORIES })}
         className="w-full py-4 rounded-2xl bg-terracotta hover:opacity-90 text-onTerracotta font-black text-lg transition-colors active:scale-[0.98]"
       >
-        Next →
+        {t('next')}
       </button>
     </div>
   )

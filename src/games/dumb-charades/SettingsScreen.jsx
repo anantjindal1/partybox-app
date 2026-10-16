@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { ACTIONS } from './reducer'
 import { getSeenWordsToday } from '../../services/dcSeenWords'
+import { useLang } from '../../store/LangContext'
 
 const TIMERS     = [60, 90, 120]
 const WIN_POINTS = [3, 5, 7, 10]
 
 export function SettingsScreen({ state, dispatch }) {
+  const { t } = useLang()
   const { timerSeconds, winPoints } = state
   const [customText, setCustomText] = useState(
     (state.customWords ?? []).join('\n')
@@ -22,9 +24,9 @@ export function SettingsScreen({ state, dispatch }) {
 
   return (
     <div className="px-4 py-6 space-y-6">
-      <h2 className="text-xl font-black text-textPrimary">Settings</h2>
+      <h2 className="text-xl font-black text-textPrimary">{t('dcSettings')}</h2>
 
-      <Section label="⏱ Timer per turn">
+      <Section label={t('dcTimer')}>
         <div className="grid grid-cols-3 gap-3">
           {TIMERS.map(s => (
             <ToggleBtn
@@ -38,7 +40,7 @@ export function SettingsScreen({ state, dispatch }) {
         </div>
       </Section>
 
-      <Section label="🏆 Points to win">
+      <Section label={t('dcPointsToWin')}>
         <div className="grid grid-cols-4 gap-3">
           {WIN_POINTS.map(p => (
             <ToggleBtn
@@ -52,22 +54,22 @@ export function SettingsScreen({ state, dispatch }) {
         </div>
       </Section>
 
-      <Section label="🎬 Custom words (optional)">
+      <Section label={t('dcCustomWords')}>
         <textarea
           value={customText}
           onChange={e => setCustomText(e.target.value)}
-          placeholder="One word or phrase per line…"
+          placeholder={t('dcCustomPlaceholder')}
           rows={4}
           className="w-full bg-surfaceElevated/80 border border-border/50 text-textPrimary rounded-2xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-terracotta/60 resize-none placeholder-zinc-600"
         />
-        <p className="text-textMuted text-xs mt-1">These will be mixed into the word queue</p>
+        <p className="text-textMuted text-xs mt-1">{t('dcCustomHelp')}</p>
       </Section>
 
       <button
         onClick={handleStart}
         className="w-full py-4 rounded-2xl bg-terracotta hover:opacity-90 text-onTerracotta font-black text-lg transition-colors active:scale-[0.98]"
       >
-        Start Game →
+        {t('startGameArrow')}
       </button>
     </div>
   )

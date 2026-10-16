@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { SecretWordBanner } from './SecretWordBanner'
+import { useLang } from '../../store/LangContext'
 
 export function VotingScreen({ players, myId, isBhed, secretWord, votesIn, totalPlayers, onVote, voted, isHost, onEndVoting }) {
+  const { t } = useLang()
   const [localVote, setLocalVote] = useState(null)
   const others = players.filter(p => p.id !== myId)
 
@@ -14,7 +16,7 @@ export function VotingScreen({ players, myId, isBhed, secretWord, votesIn, total
   return (
     <div className="flex-1 flex flex-col items-center px-4 sm:px-6 py-6 gap-5 max-w-lg w-full mx-auto">
       <SecretWordBanner isBhed={isBhed} secretWord={secretWord} />
-      <p className="text-xl font-bold font-display text-textPrimary text-center">Who is the Bhed?</p>
+      <p className="text-xl font-bold font-display text-textPrimary text-center">{t('bhWhoIs')}</p>
 
       <div className="grid grid-cols-2 gap-3 w-full">
         {others.map(p => {
@@ -35,7 +37,7 @@ export function VotingScreen({ players, myId, isBhed, secretWord, votesIn, total
         })}
       </div>
 
-      {localVote && <p className="text-sm text-textMuted">Vote locked in — waiting for the room…</p>}
+      {localVote && <p className="text-sm text-textMuted">{t('voteLocked')}</p>}
 
       <div className="w-full flex flex-col items-center gap-3 mt-auto pt-3">
         <p className="text-sm font-semibold text-textMuted">{votesIn} of {totalPlayers} voted</p>
@@ -45,7 +47,7 @@ export function VotingScreen({ players, myId, isBhed, secretWord, votesIn, total
             disabled={votesIn === 0}
             className="min-h-[44px] w-full rounded-xl border-[1.5px] border-emerald text-emerald font-bold disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            End Voting & Reveal →
+            {t('endVotingReveal')}
           </button>
         )}
       </div>

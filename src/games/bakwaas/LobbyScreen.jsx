@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { TAGS } from './prompts'
+import { useLang } from '../../store/LangContext'
 
 const ROUND_OPTIONS = [5, 8, 10]
 
 export function LobbyScreen({ isHost, minPlayers, players, onStart, starting, t }) {
+  const { lang } = useLang()
   const [selectedTags, setSelectedTags] = useState(['friends'])
   const [includeAdult, setIncludeAdult] = useState(false)
   const [roundCount, setRoundCount] = useState(8)
@@ -24,7 +26,7 @@ export function LobbyScreen({ isHost, minPlayers, players, onStart, starting, t 
   return (
     <div className="flex flex-col gap-5 max-w-lg w-full mx-auto pt-2">
       <div>
-        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">Setting</p>
+        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">{t('bkSetting')}</p>
         <div className="grid grid-cols-1 gap-2">
           {Object.entries(TAGS).map(([key, label]) => (
             <button
@@ -36,7 +38,7 @@ export function LobbyScreen({ isHost, minPlayers, players, onStart, starting, t 
                   : 'bg-surfaceElevated text-textPrimary border-border hover:border-fuchsia/50'
               }`}
             >
-              {label.en}
+              {label[lang] ?? label.en}
             </button>
           ))}
         </div>
@@ -48,7 +50,7 @@ export function LobbyScreen({ isHost, minPlayers, players, onStart, starting, t 
           includeAdult ? 'bg-error/10 border-error text-error' : 'bg-surfaceElevated border-border text-textMuted'
         }`}
       >
-        <span>Include 18+ prompts</span>
+        <span>{t('bkAdult')}</span>
         <span className="text-xs font-bold">{includeAdult ? 'ON' : 'OFF'}</span>
       </button>
 

@@ -19,8 +19,8 @@ export const WORDS = [
   { id: 'item-song', word: { en: 'Item Song', hi: 'आइटम सॉन्ग' }, category: 'bollywood' },
   { id: 'multiplex', word: { en: 'Multiplex', hi: 'मल्टीप्लेक्स' }, category: 'bollywood' },
   { id: 'ipl', word: { en: 'IPL', hi: 'आईपीएल' }, category: 'bollywood' },
-  { id: 'cwc', word: { en: 'Cricket World Cup', hi: 'क्रिकेट विश्व कप' }, category: 'bollywood' },
-  { id: 'playback-singer', word: { en: 'Playback Singer', hi: 'पार्श्व गायक' }, category: 'bollywood' },
+  { id: 'cwc', word: { en: 'Cricket World Cup', hi: 'क्रिकेट वर्ल्ड कप' }, category: 'bollywood' },
+  { id: 'playback-singer', word: { en: 'Playback Singer', hi: 'प्लेबैक सिंगर' }, category: 'bollywood' },
   { id: 'reality-show', word: { en: 'Reality Show', hi: 'रियलिटी शो' }, category: 'bollywood' },
 
   { id: 'taj-mahal', word: { en: 'Taj Mahal', hi: 'ताज महल' }, category: 'places' },
@@ -57,14 +57,14 @@ export const WORDS = [
   { id: 'ice-cream', word: { en: 'Ice Cream', hi: 'आइसक्रीम' }, category: 'food' },
 
   { id: 'doctor', word: { en: 'Doctor', hi: 'डॉक्टर' }, category: 'professions' },
-  { id: 'teacher', word: { en: 'Teacher', hi: 'शिक्षक' }, category: 'professions' },
+  { id: 'teacher', word: { en: 'Teacher', hi: 'टीचर' }, category: 'professions' },
   { id: 'cricketer', word: { en: 'Cricketer', hi: 'क्रिकेटर' }, category: 'professions' },
-  { id: 'police-officer', word: { en: 'Police Officer', hi: 'पुलिस अधिकारी' }, category: 'professions' },
+  { id: 'police-officer', word: { en: 'Police Officer', hi: 'पुलिस वाला' }, category: 'professions' },
   { id: 'chef', word: { en: 'Chef', hi: 'शेफ़' }, category: 'professions' },
   { id: 'farmer', word: { en: 'Farmer', hi: 'किसान' }, category: 'professions' },
   { id: 'pilot', word: { en: 'Pilot', hi: 'पायलट' }, category: 'professions' },
-  { id: 'politician', word: { en: 'Politician', hi: 'राजनेता' }, category: 'professions' },
-  { id: 'auto-driver', word: { en: 'Auto Driver', hi: 'ऑटो चालक' }, category: 'professions' },
+  { id: 'politician', word: { en: 'Politician', hi: 'नेता' }, category: 'professions' },
+  { id: 'auto-driver', word: { en: 'Auto Driver', hi: 'ऑटो वाला' }, category: 'professions' },
   { id: 'software-engineer', word: { en: 'Software Engineer', hi: 'सॉफ्टवेयर इंजीनियर' }, category: 'professions' }
 ]
 

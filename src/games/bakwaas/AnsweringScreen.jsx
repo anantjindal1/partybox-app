@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { MAX_ANSWER_LENGTH } from './voting'
+import { useLang } from '../../store/LangContext'
 
 export function AnsweringScreen({ prompt, answersIn, totalPlayers, onSubmit, submitted, isHost, onRevealNow, currentRound, roundCount, t }) {
+  const { lang } = useLang()
   const [text, setText] = useState('')
 
   function handleSubmit() {
@@ -18,12 +20,12 @@ export function AnsweringScreen({ prompt, answersIn, totalPlayers, onSubmit, sub
 
       <div className="bg-surfaceElevated border-[1.5px] border-fuchsia rounded-2xl p-6 text-center w-full">
         <p className="text-xl font-bold font-display text-textPrimary leading-snug">
-          {prompt?.en ?? '...'}
+          {prompt?.[lang] ?? prompt?.en ?? '...'}
         </p>
       </div>
 
       {submitted ? (
-        <p className="text-sm text-textMuted">Answer locked in — waiting for the room…</p>
+        <p className="text-sm text-textMuted">{t('bkAnswerLocked')}</p>
       ) : (
         <div className="w-full flex flex-col gap-2">
           <input
@@ -32,7 +34,7 @@ export function AnsweringScreen({ prompt, answersIn, totalPlayers, onSubmit, sub
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
             maxLength={MAX_ANSWER_LENGTH}
-            placeholder="Your funniest answer…"
+            placeholder={t('bkPlaceholder')}
             className="w-full min-h-[48px] rounded-xl border-[1.5px] border-border bg-surfaceElevated px-4 text-textPrimary placeholder:text-textMuted focus:outline-none focus:border-fuchsia"
           />
           <button
@@ -40,7 +42,7 @@ export function AnsweringScreen({ prompt, answersIn, totalPlayers, onSubmit, sub
             disabled={!text.trim()}
             className="min-h-[44px] rounded-xl bg-fuchsia text-onFuchsia font-bold disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Submit Answer →
+            {t('bkSubmit')}
           </button>
         </div>
       )}
@@ -55,7 +57,7 @@ export function AnsweringScreen({ prompt, answersIn, totalPlayers, onSubmit, sub
             disabled={answersIn === 0}
             className="min-h-[44px] w-full rounded-xl border-[1.5px] border-fuchsia text-fuchsia font-bold disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Reveal Answers Now →
+            {t('bkRevealNow')}
           </button>
         )}
       </div>

@@ -1,6 +1,8 @@
 import { SecretWordBanner } from './SecretWordBanner'
+import { useLang } from '../../store/LangContext'
 
 export function RevealScreen({ tally, votedOutId, players, actualBhedId, caught, isBhed, secretWord, isHost, onContinue }) {
+  const { t } = useLang()
   const votedOutPlayer = players.find(p => p.id === votedOutId)
   const ranked = [...players]
     .filter(p => (tally[p.id] ?? 0) > 0)
@@ -9,7 +11,7 @@ export function RevealScreen({ tally, votedOutId, players, actualBhedId, caught,
   return (
     <div className="flex-1 flex flex-col items-center py-6 gap-5 max-w-lg w-full mx-auto">
       <SecretWordBanner isBhed={isBhed} secretWord={secretWord} />
-      <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">Vote Results</p>
+      <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">{t('bhVoteResults')}</p>
 
       <div className="flex flex-col gap-1.5 w-full">
         {ranked.map(p => (
@@ -19,20 +21,20 @@ export function RevealScreen({ tally, votedOutId, players, actualBhedId, caught,
           </div>
         ))}
         {ranked.length === 0 && (
-          <p className="text-center text-textMuted text-sm">Nobody voted.</p>
+          <p className="text-center text-textMuted text-sm">{t('bhNobodyVoted')}</p>
         )}
       </div>
 
       <div className="w-full bg-surfaceElevated border-[1.5px] border-emerald rounded-2xl p-6 text-center">
         {votedOutPlayer ? (
           <p className="text-lg font-bold font-display text-textPrimary">
-            The room voted out {votedOutPlayer.name}
+            {t('bhVotedOut', { name: votedOutPlayer.name })}
           </p>
         ) : (
-          <p className="text-lg font-bold font-display text-textPrimary">The vote was tied — no clear consensus</p>
+          <p className="text-lg font-bold font-display text-textPrimary">{t('bhVoteTied')}</p>
         )}
         <p className="text-sm text-textMuted mt-2">
-          {caught ? 'That was the Bhed! Correctly caught.' : 'The Bhed evaded detection.'}
+          {caught ? t('bhCaught') : t('bhEvaded')}
         </p>
       </div>
 
@@ -41,10 +43,10 @@ export function RevealScreen({ tally, votedOutId, players, actualBhedId, caught,
           onClick={onContinue}
           className="min-h-[44px] w-full rounded-xl bg-emerald text-onEmerald font-bold"
         >
-          Continue →
+          {t('continueArrow')}
         </button>
       ) : (
-        <p className="text-xs text-textMuted">Waiting for the host to continue...</p>
+        <p className="text-xs text-textMuted">{t('waitingHostContinueDots')}</p>
       )}
     </div>
   )

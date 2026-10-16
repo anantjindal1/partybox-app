@@ -14,6 +14,7 @@ import { RevealScreen } from './RevealScreen'
 import { BhedGuessScreen } from './BhedGuessScreen'
 import { ResultsScreen } from './ResultsScreen'
 import metadata from './metadata'
+import { useLang } from '../../store/LangContext'
 
 // A stall-safety fallback only — the early-close effect below is what
 // normally advances the room, the instant everyone has actually pressed
@@ -23,6 +24,7 @@ import metadata from './metadata'
 const ROLE_REVEAL_TIMEOUT_MS = 45000
 
 export default function Bhed({ code }) {
+  const { t, lang } = useLang()
   const navigate = useNavigate()
   const {
     room,
@@ -260,7 +262,7 @@ export default function Bhed({ code }) {
   if (!room || !myId) {
     return (
       <div className="flex-1 flex items-center justify-center py-12">
-        <p className="text-textMuted animate-pulse">Connecting…</p>
+        <p className="text-textMuted animate-pulse">{t('connecting')}</p>
       </div>
     )
   }
@@ -271,7 +273,7 @@ export default function Bhed({ code }) {
         {isHost ? (
           <>
             <div>
-              <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">Word Categories</p>
+              <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">{t('bhCategories')}</p>
               <div className="grid grid-cols-1 gap-2">
                 {Object.entries(CATEGORIES).map(([key, label]) => (
                   <button
@@ -283,7 +285,7 @@ export default function Bhed({ code }) {
                         : 'bg-surfaceElevated text-textPrimary border-border'
                     }`}
                   >
-                    {label.en}
+                    {label[lang] ?? label.en}
                   </button>
                 ))}
               </div>
@@ -293,11 +295,11 @@ export default function Bhed({ code }) {
               disabled={players.length < metadata.minPlayers || starting || selectedCategories.length === 0}
               className="min-h-[48px] rounded-xl bg-emerald text-onEmerald font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {starting ? 'Assigning roles...' : 'Start Game →'}
+              {starting ? t('bhAssigning') : t('startGameArrow')}
             </button>
           </>
         ) : (
-          <p className="text-center text-textMuted text-sm">Waiting for host to start...</p>
+          <p className="text-center text-textMuted text-sm">{t('waitingForHostStart')}</p>
         )}
       </div>
     )

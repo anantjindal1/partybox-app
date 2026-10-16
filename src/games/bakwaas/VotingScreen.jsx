@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useLang } from '../../store/LangContext'
 
 export function VotingScreen({ prompt, answers, myId, votesIn, totalPlayers, onVote, voted, isHost, onEndVoting, currentRound, roundCount, t }) {
+  const { lang } = useLang()
   const [localVote, setLocalVote] = useState(null)
   const others = answers.filter((a) => a.authorId !== myId)
 
@@ -18,7 +20,7 @@ export function VotingScreen({ prompt, answers, myId, votesIn, totalPlayers, onV
 
       <div className="bg-surfaceElevated border-[1.5px] border-fuchsia rounded-2xl p-6 text-center w-full">
         <p className="text-xl font-bold font-display text-textPrimary leading-snug">
-          {prompt?.en ?? '...'}
+          {prompt?.[lang] ?? prompt?.en ?? '...'}
         </p>
       </div>
 
@@ -40,7 +42,7 @@ export function VotingScreen({ prompt, answers, myId, votesIn, totalPlayers, onV
         })}
       </div>
 
-      {localVote && <p className="text-sm text-textMuted">Vote locked in — waiting for the room…</p>}
+      {localVote && <p className="text-sm text-textMuted">{t('voteLocked')}</p>}
 
       <div className="w-full flex flex-col items-center gap-3 mt-auto pt-3">
         <p className="text-sm font-semibold text-textMuted">
@@ -52,7 +54,7 @@ export function VotingScreen({ prompt, answers, myId, votesIn, totalPlayers, onV
             disabled={votesIn === 0}
             className="min-h-[44px] w-full rounded-xl border-[1.5px] border-fuchsia text-fuchsia font-bold disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            End Voting &amp; Reveal →
+            {t('endVotingReveal')}
           </button>
         )}
       </div>

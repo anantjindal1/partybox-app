@@ -170,7 +170,7 @@ export default function DumbCharadesOnline({ code }) {
   if (!room || !myId) {
     return (
       <div className={`${DC.bg} min-h-[200px] flex items-center justify-center py-12`}>
-        <p className={`${DC.textMuted} animate-pulse`}>Connecting…</p>
+        <p className={`${DC.textMuted} animate-pulse`}>{tApp('connecting')}</p>
       </div>
     )
   }
@@ -428,7 +428,7 @@ function HostEndGameButton({ onConfirm, t }) {
     return (
       <div className="flex gap-3 justify-center">
         <button onClick={onConfirm} className={`${DC.accent} text-sm font-semibold`}>✓ {t('yesEnd')}</button>
-        <button onClick={() => setConfirming(false)} className={`${DC.textMuted} text-sm`}>Cancel</button>
+        <button onClick={() => setConfirming(false)} className={`${DC.textMuted} text-sm`}>{tApp('cancel')}</button>
       </div>
     )
   }
@@ -482,7 +482,7 @@ function OnlineActorPrepScreen({ roomState, sendAction, setState, isHost, t, dev
   return (
     <div className={`flex flex-col items-center justify-center min-h-screen space-y-5 text-center ${DC.bg} ${DC.text}`}>
       <div className={`${DC.accentBg} rounded-2xl px-6 py-3 w-full text-center`}>
-        <p className="text-onTerracotta font-black text-2xl">🎬 Your Turn to Act!</p>
+        <p className="text-onTerracotta font-black text-2xl">{tApp('dcYourTurnAct')}</p>
         <p className="text-onTerracotta/80 text-sm font-semibold">{currentTeam?.name}</p>
       </div>
       <p className={`${DC.textMuted} text-sm uppercase tracking-wider`}>{t('yourMovieIs')}</p>
@@ -592,7 +592,7 @@ function OnlineActorActingScreen({ roomState, sendAction, setState, isHost, t, d
   return (
     <div className={`flex flex-col min-h-screen ${DC.bg} ${DC.text}`}>
       <div className={`${DC.accentMuted} border ${DC.accentBorder} rounded-xl px-4 py-2 mx-5 mt-3 text-center`}>
-        <p className={`${DC.accent} font-bold text-sm`}>🎭 {currentTeam?.name} · You're Acting</p>
+        <p className={`${DC.accent} font-bold text-sm`}>{tApp('dcYoureActing', { team: currentTeam?.name })}</p>
       </div>
       <div className="flex justify-center pt-4 pb-2">
         <Timer
@@ -801,7 +801,7 @@ function OnlineGameOverScreen({ roomState, myId, room, t, tApp }) {
         })}
       </div>
 
-      <p className={`${DC.textMuted} text-xs`}>Room closes automatically…</p>
+      <p className={`${DC.textMuted} text-xs`}>{tApp('dcRoomCloses')}</p>
     </div>
   )
 }

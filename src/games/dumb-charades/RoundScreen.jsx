@@ -2,8 +2,10 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import CircularTimer from '../../components/CircularTimer'
 import { ACTIONS } from './reducer'
 import { WORD_PACKS } from './wordpacks'
+import { useLang } from '../../store/LangContext'
 
 export function RoundScreen({ state, dispatch }) {
+  const { t } = useLang()
   const { currentWord, turnSkipped, wordQueue, timerSeconds, categories } = state
   const [secondsLeft, setSecondsLeft] = useState(timerSeconds)
   const [flash, setFlash] = useState(null)    // 'correct' | 'skip' | null
@@ -107,7 +109,7 @@ export function RoundScreen({ state, dispatch }) {
         {hints && (
           <div className="w-full bg-bg/70 border border-border/40 rounded-2xl px-4 py-3 space-y-1.5">
             <p className="text-textMuted text-[10px] uppercase tracking-widest mb-2">
-              Actor hints 👁 (only you can see this)
+              {t('dcActorHints')}
             </p>
             <div className="flex items-start gap-2">
               <span className="text-sm w-4 flex-shrink-0">🎭</span>
@@ -119,7 +121,7 @@ export function RoundScreen({ state, dispatch }) {
             </div>
             <div className="flex items-start gap-2">
               <span className="text-sm w-4 flex-shrink-0">🎬</span>
-              <span className="text-textMuted text-xs">{hints.genre}</span>
+              <span className="text-textMuted text-xs">{hints.genre.split(' / ').map(g => t(`genre.${g}`)).join(' / ')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-sm w-4 flex-shrink-0">💬</span>
@@ -131,7 +133,7 @@ export function RoundScreen({ state, dispatch }) {
 
       {/* Words left hint */}
       <p className="text-center text-textSecondary text-xs py-1">
-        {remaining} word{remaining !== 1 ? 's' : ''} left in queue
+        {remaining === 1 ? t('dcWordsLeftOne') : t('dcWordsLeftN', { n: remaining })}
       </p>
 
       {/* Action buttons */}
@@ -140,14 +142,14 @@ export function RoundScreen({ state, dispatch }) {
           onPointerDown={handleCorrect}
           className="w-full py-6 rounded-2xl bg-teal hover:opacity-90 active:scale-[0.98] text-onTeal font-black text-3xl select-none transition-colors"
         >
-          ✓ CORRECT
+          {t('dcCorrect')}
         </button>
 
         <button
           onPointerDown={handleSkip}
           className="w-full py-4 rounded-2xl bg-transparent border border-border hover:border-border text-textMuted hover:text-textSecondary font-bold text-lg select-none transition-colors"
         >
-          ➜ SKIP
+          {t('dcSkip')}
         </button>
       </div>
     </div>

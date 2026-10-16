@@ -2,10 +2,12 @@ import { useEffect } from 'react'
 import { ACTIONS } from './reducer'
 import AdBanner from '../../components/AdBanner'
 import { publicUrl } from '../../lib/publicUrl'
+import { useLang } from '../../store/LangContext'
 
 // ── TurnResultScreen ──────────────────────────────────────────────────────────
 
 export function TurnResultScreen({ state, dispatch }) {
+  const { t } = useLang()
   const { teams, currentTeamIdx, turnOutcome, turnHistory, winPoints } = state
   const currentTeam = teams[currentTeamIdx]
 
@@ -20,7 +22,7 @@ export function TurnResultScreen({ state, dispatch }) {
       <div className="text-center space-y-1">
         <p className="text-5xl">{wasCorrect ? '🎉' : '⏰'}</p>
         <h2 className="text-2xl font-black text-textPrimary">
-          {wasCorrect ? 'Guessed it!' : "Time's up!"}
+          {wasCorrect ? t('dcGuessedIt') : t('dcTimesUp')}
         </h2>
         <p className="text-textMuted text-sm">{currentTeam.name}</p>
       </div>
@@ -28,17 +30,17 @@ export function TurnResultScreen({ state, dispatch }) {
       {/* Outcome card */}
       {wasCorrect ? (
         <div className="bg-teal/15 border border-teal/30 rounded-2xl px-5 py-4 text-center space-y-1">
-          <p className="text-teal font-black text-xl">✓ +1 point 🎉</p>
+          <p className="text-teal font-black text-xl">{t('dcPlusOne')}</p>
           {correctEntry && (
             <p className="text-textPrimary font-bold text-lg">{correctEntry.word}</p>
           )}
         </div>
       ) : (
         <div className="bg-surfaceElevated/60 border border-border/40 rounded-2xl px-5 py-4 text-center space-y-1">
-          <p className="text-textMuted font-semibold text-base">No point this turn</p>
+          <p className="text-textMuted font-semibold text-base">{t('dcNoPoint')}</p>
           {timeoutEntry && (
             <p className="text-textMuted text-sm">
-              Was acting: <span className="text-textSecondary font-semibold">{timeoutEntry.word}</span>
+              {t('dcWasActing', { word: timeoutEntry.word })}
             </p>
           )}
         </div>
@@ -47,7 +49,7 @@ export function TurnResultScreen({ state, dispatch }) {
       {/* Skipped words */}
       {skippedWords.length > 0 && (
         <div className="bg-surfaceElevated/80 border border-border/50 rounded-2xl px-4 py-3">
-          <p className="text-textMuted text-xs uppercase tracking-widest mb-2">Skipped</p>
+          <p className="text-textMuted text-xs uppercase tracking-widest mb-2">{t('dcSkipped')}</p>
           <p className="text-textMuted text-sm leading-relaxed">
             {skippedWords.join(', ')}
           </p>
@@ -88,7 +90,7 @@ export function TurnResultScreen({ state, dispatch }) {
         onClick={() => dispatch({ type: ACTIONS.NEXT_TURN })}
         className="w-full py-4 rounded-2xl bg-terracotta hover:opacity-90 text-onTerracotta font-black text-lg transition-colors active:scale-[0.98]"
       >
-        Next Turn →
+        {t('dcNextTurn')}
       </button>
     </div>
   )
@@ -97,6 +99,7 @@ export function TurnResultScreen({ state, dispatch }) {
 // ── GameEndScreen ─────────────────────────────────────────────────────────────
 
 export function GameEndScreen({ state, dispatch }) {
+  const { t } = useLang()
   const { teams, gameHistory } = state
 
   // Find winner(s)
@@ -130,7 +133,7 @@ export function GameEndScreen({ state, dispatch }) {
   // WhatsApp share
   const winnerNames = winners.map(w => w.name).join(' & ')
   const appUrl = publicUrl('/')
-  const shareText = `${winnerNames} just crushed Dumb Charades! 🎬\nGuessed ${totalCorrect} words in ${totalRounds} rounds.\nThink you can beat us? → ${appUrl}`
+  const shareText = t('dcShareText', { names: winnerNames, n: totalCorrect, rounds: totalRounds, link: appUrl })
   const waUrl = `https://wa.me/+919001290623?text=${encodeURIComponent(shareText)}`
 
   return (
@@ -139,10 +142,10 @@ export function GameEndScreen({ state, dispatch }) {
       <div className="text-center space-y-2">
         <p className="text-6xl">{isTie ? '🤝' : '🏆'}</p>
         <h2 className="text-3xl font-black text-textPrimary">
-          {isTie ? "It's a Tie!" : `${winners[0].name} Wins!`}
+          {isTie ? t('dcTie') : t('dcWins', { name: winners[0].name })}
         </h2>
         {isTie && (
-          <p className="text-textMuted text-sm">{winnerNames} are tied!</p>
+          <p className="text-textMuted text-sm">{t('dcAreTied', { names: winnerNames })}</p>
         )}
       </div>
 
@@ -179,11 +182,11 @@ export function GameEndScreen({ state, dispatch }) {
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-surfaceElevated/80 border border-border/50 rounded-xl p-4 text-center">
           <p className="text-2xl font-black text-teal">{totalCorrect}</p>
-          <p className="text-textMuted text-xs mt-0.5">words guessed</p>
+          <p className="text-textMuted text-xs mt-0.5">{t('dcWordsGuessed')}</p>
         </div>
         <div className="bg-surfaceElevated/80 border border-border/50 rounded-xl p-4 text-center">
           <p className="text-2xl font-black text-terracotta">{totalRounds}</p>
-          <p className="text-textMuted text-xs mt-0.5">turns played</p>
+          <p className="text-textMuted text-xs mt-0.5">{t('dcTurnsPlayed')}</p>
         </div>
       </div>
 
@@ -194,7 +197,7 @@ export function GameEndScreen({ state, dispatch }) {
         rel="noopener noreferrer"
         className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-teal hover:opacity-90 text-onTeal font-bold text-base transition-colors"
       >
-        📱 Share on WhatsApp
+        {t('dcShareWhatsApp')}
       </a>
 
       {/* CTAs — sticky bottom */}
@@ -204,13 +207,13 @@ export function GameEndScreen({ state, dispatch }) {
           onClick={() => dispatch({ type: ACTIONS.PLAY_AGAIN })}
           className="w-full py-4 rounded-2xl bg-terracotta hover:opacity-90 text-onTerracotta font-black text-lg transition-colors active:scale-[0.98]"
         >
-          Play Again 🎭
+          {t('dcPlayAgain')}
         </button>
         <button
           onClick={() => dispatch({ type: 'CHANGE_SETTINGS' })}
           className="w-full py-3 rounded-2xl bg-transparent border border-border hover:border-border text-textMuted hover:text-textSecondary font-bold text-base transition-colors active:scale-[0.98]"
         >
-          Change Settings
+          {t('dcChangeSettings')}
         </button>
       </div>
     </div>

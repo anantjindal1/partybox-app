@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
 import { PRIZES, checkPattern } from './prizes'
 import { getCell, ROWS, COLS } from './ticket'
+import { useLang } from '../../store/LangContext'
 
 const PRIZE_LABELS = {
-  earlyFive: 'Early Five',
-  topLine: 'Top Line',
-  middleLine: 'Middle Line',
-  bottomLine: 'Bottom Line',
-  corners: 'Four Corners',
-  fullHouse: 'Full House'
+  earlyFive: 'tbEarlyFive',
+  topLine: 'tbTopLine',
+  middleLine: 'tbMiddleLine',
+  bottomLine: 'tbBottomLine',
+  corners: 'tbCorners',
+  fullHouse: 'tbFullHouse'
 }
 
 export function PlayerTicket({
@@ -22,6 +23,7 @@ export function PlayerTicket({
   toggleMuted,
   ttsSupported
 }) {
+  const { t } = useLang()
   const calledNumbers = roomState.calledNumbers ?? []
   const prizesWon = roomState.prizesWon ?? {}
   const currentNumber = roomState.currentNumber
@@ -50,7 +52,7 @@ export function PlayerTicket({
   }
 
   if (!ticket) {
-    return <p className="text-center text-textMuted py-8">Waiting for the host to deal tickets...</p>
+    return <p className="text-center text-textMuted py-8">{t('tbWaitTickets')}</p>
   }
 
   const recentCalls = calledNumbers.slice(-6).reverse()
@@ -59,7 +61,7 @@ export function PlayerTicket({
     <div className="flex flex-col gap-5 max-w-lg w-full mx-auto pt-2 pb-8">
       {/* Current number + recent calls */}
       <div className="flex flex-col items-center gap-2 bg-surfaceElevated border border-border/60 rounded-2xl p-5">
-        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">Just Called</p>
+        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">{t('tbJustCalled')}</p>
         <p className="text-5xl font-black font-display text-sapphire">{currentNumber ?? '—'}</p>
         {recentCalls.length > 1 && (
           <div className="flex gap-1.5 flex-wrap justify-center mt-1">
@@ -70,14 +72,14 @@ export function PlayerTicket({
         )}
         {ttsSupported && (
           <button onClick={toggleMuted} className="text-xs text-textMuted underline mt-1">
-            {muted ? 'Unmute announcer' : 'Mute announcer'}
+            {muted ? t('tbUnmute') : t('tbMute')}
           </button>
         )}
       </div>
 
       {/* Ticket */}
       <div>
-        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">Your Ticket</p>
+        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">{t('tbYourTicket')}</p>
         <div className="grid grid-rows-3 gap-1 bg-surfaceElevated border-[1.5px] border-sapphire/60 rounded-xl p-2">
           {Array.from({ length: ROWS }, (_, r) => (
             <div key={r} className="grid grid-cols-9 gap-1">
@@ -113,7 +115,7 @@ export function PlayerTicket({
 
       {/* Claims */}
       <div>
-        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">Claim a Prize</p>
+        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">{t('tbClaimPrize')}</p>
         <div className="flex flex-col gap-1.5">
           {PRIZES.map(id => {
             const won = prizesWon[id]
@@ -130,13 +132,13 @@ export function PlayerTicket({
               status = `Won: ${won.playerName}`
             } else if (pending) {
               style = 'bg-sapphire/20 text-sapphire border-[1.5px] border-sapphire'
-              status = 'Waiting for host...'
+              status = t('tbWaitHost')
             } else if (assistMode && patternMatches) {
               style = 'bg-sapphire text-onSapphire'
-              status = 'Claim →'
+              status = t('tbClaim')
             } else if (!assistMode) {
               style = 'bg-surfaceElevated text-sapphire border-[1.5px] border-sapphire'
-              status = 'Claim →'
+              status = t('tbClaim')
             }
 
             return (
@@ -146,7 +148,7 @@ export function PlayerTicket({
                 disabled={!claimable || !!myPendingClaim}
                 className={`min-h-[44px] rounded-xl px-4 flex items-center justify-between font-semibold text-sm transition-colors disabled:cursor-not-allowed ${style}`}
               >
-                <span>{PRIZE_LABELS[id]}</span>
+                <span>{t(PRIZE_LABELS[id])}</span>
                 <span className="text-xs">{status}</span>
               </button>
             )

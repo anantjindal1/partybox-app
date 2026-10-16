@@ -11,17 +11,19 @@ import { awardXP } from '../../services/xp'
 import { writeGameStats } from '../../services/stats'
 import { awardBadge } from '../../services/profile'
 import metadata from './metadata'
+import { useLang } from '../../store/LangContext'
 
 const PRIZE_LABELS = {
-  earlyFive: 'Early Five',
-  topLine: 'Top Line',
-  middleLine: 'Middle Line',
-  bottomLine: 'Bottom Line',
-  corners: 'Four Corners',
-  fullHouse: 'Full House'
+  earlyFive: 'tbEarlyFive',
+  topLine: 'tbTopLine',
+  middleLine: 'tbMiddleLine',
+  bottomLine: 'tbBottomLine',
+  corners: 'tbCorners',
+  fullHouse: 'tbFullHouse'
 }
 
 export default function Tambola({ code }) {
+  const { lang, t } = useLang()
   const navigate = useNavigate()
   const {
     room,
@@ -46,7 +48,7 @@ export default function Tambola({ code }) {
   const xpAwarded = useRef(false)
   const confettiFired = useRef(false)
 
-  const { muted, toggleMuted, supported: ttsSupported } = useNumberAnnouncer(roomState.currentNumber)
+  const { muted, toggleMuted, supported: ttsSupported } = useNumberAnnouncer(roomState.currentNumber, lang)
 
   function persist(overrides) {
     return setState({ ...roomStateRef.current, ...overrides })
@@ -137,7 +139,7 @@ export default function Tambola({ code }) {
       await persist({
         prizesWon: {
           ...prizesWon,
-          [prizeId]: { playerId, playerName: player?.name ?? 'Player', claimedAt: Date.now() }
+          [prizeId]: { playerId, playerName: player?.name ?? t('player'), claimedAt: Date.now() }
         }
       })
     }
@@ -184,7 +186,7 @@ export default function Tambola({ code }) {
   if (!room || !myId) {
     return (
       <div className="flex-1 flex items-center justify-center py-12">
-        <p className="text-textMuted animate-pulse">Connecting…</p>
+        <p className="text-textMuted animate-pulse">{t('connecting')}</p>
       </div>
     )
   }
@@ -196,8 +198,8 @@ export default function Tambola({ code }) {
           <>
             <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-surfaceElevated border border-border/60">
               <div>
-                <p className="font-semibold text-textPrimary text-sm">Assist Mode</p>
-                <p className="text-xs text-textMuted">Highlights called numbers on tickets &amp; shows eligible claims</p>
+                <p className="font-semibold text-textPrimary text-sm">{t('tbAssist')}</p>
+                <p className="text-xs text-textMuted">{t('tbAssistDesc')}</p>
               </div>
               <button
                 onClick={() => setAssistChoice(v => !v)}
@@ -205,7 +207,7 @@ export default function Tambola({ code }) {
                   assistChoice ? 'bg-sapphire text-onSapphire' : 'border-[1.5px] border-border text-textMuted'
                 }`}
               >
-                {assistChoice ? 'On' : 'Off'}
+                {assistChoice ? t('on') : t('off')}
               </button>
             </div>
             <button
@@ -213,11 +215,11 @@ export default function Tambola({ code }) {
               disabled={players.length < metadata.minPlayers || starting}
               className="min-h-[48px] rounded-xl bg-sapphire text-onSapphire font-bold text-base disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {starting ? 'Dealing tickets...' : 'Start Game →'}
+              {starting ? t('tbDealing') : t('startGameArrow')}
             </button>
           </>
         ) : (
-          <p className="text-center text-textMuted text-sm">Waiting for host to start...</p>
+          <p className="text-center text-textMuted text-sm">{t('waitingForHostStart')}</p>
         )}
       </div>
     )
@@ -266,15 +268,15 @@ export default function Tambola({ code }) {
     const prizesWon = roomState.prizesWon ?? {}
     return (
       <div className="flex flex-col gap-5 max-w-lg w-full mx-auto pt-2 pb-8">
-        <h2 className="text-2xl font-black font-display text-textPrimary text-center">Final Prizes</h2>
+        <h2 className="text-2xl font-black font-display text-textPrimary text-center">{t('tbFinalPrizes')}</h2>
         <div className="flex flex-col gap-1.5">
           {PRIZES.map(id => {
             const won = prizesWon[id]
             return (
               <div key={id} className="flex items-center justify-between px-4 py-3 rounded-xl bg-surfaceElevated border border-border/60">
-                <span className="font-semibold text-textPrimary">{PRIZE_LABELS[id]}</span>
+                <span className="font-semibold text-textPrimary">{t(PRIZE_LABELS[id])}</span>
                 <span className={won ? 'font-bold text-sapphire' : 'text-textMuted'}>
-                  {won ? won.playerName : 'Unclaimed'}
+                  {won ? won.playerName : t('tbUnclaimed')}
                 </span>
               </div>
             )
@@ -284,7 +286,7 @@ export default function Tambola({ code }) {
           onClick={() => navigate('/')}
           className="min-h-[44px] rounded-xl bg-sapphire text-onSapphire font-bold"
         >
-          Home
+          {t('home')}
         </button>
       </div>
     )

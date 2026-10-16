@@ -1,12 +1,13 @@
 import { PRIZES, isClaimValid } from './prizes'
+import { useLang } from '../../store/LangContext'
 
 const PRIZE_LABELS = {
-  earlyFive: 'Early Five',
-  topLine: 'Top Line',
-  middleLine: 'Middle Line',
-  bottomLine: 'Bottom Line',
-  corners: 'Four Corners',
-  fullHouse: 'Full House'
+  earlyFive: 'tbEarlyFive',
+  topLine: 'tbTopLine',
+  middleLine: 'tbMiddleLine',
+  bottomLine: 'tbBottomLine',
+  corners: 'tbCorners',
+  fullHouse: 'tbFullHouse'
 }
 
 export function HostDashboard({
@@ -25,27 +26,28 @@ export function HostDashboard({
   toggleMuted,
   ttsSupported
 }) {
+  const { t } = useLang()
   const calledNumbers = roomState.calledNumbers ?? []
   const prizesWon = roomState.prizesWon ?? {}
   const powerDrawsRemaining = roomState.powerDrawsRemaining ?? 0
   const allCalled = calledNumbers.length >= 90
 
   function playerName(playerId) {
-    return players.find(p => p.id === playerId)?.name ?? 'Player'
+    return players.find(p => p.id === playerId)?.name ?? t('player')
   }
 
   return (
     <div className="flex flex-col gap-6 max-w-2xl w-full mx-auto pt-2 pb-8">
       {/* Draw controls */}
       <div className="flex flex-col items-center gap-3 bg-surfaceElevated border border-border/60 rounded-2xl p-6">
-        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">Current Number</p>
+        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider">{t('tbCurrent')}</p>
         <p className="text-6xl font-black font-display text-sapphire">
           {roomState.currentNumber ?? '—'}
         </p>
 
         {powerCandidates ? (
           <div className="w-full">
-            <p className="text-center text-sm font-semibold text-textMuted mb-2">Power Draw — pick one</p>
+            <p className="text-center text-sm font-semibold text-textMuted mb-2">{t('tbPowerPick')}</p>
             <div className="grid grid-cols-3 gap-2">
               {powerCandidates.map(n => (
                 <button
@@ -65,28 +67,28 @@ export function HostDashboard({
               disabled={drawing || allCalled}
               className="flex-1 min-h-[48px] rounded-xl bg-sapphire text-onSapphire font-bold disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {allCalled ? 'All numbers called' : 'Draw Next Number'}
+              {allCalled ? t('tbAllCalled') : t('tbDrawNext')}
             </button>
             <button
               onClick={onPowerDraw}
               disabled={drawing || allCalled || powerDrawsRemaining === 0}
               className="min-h-[48px] px-4 rounded-xl border-[1.5px] border-sapphire text-sapphire font-bold disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Power ×{powerDrawsRemaining}
+              {t('tbPower', { n: powerDrawsRemaining })}
             </button>
           </div>
         )}
 
         {ttsSupported && (
           <button onClick={toggleMuted} className="text-xs text-textMuted underline">
-            {muted ? 'Unmute announcer' : 'Mute announcer'}
+            {muted ? t('tbUnmute') : t('tbMute')}
           </button>
         )}
       </div>
 
       {/* 1-90 board */}
       <div>
-        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">Called Numbers</p>
+        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">{t('tbCalled')}</p>
         <div className="grid grid-cols-10 gap-1">
           {Array.from({ length: 90 }, (_, i) => i + 1).map(n => (
             <div
@@ -105,7 +107,7 @@ export function HostDashboard({
 
       {/* Prize checklist */}
       <div>
-        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">Prizes</p>
+        <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">{t('tbPrizes')}</p>
         <div className="flex flex-col gap-1.5">
           {PRIZES.map(id => {
             const won = prizesWon[id]
@@ -116,9 +118,9 @@ export function HostDashboard({
                   won ? 'bg-sapphire/10 text-textPrimary' : 'bg-surfaceElevated text-textSecondary border border-border/60'
                 }`}
               >
-                <span className="font-semibold">{PRIZE_LABELS[id]}</span>
+                <span className="font-semibold">{t(PRIZE_LABELS[id])}</span>
                 <span className={won ? 'font-bold text-sapphire' : 'text-textMuted'}>
-                  {won ? won.playerName : 'Unclaimed'}
+                  {won ? won.playerName : t('tbUnclaimed')}
                 </span>
               </div>
             )
@@ -129,7 +131,7 @@ export function HostDashboard({
       {/* Claims queue */}
       {claims.length > 0 && (
         <div>
-          <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">Claims to Review</p>
+          <p className="text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">{t('tbClaimsReview')}</p>
           <div className="flex flex-col gap-2">
             {claims.map(claim => {
               const ticket = roomState.tickets?.[claim.playerId]
@@ -139,11 +141,11 @@ export function HostDashboard({
                   <div className="text-sm">
                     <div>
                       <span className="font-bold">{playerName(claim.playerId)}</span> claims{' '}
-                      <span className="font-bold text-sapphire">{PRIZE_LABELS[claim.payload.prizeId]}</span>
+                      <span className="font-bold text-sapphire">{t(PRIZE_LABELS[claim.payload.prizeId])}</span>
                     </div>
                     {valid !== null && (
                       <span className={`text-xs font-bold ${valid ? 'text-sapphire' : 'text-error'}`}>
-                        {valid ? '✓ Checks out' : '✗ Doesn\'t match called numbers'}
+                        {valid ? t('tbChecksOut') : t('tbNoMatch')}
                       </span>
                     )}
                   </div>
@@ -152,13 +154,13 @@ export function HostDashboard({
                       onClick={() => onApproveClaim(claim.playerId, claim.payload.prizeId)}
                       className="min-h-[36px] px-3 rounded-lg bg-sapphire text-onSapphire text-xs font-bold"
                     >
-                      Approve
+                      {t('tbApprove')}
                     </button>
                     <button
                       onClick={() => onRejectClaim(claim.playerId)}
                       className="min-h-[36px] px-3 rounded-lg border border-error/60 text-error text-xs font-bold"
                     >
-                      Reject
+                      {t('tbReject')}
                     </button>
                   </div>
                 </div>
@@ -172,7 +174,7 @@ export function HostDashboard({
         onClick={onEndGame}
         className="min-h-[44px] rounded-xl border-[1.5px] border-error text-error font-bold"
       >
-        End Game →
+        {t('tbEndGame')}
       </button>
     </div>
   )
