@@ -134,7 +134,7 @@ export function GameEndScreen({ state, dispatch }) {
   const winnerNames = winners.map(w => w.name).join(' & ')
   const appUrl = publicUrl('/')
   const shareText = t('dcShareText', { names: winnerNames, n: totalCorrect, rounds: totalRounds, link: appUrl })
-  const waUrl = `https://wa.me/+919001290623?text=${encodeURIComponent(shareText)}`
+  const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`
 
   return (
     <div className="px-4 py-6 space-y-5 pb-36">
