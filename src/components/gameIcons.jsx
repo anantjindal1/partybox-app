@@ -72,6 +72,16 @@ export function RaisedHandIcon(props) {
   )
 }
 
+export function BottleIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M14.5 3.5l6 6" />
+      <path d="M15.5 4.5l-2 2.5-4.5 1.5-5 5a2.8 2.8 0 004 4l5-5 1.5-4.5 2.5-2" />
+      <path d="M6.5 14.5l3 3" />
+    </svg>
+  )
+}
+
 export function TicketIcon(props) {
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -259,6 +269,8 @@ export const GAME_ICONS = {
   'raja-mantri': CrownIcon,
   'sabse-zyada-kaun': RaisedHandIcon,
   'sabse-zyada-kaun-offline': RaisedHandIcon,
+  'truth-dare': BottleIcon,
+  'truth-dare-offline': BottleIcon,
   'tambola': TicketIcon,
   'bhed': MagnifyingGlassIcon,
   'bluff': MaskIcon,

@@ -25,6 +25,8 @@ import donkeyMeta from './donkey/metadata.js'
 import bakwaasAdaalatMeta from './bakwaas-adaalat/metadata.js'
 import chugliDetectiveMeta from './chugli-detective/metadata.js'
 import codenamesMeta from './codenames/metadata.js'
+import truthDareMeta from './truth-dare/metadata.js'
+import truthDareOfflineMeta from './truth-dare/metadata-offline.js'
 
 // Lazy-loaded game components — each game is a separate JS chunk.
 // This keeps the initial bundle small for low-end devices.
@@ -54,6 +56,8 @@ const Donkey                     = lazy(() => import('./donkey/index.jsx'))
 const BakwaasAdaalat              = lazy(() => import('./bakwaas-adaalat/index.jsx'))
 const ChugliDetective               = lazy(() => import('./chugli-detective/index.jsx'))
 const Codenames                       = lazy(() => import('./codenames/index.jsx'))
+const TruthDare                       = lazy(() => import('./truth-dare/index.jsx'))
+const TruthDareOffline                = lazy(() => import('./truth-dare/TruthDareOffline.jsx'))
 
 export const games = [
   { ...firstBellMeta,           Component: FirstBell },
@@ -81,7 +85,9 @@ export const games = [
   { ...donkeyMeta,                        Component: Donkey },
   { ...bakwaasAdaalatMeta,                 Component: BakwaasAdaalat },
   { ...chugliDetectiveMeta,                 Component: ChugliDetective },
-  { ...codenamesMeta,                        Component: Codenames }
+  { ...codenamesMeta,                        Component: Codenames },
+  { ...truthDareMeta,                        Component: TruthDare },
+  { ...truthDareOfflineMeta,                 Component: TruthDareOffline },
 ]
 
 export function getGame(slug) {

@@ -1,4 +1,4 @@
-import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, PartnershipIcon, SevenIcon, MendikotIcon, TargetIcon, RotationIcon, DonkeyIcon, SoloIcon, PartyIcon, SignalIcon, MegaphoneIcon, DetectiveHatIcon, GridIcon } from '../../components/gameIcons'
+import { BoltIcon, ClapperboardIcon, BellIcon, CrownIcon, RaisedHandIcon, BottleIcon, TicketIcon, MagnifyingGlassIcon, MaskIcon, SpeechBubbleIcon, DoorExitIcon, CallBreakIcon, GavelIcon, PartnershipIcon, SevenIcon, MendikotIcon, TargetIcon, RotationIcon, DonkeyIcon, SoloIcon, PartyIcon, SignalIcon, MegaphoneIcon, DetectiveHatIcon, GridIcon } from '../../components/gameIcons'
 
 // Each flagship game owns one accent color as its identity — used consistently
 // for its card border, mode label, and CTA. Literal class strings (not
@@ -197,6 +197,20 @@ export const VISIBLE_GAMES = [
     description: 'Who fits the prompt best? The room decides',
     playersPill: '3-12 players',
     timePill: '~10 mins',
+    cta: 'Play →',
+  },
+  {
+    dualMode: true,
+    offlineSlug: 'truth-dare-offline',
+    onlineSlug: 'truth-dare',
+    icon: BottleIcon,
+    title: 'Truth or Dare',
+    modeBadge: 'Party',
+    modeIcon: PartyIcon,
+    accent: 'rose',
+    description: 'Spin the bottle, pick truth or dare, and let the room rate you',
+    playersPill: '2-12 players',
+    timePill: '~15 mins',
     cta: 'Play →',
   },
   {
@@ -417,7 +431,7 @@ export const CATEGORIES = [
 
 const CATEGORY_BY_SLUG = {
   cards: ['bluff', 'bhabhi', 'call-break', 'judgement', 'court-piece', 'satti', 'mendikot', 'teen-do-paanch', 'teri', 'donkey'],
-  party: ['dumb-charades-offline', 'sabse-zyada-kaun-offline', 'bakwaas', 'bakwaas-adaalat', 'chugli-detective', 'bhed', 'raja-mantri', 'codenames'],
+  party: ['dumb-charades-offline', 'sabse-zyada-kaun-offline', 'truth-dare-offline', 'bakwaas', 'bakwaas-adaalat', 'chugli-detective', 'bhed', 'raja-mantri', 'codenames'],
   quiz: ['thinkfast', 'firstbell', 'tambola'],
 }
 
