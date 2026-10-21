@@ -2,13 +2,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Every read and write needs a signed-in user. The app signs in
+    // anonymously on launch; the purge job and tools/ dashboards do too.
+
     // ── ROOMS ──────────────────────────────────────────────
-    // Anyone can create/join/read rooms (multiplayer needs this)
+    // Any player can create/join/read rooms (multiplayer needs this)
     match /rooms/{roomId} {
-      allow read, write: if true;
+      allow read, write: if request.auth != null;
 
       match /actions/{actionId} {
-        allow read, write: if true;
+        allow read, write: if request.auth != null;
       }
 
       // Emoji reactions (ReactionBar) and voice clips (VoiceBroadcastButton).
@@ -16,58 +19,56 @@ service cloud.firestore {
       // the writes failed silently. Voice clips are base64 audio; the size
       // cap matches the client's own MAX_BASE64_BYTES safety net.
       match /reactions/{playerId} {
-        allow read, write: if true;
+        allow read, write: if request.auth != null;
       }
 
       match /voice/{playerId} {
-        allow read, delete: if true;
-        allow create, update: if request.resource.data.url.size() <= 700000;
+        allow read, delete: if request.auth != null;
+        allow create, update: if request.auth != null && request.resource.data.url.size() <= 700000;
       }
     }
 
     // ── PROFILES ───────────────────────────────────────────
-    // Device can read/write its own profile only
     match /profiles/{profileId} {
-      allow read, write: if true;
+      allow read, write: if request.auth != null;
 
       match /stats/{statId} {
-        allow read, write: if true;
+        allow read, write: if request.auth != null;
       }
     }
 
     // ── QUESTION STATS ─────────────────────────────────────
-    // Anyone can read and write (tracking question frequency)
+    // Tracks question frequency
     match /question_stats/{docId} {
-      allow read, write: if true;
+      allow read, write: if request.auth != null;
     }
 
     // ── ANALYTICS ──────────────────────────────────────────
-    // Anyone can write (fire and forget from client)
-    // No client reads needed — dashboard uses REST API
+    // Fire-and-forget writes from the client; the dashboard reads via REST
     match /analytics_events/{docId} {
-      allow read, write: if true;
+      allow read, write: if request.auth != null;
     }
 
     match /analytics_devices/{docId} {
-      allow read, write: if true;
+      allow read, write: if request.auth != null;
     }
 
     match /analytics_daily/{docId} {
-      allow read, write: if true;
+      allow read, write: if request.auth != null;
     }
 
     // ── DC WORD STATS ───────────────────────────────────────
     // Dashboard reads word stats; clients write on every word shown/result
     match /dc_word_stats/{docId} {
-      allow write: if true;
-      allow read: if true;
+      allow write: if request.auth != null;
+      allow read: if request.auth != null;
     }
 
     // ── DC SESSION STATS ────────────────────────────────────
     // Dashboard reads via REST API; clients write (aggregate daily counters)
     match /dc_session_stats/{docId} {
-      allow write: if true;
-      allow read: if true;
+      allow write: if request.auth != null;
+      allow read: if request.auth != null;
     }
 
     // ── EVERYTHING ELSE ────────────────────────────────────

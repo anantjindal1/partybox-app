@@ -227,22 +227,32 @@
 
 <script>
   // ── Config ──────────────────────────────────────────────────────────────────
-  // NOTE: The Firestore REST API requires the collection to allow public reads.
-  // If reads are restricted, you will see a 403 error below.
+  // NOTE: Reads need Anonymous sign-in enabled; a 403 below means the deployed
+  // rules or the sign-in setting are off.
   const PROJECT_ID = 'partybox-cd9ab'
+  const API_KEY    = 'AIzaSyBOFUZfmLnag5_kgwMgvTACz9X3Uv7euLs'
   const BASE_URL   = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`
 
   let allRows = []
   let currentFilter = 'all'
 
   // ── Fetch ────────────────────────────────────────────────────────────────────
+  // Firestore rules require sign-in, so the dashboard signs in anonymously.
+  async function idToken() {
+    const res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ returnSecureToken: true })
+    })
+    if (!res.ok) throw new Error(`Anonymous sign-in failed: HTTP ${res.status}`)
+    return (await res.json()).idToken
+  }
+  const authHeaders = idToken().then(t => ({ Authorization: `Bearer ${t}` }))
   async function loadData() {
     document.getElementById('tbody').innerHTML = '<tr><td colspan="5" class="loading">Loading…</td></tr>'
     document.getElementById('errorMsg').style.display = 'none'
 
     try {
       const url = `${BASE_URL}/question_stats?pageSize=300`
-      const res = await fetch(url)
+      const res = await fetch(url, { headers: await authHeaders })
       if (!res.ok) {
         const body = await res.text()
         throw new Error(`HTTP ${res.status}: ${body.substring(0, 200)}`)

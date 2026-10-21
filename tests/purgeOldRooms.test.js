@@ -8,6 +8,7 @@ const DOCS = '/documents/'
 function fakeFirestore(docs) {
   const deleted = []
   const fetchFn = async (url, { method }) => {
+    if (url.includes('accounts:signUp')) return { ok: true, json: async () => ({ idToken: 't' }) }
     const path = decodeURIComponent(url.split(DOCS)[1].split('?')[0])
     if (method === 'DELETE') {
       deleted.push(path)

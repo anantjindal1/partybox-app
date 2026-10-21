@@ -1,8 +1,8 @@
 /**
  * Deletes rooms (and their actions / reactions / voice sub-collections)
- * older than MAX_AGE_HOURS. Talks to Firestore over REST
- * with the public web API key, which works because the security rules
- * allow it — see .github/workflows/purge-rooms.yml, which runs this daily.
+ * older than MAX_AGE_HOURS. Talks to Firestore over REST as an anonymous
+ * Firebase user, since the security rules require sign-in — see
+ * .github/workflows/purge-rooms.yml, which runs this daily.
  *
  * Env: FIREBASE_PROJECT_ID, FIREBASE_API_KEY, MAX_AGE_HOURS (default 24),
  * DRY_RUN=1 to count without deleting.
@@ -15,13 +15,24 @@ export function isOlderThan(createTime, cutoffMs) {
   return !!createTime && Date.parse(createTime) < cutoffMs
 }
 
+export async function anonIdToken(fetchFn, apiKey) {
+  const res = await fetchFn(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ returnSecureToken: true })
+  })
+  if (!res.ok) throw new Error(`anonymous sign-in -> ${res.status}`)
+  return (await res.json()).idToken
+}
+
 export async function purgeOldRooms({ fetchFn = fetch, projectId, apiKey, maxAgeHours = 24, dryRun = false, now = Date.now(), log = () => {} }) {
   const base = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents`
   const cutoffMs = now - maxAgeHours * 60 * 60 * 1000
   const stats = { rooms: 0, subDocs: 0, skipped: 0 }
+  const headers = { Authorization: `Bearer ${await anonIdToken(fetchFn, apiKey)}` }
 
   async function request(method, path, query = '') {
-    const res = await fetchFn(`${base}/${path}?key=${apiKey}${query}`, { method })
+    const res = await fetchFn(`${base}/${path}?key=${apiKey}${query}`, { method, headers })
     if (!res.ok) throw Object.assign(new Error(`${method} ${path} -> ${res.status}`), { status: res.status })
     return method === 'GET' ? res.json() : null
   }

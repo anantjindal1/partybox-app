@@ -252,12 +252,9 @@
 
 <script>
   // ── Config ────────────────────────────────────────────────────────────────────
-  // NOTE: Reads require Firestore security rules to allow public reads on these
-  // collections. If you see 403 errors, check your rules AND that API_KEY below
-  // is a valid key for this Firebase project (the Firestore REST API rejects
-  // unauthenticated requests before your security rules are even evaluated —
-  // this is a public, restricted client key, same as the one already used by
-  // tools/dc-stats.html, safe to expose per Firebase's own docs).
+  // NOTE: API_KEY is the public, restricted web client key (safe to expose per
+  // Firebase's docs). If you see 403 errors, check that Anonymous sign-in is
+  // enabled and that the deployed rules match firestore.rules.
   const PROJECT_ID = 'partybox-cd9ab'
   const API_KEY = 'AIzaSyBOFUZfmLnag5_kgwMgvTACz9X3Uv7euLs'
   const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`
@@ -268,6 +265,15 @@
   let deviceDocs = []
 
   // ── Fetch helpers ─────────────────────────────────────────────────────────────
+  // Firestore rules require sign-in, so the dashboard signs in anonymously.
+  async function idToken() {
+    const res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ returnSecureToken: true })
+    })
+    if (!res.ok) throw new Error(`Anonymous sign-in failed: HTTP ${res.status}`)
+    return (await res.json()).idToken
+  }
+  const authHeaders = idToken().then(t => ({ Authorization: `Bearer ${t}` }))
   // Pages through the whole collection — analytics_events in particular
   // will exceed a single 300-doc page fast, and silently truncating it
   // would quietly under-count everything downstream (unique users,
@@ -277,7 +283,7 @@
     let pageToken = ''
     do {
       const url = `${BASE}/${path}?key=${API_KEY}&pageSize=300${params}${pageToken ? '&pageToken=' + pageToken : ''}`
-      const res = await fetch(url)
+      const res = await fetch(url, { headers: await authHeaders })
       if (!res.ok) {
         const body = await res.text()
         throw new Error(`HTTP ${res.status} on ${path}: ${body.substring(0, 200)}`)

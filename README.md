@@ -29,31 +29,15 @@ cp .env.example .env
 3. Add a Web App to your project (</> icon)
 4. Copy the `firebaseConfig` values into your `.env` file
 
-### 3. Enable Firestore
+### 3. Enable Firestore and Anonymous sign-in
 
 In the Firebase Console:
-1. Go to **Build → Firestore Database**
-2. Click **Create database**
-3. Choose **Start in test mode** (or apply the security rules below)
-4. Select a region and click **Enable**
+1. **Build → Firestore Database → Create database** in production mode, then pick a region
+2. **Build → Authentication → Sign-in method** → enable **Anonymous**. The app signs every device in anonymously, and the security rules reject unauthenticated requests
 
 ### 4. Firestore Security Rules
 
-Apply these rules in **Firestore → Rules** tab:
-
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /rooms/{code} {
-      allow read, write: if true;   // open for now — tighten before prod
-    }
-    match /profiles/{userId} {
-      allow read, write: if true;
-    }
-  }
-}
-```
+The rules live in [`firestore.rules`](firestore.rules): every read and write requires a signed-in user, voice clips are size-capped, and any collection not listed is denied. Paste that file into **Firestore → Rules** and publish.
 
 ## Development
 

@@ -282,12 +282,22 @@ function fsDoc(fields) {
   return out
 }
 
+// Firestore rules require sign-in, so the dashboard signs in anonymously.
+async function idToken() {
+  const res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ returnSecureToken: true })
+  })
+  if (!res.ok) throw new Error(`Anonymous sign-in failed: HTTP ${res.status}`)
+  return (await res.json()).idToken
+}
+const authHeaders = idToken().then(t => ({ Authorization: `Bearer ${t}` }))
+
 async function fetchCollection(colName) {
   const docs = []
   let pageToken = ''
   do {
     const url = `${BASE}/${colName}?key=${API_KEY}&pageSize=300${pageToken ? '&pageToken=' + pageToken : ''}`
-    const res  = await fetch(url)
+    const res  = await fetch(url, { headers: await authHeaders })
     if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${colName}`)
     const json = await res.json()
     for (const d of json.documents ?? []) {
