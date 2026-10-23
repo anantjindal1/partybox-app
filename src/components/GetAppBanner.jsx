@@ -2,9 +2,7 @@ import { useState } from 'react'
 import { Capacitor } from '@capacitor/core'
 import { useLang } from '../store/LangContext'
 
-// Off until the app is in production on Play: closed-test links 404 for
-// anyone who isn't an opted-in tester.
-const PLAY_STORE_LIVE = false
+const PLAY_STORE_LIVE = true
 const PLAY_URL = 'https://play.google.com/store/apps/details?id=com.anantjindal.partybox'
 const DISMISS_KEY = 'partybox_get_app_dismissed'
 
